@@ -59,7 +59,7 @@ Each task was committed atomically:
 1. **Task 1: 세션 관리 라이브러리 구현** - `8c72099` (feat)
 2. **Task 2: Data Access Layer 및 Middleware 구현** - `df12784` (feat)
 
-**Plan metadata:** TBD (docs: complete plan)
+**Plan metadata:** `b124f0d` (docs: complete plan)
 
 _Note: TDD tasks may have multiple commits (test → feat → refactor)_
 
