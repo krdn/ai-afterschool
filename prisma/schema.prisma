@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Teacher {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  students            Student[]
+  passwordResetTokens PasswordResetToken[]
+}
+
+model Student {
+  id               String    @id @default(cuid())
+  name             String
+  birthDate        DateTime
+  phone            String?
+  school           String
+  grade            Int
+  targetUniversity String?
+  targetMajor      String?
+  bloodType        BloodType?
+
+  teacherId        String
+  teacher          Teacher   @relation(fields: [teacherId], references: [id])
+
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  // PIPA compliance: retention period
+  expiresAt        DateTime?
+
+  @@index([teacherId])
+  @@index([name])
+  @@index([school])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+
+  teacherId String
+  teacher   Teacher  @relation(fields: [teacherId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+enum BloodType {
+  A
+  B
+  AB
+  O
+}
