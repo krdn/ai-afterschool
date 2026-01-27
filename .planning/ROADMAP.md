@@ -40,7 +40,7 @@ Plans:
 - [x] 01-02-PLAN.md — 인증 인프라 (세션, DAL, Middleware)
 - [x] 01-03-PLAN.md — 로그인/로그아웃 기능
 - [x] 01-04-PLAN.md — 학생 CRUD 기능
-- [ ] 01-05-PLAN.md — 비밀번호 재설정
+- [x] 01-05-PLAN.md — 비밀번호 재설정
 - [x] 01-06-PLAN.md — 학생 목록 UI (TanStack Table)
 - [ ] 01-07-PLAN.md — 통합 검증
 
@@ -138,7 +138,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Authentication | 5/7 | In progress | - |
+| 1. Foundation & Authentication | 6/7 | In progress | - |
 | 2. File Infrastructure | 0/TBD | Not started | - |
 | 3. Calculation Analysis | 0/TBD | Not started | - |
 | 4. MBTI Analysis | 0/TBD | Not started | - |
