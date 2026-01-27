@@ -38,10 +38,10 @@ Decimal phases appear between their surrounding integers in numeric order.
 Plans:
 - [x] 01-01-PLAN.md — 프로젝트 설정 및 DB 스키마
 - [x] 01-02-PLAN.md — 인증 인프라 (세션, DAL, Middleware)
-- [ ] 01-03-PLAN.md — 로그인/로그아웃 기능
-- [ ] 01-04-PLAN.md — 학생 CRUD 기능
+- [x] 01-03-PLAN.md — 로그인/로그아웃 기능
+- [x] 01-04-PLAN.md — 학생 CRUD 기능
 - [ ] 01-05-PLAN.md — 비밀번호 재설정
-- [ ] 01-06-PLAN.md — 학생 목록 UI (TanStack Table)
+- [x] 01-06-PLAN.md — 학생 목록 UI (TanStack Table)
 - [ ] 01-07-PLAN.md — 통합 검증
 
 ### Phase 2: File Infrastructure
@@ -138,7 +138,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Authentication | 2/7 | In progress | - |
+| 1. Foundation & Authentication | 5/7 | In progress | - |
 | 2. File Infrastructure | 0/TBD | Not started | - |
 | 3. Calculation Analysis | 0/TBD | Not started | - |
 | 4. MBTI Analysis | 0/TBD | Not started | - |
