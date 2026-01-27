@@ -33,10 +33,16 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. 학생 기본 정보(이름, 생년월일, 연락처, 학교, 학년, 목표 대학/학과, 혈액형)를 등록할 수 있다
   5. 학생 목록을 조회하고 이름/학교로 검색할 수 있다
   6. 학생 상세 정보를 조회할 수 있다
-**Plans**: TBD
+**Plans**: 7 plans
 
 Plans:
-- [ ] TBD during planning
+- [ ] 01-01-PLAN.md — 프로젝트 설정 및 DB 스키마
+- [ ] 01-02-PLAN.md — 인증 인프라 (세션, DAL, Middleware)
+- [ ] 01-03-PLAN.md — 로그인/로그아웃 기능
+- [ ] 01-04-PLAN.md — 학생 CRUD 기능
+- [ ] 01-05-PLAN.md — 비밀번호 재설정
+- [ ] 01-06-PLAN.md — 학생 목록 UI (TanStack Table)
+- [ ] 01-07-PLAN.md — 통합 검증
 
 ### Phase 2: File Infrastructure
 **Goal**: 학생 사진 및 관상/손금 분석용 이미지를 저장하고 조회할 수 있다
@@ -132,7 +138,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Authentication | 0/TBD | Not started | - |
+| 1. Foundation & Authentication | 0/7 | Planned | - |
 | 2. File Infrastructure | 0/TBD | Not started | - |
 | 3. Calculation Analysis | 0/TBD | Not started | - |
 | 4. MBTI Analysis | 0/TBD | Not started | - |
