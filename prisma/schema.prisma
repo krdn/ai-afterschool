@@ -38,6 +38,8 @@ model Student {
   images           StudentImage[]
   sajuAnalysis     SajuAnalysis?
   nameAnalysis     NameAnalysis?
+  mbtiSurveyDraft  MbtiSurveyDraft?
+  mbtiAnalysis     MbtiAnalysis?
 
   calculationRecalculationNeeded Boolean  @default(false)
   calculationRecalculationReason String?
@@ -76,6 +78,35 @@ model NameAnalysis {
   result         Json
   interpretation String?
   status         String   @default("complete")
+  version        Int      @default(1)
+  calculatedAt   DateTime
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  student        Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+}
+
+model MbtiSurveyDraft {
+  id         String   @id @default(cuid())
+  studentId  String   @unique
+  responses  Json     // { "1": 3, "2": 5, ... } questionId: answerValue (1-5)
+  progress   Int      @default(0) // Number of answered questions (0-60)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  student    Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+}
+
+model MbtiAnalysis {
+  id             String   @id @default(cuid())
+  studentId      String   @unique
+  responses      Json     // Full response data { "1": 3, "2": 5, ... }
+  scores         Json     // { e: 12, i: 3, s: 8, n: 7, t: 10, f: 5, j: 11, p: 4 }
+  mbtiType       String   // "ENTJ"
+  percentages    Json     // { E: 80, I: 20, S: 53, N: 47, T: 67, F: 33, J: 73, P: 27 }
+  interpretation String?  @db.Text // Long-form Korean description
   version        Int      @default(1)
   calculatedAt   DateTime
   createdAt      DateTime @default(now())
