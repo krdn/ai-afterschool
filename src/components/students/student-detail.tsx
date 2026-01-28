@@ -17,6 +17,8 @@ import {
   type StudentImageType,
 } from "@/components/students/student-image-uploader"
 import { StudentImageTabs } from "@/components/students/student-image-tabs"
+import { StudentAnalysisStatus } from "@/components/students/student-analysis-status"
+import type { CalculationStatus } from "@/lib/db/student-analysis"
 
 type StudentDetailProps = {
   student: {
@@ -32,6 +34,7 @@ type StudentDetailProps = {
     createdAt: Date | string
     images?: StudentImageRecord[]
   }
+  analysisStatus?: CalculationStatus | null
 }
 
 type StudentImageRecord = {
@@ -55,7 +58,7 @@ function toDate(value: Date | string) {
   return value instanceof Date ? value : new Date(value)
 }
 
-export function StudentDetail({ student }: StudentDetailProps) {
+export function StudentDetail({ student, analysisStatus }: StudentDetailProps) {
   const boundDeleteStudent = deleteStudent.bind(null, student.id)
   const birthDate = toDate(student.birthDate)
   const createdAt = toDate(student.createdAt)
@@ -251,6 +254,16 @@ export function StudentDetail({ student }: StudentDetailProps) {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <CardTitle>분석 상태</CardTitle>
+          <StudentAnalysisStatus status={analysisStatus ?? null} />
+        </CardHeader>
+        <CardContent className="text-sm text-gray-500">
+          사주/성명학 분석이 최신인지 확인합니다.
+        </CardContent>
+      </Card>
 
       <p className="text-sm text-gray-500">
         등록일: {format(createdAt, "yyyy년 M월 d일", { locale: ko })}

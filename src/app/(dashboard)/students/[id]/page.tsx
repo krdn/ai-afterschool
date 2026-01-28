@@ -2,6 +2,7 @@ import { notFound } from "next/navigation"
 import { verifySession } from "@/lib/dal"
 import { db } from "@/lib/db"
 import { StudentDetail } from "@/components/students/student-detail"
+import { getCalculationStatus } from "@/lib/actions/calculation-analysis"
 
 export default async function StudentPage({
   params,
@@ -25,5 +26,7 @@ export default async function StudentPage({
     notFound()
   }
 
-  return <StudentDetail student={student} />
+  const analysisStatus = await getCalculationStatus(student.id)
+
+  return <StudentDetail student={student} analysisStatus={analysisStatus} />
 }
