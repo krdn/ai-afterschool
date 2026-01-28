@@ -13,6 +13,7 @@ import {
   type StudentImageInput,
 } from "@/lib/validations/student-images"
 import { setStudentImage } from "@/lib/actions/student-images"
+import { markStudentRecalculationNeeded } from "@/lib/db/student-analysis"
 
 export type StudentFormState = {
   errors?: {
@@ -75,6 +76,13 @@ function parseImagePayloads(formData: FormData): {
   }
 
   return { images }
+}
+
+function hasDateChanged(current: Date, nextValue?: string) {
+  if (!nextValue) return false
+  const nextDate = new Date(nextValue)
+  if (Number.isNaN(nextDate.getTime())) return false
+  return current.getTime() !== nextDate.getTime()
 }
 
 export async function createStudent(
@@ -189,6 +197,12 @@ export async function updateStudent(
   }
 
   try {
+    const shouldMarkRecalculation = Boolean(
+      (validatedFields.data.name &&
+        validatedFields.data.name !== existingStudent.name) ||
+        hasDateChanged(existingStudent.birthDate, validatedFields.data.birthDate)
+    )
+
     await db.student.update({
       where: { id: studentId },
       data: {
@@ -198,6 +212,14 @@ export async function updateStudent(
           : undefined,
       },
     })
+
+    if (shouldMarkRecalculation) {
+      await markStudentRecalculationNeeded(
+        studentId,
+        session.userId,
+        "학생 기본 정보 변경"
+      )
+    }
 
     for (const imagePayload of imagePayloads.images) {
       await setStudentImage(studentId, imagePayload)
