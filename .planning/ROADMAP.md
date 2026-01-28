@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation & Authentication** - 선생님 인증 및 학생 정보 관리 기반 구축
 - [x] **Phase 2: File Infrastructure** - 학생 사진 및 분석용 이미지 업로드 기능
-- [ ] **Phase 3: Calculation Analysis** - 사주팔자 및 성명학 분석 제공
+- [x] **Phase 3: Calculation Analysis** - 사주팔자 및 성명학 분석 제공
 - [ ] **Phase 4: MBTI Analysis** - 설문 기반 MBTI 성향 분석 제공
 - [ ] **Phase 5: AI Image Analysis** - AI 기반 관상 및 손금 분석 제공
 - [ ] **Phase 6: AI Integration** - 통합 성향 분석 및 맞춤형 학습/진로 전략 제공
@@ -70,12 +70,13 @@ Plans:
   2. 사주 해석이 한글로 제공된다 (오행, 십성 등)
   3. 학생 이름의 한글/한자 획수가 계산되고 수리(원격, 형격, 이격, 정격) 분석이 제공된다
   4. 분석 결과가 학생 프로필에 저장되고 언제든 조회할 수 있다
-**Plans**: 3 plans
+**Plans**: 4 plans
 
 Plans:
 - [x] 03-01-PLAN.md — 분석 저장 스키마와 상태 UI
 - [x] 03-02-PLAN.md — 사주 계산 엔진 및 결과 패널
 - [x] 03-03-PLAN.md — 성명학 계산 및 결과 표시
+- [x] 03-04-PLAN.md — 출생 시간 입력 및 시주 계산 보강
 
 ### Phase 4: MBTI Analysis
 **Goal**: 설문 기반으로 학생의 MBTI 성향을 판정하고 제공한다
@@ -145,7 +146,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 |-------|----------------|--------|-----------|
 | 1. Foundation & Authentication | 7/7 | Complete | 2026-01-28 |
 | 2. File Infrastructure | 4/4 | Complete | 2026-01-28 |
-| 3. Calculation Analysis | 3/3 | Complete | 2026-01-28 |
+| 3. Calculation Analysis | 4/4 | Complete | 2026-01-28 |
 | 4. MBTI Analysis | 0/TBD | Not started | - |
 | 5. AI Image Analysis | 0/TBD | Not started | - |
 | 6. AI Integration | 0/TBD | Not started | - |

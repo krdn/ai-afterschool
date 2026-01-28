@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 ## Current Position
 
 Phase: 3 of 7 (Calculation Analysis)
-Plan: 3 of 3 in current phase
+Plan: 4 of 4 in current phase
 Status: Phase complete
-Last activity: 2026-01-28 - Completed 03-03-PLAN.md
+Last activity: 2026-01-28 - Completed 03-04-PLAN.md
 
 Progress: [██████████] 100%
 
@@ -52,6 +52,7 @@ Recent decisions affecting current work:
 - Phase 2: Cloudinary signed direct upload 선택 (정사각 크롭, CDN 제공)
 - Phase 2: Cloudinary sign endpoint validates widget paramsToSign payloads
 - Phase 3: 학생 한자 선택을 Student.nameHanja JSON으로 보관
+- Phase 3: 사용자 요청에 따라 /save-issue 절차를 생략하고 커밋 진행
 
 ### Pending Todos
 
@@ -73,6 +74,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-28 11:33
-Stopped at: Completed 03-03-PLAN.md
+Last session: 2026-01-28 21:52
+Stopped at: Completed 03-04-PLAN.md
 Resume file: None
