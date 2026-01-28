@@ -3,6 +3,7 @@ import { verifySession } from "@/lib/dal"
 import { db } from "@/lib/db"
 import { StudentDetail } from "@/components/students/student-detail"
 import { SajuAnalysisPanel } from "@/components/students/saju-analysis-panel"
+import { NameAnalysisPanel } from "@/components/students/name-analysis-panel"
 import { getCalculationStatus } from "@/lib/actions/calculation-analysis"
 
 export default async function StudentPage({
@@ -33,6 +34,12 @@ export default async function StudentPage({
     calculatedAt: Date
   }
 
+  type NameAnalysisRecord = {
+    result: unknown
+    interpretation: string | null
+    calculatedAt: Date
+  }
+
   const sajuAnalysisDelegate = (
     db as unknown as {
       sajuAnalysis: {
@@ -43,9 +50,24 @@ export default async function StudentPage({
     }
   ).sajuAnalysis
 
-  const [analysisStatus, sajuAnalysis] = await Promise.all([
+  const nameAnalysisDelegate = (
+    db as unknown as {
+      nameAnalysis: {
+        findUnique: (args: {
+          where: { studentId: string }
+        }) => Promise<NameAnalysisRecord | null>
+      }
+    }
+  ).nameAnalysis
+
+  const [analysisStatus, sajuAnalysis, nameAnalysis] = await Promise.all([
     getCalculationStatus(student.id),
     sajuAnalysisDelegate.findUnique({
+      where: {
+        studentId: student.id,
+      },
+    }),
+    nameAnalysisDelegate.findUnique({
       where: {
         studentId: student.id,
       },
@@ -56,6 +78,7 @@ export default async function StudentPage({
     <div className="space-y-6">
       <StudentDetail student={student} analysisStatus={analysisStatus} />
       <SajuAnalysisPanel student={student} analysis={sajuAnalysis} />
+      <NameAnalysisPanel student={student} analysis={nameAnalysis} />
     </div>
   )
 }
