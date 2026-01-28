@@ -2,6 +2,7 @@ import { notFound } from "next/navigation"
 import { verifySession } from "@/lib/dal"
 import { db } from "@/lib/db"
 import { StudentDetail } from "@/components/students/student-detail"
+import { SajuAnalysisPanel } from "@/components/students/saju-analysis-panel"
 import { getCalculationStatus } from "@/lib/actions/calculation-analysis"
 
 export default async function StudentPage({
@@ -26,7 +27,35 @@ export default async function StudentPage({
     notFound()
   }
 
-  const analysisStatus = await getCalculationStatus(student.id)
+  type SajuAnalysisRecord = {
+    result: unknown
+    interpretation: string | null
+    calculatedAt: Date
+  }
 
-  return <StudentDetail student={student} analysisStatus={analysisStatus} />
+  const sajuAnalysisDelegate = (
+    db as unknown as {
+      sajuAnalysis: {
+        findUnique: (args: {
+          where: { studentId: string }
+        }) => Promise<SajuAnalysisRecord | null>
+      }
+    }
+  ).sajuAnalysis
+
+  const [analysisStatus, sajuAnalysis] = await Promise.all([
+    getCalculationStatus(student.id),
+    sajuAnalysisDelegate.findUnique({
+      where: {
+        studentId: student.id,
+      },
+    }),
+  ])
+
+  return (
+    <div className="space-y-6">
+      <StudentDetail student={student} analysisStatus={analysisStatus} />
+      <SajuAnalysisPanel student={student} analysis={sajuAnalysis} />
+    </div>
+  )
 }
