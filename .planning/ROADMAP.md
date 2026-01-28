@@ -57,7 +57,7 @@ Plans:
 
 Plans:
 - [x] 02-01-PLAN.md — 스토리지/업로드 방식 결정
-- [ ] 02-02-PLAN.md — Cloudinary 저장소 및 이미지 메타데이터 저장
+- [x] 02-02-PLAN.md — Cloudinary 저장소 및 이미지 메타데이터 저장
 - [ ] 02-03-PLAN.md — 학생 이미지 업로드 UI 및 상세 페이지 표시
 - [ ] 02-04-PLAN.md — 업로드 흐름 검증
 
@@ -142,7 +142,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation & Authentication | 7/7 | Complete | 2026-01-28 |
-| 2. File Infrastructure | 1/4 | In progress | - |
+| 2. File Infrastructure | 2/4 | In progress | - |
 | 3. Calculation Analysis | 0/TBD | Not started | - |
 | 4. MBTI Analysis | 0/TBD | Not started | - |
 | 5. AI Image Analysis | 0/TBD | Not started | - |
