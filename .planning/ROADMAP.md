@@ -75,7 +75,7 @@ Plans:
 Plans:
 - [x] 03-01-PLAN.md — 분석 저장 스키마와 상태 UI
 - [x] 03-02-PLAN.md — 사주 계산 엔진 및 결과 패널
-- [ ] 03-03-PLAN.md — 성명학 계산 및 결과 표시
+- [x] 03-03-PLAN.md — 성명학 계산 및 결과 표시
 
 ### Phase 4: MBTI Analysis
 **Goal**: 설문 기반으로 학생의 MBTI 성향을 판정하고 제공한다
@@ -145,7 +145,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 |-------|----------------|--------|-----------|
 | 1. Foundation & Authentication | 7/7 | Complete | 2026-01-28 |
 | 2. File Infrastructure | 4/4 | Complete | 2026-01-28 |
-| 3. Calculation Analysis | 2/3 | In progress | - |
+| 3. Calculation Analysis | 3/3 | Complete | 2026-01-28 |
 | 4. MBTI Analysis | 0/TBD | Not started | - |
 | 5. AI Image Analysis | 0/TBD | Not started | - |
 | 6. AI Integration | 0/TBD | Not started | - |
