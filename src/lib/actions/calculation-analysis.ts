@@ -5,6 +5,10 @@ import { Prisma } from "@prisma/client"
 import { db } from "@/lib/db"
 import { verifySession } from "@/lib/dal"
 import {
+  calculateSaju,
+  generateSajuInterpretation,
+} from "@/lib/analysis/saju"
+import {
   clearStudentRecalculationNeeded,
   getStudentCalculationStatus,
   markStudentRecalculationNeeded,
@@ -79,4 +83,43 @@ export async function markRecalculationNeeded(
   const session = await verifySession()
   await markStudentRecalculationNeeded(studentId, session.userId, reason)
   revalidatePath(`/students/${studentId}`)
+}
+
+export async function runSajuAnalysis(studentId: string) {
+  const session = await verifySession()
+
+  const student = await db.student.findFirst({
+    where: {
+      id: studentId,
+      teacherId: session.userId,
+    },
+    select: {
+      id: true,
+      birthDate: true,
+    },
+  })
+
+  if (!student) {
+    throw new Error("학생을 찾을 수 없어요.")
+  }
+
+  const inputSnapshot = {
+    birthDate: student.birthDate.toISOString(),
+    timeKnown: false,
+    longitude: 127.0,
+  }
+
+  const result = calculateSaju({
+    birthDate: student.birthDate,
+    time: null,
+    longitude: 127.0,
+  })
+  const interpretation = generateSajuInterpretation(result)
+
+  await saveSajuAnalysis(studentId, inputSnapshot, result, interpretation)
+
+  return {
+    result,
+    interpretation,
+  }
 }

@@ -358,3 +358,43 @@ export function calculateSaju(input: SajuInput): SajuResult {
     },
   }
 }
+
+function describeElementBalance(elements: Record<SajuElement, number>) {
+  const sorted = [...ELEMENT_ORDER].sort((a, b) => elements[b] - elements[a])
+  const strongest = sorted[0]
+  const weakest = sorted[sorted.length - 1]
+  return { strongest, weakest }
+}
+
+export function generateSajuInterpretation(result: SajuResult): string {
+  const { pillars, elements, tenGods, meta } = result
+  const { strongest, weakest } = describeElementBalance(elements)
+  const hourText = meta.timeKnown ? "시주가 포함된" : "시주가 없는"
+  const tenGodHighlights = meta.timeKnown
+    ? `연주의 ${tenGods.year}, 월주의 ${tenGods.month}, 시주의 ${tenGods.hour}`
+    : `연주의 ${tenGods.year}, 월주의 ${tenGods.month}`
+
+  const paragraph1 = [
+    `이 학생의 사주는 ${pillars.year.stem}${pillars.year.branch}년, ${pillars.month.stem}${pillars.month.branch}월, ${pillars.day.stem}${pillars.day.branch}일로 구성됩니다.`,
+    `이번 분석은 KST 기준에 태양시 보정을 적용했으며 ${hourText} 사주입니다.`,
+    `입춘 기준으로 태양년을 판단했고 현재 기준 절기는 ${meta.solarTerm}입니다.`,
+    `전체 구조는 안정적이며 기본 흐름이 명확하게 드러납니다.`,
+  ]
+
+  const paragraph2 = [
+    `오행 균형에서는 ${strongest} 기운이 가장 두드러지고 ${weakest} 기운이 상대적으로 약합니다.`,
+    `강한 기운은 재능과 추진력을 만들고 약한 기운은 보완이 필요한 학습 포인트로 볼 수 있습니다.`,
+    `십성 관점에서는 ${tenGodHighlights} 특징이 중심을 이루며 학습 태도와 관계 방식에 영향을 줍니다.`,
+    `성향적으로는 목표가 분명할 때 집중력이 살아나는 타입으로 해석됩니다.`,
+  ]
+
+  const paragraph3 = [
+    `대운은 장기적인 환경 변화의 흐름으로, 고등 학년으로 갈수록 책임감이 커지는 흐름을 보입니다.`,
+    `세운은 단기적인 리듬으로, 학기마다 집중 포인트가 바뀌는 패턴을 고려하는 것이 좋습니다.`,
+    `학습 코칭에서는 강한 기운을 살릴 수 있도록 리더십이나 발표 역할을 맡기는 것이 유리합니다.`,
+    `약한 기운은 루틴화된 과제나 체크리스트로 보완하면 성취가 높아집니다.`,
+    `전반적으로 성실함과 성장 잠재력을 함께 지닌 구조로 해석됩니다.`,
+  ]
+
+  return `${paragraph1.join(" ")}\n\n${paragraph2.join(" ")}\n\n${paragraph3.join(" ")}`
+}
