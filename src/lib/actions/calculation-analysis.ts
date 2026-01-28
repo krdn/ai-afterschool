@@ -9,6 +9,14 @@ import {
   generateSajuInterpretation,
 } from "@/lib/analysis/saju"
 import {
+  calculateNameNumerology,
+  generateNameInterpretation,
+} from "@/lib/analysis/name-numerology"
+import {
+  coerceHanjaSelections,
+  selectionsToHanjaName,
+} from "@/lib/analysis/hanja-strokes"
+import {
   clearStudentRecalculationNeeded,
   getStudentCalculationStatus,
   markStudentRecalculationNeeded,
@@ -120,6 +128,52 @@ export async function runSajuAnalysis(studentId: string) {
 
   return {
     result,
+    interpretation,
+  }
+}
+
+export async function runNameAnalysis(studentId: string) {
+  const session = await verifySession()
+
+  const student = await db.student.findFirst({
+    where: {
+      id: studentId,
+      teacherId: session.userId,
+    },
+    select: {
+      id: true,
+      name: true,
+      nameHanja: true,
+    },
+  })
+
+  if (!student) {
+    throw new Error("학생을 찾을 수 없어요.")
+  }
+
+  const selections = coerceHanjaSelections(student.nameHanja)
+  const hanjaName = selectionsToHanjaName(selections)
+  const outcome = calculateNameNumerology({
+    name: student.name,
+    hanjaName,
+  })
+
+  if (outcome.status !== "ok") {
+    throw new Error(outcome.message)
+  }
+
+  const inputSnapshot = {
+    name: student.name,
+    nameHanja: selections,
+    hanjaName,
+  }
+
+  const interpretation = generateNameInterpretation(outcome.result)
+
+  await saveNameAnalysis(studentId, inputSnapshot, outcome.result, interpretation)
+
+  return {
+    result: outcome.result,
     interpretation,
   }
 }
