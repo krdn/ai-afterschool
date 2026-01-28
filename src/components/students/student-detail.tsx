@@ -133,6 +133,7 @@ export function StudentDetail({ student }: StudentDetailProps) {
           </div>
           <div className="w-full space-y-4 lg:w-80">
             <StudentImageUploader
+              key={activeType}
               type={activeType}
               label={`${imageLabels[activeType]} 사진`}
               description="현재 선택된 탭의 이미지를 업로드합니다."
