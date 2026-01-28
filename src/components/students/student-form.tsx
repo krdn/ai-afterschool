@@ -38,6 +38,8 @@ type StudentFormProps = {
     name: string
     nameHanja?: unknown
     birthDate: Date | string
+    birthTimeHour: number | null
+    birthTimeMinute: number | null
     phone: string | null
     school: string
     grade: number
@@ -90,6 +92,8 @@ export function StudentForm({ student }: StudentFormProps) {
       ? {
           name: student.name,
           birthDate: toDateInputValue(student.birthDate),
+          birthTimeHour: student.birthTimeHour ?? "",
+          birthTimeMinute: student.birthTimeMinute ?? "",
           phone: student.phone || "",
           school: student.school,
           grade: student.grade,
@@ -100,6 +104,8 @@ export function StudentForm({ student }: StudentFormProps) {
       : {
           name: "",
           birthDate: "",
+          birthTimeHour: "",
+          birthTimeMinute: "",
           phone: "",
           school: "",
           grade: 1,
@@ -231,6 +237,53 @@ export function StudentForm({ student }: StudentFormProps) {
                     form.formState.errors.birthDate?.message}
                 </p>
               )}
+            </div>
+
+            <div className="space-y-2">
+              <Label>출생 시간 (선택)</Label>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="birthTimeHour" className="text-xs text-gray-500">
+                    시 (0-23)
+                  </Label>
+                  <Input
+                    id="birthTimeHour"
+                    type="number"
+                    min={0}
+                    max={23}
+                    placeholder="예: 13"
+                    {...form.register("birthTimeHour")}
+                  />
+                  {(state?.errors?.birthTimeHour ||
+                    form.formState.errors.birthTimeHour) && (
+                    <p className="text-sm text-red-600">
+                      {state?.errors?.birthTimeHour?.[0] ||
+                        form.formState.errors.birthTimeHour?.message}
+                    </p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="birthTimeMinute" className="text-xs text-gray-500">
+                    분 (0-59)
+                  </Label>
+                  <Input
+                    id="birthTimeMinute"
+                    type="number"
+                    min={0}
+                    max={59}
+                    placeholder="예: 30"
+                    {...form.register("birthTimeMinute")}
+                  />
+                  {(state?.errors?.birthTimeMinute ||
+                    form.formState.errors.birthTimeMinute) && (
+                    <p className="text-sm text-red-600">
+                      {state?.errors?.birthTimeMinute?.[0] ||
+                        form.formState.errors.birthTimeMinute?.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <p className="text-xs text-gray-500">모르면 비워두세요.</p>
             </div>
 
             <div className="space-y-2">

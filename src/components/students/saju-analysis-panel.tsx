@@ -13,6 +13,8 @@ type SajuAnalysisPanelProps = {
     id: string
     name: string
     birthDate: Date | string
+    birthTimeHour: number | null
+    birthTimeMinute: number | null
   }
   analysis: {
     result: unknown
@@ -23,6 +25,14 @@ type SajuAnalysisPanelProps = {
 
 function toDate(value: Date | string) {
   return value instanceof Date ? value : new Date(value)
+}
+
+function formatBirthTime(hour: number | null, minute: number | null) {
+  if (hour === null) {
+    return "미상"
+  }
+  const safeMinute = minute ?? 0
+  return `${String(hour).padStart(2, "0")}:${String(safeMinute).padStart(2, "0")}`
 }
 
 export function SajuAnalysisPanel({ student, analysis }: SajuAnalysisPanelProps) {
@@ -56,7 +66,10 @@ export function SajuAnalysisPanel({ student, analysis }: SajuAnalysisPanelProps)
                 locale: ko,
               })}
             </p>
-            <p>출생 시간: 미상 (시주 계산 제외)</p>
+            <p>
+              출생 시간: {formatBirthTime(student.birthTimeHour, student.birthTimeMinute)}
+              {student.birthTimeHour === null ? " (시주 계산 제외)" : ""}
+            </p>
           </div>
           <Button
             type="button"

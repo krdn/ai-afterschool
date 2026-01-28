@@ -104,6 +104,8 @@ export async function runSajuAnalysis(studentId: string) {
     select: {
       id: true,
       birthDate: true,
+      birthTimeHour: true,
+      birthTimeMinute: true,
     },
   })
 
@@ -111,15 +113,24 @@ export async function runSajuAnalysis(studentId: string) {
     throw new Error("학생을 찾을 수 없어요.")
   }
 
+  const time =
+    student.birthTimeHour === null
+      ? null
+      : {
+          hour: student.birthTimeHour,
+          minute: student.birthTimeMinute ?? 0,
+        }
+  const timeKnown = Boolean(time)
   const inputSnapshot = {
     birthDate: student.birthDate.toISOString(),
-    timeKnown: false,
+    timeKnown,
+    time,
     longitude: 127.0,
   }
 
   const result = calculateSaju({
     birthDate: student.birthDate,
-    time: null,
+    time,
     longitude: 127.0,
   })
   const interpretation = generateSajuInterpretation(result)
