@@ -16,6 +16,9 @@ export default async function StudentPage({
       id,
       teacherId: session.userId,
     },
+    include: {
+      images: true,
+    },
   })
 
   if (!student) {
