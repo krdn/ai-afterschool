@@ -7,20 +7,20 @@
 
 ### Authentication (인증)
 
-- [ ] **AUTH-01**: 선생님이 이메일/비밀번호로 로그인할 수 있다
-- [ ] **AUTH-02**: 선생님이 이메일 링크로 비밀번호를 재설정할 수 있다
-- [ ] **AUTH-03**: 브라우저 새로고침 후에도 로그인이 유지된다
-- [ ] **AUTH-04**: 여러 선생님이 각자 계정으로 접속할 수 있다
+- [x] **AUTH-01**: 선생님이 이메일/비밀번호로 로그인할 수 있다
+- [x] **AUTH-02**: 선생님이 이메일 링크로 비밀번호를 재설정할 수 있다
+- [x] **AUTH-03**: 브라우저 새로고침 후에도 로그인이 유지된다
+- [x] **AUTH-04**: 여러 선생님이 각자 계정으로 접속할 수 있다
 
 ### Student Management (학생 관리)
 
-- [ ] **STUD-01**: 학생 기본 정보를 등록할 수 있다 (이름, 생년월일, 연락처)
-- [ ] **STUD-02**: 학생 사진을 업로드할 수 있다
-- [ ] **STUD-03**: 학생 학업 정보를 등록할 수 있다 (학교, 학년, 목표 대학/학과)
-- [ ] **STUD-04**: 학생 목록을 조회할 수 있다
-- [ ] **STUD-05**: 학생을 이름/학교로 검색할 수 있다
-- [ ] **STUD-06**: 학생 상세 정보를 조회할 수 있다
-- [ ] **STUD-07**: 학생 혈액형을 등록할 수 있다
+- [x] **STUD-01**: 학생 기본 정보를 등록할 수 있다 (이름, 생년월일, 연락처)
+- [x] **STUD-02**: 학생 사진을 업로드할 수 있다
+- [x] **STUD-03**: 학생 학업 정보를 등록할 수 있다 (학교, 학년, 목표 대학/학과)
+- [x] **STUD-04**: 학생 목록을 조회할 수 있다
+- [x] **STUD-05**: 학생을 이름/학교로 검색할 수 있다
+- [x] **STUD-06**: 학생 상세 정보를 조회할 수 있다
+- [x] **STUD-07**: 학생 혈액형을 등록할 수 있다
 
 ### Calculation Analysis (계산 기반 분석)
 
@@ -80,17 +80,17 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | Phase 1 | Pending |
-| AUTH-02 | Phase 1 | Pending |
-| AUTH-03 | Phase 1 | Pending |
-| AUTH-04 | Phase 1 | Pending |
-| STUD-01 | Phase 1 | Pending |
-| STUD-02 | Phase 2 | Pending |
-| STUD-03 | Phase 1 | Pending |
-| STUD-04 | Phase 1 | Pending |
-| STUD-05 | Phase 1 | Pending |
-| STUD-06 | Phase 1 | Pending |
-| STUD-07 | Phase 1 | Pending |
+| AUTH-01 | Phase 1 | Complete |
+| AUTH-02 | Phase 1 | Complete |
+| AUTH-03 | Phase 1 | Complete |
+| AUTH-04 | Phase 1 | Complete |
+| STUD-01 | Phase 1 | Complete |
+| STUD-02 | Phase 2 | Complete |
+| STUD-03 | Phase 1 | Complete |
+| STUD-04 | Phase 1 | Complete |
+| STUD-05 | Phase 1 | Complete |
+| STUD-06 | Phase 1 | Complete |
+| STUD-07 | Phase 1 | Complete |
 | CALC-01 | Phase 3 | Pending |
 | CALC-02 | Phase 3 | Pending |
 | CALC-03 | Phase 4 | Pending |
@@ -110,4 +110,4 @@
 
 ---
 *Requirements defined: 2026-01-27*
-*Last updated: 2026-01-27 after roadmap creation*
+*Last updated: 2026-01-28 after Phase 2 completion*
