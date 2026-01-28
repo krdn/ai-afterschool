@@ -45,33 +45,22 @@ export function buildResizedImageUrl(publicId: string): string {
   })
 }
 
-export function createUploadSignature({
-  folder,
-}: {
-  folder: string
-}): {
+export type UploadSignatureParams = Record<string, string | number>
+
+export function createUploadSignature(
+  paramsToSign: UploadSignatureParams
+): {
   signature: string
-  timestamp: number
-  folder: string
-  transformation: string
   apiKey: string
   cloudName: string
 } {
-  const timestamp = Math.round(Date.now() / 1000)
   const signature = cloudinary.utils.api_sign_request(
-    {
-      timestamp,
-      folder,
-      transformation: SQUARE_TRANSFORMATION,
-    },
+    paramsToSign,
     resolvedApiSecret
   )
 
   return {
     signature,
-    timestamp,
-    folder,
-    transformation: SQUARE_TRANSFORMATION,
     apiKey: resolvedApiKey,
     cloudName: resolvedCloudName,
   }
