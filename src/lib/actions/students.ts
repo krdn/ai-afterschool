@@ -6,6 +6,8 @@ import { db } from "@/lib/db"
 import { verifySession } from "@/lib/dal"
 import {
   CreateStudentSchema,
+  NameHanjaSchema,
+  type NameHanjaInput,
   UpdateStudentSchema,
 } from "@/lib/validations/students"
 import {
@@ -40,6 +42,43 @@ const imageFieldConfigs: ImageFieldConfig[] = [
   { key: "faceImage", expectedType: "face" },
   { key: "palmImage", expectedType: "palm" },
 ]
+
+function parseNameHanjaPayload(value: FormDataEntryValue | null): {
+  nameHanja: NameHanjaInput | null
+  error?: string
+} {
+  if (!value) return { nameHanja: null }
+  if (typeof value !== "string") {
+    return { nameHanja: null, error: "한자 정보 형식이 올바르지 않아요." }
+  }
+
+  let parsedValue: unknown
+
+  try {
+    parsedValue = JSON.parse(value)
+  } catch {
+    return { nameHanja: null, error: "한자 정보 형식이 올바르지 않아요." }
+  }
+
+  if (Array.isArray(parsedValue)) {
+    parsedValue = parsedValue.map((entry) => {
+      if (!entry || typeof entry !== "object") return entry
+      const record = entry as { syllable?: unknown; hanja?: unknown }
+      return {
+        syllable: record.syllable,
+        hanja: record.hanja === "" ? null : record.hanja,
+      }
+    })
+  }
+
+  const parsed = NameHanjaSchema.safeParse(parsedValue)
+
+  if (!parsed.success) {
+    return { nameHanja: null, error: "한자 정보 형식이 올바르지 않아요." }
+  }
+
+  return { nameHanja: parsed.data }
+}
 
 function parseImagePayloads(formData: FormData): {
   images: StudentImageInput[]
@@ -110,10 +149,20 @@ export async function createStudent(
 
   const imagePayloads = parseImagePayloads(formData)
 
+  const nameHanjaPayload = parseNameHanjaPayload(formData.get("nameHanja"))
+
   if (imagePayloads.error) {
     return {
       errors: {
         _form: [imagePayloads.error],
+      },
+    }
+  }
+
+  if (nameHanjaPayload.error) {
+    return {
+      errors: {
+        _form: [nameHanjaPayload.error],
       },
     }
   }
@@ -124,6 +173,7 @@ export async function createStudent(
     const student = await db.student.create({
       data: {
         ...validatedFields.data,
+        nameHanja: nameHanjaPayload.nameHanja,
         birthDate: new Date(validatedFields.data.birthDate),
         teacherId: session.userId,
       },
@@ -187,11 +237,20 @@ export async function updateStudent(
   }
 
   const imagePayloads = parseImagePayloads(formData)
+  const nameHanjaPayload = parseNameHanjaPayload(formData.get("nameHanja"))
 
   if (imagePayloads.error) {
     return {
       errors: {
         _form: [imagePayloads.error],
+      },
+    }
+  }
+
+  if (nameHanjaPayload.error) {
+    return {
+      errors: {
+        _form: [nameHanjaPayload.error],
       },
     }
   }
@@ -202,22 +261,26 @@ export async function updateStudent(
         validatedFields.data.name !== existingStudent.name) ||
         hasDateChanged(existingStudent.birthDate, validatedFields.data.birthDate)
     )
+    const nextNameHanja = JSON.stringify(nameHanjaPayload.nameHanja ?? null)
+    const previousNameHanja = JSON.stringify(existingStudent.nameHanja ?? null)
+    const nameHanjaChanged = nextNameHanja !== previousNameHanja
 
     await db.student.update({
       where: { id: studentId },
       data: {
         ...validatedFields.data,
+        nameHanja: nameHanjaPayload.nameHanja,
         birthDate: validatedFields.data.birthDate
           ? new Date(validatedFields.data.birthDate)
           : undefined,
       },
     })
 
-    if (shouldMarkRecalculation) {
+    if (shouldMarkRecalculation || nameHanjaChanged) {
       await markStudentRecalculationNeeded(
         studentId,
         session.userId,
-        "학생 기본 정보 변경"
+        nameHanjaChanged ? "학생 한자 정보 변경" : "학생 기본 정보 변경"
       )
     }
 

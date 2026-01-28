@@ -21,6 +21,7 @@ model Teacher {
 model Student {
   id               String    @id @default(cuid())
   name             String
+  nameHanja        Json?
   birthDate        DateTime
   phone            String?
   school           String

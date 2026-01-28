@@ -1,6 +1,6 @@
 "use client"
 
-import { startTransition, useActionState, useId, useState } from "react"
+import { startTransition, useActionState, useEffect, useId, useState } from "react"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -25,11 +25,18 @@ import {
   StudentImageUploader,
   type StudentImagePayload,
 } from "@/components/students/student-image-uploader"
+import { HanjaPicker } from "@/components/students/hanja-picker"
+import {
+  coerceHanjaSelections,
+  normalizeHanjaSelections,
+  type HanjaSelection,
+} from "@/lib/analysis/hanja-strokes"
 
 type StudentFormProps = {
   student?: {
     id: string
     name: string
+    nameHanja?: unknown
     birthDate: Date | string
     phone: string | null
     school: string
@@ -130,6 +137,14 @@ export function StudentForm({ student }: StudentFormProps) {
   const [palmImage, setPalmImage] = useState<ImageState | null>(() =>
     getInitialImage("palm")
   )
+  const [nameHanjaSelections, setNameHanjaSelections] = useState<
+    HanjaSelection[]
+  >(() =>
+    normalizeHanjaSelections(
+      student?.name ?? "",
+      coerceHanjaSelections(student?.nameHanja)
+    )
+  )
 
   const serializeImage = (image: ImageState) =>
     JSON.stringify({
@@ -157,6 +172,14 @@ export function StudentForm({ student }: StudentFormProps) {
       formAction(formData)
     })
   })
+
+  const nameValue = form.watch("name")
+
+  useEffect(() => {
+    setNameHanjaSelections((prev) =>
+      normalizeHanjaSelections(nameValue ?? "", prev)
+    )
+  }, [nameValue])
 
   return (
     <Card>
@@ -188,6 +211,12 @@ export function StudentForm({ student }: StudentFormProps) {
                 </p>
               )}
             </div>
+
+            <HanjaPicker
+              name={nameValue ?? ""}
+              value={nameHanjaSelections}
+              onChange={setNameHanjaSelections}
+            />
 
             <div className="space-y-2">
               <Label htmlFor="birthDate">생년월일 *</Label>
@@ -371,6 +400,11 @@ export function StudentForm({ student }: StudentFormProps) {
                 value={serializeImage(palmImage)}
               />
             ) : null}
+            <input
+              type="hidden"
+              name="nameHanja"
+              value={JSON.stringify(nameHanjaSelections)}
+            />
             <Button type="submit" disabled={pending}>
               {pending
                 ? isEditing
