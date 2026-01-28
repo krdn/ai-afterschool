@@ -1,11 +1,22 @@
 "use client"
 
 import Link from "next/link"
+import { useState, useTransition } from "react"
 import { format } from "date-fns"
 import { ko } from "date-fns/locale"
 import { deleteStudent } from "@/lib/actions/students"
+import {
+  deleteStudentImage,
+  setStudentImage,
+} from "@/lib/actions/student-images"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  StudentImageUploader,
+  type StudentImagePayload,
+  type StudentImageType,
+} from "@/components/students/student-image-uploader"
+import { StudentImageTabs } from "@/components/students/student-image-tabs"
 
 type StudentDetailProps = {
   student: {
@@ -19,7 +30,25 @@ type StudentDetailProps = {
     targetMajor: string | null
     bloodType: "A" | "B" | "AB" | "O" | null
     createdAt: Date | string
+    images?: StudentImageRecord[]
   }
+}
+
+type StudentImageRecord = {
+  type: StudentImagePayload["type"]
+  originalUrl: string
+  resizedUrl: string
+  publicId: string
+  format: string | null
+  bytes: number | null
+  width: number | null
+  height: number | null
+}
+
+const imageLabels: Record<StudentImageType, string> = {
+  profile: "프로필",
+  face: "관상",
+  palm: "손금",
 }
 
 function toDate(value: Date | string) {
@@ -30,6 +59,45 @@ export function StudentDetail({ student }: StudentDetailProps) {
   const boundDeleteStudent = deleteStudent.bind(null, student.id)
   const birthDate = toDate(student.birthDate)
   const createdAt = toDate(student.createdAt)
+  const [activeType, setActiveType] = useState<StudentImageType>("profile")
+  const [isPending, startTransition] = useTransition()
+  const [imagesByType, setImagesByType] = useState<
+    Record<StudentImageType, StudentImageRecord | null>
+  >(() => {
+    const initial: Record<StudentImageType, StudentImageRecord | null> = {
+      profile: null,
+      face: null,
+      palm: null,
+    }
+
+    student.images?.forEach((image) => {
+      initial[image.type] = image
+    })
+
+    return initial
+  })
+
+  const currentImage = imagesByType[activeType]
+  const tabImages = {
+    profile: imagesByType.profile
+      ? {
+          resizedUrl: imagesByType.profile.resizedUrl,
+          originalUrl: imagesByType.profile.originalUrl,
+        }
+      : undefined,
+    face: imagesByType.face
+      ? {
+          resizedUrl: imagesByType.face.resizedUrl,
+          originalUrl: imagesByType.face.originalUrl,
+        }
+      : undefined,
+    palm: imagesByType.palm
+      ? {
+          resizedUrl: imagesByType.palm.resizedUrl,
+          originalUrl: imagesByType.palm.originalUrl,
+        }
+      : undefined,
+  }
 
   return (
     <div className="space-y-6">
@@ -51,6 +119,79 @@ export function StudentDetail({ student }: StudentDetailProps) {
               삭제
             </Button>
           </form>
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-gray-200 bg-white p-4">
+        <div className="flex flex-col gap-6 lg:flex-row">
+          <div className="flex-1">
+            <StudentImageTabs
+              value={activeType}
+              onChange={setActiveType}
+              images={tabImages}
+            />
+          </div>
+          <div className="w-full space-y-4 lg:w-80">
+            <StudentImageUploader
+              type={activeType}
+              label={`${imageLabels[activeType]} 사진`}
+              description="현재 선택된 탭의 이미지를 업로드합니다."
+              studentId={student.id}
+              previewUrl={
+                currentImage?.resizedUrl || currentImage?.originalUrl || null
+              }
+              value={
+                currentImage
+                  ? {
+                      type: currentImage.type,
+                      originalUrl: currentImage.originalUrl,
+                      publicId: currentImage.publicId,
+                      format: currentImage.format || undefined,
+                      bytes: currentImage.bytes || undefined,
+                      width: currentImage.width || undefined,
+                      height: currentImage.height || undefined,
+                    }
+                  : null
+              }
+              onChange={(payload) => {
+                startTransition(async () => {
+                  await setStudentImage(student.id, payload)
+                  setImagesByType((prev) => ({
+                    ...prev,
+                    [payload.type]: {
+                      type: payload.type,
+                      originalUrl: payload.originalUrl,
+                      resizedUrl: null,
+                      publicId: payload.publicId,
+                      format: payload.format || null,
+                      bytes: payload.bytes || null,
+                      width: payload.width || null,
+                      height: payload.height || null,
+                    },
+                  }))
+                })
+              }}
+            />
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={!currentImage || isPending}
+              onClick={() => {
+                if (!currentImage) return
+                if (!confirm("선택한 이미지를 삭제하시겠어요?")) return
+
+                startTransition(async () => {
+                  await deleteStudentImage(student.id, activeType)
+                  setImagesByType((prev) => ({
+                    ...prev,
+                    [activeType]: null,
+                  }))
+                })
+              }}
+            >
+              {isPending ? "처리 중..." : "삭제하기"}
+            </Button>
+          </div>
         </div>
       </div>
 
