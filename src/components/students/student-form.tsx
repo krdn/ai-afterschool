@@ -1,6 +1,6 @@
 "use client"
 
-import { useActionState } from "react"
+import { startTransition, useActionState, useId, useState } from "react"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -21,6 +21,10 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  StudentImageUploader,
+  type StudentImagePayload,
+} from "@/components/students/student-image-uploader"
 
 type StudentFormProps = {
   student?: {
@@ -33,7 +37,23 @@ type StudentFormProps = {
     targetUniversity: string | null
     targetMajor: string | null
     bloodType: "A" | "B" | "AB" | "O" | null
+    images?: StudentImageRecord[]
   }
+}
+
+type StudentImageRecord = {
+  type: StudentImagePayload["type"]
+  originalUrl: string
+  resizedUrl: string
+  publicId: string
+  format: string | null
+  bytes: number | null
+  width: number | null
+  height: number | null
+}
+
+type ImageState = StudentImagePayload & {
+  resizedUrl?: string | null
 }
 
 function toDateInputValue(value: Date | string) {
@@ -43,6 +63,8 @@ function toDateInputValue(value: Date | string) {
 
 export function StudentForm({ student }: StudentFormProps) {
   const isEditing = Boolean(student)
+  const draftId = useId().replace(/:/g, "")
+  const draftFolderId = `draft-${draftId}`
 
   const boundUpdateStudent = student
     ? updateStudent.bind(null, student.id)
@@ -81,10 +103,59 @@ export function StudentForm({ student }: StudentFormProps) {
     mode: "onChange",
   })
 
-  const handleSubmit = form.handleSubmit((_, event) => {
-    const formElement = event?.target as HTMLFormElement | null
-    if (!formElement) return
-    formAction(new FormData(formElement))
+  const getInitialImage = (
+    type: StudentImagePayload["type"]
+  ): ImageState | null => {
+    const match = student?.images?.find((image) => image.type === type)
+    if (!match) return null
+
+    return {
+      type: match.type,
+      originalUrl: match.originalUrl,
+      resizedUrl: match.resizedUrl,
+      publicId: match.publicId,
+      format: match.format || undefined,
+      bytes: match.bytes || undefined,
+      width: match.width || undefined,
+      height: match.height || undefined,
+    }
+  }
+
+  const [profileImage, setProfileImage] = useState<ImageState | null>(() =>
+    getInitialImage("profile")
+  )
+  const [faceImage, setFaceImage] = useState<ImageState | null>(() =>
+    getInitialImage("face")
+  )
+  const [palmImage, setPalmImage] = useState<ImageState | null>(() =>
+    getInitialImage("palm")
+  )
+
+  const serializeImage = (image: ImageState) =>
+    JSON.stringify({
+      type: image.type,
+      originalUrl: image.originalUrl,
+      publicId: image.publicId,
+      format: image.format,
+      bytes: image.bytes,
+      width: image.width,
+      height: image.height,
+    })
+
+  const handleSubmit = form.handleSubmit((_values, event) => {
+    event?.preventDefault()
+
+    const formElement = event?.currentTarget
+
+    if (!formElement) {
+      return
+    }
+
+    const formData = new FormData(formElement)
+
+    startTransition(() => {
+      formAction(formData)
+    })
   })
 
   return (
@@ -165,6 +236,66 @@ export function StudentForm({ student }: StudentFormProps) {
           </div>
 
           <div className="space-y-4">
+            <h3 className="text-lg font-medium">이미지 업로드</h3>
+
+            <div className="grid gap-4">
+              <StudentImageUploader
+                type="profile"
+                label="프로필 사진"
+                description="학생 프로필에 표시됩니다."
+                studentId={student?.id}
+                draftId={draftFolderId}
+                previewUrl={
+                  profileImage?.resizedUrl || profileImage?.originalUrl || null
+                }
+                value={profileImage}
+                onChange={(payload) =>
+                  setProfileImage({
+                    ...payload,
+                    resizedUrl: null,
+                  })
+                }
+              />
+
+              <StudentImageUploader
+                type="face"
+                label="관상 사진"
+                description="얼굴 분석을 위한 사진입니다."
+                studentId={student?.id}
+                draftId={draftFolderId}
+                previewUrl={
+                  faceImage?.resizedUrl || faceImage?.originalUrl || null
+                }
+                value={faceImage}
+                onChange={(payload) =>
+                  setFaceImage({
+                    ...payload,
+                    resizedUrl: null,
+                  })
+                }
+              />
+
+              <StudentImageUploader
+                type="palm"
+                label="손금 사진"
+                description="손바닥 분석을 위한 사진입니다."
+                studentId={student?.id}
+                draftId={draftFolderId}
+                previewUrl={
+                  palmImage?.resizedUrl || palmImage?.originalUrl || null
+                }
+                value={palmImage}
+                onChange={(payload) =>
+                  setPalmImage({
+                    ...payload,
+                    resizedUrl: null,
+                  })
+                }
+              />
+            </div>
+          </div>
+
+          <div className="space-y-4">
             <h3 className="text-lg font-medium">학업 정보</h3>
 
             <div className="space-y-2">
@@ -219,6 +350,27 @@ export function StudentForm({ student }: StudentFormProps) {
           </div>
 
           <div className="flex justify-end space-x-4">
+            {profileImage ? (
+              <input
+                type="hidden"
+                name="profileImage"
+                value={serializeImage(profileImage)}
+              />
+            ) : null}
+            {faceImage ? (
+              <input
+                type="hidden"
+                name="faceImage"
+                value={serializeImage(faceImage)}
+              />
+            ) : null}
+            {palmImage ? (
+              <input
+                type="hidden"
+                name="palmImage"
+                value={serializeImage(palmImage)}
+              />
+            ) : null}
             <Button type="submit" disabled={pending}>
               {pending
                 ? isEditing
