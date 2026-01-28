@@ -21,6 +21,8 @@ export type StudentFormState = {
   errors?: {
     name?: string[]
     birthDate?: string[]
+    birthTimeHour?: string[]
+    birthTimeMinute?: string[]
     phone?: string[]
     school?: string[]
     grade?: string[]
@@ -124,6 +126,23 @@ function hasDateChanged(current: Date, nextValue?: string) {
   return current.getTime() !== nextDate.getTime()
 }
 
+function normalizeBirthTimeInput(
+  birthTimeHour?: number,
+  birthTimeMinute?: number
+) {
+  if (birthTimeHour === undefined) {
+    return {
+      birthTimeHour: null,
+      birthTimeMinute: null,
+    }
+  }
+
+  return {
+    birthTimeHour,
+    birthTimeMinute: birthTimeMinute ?? 0,
+  }
+}
+
 export async function createStudent(
   prevState: StudentFormState,
   formData: FormData
@@ -133,6 +152,8 @@ export async function createStudent(
   const validatedFields = CreateStudentSchema.safeParse({
     name: formData.get("name"),
     birthDate: formData.get("birthDate"),
+    birthTimeHour: formData.get("birthTimeHour"),
+    birthTimeMinute: formData.get("birthTimeMinute"),
     phone: formData.get("phone") || undefined,
     school: formData.get("school"),
     grade: formData.get("grade"),
@@ -168,13 +189,17 @@ export async function createStudent(
   }
 
   let studentId: string
+  const { birthTimeHour, birthTimeMinute, ...studentData } =
+    validatedFields.data
+  const birthTime = normalizeBirthTimeInput(birthTimeHour, birthTimeMinute)
 
   try {
     const student = await db.student.create({
       data: {
-        ...validatedFields.data,
+        ...studentData,
         nameHanja: nameHanjaPayload.nameHanja,
         birthDate: new Date(validatedFields.data.birthDate),
+        ...birthTime,
         teacherId: session.userId,
       },
     })
@@ -222,6 +247,8 @@ export async function updateStudent(
   const validatedFields = UpdateStudentSchema.safeParse({
     name: formData.get("name"),
     birthDate: formData.get("birthDate"),
+    birthTimeHour: formData.get("birthTimeHour"),
+    birthTimeMinute: formData.get("birthTimeMinute"),
     phone: formData.get("phone") || undefined,
     school: formData.get("school"),
     grade: formData.get("grade"),
@@ -256,11 +283,23 @@ export async function updateStudent(
   }
 
   try {
+    const birthTime = normalizeBirthTimeInput(
+      validatedFields.data.birthTimeHour,
+      validatedFields.data.birthTimeMinute
+    )
+    const {
+      birthTimeHour: _birthTimeHour,
+      birthTimeMinute: _birthTimeMinute,
+      ...updateData
+    } = validatedFields.data
     const shouldMarkRecalculation = Boolean(
       (validatedFields.data.name &&
         validatedFields.data.name !== existingStudent.name) ||
         hasDateChanged(existingStudent.birthDate, validatedFields.data.birthDate)
     )
+    const birthTimeChanged =
+      existingStudent.birthTimeHour !== birthTime.birthTimeHour ||
+      existingStudent.birthTimeMinute !== birthTime.birthTimeMinute
     const nextNameHanja = JSON.stringify(nameHanjaPayload.nameHanja ?? null)
     const previousNameHanja = JSON.stringify(existingStudent.nameHanja ?? null)
     const nameHanjaChanged = nextNameHanja !== previousNameHanja
@@ -268,19 +307,24 @@ export async function updateStudent(
     await db.student.update({
       where: { id: studentId },
       data: {
-        ...validatedFields.data,
+        ...updateData,
         nameHanja: nameHanjaPayload.nameHanja,
         birthDate: validatedFields.data.birthDate
           ? new Date(validatedFields.data.birthDate)
           : undefined,
+        ...birthTime,
       },
     })
 
-    if (shouldMarkRecalculation || nameHanjaChanged) {
+    if (shouldMarkRecalculation || nameHanjaChanged || birthTimeChanged) {
       await markStudentRecalculationNeeded(
         studentId,
         session.userId,
-        nameHanjaChanged ? "학생 한자 정보 변경" : "학생 기본 정보 변경"
+        birthTimeChanged
+          ? "학생 출생 시간 변경"
+          : nameHanjaChanged
+            ? "학생 한자 정보 변경"
+            : "학생 기본 정보 변경"
       )
     }
 
