@@ -70,10 +70,12 @@ Plans:
   2. 사주 해석이 한글로 제공된다 (오행, 십성 등)
   3. 학생 이름의 한글/한자 획수가 계산되고 수리(원격, 형격, 이격, 정격) 분석이 제공된다
   4. 분석 결과가 학생 프로필에 저장되고 언제든 조회할 수 있다
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] TBD during planning
+- [x] 03-01-PLAN.md — 분석 저장 스키마와 상태 UI
+- [x] 03-02-PLAN.md — 사주 계산 엔진 및 결과 패널
+- [ ] 03-03-PLAN.md — 성명학 계산 및 결과 표시
 
 ### Phase 4: MBTI Analysis
 **Goal**: 설문 기반으로 학생의 MBTI 성향을 판정하고 제공한다
@@ -143,7 +145,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 |-------|----------------|--------|-----------|
 | 1. Foundation & Authentication | 7/7 | Complete | 2026-01-28 |
 | 2. File Infrastructure | 4/4 | Complete | 2026-01-28 |
-| 3. Calculation Analysis | 0/TBD | Not started | - |
+| 3. Calculation Analysis | 2/3 | In progress | - |
 | 4. MBTI Analysis | 0/TBD | Not started | - |
 | 5. AI Image Analysis | 0/TBD | Not started | - |
 | 6. AI Integration | 0/TBD | Not started | - |
