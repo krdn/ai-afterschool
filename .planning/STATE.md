@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 ## Current Position
 
 Phase: 2 of 7 (File Infrastructure)
-Plan: 3 of 4 in current phase
-Status: In progress
-Last activity: 2026-01-28 - Completed 02-03-PLAN.md
+Plan: 4 of 4 in current phase
+Status: Phase complete
+Last activity: 2026-01-28 - Completed 02-04-PLAN.md
 
-Progress: [█████████░] 91%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -49,6 +49,7 @@ Recent decisions affecting current work:
 - Phase 1: 로컬 Supabase Postgres(54322)에서 마이그레이션 수행
 - Phase 1: Prisma 7 adapter-pg 기반 클라이언트/시드 구성 적용
 - Phase 2: Cloudinary signed direct upload 선택 (정사각 크롭, CDN 제공)
+- Phase 2: Cloudinary sign endpoint validates widget paramsToSign payloads
 
 ### Pending Todos
 
@@ -70,6 +71,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-28 02:44
-Stopped at: Completed 02-03-PLAN.md
+Last session: 2026-01-28 05:32
+Stopped at: Completed 02-04-PLAN.md
 Resume file: None
