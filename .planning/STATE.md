@@ -5,33 +5,34 @@
 See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Core value:** 학생 정보 통합 관리를 기반으로 AI 성향 분석 및 맞춤형 학습/진로 제안 제공
-**Current focus:** Phase 1 - Foundation & Authentication
+**Current focus:** Phase 2 - File Infrastructure
 
 ## Current Position
 
-Phase: 1 of 7 (Foundation & Authentication)
-Plan: 6 of 7 in current phase
+Phase: 2 of 7 (File Infrastructure)
+Plan: 1 of 4 in current phase
 Status: In progress
-Last activity: 2026-01-28 - Completed 01-05-PLAN.md
+Last activity: 2026-01-28 - Completed 02-01-PLAN.md
 
-Progress: [█████████░] 86%
+Progress: [███████░░░] 73%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
-- Average duration: 3.0 min
-- Total execution time: 0.30 hours
+- Total plans completed: 8
+- Average duration: 6.9 min
+- Total execution time: 0.92 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 1 (Foundation & Authentication) | 6 | 7 | 3.0 min |
+| 1 (Foundation & Authentication) | 7 | 7 | 7.7 min |
+| 2 (File Infrastructure) | 1 | 4 | 1.0 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-05 (1 min), 01-06 (4 min), 01-04 (12 min), 01-03 (0 min), 01-02 (0 min)
-- Trend: Implementing password reset flow
+- Last 5 plans: 02-01 (1 min), 01-07 (36 min), 01-06 (4 min), 01-05 (1 min), 01-04 (12 min)
+- Trend: Phase 2 kickoff and storage decision
 
 *Updated after each plan completion*
 
@@ -47,6 +48,7 @@ Recent decisions affecting current work:
 - Phase 1: Noto Sans KR 폰트 적용 (한국어 가독성 우선)
 - Phase 1: 로컬 Supabase Postgres(54322)에서 마이그레이션 수행
 - Phase 1: Prisma 7 adapter-pg 기반 클라이언트/시드 구성 적용
+- Phase 2: Cloudinary signed direct upload 선택 (정사각 크롭, CDN 제공)
 
 ### Pending Todos
 
@@ -68,6 +70,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-28 00:33
-Stopped at: Completed 01-05-PLAN.md
+Last session: 2026-01-28 11:16
+Stopped at: Completed 02-01-PLAN.md
 Resume file: None
