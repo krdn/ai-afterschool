@@ -23,6 +23,8 @@ model Student {
   name             String
   nameHanja        Json?
   birthDate        DateTime
+  birthTimeHour    Int?
+  birthTimeMinute  Int?
   phone            String?
   school           String
   grade            Int
