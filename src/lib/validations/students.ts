@@ -26,7 +26,15 @@ export const CreateStudentSchema = z.object({
   bloodType: z.enum(["A", "B", "AB", "O"]).optional().nullable(),
 })
 
+export const HanjaSelectionSchema = z.object({
+  syllable: z.string(),
+  hanja: z.string().nullable(),
+})
+
+export const NameHanjaSchema = z.array(HanjaSelectionSchema)
+
 export const UpdateStudentSchema = CreateStudentSchema.partial()
 
 export type CreateStudentInput = z.infer<typeof CreateStudentSchema>
 export type UpdateStudentInput = z.infer<typeof UpdateStudentSchema>
+export type NameHanjaInput = z.infer<typeof NameHanjaSchema>
