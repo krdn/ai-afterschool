@@ -3,10 +3,29 @@ import { z } from "zod"
 import { getSession } from "@/lib/session"
 import { createUploadSignature } from "@/lib/cloudinary"
 
+const FolderPattern =
+  /^students\/(?:drafts\/[a-zA-Z0-9-_]+|[a-zA-Z0-9-_]+)\/(profile|face|palm)$/
+
+const ParamsToSignSchema = z
+  .object({
+    folder: z
+      .string()
+      .regex(FolderPattern, "Folder must match students/{id}/type"),
+    timestamp: z.preprocess(
+      (value) => {
+        if (typeof value === "string" && value.trim() !== "") {
+          return Number(value)
+        }
+
+        return value
+      },
+      z.number().int().positive()
+    ),
+  })
+  .catchall(z.union([z.string(), z.number()]))
+
 const SignRequestSchema = z.object({
-  type: z.enum(["profile", "face", "palm"]),
-  studentId: z.string().optional(),
-  draftId: z.string().optional(),
+  paramsToSign: ParamsToSignSchema,
 })
 
 export async function POST(request: Request): Promise<Response> {
@@ -30,16 +49,11 @@ export async function POST(request: Request): Promise<Response> {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 })
   }
 
-  const { type, studentId, draftId } = parsed.data
-  const resolvedDraftId = studentId ? undefined : draftId ?? crypto.randomUUID()
-  const folder = studentId
-    ? `students/${studentId}/${type}`
-    : `students/drafts/${resolvedDraftId}/${type}`
-
-  const signature = createUploadSignature({ folder })
+  const { paramsToSign } = parsed.data
+  const signature = createUploadSignature(paramsToSign)
 
   return NextResponse.json({
     ...signature,
-    draftId: resolvedDraftId,
+    timestamp: paramsToSign.timestamp,
   })
 }
