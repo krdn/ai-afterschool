@@ -33,6 +33,12 @@ model Student {
   teacher          Teacher   @relation(fields: [teacherId], references: [id])
 
   images           StudentImage[]
+  sajuAnalysis     SajuAnalysis?
+  nameAnalysis     NameAnalysis?
+
+  calculationRecalculationNeeded Boolean  @default(false)
+  calculationRecalculationReason String?
+  calculationRecalculationAt     DateTime?
 
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
@@ -43,6 +49,36 @@ model Student {
   @@index([teacherId])
   @@index([name])
   @@index([school])
+}
+
+model SajuAnalysis {
+  id             String   @id @default(cuid())
+  studentId      String   @unique
+  inputSnapshot  Json
+  result         Json
+  interpretation String?
+  status         String   @default("complete")
+  version        Int      @default(1)
+  calculatedAt   DateTime
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  student        Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+}
+
+model NameAnalysis {
+  id             String   @id @default(cuid())
+  studentId      String   @unique
+  inputSnapshot  Json
+  result         Json
+  interpretation String?
+  status         String   @default("complete")
+  version        Int      @default(1)
+  calculatedAt   DateTime
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  student        Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
 }
 
 model StudentImage {
