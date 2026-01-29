@@ -1,0 +1,6 @@
+# Caddy reverse proxy configuration for AI Afterschool
+# Full configuration will be created in plan 08-02
+
+:80 {
+    reverse_proxy app:3000
+}

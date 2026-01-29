@@ -71,10 +71,11 @@ export async function GET() {
       results.checks.database.message += ` (slow: ${dbTime}ms)`
       results.status = 'degraded'
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Database connection failed'
     results.checks.database = {
       status: 'unhealthy',
-      message: error.message || 'Database connection failed',
+      message: errorMessage,
     }
     results.status = 'unhealthy'
   }
@@ -138,10 +139,11 @@ export async function GET() {
         results.status = 'unhealthy'
       }
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Storage check failed'
     results.checks.storage = {
       status: 'unhealthy',
-      message: error.message || 'Storage check failed',
+      message: errorMessage,
     }
     results.status = 'unhealthy'
   }
