@@ -1,80 +1,132 @@
 # Architecture Patterns
 
 **Domain:** 학원 학생 관리 시스템 with AI 성향 분석
-**Researched:** 2026-01-27
-**Overall confidence:** MEDIUM (verified with multiple 2026 sources, but specific AI integration patterns require validation)
+**Researched:** 2026-01-27 (Updated: 2026-01-30 for Production Deployment)
+**Overall confidence:** HIGH (verified with multiple 2026 sources, official documentation)
 
 ## Executive Summary
 
 학원 학생 관리 시스템은 **3-tier 아키텍처**를 기반으로 구성하되, Next.js App Router의 Server Components와 Server Actions를 활용한 모던 풀스택 패턴을 채택합니다. 핵심은 **학생 정보 관리를 중심으로 데이터가 흐르고**, AI 분석 기능들이 모듈식으로 연결되는 구조입니다.
+
+프로덕션 배포를 위해 **Docker Compose 기반의 멀티컨테이너 아키텍처**를 사용합니다. Nginx/Caddy 리버스 프록시를 통해 SSL 종료, 정적 파일 제공, 보안 헤더 관리를 처리하고, MinIO 또는 S3 호환 스토리지를 통해 PDF 파일을 저장합니다. PostgreSQL은 Prisma의 커넥션 풀링과 함께 운영되며, Sentry를 통한 모니터링과 헬스 체크 엔드포인트로 안정성을 확보합니다.
 
 **핵심 아키텍처 원칙:**
 1. **Student Data as Source of Truth** - 모든 분석과 제안은 학생 정보 기반
 2. **Modular AI Services** - 각 분석 기능(MBTI, 사주, 관상 등)은 독립적 모듈
 3. **Server-Side Heavy** - 민감한 데이터와 AI 처리는 서버에서
 4. **Feature-Based Organization** - 도메인별로 코드 구조화
+5. **Production-Ready Infrastructure** - 컨테이너화, 모니터링, 헬스 체크 포함
 
-## Recommended Architecture
+## Recommended Production Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                         PRESENTATION LAYER                       │
-│  Next.js App Router (Server Components + Client Components)     │
-│                                                                   │
-│  /app/                                                           │
-│  ├── (auth)/           # 인증 그룹                               │
-│  ├── (dashboard)/      # 대시보드 그룹                           │
-│  │   ├── students/     # 학생 관리                              │
-│  │   ├── analysis/     # 성향 분석                              │
-│  │   └── reports/      # 보고서                                 │
-│  └── api/              # API Routes (필요시)                     │
-└─────────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────────┐
-│                        APPLICATION LAYER                         │
-│  Server Actions + Business Logic                                │
-│                                                                   │
-│  /src/features/                                                  │
-│  ├── students/         # 학생 CRUD 로직                          │
-│  ├── auth/             # 인증 로직                               │
-│  ├── analysis/         # 분석 오케스트레이션                     │
-│  │   ├── mbti/                                                   │
-│  │   ├── saju/                                                   │
-│  │   ├── name-study/                                             │
-│  │   ├── face/                                                   │
-│  │   └── palm/                                                   │
-│  └── reports/          # 보고서 생성                             │
-└─────────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────────┐
-│                           DATA LAYER                             │
-│                                                                   │
+│                        EXTERNAL LAYER                            │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
-│  │ PostgreSQL   │  │ File Storage │  │ External AI  │          │
-│  │              │  │ (Local/S3)   │  │ APIs         │          │
-│  │ - 학생 정보   │  │              │  │              │          │
-│  │ - 분석 결과   │  │ - 학생 사진   │  │ - 관상 분석   │          │
-│  │ - 사용자      │  │ - 손금 사진   │  │ - 손금 분석   │          │
-│  └──────────────┘  └──────────────┘  └──────────────┘          │
-└─────────────────────────────────────────────────────────────────┘
+│  │   Browser    │  │  Monitoring  │  │    Health    │          │
+│  │              │  │   (Sentry)   │  │   Checks     │          │
+│  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘          │
+└─────────┼─────────────────┼─────────────────┼────────────────────┘
+          │                 │                 │
+          ↓                 ↓                 ↓
+┌─────────────────────────────────────────────────────────────────┐
+│                    REVERSE PROXY LAYER                          │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │  Nginx / Caddy (SSL Termination, Static Assets, Proxy)  │   │
+│  └──────────────────────┬──────────────────────────────────┘   │
+└─────────────────────────┼────────────────────────────────────────┘
+                          │
+          ┌───────────────┼───────────────┐
+          ↓               ↓               ↓
+┌─────────────────┐ ┌─────────────┐ ┌──────────────┐
+│  Next.js App    │ │ PostgreSQL  │ │   MinIO S3   │
+│  (App Router)   │ │  (Primary)  │ │  (PDF Store) │
+│                 │ └─────────────┘ └──────────────┘
+│  - Server Cmp   │       ↑               ↑
+│  - Server Acts  │       │               │
+│  - Route Hdlrs  │       │               │
+└─────────────────┘       │               │
+                          │               │
+              ┌───────────┴───────────────┴──────────┐
+              │         Persistent Volumes            │
+              │  (db-data, pdfs, uploads)             │
+              └────────────────────────────────────────┘
+
+External Services: Cloudinary (images), Claude API (AI), Resend (email)
 ```
 
-## Component Boundaries
+### Component Boundaries with Production Additions
 
-| Component | Responsibility | Communicates With | Notes |
-|-----------|---------------|-------------------|-------|
-| **Authentication System** | 선생님 로그인/세션 관리 | Database, Middleware | NextAuth.js 또는 AuthKit 권장 |
-| **Student Management** | 학생 CRUD, 검색, 목록 | Database, File Storage | 모든 기능의 기반 |
-| **File Upload Service** | 사진 업로드/저장/조회 | File Storage, Student Management | 학생 사진, 손금 사진 처리 |
-| **MBTI Analysis** | 설문 기반 MBTI 판정 | Database | 자체 로직, 외부 API 불필요 |
-| **Saju Calculator** | 사주팔자 계산 | Database | 만세력 로직 필요 (1900-2050) |
-| **Name Study Calculator** | 성명학 획수/수리 분석 | Database | 한글/한자 획수 DB 필요 |
-| **Face Analysis Service** | 관상 AI 분석 | File Storage, External AI API | 이미지 → AI → 키워드 |
-| **Palm Analysis Service** | 손금 AI 분석 | File Storage, External AI API | 이미지 → AI → 성향 |
-| **Report Generator** | 종합 보고서 PDF 생성 | All Analysis Modules, Database | Puppeteer 또는 react-pdf |
-| **AI Strategy Advisor** | 학습 전략/진로 제안 | Analysis Results, LLM API | GPT-4 등 활용 |
+| Component | Responsibility | Communicates With | Production Notes |
+|-----------|----------------|-------------------|------------------|
+| **Reverse Proxy (NEW)** | SSL termination, static serving, security headers | Next.js App, External clients | Nginx (stable) or Caddy (auto-HTTPS) |
+| **Next.js App** | Application logic, Server Components, Server Actions | PostgreSQL, MinIO, External APIs | Standalone mode, connection pooling |
+| **PostgreSQL** | Structured data storage, ACID transactions | Next.js App via Prisma | Connection pooling, health checks |
+| **MinIO/S3 (NEW)** | PDF file storage, persistent data | Next.js App | S3-compatible, presigned URLs |
+| **Monitoring (NEW)** | Error tracking, performance monitoring | All components | Sentry for errors/APM |
+| **Health Check (NEW)** | Container health monitoring | All services | `/api/health` endpoint |
 
-### Component 의존성 계층
+### Integration with Existing Architecture
+
+**현재 아키텍처 (개발용):**
+- Next.js 15 App Router + Server Actions
+- Prisma ORM + PostgreSQL
+- Cloudinary (이미지 저장소)
+- Claude API (AI 분석)
+- 로컬 파일 시스템 (PDF 저장)
+
+**프로덕션 추가/변경:**
+1. **리버스 프록시 추가**: Nginx/Caddy로 SSL 종료, 정적 파일 제공
+2. **PDF 스토리지 이관**: 로컬 → MinIO/S3 호환 스토리지
+3. **커넥션 풀링**: Prisma 연결 풀 설정 (connection_limit=10)
+4. **모니터링 통합**: Sentry 오류 추적 및 성능 모니터링
+5. **헬스 체크**: `/api/health` 엔드포인트 + Docker healthcheck
+6. **로깅**: 구조화된 로깅 (pino/winston)
+
+## Recommended Project Structure for Production
+
+```
+src/
+├── app/
+│   ├── api/
+│   │   ├── health/
+│   │   │   └── route.ts          # NEW: Health check endpoint
+│   │   └── ...
+│   └── ...
+├── lib/
+│   ├── storage/
+│   │   ├── s3.ts                 # NEW: S3/MinIO client
+│   │   └── pdf-storage.ts        # NEW: PDF storage abstraction
+│   ├── monitoring/
+│   │   ├── sentry.ts             # NEW: Sentry initialization
+│   │   └── logger.ts             # NEW: Structured logging
+│   ├── db/
+│   │   ├── connection.ts         # NEW: Connection pool config
+│   │   └── ...                   # Existing DAL
+│   └── ...
+├── middleware.ts                 # MODIFY: Add monitoring, security headers
+└── instrumentation.ts            # NEW: OpenTelemetry setup (optional)
+
+docker/
+├── nginx/
+│   └── nginx.conf                # NEW: Reverse proxy config
+├── app/
+│   ├── Dockerfile                # NEW: Multi-stage build
+│   └── .dockerignore
+└── docker-compose.yml            # NEW: Multi-container orchestration
+```
+
+### Structure Rationale
+
+- **docker/**: 모든 배포 관련 설정을 앱 코드와 분리
+- **lib/storage/**: 스토리지 백엔드 추상화 (local, S3, MinIO)
+- **lib/monitoring/**: 중앙화된 오류 추적 및 로깅
+- **api/health/**: 컨테이너 오케스트레이션용 헬스 체크
+- **instrumentation.ts**: Next.js 16+ 초기화 훅 지원
+
+## Component Dependencies
+
+### Component 의존성 계층 (기존)
 
 ```
 Level 1 (Foundation):
@@ -94,11 +146,30 @@ Level 3 (Synthesis):
   - Report Generator
 ```
 
-**Level 1이 없으면 Level 2, 3 작동 불가. Level 2 모듈들은 서로 독립적.**
+### Production Infrastructure Dependencies
+
+```
+Infrastructure Layer 1 (Foundation Services):
+  - PostgreSQL (with volume mount)
+  - MinIO (with volume mount)
+  - Redis (optional - for caching/queues)
+
+Infrastructure Layer 2 (Application Services):
+  - Next.js App (depends on Layer 1)
+  - Background Worker (optional - depends on Layer 1)
+
+Infrastructure Layer 3 (Networking):
+  - Nginx/Caddy (depends on Layer 2)
+```
+
+**Build Order:**
+1. Foundation services 먼저 시작 (postgres, minio)
+2. Health check 통과 후 app 시작
+3. App 준비 완료 후 reverse proxy 시작
 
 ## Data Flow
 
-### 1. Student Registration Flow
+### 1. Student Registration Flow (기존)
 
 ```
 선생님 입력
@@ -112,26 +183,7 @@ Return Student ID
 Redirect to Student Detail Page
 ```
 
-### 2. Analysis Request Flow
-
-```
-선생님이 분석 요청 (학생 선택)
-  ↓
-[Server Component] Load Student Data
-  ↓
-분석 타입별 분기:
-  ├─ MBTI: Survey → Calculate → Store
-  ├─ Saju: Birthday → Calculate (만세력) → Store
-  ├─ Name Study: Name → Calculate (획수) → Store
-  ├─ Face: Photo → AI API → Parse → Store
-  └─ Palm: Photo → AI API → Parse → Store
-  ↓
-Store Analysis Result in DB
-  ↓
-Display Result + Update UI
-```
-
-### 3. Report Generation Flow
+### 2. PDF Generation Flow (Production - NEW)
 
 ```
 선생님이 보고서 요청
@@ -143,468 +195,726 @@ Query:
   - All Analysis Results
   - AI Strategy Recommendations
   ↓
-Render HTML Template with Data
+[@react-pdf/renderer creates PDF]
   ↓
-Convert to PDF (Puppeteer/react-pdf)
+[PDF Buffer]
   ↓
-Stream PDF to Browser
+[S3PDFStorage.upload()] → MinIO/S3
+  ↓
+[ReportPDF record updated with S3 key]
+  ↓
+User downloads via /api/pdfs/{key}
+  ↓
+[S3PDFStorage.download()] → Stream to client
 ```
 
-### 4. AI Strategy Recommendation Flow
+### 3. Health Check Flow (Production - NEW)
 
 ```
-Trigger: After all analyses complete
+[Docker Healthcheck]
   ↓
-[Server Action] generateStrategy(studentId)
+[GET /api/health]
   ↓
-Aggregate All Analysis Results
+[Check DB Connection] → Prisma query
   ↓
-Call LLM API (GPT-4) with:
-  - Student profile
-  - Analysis results
-  - Prompt template
+[Check Storage] → S3 HeadBucket
   ↓
-Parse LLM Response
+[Return JSON status] → 200 (healthy) or 503 (degraded)
   ↓
-Store Recommendations in DB
-  ↓
-Display to Teacher
+[Docker restarts container if unhealthy]
 ```
 
-## Patterns to Follow
+### 4. Request Flow (Production - NEW)
 
-### Pattern 1: Server Actions for Mutations
+```
+[User Browser]
+  ↓
+[Nginx/Caddy] → SSL Termination → Static Asset Check
+  ↓
+[Next.js App]
+  ↓
+[Server Component] → [Server Action] → [Prisma ORM] → [PostgreSQL]
+  ↓              ↓                ↓                 ↓
+[Response] ← [Data Transform] ← [Query Result] ← [Database]
+```
 
-**What:** Next.js 15+ App Router의 Server Actions를 모든 데이터 변경에 사용
+## Production Architectural Patterns
 
-**When:** Form submission, 데이터 생성/수정/삭제, 파일 업로드
+### Pattern 1: Reverse Proxy Termination (NEW)
 
-**Why:**
-- Type-safe, 클라이언트 번들 크기 감소
-- Progressive enhancement 지원
-- API Routes 불필요
+**What:** Nginx/Caddy를 Next.js 앞에 두어 SSL, 압축, 정적 파일 제공 처리
+
+**When to use:**
+- 프로덕션 배포 (HTTPS 필요)
+- 정적 파일 (PDF, 이미지) 효율적 제공
+- 단일 서버에서 여러 서비스 운영
+- 보안 헤더 및 CORS 관리
+
+**Trade-offs:**
+- Pros: Next.js 부하 분산, 성능 향상, 성숙된 SSL 처리
+- Cons: 추가 관리 계층, 디버깅 복잡성 증가
+
+**Example (Nginx):**
+```nginx
+# docker/nginx/nginx.conf
+server {
+    listen 443 ssl http2;
+    server_name your-domain.com;
+
+    ssl_certificate /etc/nginx/ssl/cert.pem;
+    ssl_certificate_key /etc/nginx/ssl/key.pem;
+
+    # Static files and uploads
+    location /static/ {
+        alias /app/public/;
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # Next.js app
+    location / {
+        proxy_pass http://nextjs:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Health check
+    location /health {
+        proxy_pass http://nextjs:3000/api/health;
+        access_log off;
+    }
+}
+```
+
+**Example (Caddy - Auto-HTTPS):**
+```caddy
+# docker/Caddyfile
+your-domain.com {
+    reverse_proxy nextjs:3000
+
+    # Static files
+    handle /static/* {
+        root * /app/public
+        file_server
+    }
+
+    # Health check
+    handle /health {
+        reverse_proxy nextjs:3000/api/health
+    }
+
+    # Logging
+    log {
+        output file /var/log/caddy/access.log
+    }
+}
+```
+
+### Pattern 2: Docker Compose Multi-Container Architecture (NEW)
+
+**What:** 모든 서비스 (app, db, proxy, storage)를 docker-compose.yml에 정의
+
+**When to use:**
+- 단일 서버 배포 (타겟: 192.168.0.5)
+- 개발-프로덕션 파리티
+- 간단한 스케일링 요구사항
+
+**Trade-offs:**
+- Pros: 재현 가능한 배포, 쉬운 로컬 개발, 간단한 스케일링
+- Cons: 멀티 서버 배포 불가, 제한된 오케스트레이션 기능
+
+**Example:**
+```yaml
+# docker/docker-compose.yml
+version: '3.8'
+
+services:
+  # PostgreSQL with persistent volume
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # MinIO for S3-compatible storage
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_KEY}
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    restart: unless-stopped
+
+  # Next.js app
+  app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}
+      S3_ENDPOINT: http://minio:9000
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY}
+      S3_SECRET_KEY: ${S3_SECRET_KEY}
+      S3_BUCKET: ${S3_BUCKET}
+      SENTRY_DSN: ${SENTRY_DSN}
+      NEXT_PUBLIC_APP_URL: https://your-domain.com
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+  # Nginx reverse proxy
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - nginx_cache:/var/cache/nginx
+    depends_on:
+      app:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  minio_data:
+  nginx_cache:
+```
+
+### Pattern 3: Storage Abstraction Layer (NEW)
+
+**What:** 로컬 파일시스템, S3, MinIO를 지원하는 스토리지 추상화
+
+**When to use:**
+- 로컬 → 클라우드 스토리지 이관 필요
+- 백업/복구 기능 필요
+- 다양한 배포 환경 (dev vs prod)
+
+**Trade-offs:**
+- Pros: 유연성, 쉬운 이관, 테스트 가능
+- Cons: 추가 추상화 계층, 약간의 오버헤드
 
 **Example:**
 ```typescript
-// src/features/students/actions.ts
-'use server'
+// src/lib/storage/pdf-storage.ts
+export interface PDFStorage {
+  upload(studentId: string, pdfBuffer: Buffer): Promise<string>;
+  download(fileUrl: string): Promise<Buffer>;
+  delete(fileUrl: string): Promise<void>;
+  getUrl(fileUrl: string): string;
+}
 
-import { revalidatePath } from 'next/cache'
-import { db } from '@/lib/db'
+export class S3PDFStorage implements PDFStorage {
+  private client: S3Client;
+  private bucket: string;
 
-export async function createStudent(formData: FormData) {
-  const name = formData.get('name') as string
-  const birthday = formData.get('birthday') as string
-
-  // Validate
-  if (!name || !birthday) {
-    return { error: '필수 정보를 입력해주세요' }
+  constructor(endpoint: string, accessKey: string, secretKey: string, bucket: string) {
+    this.client = new S3Client({
+      endpoint,
+      region: 'us-east-1',
+      credentials: {
+        accessKeyId: accessKey,
+        secretAccessKey: secretKey,
+      },
+      forcePathStyle: true, // Required for MinIO
+    });
+    this.bucket = bucket;
   }
 
-  // Insert to DB
-  const student = await db.student.create({
-    data: { name, birthday }
-  })
+  async upload(studentId: string, pdfBuffer: Buffer): Promise<string> {
+    const key = `reports/${studentId}/${Date.now()}.pdf`;
 
-  // Revalidate cache
-  revalidatePath('/students')
+    await this.client.send(
+      new PutObjectCommand({
+        Bucket: this.bucket,
+        Key: key,
+        Body: pdfBuffer,
+        ContentType: 'application/pdf',
+      })
+    );
 
-  return { success: true, studentId: student.id }
+    return key;
+  }
+
+  async download(fileUrl: string): Promise<Buffer> {
+    const command = new GetObjectCommand({
+      Bucket: this.bucket,
+      Key: fileUrl,
+    });
+
+    const response = await this.client.send(command);
+    const chunks = [];
+
+    for await (const chunk of response.Body as any) {
+      chunks.push(chunk);
+    }
+
+    return Buffer.concat(chunks);
+  }
+
+  async delete(fileUrl: string): Promise<void> {
+    await this.client.send(
+      new DeleteObjectCommand({
+        Bucket: this.bucket,
+        Key: fileUrl,
+      })
+    );
+  }
+
+  getUrl(fileUrl: string): string {
+    return `/api/pdfs/${fileUrl}`;
+  }
+}
+
+// Factory for environment-specific storage
+export function createPDFStorage(): PDFStorage {
+  if (process.env.S3_ENDPOINT) {
+    return new S3PDFStorage(
+      process.env.S3_ENDPOINT,
+      process.env.S3_ACCESS_KEY!,
+      process.env.S3_SECRET_KEY!,
+      process.env.S3_BUCKET!
+    );
+  }
+
+  // Fallback to local storage (dev only)
+  return new LocalPDFStorage('./public/pdfs');
 }
 ```
 
-### Pattern 2: Feature-Based Module Organization
+### Pattern 4: Connection Pooling with Prisma (NEW)
 
-**What:** 기능(feature)별로 관련 코드를 함께 배치
+**What:** Prisma로 효율적인 DB 연결 관리
 
-**When:** 프로젝트 구조 설계 시
+**When to use:**
+- 프로덕션 배포 (PostgreSQL 사용)
+- 서버리스 또는 컨테이너 환경
+- 동시 요청 처리
 
-**Why:**
-- 응집도 높음, 결합도 낮음
-- 코드 찾기 쉬움
-- 기능 단위로 테스트/배포 가능
+**Trade-offs:**
+- Pros: 연결 고갈 방지, 성능 향상
+- Cons: 워크로드별 튜닝 필요, 복잡성 증가
 
-**Structure:**
+**Example:**
+```prisma
+// prisma/schema.prisma
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+
+  // Connection pool configuration
+  // For Docker/VM: 10-20 connections per instance
+  // For serverless: 1-5 connections (use Prisma Accelerate)
+  connection_limit = 10
+  pool_timeout = 20 // seconds
+}
 ```
-src/features/
-├── students/
-│   ├── components/
-│   │   ├── StudentForm.tsx
-│   │   └── StudentList.tsx
-│   ├── actions.ts        # Server Actions
-│   ├── queries.ts        # DB Queries
-│   └── types.ts          # TypeScript Types
-├── analysis/
-│   ├── mbti/
-│   ├── saju/
-│   └── ...
+
+**Environment variable:**
+```bash
+# .env.production
+DATABASE_URL="postgresql://user:pass@postgres:5432/db?connection_limit=10&pool_timeout=20&connect_timeout=10"
 ```
 
-### Pattern 3: Separation of Calculation vs AI
+### Pattern 5: Health Check Architecture (NEW)
 
-**What:** 계산 가능한 분석(사주, 성명학)과 AI 기반 분석(관상, 손금)을 명확히 구분
+**What:** 앱, DB, 외부 서비스 헬스 상태 체크 경량 엔드포인트
 
-**When:** 분석 모듈 설계 시
+**When to use:**
+- Docker healthcheck 통합
+- 로드 밸런서 헬스 체크
+- 모니터링 대시보드
 
-**Why:**
-- 계산 로직: 신뢰성 100%, 비용 0, 속도 빠름
-- AI 분석: 신뢰성 변동, API 비용, 속도 느림
-- 다른 에러 처리 전략 필요
+**Trade-offs:**
+- Pros: 자동 컨테이너 복구, 모니터링 통합
+- Cons: 추가 엔드포인트 관리, false positive 가능
 
-**Implementation:**
+**Example:**
 ```typescript
-// Calculation-based (Deterministic)
-export async function calculateSaju(birthday: Date) {
-  // Pure function - always same output for same input
-  return sajuAlgorithm(birthday)
-}
+// src/app/api/health/route.ts
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/db';
 
-// AI-based (Non-deterministic)
-export async function analyzeFace(imageUrl: string) {
+export const runtime = 'edge';
+
+export async function GET() {
+  const checks = {
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    checks: {
+      database: 'unknown',
+      storage: 'unknown',
+    },
+  };
+
+  // Database health check
   try {
-    const result = await aiService.analyze(imageUrl)
-    return result
+    await prisma.$queryRaw`SELECT 1`;
+    checks.checks.database = 'healthy';
   } catch (error) {
-    // Retry logic, fallback, error handling
-    return { error: 'AI 분석 실패', retry: true }
+    checks.checks.database = 'unhealthy';
+    checks.status = 'degraded';
   }
+
+  // Storage health check (S3/MinIO)
+  if (process.env.S3_ENDPOINT) {
+    try {
+      const client = new S3Client({ /* config */ });
+      await client.send(new HeadBucketCommand({ Bucket: process.env.S3_BUCKET }));
+      checks.checks.storage = 'healthy';
+    } catch (error) {
+      checks.checks.storage = 'unhealthy';
+      checks.status = 'degraded';
+    }
+  }
+
+  const statusCode = checks.status === 'healthy' ? 200 : 503;
+
+  return NextResponse.json(checks, { status: statusCode });
 }
 ```
 
-### Pattern 4: Multi-Tenant Authentication via Middleware
+### Pattern 6: Monitoring with Sentry (NEW)
 
-**What:** Next.js Middleware로 선생님 세션 검증 및 학생 데이터 접근 제어
+**What:** Sentry 통합 오류 추적 및 성능 모니터링
 
-**When:** 다중 선생님 계정 구현 시
+**When to use:**
+- 프로덕션 배포
+- 오류 추적 및 성능 모니터링 필요
+- 이슈 알림 필요
 
-**Why:**
-- Edge에서 빠르게 인증 체크
-- 모든 route에 자동 적용
-- DB 쿼리에 teacher_id 자동 필터
+**Trade-offs:**
+- Pros: 자동 오류 캡처, 성능 인사이트, 릴리스 추적
+- Cons: 규모에 따른 비용, 프라이버시 고려사항
 
 **Example:**
 ```typescript
-// middleware.ts
-export async function middleware(request: NextRequest) {
-  const session = await getSession(request)
+// src/lib/monitoring/sentry.ts
+import * as Sentry from '@sentry/nextjs';
 
-  if (!session) {
-    return NextResponse.redirect('/login')
-  }
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  environment: process.env.NODE_ENV,
+  tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
 
-  // Add teacher_id to headers for downstream use
-  const headers = new Headers(request.headers)
-  headers.set('x-teacher-id', session.teacherId)
+  // Filter sensitive data
+  beforeSend(event, hint) {
+    // Remove personal information
+    if (event.request?.headers) {
+      delete event.request.headers['cookie'];
+      delete event.request.headers['authorization'];
+    }
+    return event;
+  },
 
-  return NextResponse.next({ headers })
-}
+  // Integrations
+  integrations: [
+    new Sentry.BrowserTracing(),
+    new Sentry.Replay({
+      maskAllText: true,
+      blockAllMedia: true,
+    }),
+  ],
 
-export const config = {
-  matcher: ['/students/:path*', '/analysis/:path*']
-}
+  // Session replay
+  replaysSessionSampleRate: 0.1,
+  replaysOnErrorSampleRate: 1.0,
+});
 ```
 
-### Pattern 5: Progressive AI Integration
-
-**What:** 분석 결과를 단계적으로 수집하고, 사용 가능한 데이터만으로 제안 생성
-
-**When:** 모든 분석이 완료되지 않은 상태에서도 가치 제공
-
-**Why:**
-- 일부 분석 실패해도 시스템 사용 가능
-- 사용자는 즉시 피드백 받음
-- 점진적 개선 가능
-
-**Implementation:**
 ```typescript
-export async function generateStrategy(studentId: string) {
-  const analyses = await db.analysis.findMany({
-    where: { studentId, completed: true }
-  })
-
-  // Work with whatever data is available
-  const prompt = buildPrompt(analyses)  // Smart prompt building
-  const strategy = await llm.generate(prompt)
-
-  return {
-    strategy,
-    basedOn: analyses.map(a => a.type),
-    missing: getMissingAnalyses(analyses)
+// src/instrumentation.ts
+export async function register() {
+  if (process.env.NEXT_RUNTIME === 'nodejs') {
+    await import('@/lib/monitoring/sentry');
   }
 }
 ```
 
 ## Anti-Patterns to Avoid
 
-### Anti-Pattern 1: Monolithic Analysis Function
+### Anti-Pattern 1: Storing PDFs in Database (NEW)
 
-**What:** 모든 분석을 한 함수에서 순차적으로 처리
+**What people do:** PDF 바이너리를 PostgreSQL bytea 컬럼에 저장
 
-**Why bad:**
-- 한 분석 실패하면 전체 실패
-- 사용자는 모든 분석 끝날 때까지 대기
-- 재시도 불가능
+**Why it's wrong:**
+- DB 크기 팽창 (PDF는 수 MB씩)
+- 백업/복구 느림
+- 캐시 성능 저하
+- 다운로드 시 연결 낭비
 
-**Instead:**
-```typescript
-// BAD
-async function analyzeAll(studentId) {
-  const mbti = await analyzeMBTI()      // 10초
-  const saju = await analyzeSaju()       // 5초
-  const face = await analyzeFace()       // 30초
-  return { mbti, saju, face }            // 총 45초 대기
-}
+**Do this instead:**
+- S3 호환 객체 스토리지 사용 (MinIO, AWS S3)
+- DB에는 S3 키/경로만 저장
+- ReportPDF.fileUrl 필드를 S3 키 참조로 사용
 
-// GOOD
-async function analyzeAll(studentId) {
-  // Parallel + independent
-  const [mbti, saju, face] = await Promise.allSettled([
-    analyzeMBTI(),
-    analyzeSaju(),
-    analyzeFace()
-  ])
+### Anti-Pattern 2: Hardcoding Storage Paths (NEW)
 
-  // Handle each result independently
-  return results.map(handleResult)
-}
-```
+**What people do:** 코드에 `/var/www/pdfs/` 같은 절대 경로 하드코딩
 
-### Anti-Pattern 2: Client-Side AI API Calls
+**Why it's wrong:**
+- 다른 환경에서 동작 안 함 (dev vs prod)
+- 스토리지 이관 어려움
+- 파일시스템과 강하게 결합
 
-**What:** 클라이언트에서 직접 AI API 호출
+**Do this instead:**
+- 환경 변수로 스토리지 설정
+- 인터페이스 뒤에 스토리지 연산 추상화
+- 로컬 및 S3 스토리지 모두 지원
 
-**Why bad:**
-- API 키 노출
-- CORS 이슈
-- 비용 제어 불가
-- 에러 처리 어려움
+### Anti-Pattern 3: No Connection Pooling (NEW)
 
-**Instead:** 항상 Server Actions 통해 호출
+**What people do:** 프로덕션에서 기본 Prisma 연결 설정 사용
 
-### Anti-Pattern 3: Hard-Coded Analysis Prompts
+**Why it's wrong:**
+- 쿼리마다 새 연결 생성
+- PostgreSQL 연결 한계 초과
+- "too many connections" 에러
 
-**What:** AI 프롬프트를 코드에 직접 하드코딩
+**Do this instead:**
+- DATABASE_URL에 connection_limit 설정
+- 서버리스용 Prisma Accelerate 사용
+- 연결 사용량 모니터링
 
-**Why bad:**
-- 프롬프트 수정 시 재배포 필요
-- A/B 테스트 불가
-- 버전 관리 어려움
+### Anti-Pattern 4: Blocking Health Checks (NEW)
 
-**Instead:**
-```typescript
-// Store prompts in DB with versioning
-const prompt = await db.prompt.findFirst({
-  where: { type: 'strategy', active: true },
-  orderBy: { version: 'desc' }
-})
-```
+**What people do:** 헬스 체크에서 느린 쿼리 또는 외부 API 호출
 
-### Anti-Pattern 4: Eager PDF Generation
+**Why it's wrong:**
+- False positive 발생 (헬스 체크 타임아웃)
+- 불필요한 컨테이너 재시작
+- 정상 운영 중 다운타임
 
-**What:** 보고서 요청과 동시에 PDF 생성 후 DB 저장
+**Do this instead:**
+- 헬스 체크 경량 유지 (< 1초)
+- 필수 의존성만 체크 (DB, 스토리지)
+- 모든 체크에 타임아웃 설정
 
-**Why bad:**
-- 생성 시간 30초+
-- 저장 공간 낭비
-- 데이터 변경 시 stale data
+### Anti-Pattern 5: Logging Everything to stdout (NEW)
 
-**Instead:**
-```typescript
-// On-demand generation + cache
-export async function getReport(studentId: string) {
-  const cached = await cache.get(`report:${studentId}`)
-  if (cached && !isStale(cached)) {
-    return cached
-  }
+**What people do:** 모든 애플리케이션 출력을 console.log
 
-  // Generate fresh
-  const pdf = await generatePDF(studentId)
-  await cache.set(`report:${studentId}`, pdf, { ttl: 3600 })
-  return pdf
-}
-```
+**Why it's wrong:**
+- 필터 및 검색 어려움
+- 로그 레벨 없음 (info, warn, error)
+- 성능 영향
 
-### Anti-Pattern 5: Mixed Calculation Libraries
+**Do this instead:**
+- 구조화된 로깅 사용 (pino, winston)
+- 파일 또는 로그 집계 서비스에 로그
+- 적절한 로그 레벨 사용
 
-**What:** 여러 사주/성명학 라이브러리를 섞어서 사용
+## Scalability Considerations (Updated)
 
-**Why bad:**
-- 계산 결과 불일치
-- 디버깅 어려움
-- 사용자 혼란
+| Scale | Architecture Adjustments |
+|-------|--------------------------|
+| **0-1k users** | 단일 Docker Compose 스택, Redis 없음, 연결 풀 10, 단일 app 인스턴스 |
+| **1k-10k users** | Redis 캐싱 추가, 연결 풀 20으로 증가, 로드 밸런서 뒤에 app 인스턴스 2개, 정적 파일용 CDN |
+| **10k-100k users** | 별도 DB 서버, PgBouncer 연결 풀링, 전용 Redis 인스턴스, app 수평 확장, 별도 스토리지 서비스 |
 
-**Instead:** 한 라이브러리 선택 후 일관되게 사용, 버전 고정
+### Scaling Priorities (Updated)
 
-## Scalability Considerations
+1. **First bottleneck**: PDF 생성으로 요청 차단
+   - Solution: 백그라운드 작업 큐 (BullMQ) + Redis + 별도 worker 컨테이너
+   - Monitor: 보고서 생성 큐 길이
 
-| Concern | At 50 users | At 200 users | At 1000+ users |
-|---------|-------------|--------------|----------------|
-| **Database** | PostgreSQL (단일 인스턴스) | PostgreSQL + Read Replica | PostgreSQL + Connection Pooling + Caching |
-| **File Storage** | Local filesystem (Docker volume) | S3-compatible storage | CDN + S3 |
-| **AI Analysis** | Synchronous API calls | Queue system (BullMQ) | Dedicated AI worker servers |
-| **Report Generation** | On-demand generation | Generated + cached (Redis) | Pre-generated + versioned |
-| **Authentication** | Session-based (DB) | JWT + Redis session store | Distributed session store |
+2. **Second bottleneck**: DB 쿼리 성능
+   - Solution: 자주 조회하는 필드에 인덱스 추가, 쿼리 캐싱 활성화, Prisma 쿼리 최적화 사용
+   - Monitor: 느린 쿼리 로그, 연결 풀 사용량
 
-### Critical Scaling Points
+3. **Third bottleneck**: AI API rate limits
+   - Solution: 요청 큐잉, 지수 백오프로 재시도 로직, AI 응답 캐싱
+   - Monitor: Claude API 에러율, 응답 시간
 
-**50 → 200명:**
-- Local file storage → S3 migration 필요
-- AI API rate limits 체크 필요
-- DB connection pool 설정
+## Migration Strategy (NEW)
 
-**200 → 1000명:**
-- Queue system 도입 (긴 작업 비동기 처리)
-- Redis caching layer 추가
-- DB 인덱스 최적화
-- Monitoring & alerting 필수
+### PDF Storage Migration (Local → S3)
 
-## Build Order (Dependency-Based)
+**Phase 1: S3 지원 추가 (이관 없음)**
+1. `PDFStorage` 인터페이스 생성
+2. `S3PDFStorage` 및 `LocalPDFStorage` 구현
+3. 환경 변수로 스토리지 선택
+4. `STORAGE_TYPE=local`으로 배포
 
-이 순서는 컴포넌트 간 의존성을 고려한 구현 순서입니다.
+**Phase 2: 기존 PDF 이관**
+1. 로컬 PDF 읽기 마이그레이션 스크립트 생성
+2. 메타데이터와 함께 S3에 업로드
+3. S3 키로 `ReportPDF.fileUrl` 업데이트
+4. 업로드 검증 및 레코드 업데이트
 
-### Phase 1: Foundation (필수 기반)
-```
-1. Database Schema Setup
-2. Authentication System (선생님 로그인)
-3. Student Management (CRUD)
-   └─ Basic info only (no files yet)
-```
+**Phase 3: S3-only 전환**
+1. 프로덕션에서 `STORAGE_TYPE=s3` 변경
+2. 에러 모니터링
+3. 로컬 스토리지 코드 제거
 
-**Rationale:** 학생 데이터가 없으면 아무것도 분석할 수 없음
+### Database Connection Pooling Migration
 
-### Phase 2: File Handling (분석 준비)
-```
-4. File Upload Service
-   └─ Student photos
-   └─ Palm photos
-```
+**Current:** 명시적 연결 설정 없음
+**Target:** `connection_limit=10`, `pool_timeout=20`
 
-**Rationale:** 관상/손금 분석에 필요
+**Steps:**
+1. 프로덕션 env에서 DATABASE_URL 업데이트
+2. 스테이징에서 로드 테스트로 테스트
+3. 연결 사용량 모니터링
+4. 메트릭 기반 제한 조정
 
-### Phase 3: Calculation-Based Analysis (신뢰도 높음)
-```
-5. MBTI Analysis (설문)
-6. Saju Calculator (사주팔자)
-7. Name Study Calculator (성명학)
-```
+## Monitoring Architecture (NEW)
 
-**Rationale:** 외부 의존성 없음, 빠르게 구현 가능, 즉시 가치 제공
+### Application Performance Monitoring (APM)
 
-### Phase 4: AI-Based Analysis (외부 의존성)
-```
-8. Face Analysis Service
-9. Palm Analysis Service
-```
+| Component | Tool | Purpose |
+|-----------|------|---------|
+| **Error Tracking** | Sentry | 오류 집계 및 스택 추적 |
+| **Performance Monitoring** | Sentry Performance | 페이지 로드 시간, API 지연 시간 추적 |
+| **Uptime Monitoring** | UptimeRobot / external | 헬스 체크 엔드포인트 폴링 |
+| **Database Monitoring** | Prisma query logs + pg_stat_statements | 느린 쿼리 식별 |
+| **Log Aggregation** | Loki / ELK / Cloud-native | 중앙화된 로그 검색 |
 
-**Rationale:** AI API 통합 필요, 계산 분석 먼저 완료 후 추가
+### Health Check Architecture
 
-### Phase 5: Synthesis (종합)
-```
-10. AI Strategy Advisor (학습 전략/진로 제안)
-11. Report Generator (PDF 출력)
-```
+**헬스 체크 레벨:**
 
-**Rationale:** 모든 분석 결과가 있어야 종합 가능
+1. **Liveness**: 앱이 실행 중인가?
+   - Endpoint: `GET /api/health`
+   - Check: HTTP 응답
+   - Failure: 컨테이너 재시작
 
-### Inter-Phase Dependencies
+2. **Readiness**: 요청을 처리할 수 있는가?
+   - Endpoint: `GET /api/health/ready`
+   - Check: DB 연결, S3 연결
+   - Failure: 로드 밸런서 순환에서 제거
 
-```
-Phase 1 ──────────┐
-                  ↓
-Phase 2 ──────┐   │
-              ↓   ↓
-Phase 3 ──────┼───┤
-              ↓   ↓
-Phase 4 ──────┼───┤
-              ↓   ↓
-Phase 5 ←─────┴───┘
-```
+3. **Deep Health**: 모든 의존성이 건강한가?
+   - Endpoint: `GET /api/health/deep`
+   - Check: DB, S3, 외부 API (Claude, Resend)
+   - Failure: 알림 but 재시작 없음
 
-**Phase 1, 2는 blocking dependencies. Phase 3, 4는 parallel 가능.**
+### Alerting Strategy
 
-## Technology Stack Integration Points
+| Alert Type | Condition | Action |
+|------------|-----------|--------|
+| **App Down** | 헬스 체크 3회 실패 | PagerDuty/Slack + 자동 재시작 |
+| **High Error Rate** | 5분 동안 에러 > 5% | Slack 알림 |
+| **Slow Queries** | 쿼리 > 5초 | 최적화용 JIRA 티켓 |
+| **Storage Full** | 디스크 > 80% | 이메일 + 스토리지 확장 |
+| **API Quota** | Claude API rate limit | 알림 + 생성 일시 중지 |
 
-### Next.js App Router Specifics
+## Technology Stack Integration Points (Updated)
 
-**Server Components (Default):**
-- `/app/(dashboard)/students/page.tsx` - 학생 목록 (SSR)
-- `/app/(dashboard)/students/[id]/page.tsx` - 학생 상세 (SSR)
+### Production Infrastructure Additions
 
-**Client Components ('use client'):**
-- Form widgets (date picker, file upload)
-- Interactive tables/charts
-- Modal dialogs
+**NEW - Reverse Proxy:**
+- Nginx (안정적, 성숙) 또는 Caddy (자동 HTTPS, 쉬운 설정)
+- SSL 종료, 정적 파일 제공, 보안 헤더 관리
 
-**Server Actions:**
-- All mutations (create, update, delete)
-- File uploads
-- AI API calls
+**NEW - Storage:**
+- MinIO (셀프 호스팅) 또는 AWS S3 (클라우드)
+- PDF 파일용 S3 호환 객체 스토리지
+- Presigned URLs로 직접 클라이언트 업로드/다운로드
 
-### Database (PostgreSQL)
+**NEW - Monitoring:**
+- Sentry (오류 추적 및 성능 모니터링)
+- 구조화된 로깅 (pino/winston)
+- 헬스 체크 엔드포인트
 
-**ORM 선택:**
-- **Prisma** (권장) - Type-safe, migration 관리 우수
-- Drizzle - Lighter, SQL-like
+**NEW - Connection Pooling:**
+- Prisma 연결 풀 설정
+- Docker 환경에 맞는 연결 제한 (connection_limit=10)
 
-**Schema 구조:**
-```sql
--- Core tables
-teachers (id, email, name, password_hash)
-students (id, teacher_id, name, birthday, photo_url)
-analyses (id, student_id, type, result_json, completed_at)
-recommendations (id, student_id, strategy_text, created_at)
+### Existing Stack (Unchanged)
 
--- Type: 'mbti' | 'saju' | 'name_study' | 'face' | 'palm'
-```
+**Next.js App Router:**
+- Server Components (default)
+- Client Components ('use client' directive)
+- Server Actions for mutations
 
-### File Storage
+**Database:**
+- PostgreSQL 16+ with Prisma ORM
+- Connection pooling for production
 
-**Development:** Local Docker volume (`./data/uploads`)
-**Production:** S3-compatible (AWS S3, Cloudflare R2, MinIO)
-
-**File naming:** `{teacherId}/{studentId}/{type}-{timestamp}.{ext}`
-
-### AI/ML Integration
-
-**관상/손금 분석 Options:**
-
-1. **OpenAI Vision API** (추천)
-   - GPT-4 Vision으로 이미지 분석
-   - Prompt: "Analyze this face/palm for personality traits"
-   - Cost: ~$0.01 per image
-
-2. **Custom Model** (advanced)
-   - TensorFlow.js / ONNX Runtime Web
-   - Pre-trained face/palm model
-   - Client-side inference 가능 (privacy)
-
-3. **Third-party Service**
-   - FacePlusPlus, AWS Rekognition
-   - 특화된 분석 API
-
-**학습 전략/진로 제안:**
-- GPT-4 API with structured prompts
-- RAG pattern for domain knowledge
+**External Services:**
+- Cloudinary (이미지 저장소)
+- Claude API (AI 분석)
+- Resend (이메일)
 
 ## Sources
 
-**HIGH Confidence:**
-- [Next.js App Router Official Docs](https://nextjs.org/docs/app)
-- [Modern Full Stack Application Architecture Using Next.js 15+](https://softwaremill.com/modern-full-stack-application-architecture-using-next-js-15/)
-- [School Management System Database Design - Techprofree](https://www.techprofree.com/school-management-system-project-database-design/)
-- [PostgreSQL vs MongoDB in 2026 - Nucamp](https://www.nucamp.co/blog/mongodb-vs-postgresql-in-2026-nosql-vs-sql-for-full-stack-apps)
+### Primary (HIGH confidence)
 
-**MEDIUM Confidence:**
-- [Build a Learning Management System in Next.js & Node.js](https://www.sevensquaretech.com/develop-learning-management-system-nextjs-nodejs-github-code/)
-- [Next.js PDF Generation Guide](https://medium.com/front-end-weekly/dynamic-html-to-pdf-generation-in-next-js-a-step-by-step-guide-with-puppeteer-dbcf276375d7)
-- [Next.js File Upload Best Practices](https://www.pronextjs.dev/next-js-file-uploads-server-side-solutions)
-- [Multi-Tenancy with Next.js Guide](https://nextjs.org/docs/app/guides/multi-tenant)
+**Official Documentation:**
+- [Next.js Production Checklist](https://nextjs.org/docs/app/guides/production-checklist) — Official production optimization guide (Updated Dec 2025)
+- [Prisma Connection Pooling Documentation](https://www.prisma.io/docs/postgres/database/connection-pooling) — Connection pool configuration
+- [Next.js Deploying Documentation](https://nextjs.org/docs/app/getting-started/deploying) — Deployment strategies
 
-**LOW Confidence (Research Phase Validation Needed):**
-- AI face/palm analysis accuracy and implementation patterns
-- Korean 사주팔자 calculation algorithm specifics
-- Optimal prompt engineering for educational strategy generation
+**Deployment Guides:**
+- [Production NextJS 15: The Complete Self-Hosting Guide](https://ketan-chavan.medium.com/production-nextjs-15-the-complete-self-hosting-guide-f1ff03f782e7) — Comprehensive production setup
+- [Dockerizing a Next.js Application in 2025](https://medium.com/front-end-world/dockerizing-a-next-js-application-in-2025-bacdca4810fe) — Modern Docker practices
+- [Building a File Storage With Next.js, PostgreSQL, and Minio S3](https://blog.alexefimenko.com/posts/file-storage-nextjs-postgres-s3) — S3 integration patterns
+
+**Security Best Practices:**
+- [Next.js Data Security Guide](https://nextjs.org/docs/app/guides/data-security) — Security patterns (Updated Dec 2025)
+- [Complete Next.js Security Guide 2025](https://www.turbostarter.dev/blog/complete-nextjs-security-guide-2025-authentication-api-protection-and-best-practices) — Server Actions security
+
+### Secondary (MEDIUM confidence)
+
+**Performance Optimization:**
+- [8 Reasons Your Next.js App is Slow — And How to Fix Them](https://blog.logrocket.com/fix-nextjs-app-slow-performance/) — Performance troubleshooting
+- [The Ultimate Guide to Improving Next.js TTFB Slowness](http://www.catchmetrics.io/blog/the-ultimate-guide-to-improving-nextjs-ttfb-slowness-from-800ms-to-less100ms) — Database latency optimization
+
+**Docker & Infrastructure:**
+- [How to Run PostgreSQL in Docker with Persistent Data](https://oneuptime.com/blog/post/2026-01-16-docker-postgresql-persistent/view) — PostgreSQL volume management (Jan 2026)
+- [Docker Compose Health Checks: An Easy-to-follow Guide](https://last9.io/blog/docker-compose-health-checks) — Health check configuration (Mar 2025)
+- [NextJs App Deployment with Docker: Complete Guide for 2025](https://codeparrot.ai/blogs/deploy-nextjs-app-with-docker-complete-guide-for-2025) — Production deployment guide (Mar 2025)
+
+**Monitoring:**
+- [Error and Performance Monitoring for Next.js](https://sentry.io/for/nextjs/) — Sentry integration
+- [Monitoring, Profiling, and Diagnosing Performance in Next.js 15](https://medium.com/@sureshdotariya/monitoring-profiling-and-diagnosing-performance-in-next-js-15-web-apps-2025-edition-bed33a88a719) — APM setup
+
+### Tertiary (LOW confidence, needs validation)
+
+**Community Patterns:**
+- [Production build with docker compose and postgres](https://www.reddit.com/r/nextjs/comments/1iuzvur/production_build_with_docker_compose_and_postgres/) — Reddit discussion (unverified practices)
+- [How to set up an endpoint for Health check on Next.js?](https://stackoverflow.com/questions/57956476/how-to-set-up-an-endpoint-for-health-check-on-next-js) — Stack Overflow guidance
 
 ---
 
-**Note:** This architecture is designed for the 50-200 student scale specified in PROJECT.md. For larger scales (1000+), significant changes to caching, queuing, and database architecture would be necessary.
+**Note:** This architecture is designed for the 50-200 student scale specified in PROJECT.md, with production deployment capabilities for the home server environment (192.168.0.5). For larger scales (1000+), significant changes to caching, queuing, and database architecture would be necessary.
+
+*Architecture research for: 학원 학생 관리 시스템 with AI 성향 분석 (Production Deployment Architecture)*
+*Researched: 2026-01-27 / Updated: 2026-01-30*
