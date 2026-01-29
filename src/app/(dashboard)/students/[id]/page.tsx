@@ -7,6 +7,9 @@ import { NameAnalysisPanel } from "@/components/students/name-analysis-panel"
 import { MbtiAnalysisPanel } from "@/components/students/mbti-analysis-panel"
 import { FaceAnalysisPanel } from "@/components/students/face-analysis-panel"
 import { PalmAnalysisPanel } from "@/components/students/palm-analysis-panel"
+import { PersonalitySummaryCard } from "@/components/students/personality-summary-card"
+import { LearningStrategyPanel } from "@/components/students/learning-strategy-panel"
+import { CareerGuidancePanel } from "@/components/students/career-guidance-panel"
 import { getCalculationStatus } from "@/lib/actions/calculation-analysis"
 
 export default async function StudentPage({
@@ -171,6 +174,11 @@ export default async function StudentPage({
           palmImageUrl={palmImageUrl}
         />
       )}
+
+      <section>
+        <h2 className="text-2xl font-bold mb-4">통합 성향 분석</h2>
+        <PersonalitySummaryCard studentId={student.id} teacherId={session.userId} />
+      </section>
     </div>
   )
 }
