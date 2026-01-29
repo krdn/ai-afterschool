@@ -5,7 +5,6 @@ WORKDIR /app
 # Build arguments for environment variables needed at build time
 ARG SESSION_SECRET
 ARG NEXT_PUBLIC_APP_URL
-ARG DATABASE_URL
 
 # Dependencies stage - Install production dependencies
 FROM base AS deps
@@ -17,7 +16,8 @@ FROM base AS builder
 # Set build-time environment variables
 ENV SESSION_SECRET=${SESSION_SECRET}
 ENV NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
-ENV DATABASE_URL=${DATABASE_URL}
+# Set a dummy DATABASE_URL for build (Prisma generate doesn't need real DB)
+ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
 
 COPY package.json package-lock.json ./
 RUN npm ci
