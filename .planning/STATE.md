@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 ## Current Position
 
 Phase: 8 of 10 (Production Infrastructure Foundation)
-Plan: 6 of 8 in current phase
+Plan: 8 of 8 in current phase
 Status: In progress
-Last activity: 2026-01-30 — Completed 08-02 Caddy Reverse Proxy with Automatic SSL
+Last activity: 2026-01-30 — Completed 08-08 Zero-Downtime Deployment & Rollback Strategy
 
-Progress: [█████████████░░░░░░] 69%
+Progress: [█████████████░░░░░░] 72%
 
 ## Milestone Summary
 
@@ -33,9 +33,9 @@ Progress: [█████████████░░░░░░] 69%
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 42
+- Total plans completed: 43
 - Average duration: ~5 min
-- Total execution time: ~3.7 hours
+- Total execution time: ~3.8 hours
 
 **By Phase:**
 
@@ -48,11 +48,11 @@ Progress: [█████████████░░░░░░] 69%
 | 5 (AI Image Analysis) | 5 | 41 min | 8.2 min |
 | 6 (AI Integration) | 5 | 22 min | 4.4 min |
 | 7 (Reports) | 7 | 14 min | 2.0 min |
-| 8 (Production Infrastructure) | 6 | 52 min | 8.7 min |
+| 8 (Production Infrastructure) | 7 | ~57 min | 8.1 min |
 
 **Recent Trend:**
-- Latest: 08-02 Caddy Reverse Proxy with Automatic SSL (1 min)
-- Trend: Stable (Phase 8 progressing well)
+- Latest: 08-08 Zero-Downtime Deployment & Rollback Strategy (~5 min)
+- Trend: Stable (Phase 8 nearly complete)
 
 ## Accumulated Context
 
@@ -117,6 +117,16 @@ Recent milestone decisions:
 - Health check integration with /api/health endpoint
 - JSON logging to /var/log/caddy/access.log
 
+**Phase 8 Plan 08 (Zero-Downtime Deployment & Rollback Strategy):**
+- Rolling update strategy for single-server deployment (graceful shutdown of old containers)
+- Health check timeout set to 60 seconds with automatic rollback on failure
+- Backup tagging format: backup-YYYYMMDD-HHMMSS for version identification
+- GitHub Actions workflow for CI/CD integration with SSH-based deployment
+- Caddy restart after deployment to pick up new app container
+- Deployment script with pre-flight checks, backup, build, health verification, and cleanup
+- Rollback script with version tag listing and restoration
+- Complete deployment documentation with troubleshooting guide
+
 ### Pending Todos
 
 **v1.1 Planning:**
@@ -145,9 +155,9 @@ Recent milestone decisions:
 ## Session Continuity
 
 Last session: 2026-01-30
-Stopped at: Completed 08-02 Caddy Reverse Proxy with Automatic SSL
+Stopped at: Completed 08-08 Zero-Downtime Deployment & Rollback Strategy
 Resume file: None
-Next: Continue with Phase 8 plans
+Next: Continue with remaining Phase 8 plans (08-03, 08-04, 08-05)
 
 Config (if exists):
 {
