@@ -60,7 +60,7 @@ export async function GET(
           if (process.env.PDF_STORAGE_TYPE === 'local' || !process.env.PDF_STORAGE_TYPE) {
             const pdfBuffer = await storage.download(filename)
 
-            return new NextResponse(pdfBuffer, {
+            return new NextResponse(pdfBuffer as BodyInit, {
               headers: {
                 'Content-Type': 'application/pdf',
                 'Content-Disposition': `attachment; filename="report-${student.name}.pdf"`,
