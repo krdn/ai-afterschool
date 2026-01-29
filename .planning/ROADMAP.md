@@ -90,10 +90,10 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 04-01-PLAN.md — DB 스키마, 문항/설명 데이터, 점수 엔진
-- [ ] 04-02-PLAN.md — 설문 입력 UI (autosave, 키보드 단축키, 진행률)
-- [ ] 04-03-PLAN.md — 결과 표시 패널 및 학생 상세 페이지 통합
-- [ ] 04-04-PLAN.md — 통합 검증
+- [x] 04-01-PLAN.md — DB 스키마, 문항/설명 데이터, 점수 엔진
+- [x] 04-02-PLAN.md — 설문 입력 UI (autosave, 키보드 단축키, 진행률)
+- [x] 04-03-PLAN.md — 결과 표시 패널 및 학생 상세 페이지 통합
+- [x] 04-04-PLAN.md — 통합 검증
 
 ### Phase 5: AI Image Analysis
 **Goal**: AI 기반으로 관상 및 손금 분석을 제공한다
@@ -150,7 +150,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 1. Foundation & Authentication | 7/7 | Complete | 2026-01-28 |
 | 2. File Infrastructure | 4/4 | Complete | 2026-01-28 |
 | 3. Calculation Analysis | 4/4 | Complete | 2026-01-28 |
-| 4. MBTI Analysis | 0/4 | Planned | - |
+| 4. MBTI Analysis | 4/4 | Complete | 2026-01-29 |
 | 5. AI Image Analysis | 0/TBD | Not started | - |
 | 6. AI Integration | 0/TBD | Not started | - |
 | 7. Reports | 0/TBD | Not started | - |
