@@ -10,6 +10,7 @@ import { PalmAnalysisPanel } from "@/components/students/palm-analysis-panel"
 import { PersonalitySummaryCard } from "@/components/students/personality-summary-card"
 import { LearningStrategyPanel } from "@/components/students/learning-strategy-panel"
 import { CareerGuidancePanel } from "@/components/students/career-guidance-panel"
+import { ReportButton } from "@/components/students/report-button"
 import { getCalculationStatus } from "@/lib/actions/calculation-analysis"
 
 export default async function StudentPage({
@@ -187,6 +188,19 @@ export default async function StudentPage({
           <CareerGuidancePanel studentId={student.id} teacherId={session.userId} />
         </div>
       </section>
+
+      {/* PDF Report Section */}
+      <div className="rounded-lg border bg-white p-6 shadow-sm">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold">상담 보고서</h3>
+            <p className="text-sm text-gray-600">
+              학생의 모든 분석 결과와 AI 제안을 포함한 종합 PDF 보고서를 생성합니다.
+            </p>
+          </div>
+          <ReportButton studentId={student.id} />
+        </div>
+      </div>
     </div>
   )
 }
