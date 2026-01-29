@@ -36,12 +36,30 @@ export function AnalysisResults({
   face,
   palm,
 }: AnalysisResultsProps) {
+  const hasMbti = !!mbti
+  const hasSaju = !!saju?.calculatedAt
+  const hasName = !!name?.calculatedAt
+  const hasFace = face?.status === 'complete' && !!face.result
+  const hasPalm = palm?.status === 'complete' && !!palm.result
+  const hasAnyAnalysis = hasMbti || hasSaju || hasName || hasFace || hasPalm
+
+  const formatResult = (result: unknown): string => {
+    if (typeof result === 'string') {
+      return result
+    }
+    try {
+      return JSON.stringify(result, null, 2)
+    } catch {
+      return '분석 결과를 표시할 수 없습니다.'
+    }
+  }
+
   return (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>성향 분석 결과</Text>
 
       {/* MBTI Analysis */}
-      {mbti && (
+      {hasMbti && mbti && (
         <View style={styles.subsection}>
           <Text style={styles.subsectionTitle}>MBTI 성격 유형</Text>
           <View style={styles.tag}>
@@ -71,7 +89,7 @@ export function AnalysisResults({
       )}
 
       {/* Saju Analysis */}
-      {saju?.calculatedAt && (
+      {hasSaju && saju && (
         <View style={styles.subsection}>
           <Text style={styles.subsectionTitle}>사주팔자 분석</Text>
           {saju.interpretation && (
@@ -81,7 +99,7 @@ export function AnalysisResults({
       )}
 
       {/* Name Analysis */}
-      {name?.calculatedAt && (
+      {hasName && name && (
         <View style={styles.subsection}>
           <Text style={styles.subsectionTitle}>성명학 분석</Text>
           {name.interpretation && (
@@ -91,37 +109,29 @@ export function AnalysisResults({
       )}
 
       {/* Face Analysis */}
-      {face?.status === 'complete' && face.result && (
+      {hasFace && face && (
         <View style={styles.subsection}>
           <Text style={styles.subsectionTitle}>관상 분석</Text>
           <Text style={styles.label}>
             (참고용 엔터테인먼트 해석)
           </Text>
-          <Text style={styles.content}>
-            {typeof face.result === 'string'
-              ? face.result
-              : JSON.stringify(face.result, null, 2)}
-          </Text>
+          <Text style={styles.content}>{formatResult(face.result)}</Text>
         </View>
       )}
 
       {/* Palm Analysis */}
-      {palm?.status === 'complete' && palm.result && (
+      {hasPalm && palm && (
         <View style={styles.subsection}>
           <Text style={styles.subsectionTitle}>손금 분석</Text>
           <Text style={styles.label}>
             (참고용 엔터테인먼트 해석)
           </Text>
-          <Text style={styles.content}>
-            {typeof palm.result === 'string'
-              ? palm.result
-              : JSON.stringify(palm.result, null, 2)}
-          </Text>
+          <Text style={styles.content}>{formatResult(palm.result)}</Text>
         </View>
       )}
 
       {/* No Analysis Warning */}
-      {!mbti && !saju?.calculatedAt && !name?.calculatedAt && !face && !palm && (
+      {!hasAnyAnalysis && (
         <View style={styles.subsection}>
           <Text style={styles.content}>
             아직 완료된 성향 분석이 없습니다.
