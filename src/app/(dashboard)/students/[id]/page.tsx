@@ -5,6 +5,8 @@ import { StudentDetail } from "@/components/students/student-detail"
 import { SajuAnalysisPanel } from "@/components/students/saju-analysis-panel"
 import { NameAnalysisPanel } from "@/components/students/name-analysis-panel"
 import { MbtiAnalysisPanel } from "@/components/students/mbti-analysis-panel"
+import { FaceAnalysisPanel } from "@/components/students/face-analysis-panel"
+import { PalmAnalysisPanel } from "@/components/students/palm-analysis-panel"
 import { getCalculationStatus } from "@/lib/actions/calculation-analysis"
 
 export default async function StudentPage({
@@ -41,6 +43,23 @@ export default async function StudentPage({
     calculatedAt: Date
   }
 
+  type FaceAnalysisRecord = {
+    id: string
+    status: string
+    result: any
+    imageUrl: string
+    errorMessage: string | null
+  } | null
+
+  type PalmAnalysisRecord = {
+    id: string
+    status: string
+    result: any
+    imageUrl: string
+    hand: string
+    errorMessage: string | null
+  } | null
+
   const sajuAnalysisDelegate = (
     db as unknown as {
       sajuAnalysis: {
@@ -75,7 +94,27 @@ export default async function StudentPage({
     }
   ).mbtiAnalysis
 
-  const [analysisStatus, sajuAnalysis, nameAnalysis, mbtiAnalysis] = await Promise.all([
+  const faceAnalysisDelegate = (
+    db as unknown as {
+      faceAnalysis: {
+        findUnique: (args: {
+          where: { studentId: string }
+        }) => Promise<FaceAnalysisRecord>
+      }
+    }
+  ).faceAnalysis
+
+  const palmAnalysisDelegate = (
+    db as unknown as {
+      palmAnalysis: {
+        findUnique: (args: {
+          where: { studentId: string }
+        }) => Promise<PalmAnalysisRecord>
+      }
+    }
+  ).palmAnalysis
+
+  const [analysisStatus, sajuAnalysis, nameAnalysis, mbtiAnalysis, faceAnalysis, palmAnalysis] = await Promise.all([
     getCalculationStatus(student.id),
     sajuAnalysisDelegate.findUnique({
       where: {
@@ -92,7 +131,21 @@ export default async function StudentPage({
         studentId: student.id,
       },
     }),
+    faceAnalysisDelegate.findUnique({
+      where: {
+        studentId: student.id,
+      },
+    }),
+    palmAnalysisDelegate.findUnique({
+      where: {
+        studentId: student.id,
+      },
+    }),
   ])
+
+  // Extract face and palm image URLs from student images
+  const faceImageUrl = student.images.find(img => img.type === 'face')?.resizedUrl || null
+  const palmImageUrl = student.images.find(img => img.type === 'palm')?.resizedUrl || null
 
   return (
     <div className="space-y-6">
@@ -104,6 +157,22 @@ export default async function StudentPage({
         studentName={student.name}
         analysis={mbtiAnalysis}
       />
+      {faceImageUrl && (
+        <FaceAnalysisPanel
+          studentId={student.id}
+          studentName={student.name}
+          analysis={faceAnalysis}
+          faceImageUrl={faceImageUrl}
+        />
+      )}
+      {palmImageUrl && (
+        <PalmAnalysisPanel
+          studentId={student.id}
+          studentName={student.name}
+          analysis={palmAnalysis}
+          palmImageUrl={palmImageUrl}
+        />
+      )}
     </div>
   )
 }

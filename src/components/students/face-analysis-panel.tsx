@@ -7,10 +7,10 @@ import { DISCLAIMER_TEXT } from "@/lib/ai/prompts"
 
 type FaceAnalysis = {
   id: string
-  status: 'pending' | 'complete' | 'failed'
-  result: any | null
-  imageUrl: string | null
-  errorMessage?: string
+  status: string
+  result: any
+  imageUrl: string
+  errorMessage: string | null
 } | null
 
 type Props = {
@@ -49,7 +49,7 @@ export function FaceAnalysisPanel({
   }
 
   const isAnalyzing = localStatus === 'analyzing' ||
-    (analysis?.status === 'pending' && analysis?.result === null)
+    (analysis?.status === 'pending')
 
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden">
