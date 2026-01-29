@@ -179,6 +179,14 @@ export default async function StudentPage({
         <h2 className="text-2xl font-bold mb-4">통합 성향 분석</h2>
         <PersonalitySummaryCard studentId={student.id} teacherId={session.userId} />
       </section>
+
+      <section>
+        <h2 className="text-2xl font-bold mb-4">AI 맞춤형 제안</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <LearningStrategyPanel studentId={student.id} teacherId={session.userId} />
+          <CareerGuidancePanel studentId={student.id} teacherId={session.userId} />
+        </div>
+      </section>
     </div>
   )
 }
