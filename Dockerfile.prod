@@ -40,6 +40,9 @@ RUN addgroup --system --gid 1001 nodejs && \
 # Copy production dependencies
 COPY --from=deps /app/node_modules ./node_modules
 
+# Copy Prisma client from builder (generated in node_modules/.prisma)
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+
 # Copy built application
 COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
