@@ -119,6 +119,116 @@ ai-afterschool/
 
 ## 🚀 개발 환경 설정
 
+### Environment Configuration
+
+#### Quick Start
+
+1. **For development:**
+   ```bash
+   cp .env.development .env.local
+   # Edit .env.local with your values
+   npm run dev
+   ```
+
+2. **For production:**
+   ```bash
+   cp .env.production .env
+   # Edit .env with production values
+   docker-compose -f docker-compose.prod.yml up -d
+   ```
+
+#### Environment Files
+
+| File | Purpose | Committed |
+|------|---------|-----------|
+| `.env.example` | Template with all variables | ✅ Yes |
+| `.env.development` | Development settings | ✅ Yes |
+| `.env.production` | Production settings | ✅ Yes |
+| `.env.staging` | Staging settings | ✅ Yes |
+| `.env.local` | Your local overrides | ❌ No |
+| `.env` | Production runtime | ❌ No |
+
+#### Required Variables
+
+**Minimum for development:**
+```bash
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/ai_afterschool"
+NEXTAUTH_SECRET="any-secret-for-dev"
+ANTHROPIC_API_KEY="your-key"
+```
+
+**Minimum for production:**
+```bash
+DATABASE_URL="postgresql://user:pass@postgres:5432/db"
+NEXTAUTH_SECRET="generated-with-openssl"
+NEXTAUTH_URL="https://yourdomain.com"
+MINIO_ACCESS_KEY="strong-password"
+MINIO_SECRET_KEY="strong-password"
+```
+
+#### Security Best Practices
+
+1. **Never commit secrets:**
+   - `.env` and `.env.local` are in `.gitignore`
+   - Only `.env.example` and templates are committed
+
+2. **Generate strong secrets:**
+   ```bash
+   # NextAuth secret
+   openssl rand -base64 32
+
+   # Database password
+   openssl rand -base64 24
+
+   # MinIO credentials
+   openssl rand -base64 16
+   ```
+
+3. **Verify .dockerignore:**
+   ```bash
+   # Check that .env files are excluded
+   docker build --progress=plain -f Dockerfile.prod . | grep -i "\.env"
+   # Should return no results
+   ```
+
+4. **Use Docker secrets (production):**
+   ```yaml
+   # docker-compose.prod.yml
+   services:
+     app:
+       secrets:
+         - database_password
+         - minio_secret_key
+
+   secrets:
+     database_password:
+       external: true
+     minio_secret_key:
+       external: true
+   ```
+
+#### Variable Reference
+
+**Application:**
+- `NODE_ENV`: development | production
+- `NEXT_PUBLIC_APP_URL`: Public URL (must be https in production)
+
+**Database:**
+- `DATABASE_URL`: PostgreSQL connection string
+- `connection_limit=10`: Recommended for Docker
+
+**Storage:**
+- `PDF_STORAGE_TYPE`: local | s3
+- `MINIO_ENDPOINT`: S3 endpoint URL
+- `MINIO_BUCKET`: Default bucket name
+
+**NextAuth:**
+- `NEXTAUTH_SECRET`: Required, generate with openssl
+- `NEXTAUTH_URL`: Must match public URL
+
+**AI:**
+- `ANTHROPIC_API_KEY`: Required for AI features
+
 ### 사전 요구사항
 - Node.js 20+
 - PostgreSQL 데이터베이스
@@ -129,31 +239,7 @@ ai-afterschool/
 npm install
 ```
 
-### 2. 환경 변수 설정
-`.env` 파일 생성:
-
-```bash
-# Database
-DATABASE_URL="postgresql://user:password@localhost:5432/ai_afterschool"
-
-# Anthropic Claude
-ANTHROPIC_API_KEY="your_anthropic_api_key"
-
-# Cloudinary
-CLOUDINARY_CLOUD_NAME="your_cloud_name"
-CLOUDINARY_API_KEY="your_api_key"
-CLOUDINARY_API_SECRET="your_api_secret"
-CLOUDINARY_UPLOAD_PRESET="your_upload_preset"
-
-# NextAuth
-NEXTAUTH_SECRET="your_nextauth_secret"
-NEXTAUTH_URL="http://localhost:3000"
-
-# Resend (이메일)
-RESEND_API_KEY="your_resend_api_key"
-```
-
-### 3. 데이터베이스 설정
+### 2. 데이터베이스 설정
 ```bash
 # Prisma Client 생성
 npx prisma generate
