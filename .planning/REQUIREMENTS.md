@@ -24,9 +24,9 @@
 
 ### Calculation Analysis (계산 기반 분석)
 
-- [ ] **CALC-01**: 생년월일시 기반 사주팔자를 계산하고 해석을 제공한다
-- [ ] **CALC-02**: 한글/한자 이름의 획수 및 수리(원격, 형격, 이격, 정격) 분석을 제공한다
-- [ ] **CALC-03**: MBTI 설문을 진행하고 성격 유형을 판정한다
+- [x] **CALC-01**: 생년월일시 기반 사주팔자를 계산하고 해석을 제공한다
+- [x] **CALC-02**: 한글/한자 이름의 획수 및 수리(원격, 형격, 이격, 정격) 분석을 제공한다
+- [x] **CALC-03**: MBTI 설문을 진행하고 성격 유형을 판정한다
 
 ### AI Analysis (AI 기반 분석)
 
@@ -91,9 +91,9 @@
 | STUD-05 | Phase 1 | Complete |
 | STUD-06 | Phase 1 | Complete |
 | STUD-07 | Phase 1 | Complete |
-| CALC-01 | Phase 3 | Pending |
-| CALC-02 | Phase 3 | Pending |
-| CALC-03 | Phase 4 | Pending |
+| CALC-01 | Phase 3 | Complete |
+| CALC-02 | Phase 3 | Complete |
+| CALC-03 | Phase 4 | Complete |
 | AIAN-01 | Phase 5 | Pending |
 | AIAN-02 | Phase 5 | Pending |
 | AIREC-01 | Phase 6 | Pending |
