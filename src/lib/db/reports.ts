@@ -1,4 +1,4 @@
-import { db } from './prisma'
+import { db } from '@/lib/db'
 
 /**
  * Get cached PDF for student (if exists and data version matches)
@@ -43,8 +43,9 @@ export async function saveReportPDF(params: {
   fileUrl?: string
   dataVersion?: number
   errorMessage?: string
+  generatedAt?: Date
 }) {
-  const { studentId, status, fileUrl, dataVersion, errorMessage } = params
+  const { studentId, status, fileUrl, dataVersion, errorMessage, generatedAt } = params
 
   return await db.reportPDF.upsert({
     where: { studentId },
@@ -54,12 +55,14 @@ export async function saveReportPDF(params: {
       fileUrl,
       dataVersion,
       errorMessage,
+      generatedAt,
     },
     update: {
       status,
       fileUrl,
       dataVersion,
       errorMessage,
+      generatedAt,
       updatedAt: new Date(),
     },
   })

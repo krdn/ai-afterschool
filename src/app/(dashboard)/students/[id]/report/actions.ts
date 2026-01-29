@@ -1,6 +1,7 @@
 'use server'
 
-import { after } from 'next/after'
+import React from 'react'
+import { after } from 'next/server'
 import { verifySession } from '@/lib/dal'
 import { db } from '@/lib/db'
 import {
@@ -85,7 +86,7 @@ export async function generateConsultationReport(studentId: string) {
       const storagePath = getPdfStoragePath()
       const filepath = path.join(storagePath, filename)
 
-      await pdfToFile(<ConsultationReport {...reportData} />, filepath)
+      await pdfToFile(React.createElement(ConsultationReport, reportData) as React.ReactElement<any>, filepath)
 
       // Mark as complete
       const relativeUrl = `/reports/${filename}`
