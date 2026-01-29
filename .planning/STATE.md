@@ -48,10 +48,10 @@ Progress: [█████████░░░░░░░░░░░] 61%
 | 5 (AI Image Analysis) | 5 | 41 min | 8.2 min |
 | 6 (AI Integration) | 5 | 22 min | 4.4 min |
 | 7 (Reports) | 7 | 14 min | 2.0 min |
-| 8 (Production Infrastructure) | 1 | 3 min | 3.0 min |
+| 8 (Production Infrastructure) | 2 | 8 min | 4.0 min |
 
 **Recent Trend:**
-- Latest: 08-07 Environment Variable Management (3 min)
+- Latest: 08-06 Health Check Endpoint (5 min)
 - Trend: Stable (consistent velocity across phases)
 
 ## Accumulated Context
@@ -77,6 +77,12 @@ Recent milestone decisions:
 - Commit template .env files but exclude actual secrets (.env, .env.local)
 - Use .dockerignore to prevent environment files from being included in Docker images
 - Create environment validation script to catch configuration errors before deployment
+
+**Phase 8 Plan 06 (Health Check Endpoint):**
+- Health check endpoint at `/api/health` with GET/HEAD methods
+- Database and storage connectivity checks with response time tracking
+- Docker healthcheck integration (wget-based, 30s interval)
+- Storage check uses local filesystem (will update for MinIO in Plan 08-04)
 
 ### Pending Todos
 
@@ -105,10 +111,10 @@ Recent milestone decisions:
 
 ## Session Continuity
 
-Last session: 2026-01-30
-Stopped at: Completed 08-07 Environment Variable Management
+Last session: 2026-01-29
+Stopped at: Completed 08-06 Health Check Endpoint
 Resume file: None
-Next: Continue with Phase 8 plans
+Next: Continue with Phase 8 plans (08-07 Environment Variable Management already complete)
 
 Config (if exists):
 {
