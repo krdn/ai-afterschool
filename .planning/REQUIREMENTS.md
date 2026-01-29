@@ -30,8 +30,8 @@
 
 ### AI Analysis (AI 기반 분석)
 
-- [ ] **AIAN-01**: 얼굴 사진을 업로드하면 AI가 관상 분석을 제공한다
-- [ ] **AIAN-02**: 손바닥 사진을 업로드하면 AI가 손금 분석을 제공한다
+- [x] **AIAN-01**: 얼굴 사진을 업로드하면 AI가 관상 분석을 제공한다
+- [x] **AIAN-02**: 손바닥 사진을 업로드하면 AI가 손금 분석을 제공한다
 
 ### AI Recommendations (AI 제안)
 
@@ -94,8 +94,8 @@
 | CALC-01 | Phase 3 | Complete |
 | CALC-02 | Phase 3 | Complete |
 | CALC-03 | Phase 4 | Complete |
-| AIAN-01 | Phase 5 | Pending |
-| AIAN-02 | Phase 5 | Pending |
+| AIAN-01 | Phase 5 | Complete |
+| AIAN-02 | Phase 5 | Complete |
 | AIREC-01 | Phase 6 | Pending |
 | AIREC-02 | Phase 6 | Pending |
 | AIREC-03 | Phase 6 | Pending |
@@ -110,4 +110,4 @@
 
 ---
 *Requirements defined: 2026-01-27*
-*Last updated: 2026-01-28 after Phase 2 completion*
+*Last updated: 2026-01-29 after Phase 5 completion*
