@@ -4,6 +4,7 @@ import { db } from "@/lib/db"
 import { StudentDetail } from "@/components/students/student-detail"
 import { SajuAnalysisPanel } from "@/components/students/saju-analysis-panel"
 import { NameAnalysisPanel } from "@/components/students/name-analysis-panel"
+import { MbtiAnalysisPanel } from "@/components/students/mbti-analysis-panel"
 import { getCalculationStatus } from "@/lib/actions/calculation-analysis"
 
 export default async function StudentPage({
@@ -60,7 +61,21 @@ export default async function StudentPage({
     }
   ).nameAnalysis
 
-  const [analysisStatus, sajuAnalysis, nameAnalysis] = await Promise.all([
+  const mbtiAnalysisDelegate = (
+    db as unknown as {
+      mbtiAnalysis: {
+        findUnique: (args: {
+          where: { studentId: string }
+        }) => Promise<{
+          mbtiType: string
+          percentages: Record<string, number>
+          calculatedAt: Date
+        } | null>
+      }
+    }
+  ).mbtiAnalysis
+
+  const [analysisStatus, sajuAnalysis, nameAnalysis, mbtiAnalysis] = await Promise.all([
     getCalculationStatus(student.id),
     sajuAnalysisDelegate.findUnique({
       where: {
@@ -72,6 +87,11 @@ export default async function StudentPage({
         studentId: student.id,
       },
     }),
+    mbtiAnalysisDelegate.findUnique({
+      where: {
+        studentId: student.id,
+      },
+    }),
   ])
 
   return (
@@ -79,6 +99,11 @@ export default async function StudentPage({
       <StudentDetail student={student} analysisStatus={analysisStatus} />
       <SajuAnalysisPanel student={student} analysis={sajuAnalysis} />
       <NameAnalysisPanel student={student} analysis={nameAnalysis} />
+      <MbtiAnalysisPanel
+        studentId={student.id}
+        studentName={student.name}
+        analysis={mbtiAnalysis}
+      />
     </div>
   )
 }
