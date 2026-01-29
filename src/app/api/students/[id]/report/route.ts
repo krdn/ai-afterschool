@@ -70,9 +70,25 @@ export async function GET(
             })
           }
 
-          // For S3 storage, return presigned URL
+          // For S3 storage, fetch and proxy the PDF
+          // This avoids presigned URL expiration issues
           const presignedUrl = await storage.getPresignedUrl(filename)
-          return NextResponse.json({ url: presignedUrl }, { status: 200 })
+          const pdfResponse = await fetch(presignedUrl)
+
+          if (!pdfResponse.ok) {
+            throw new Error(`Failed to fetch PDF from S3: ${pdfResponse.statusText}`)
+          }
+
+          const pdfBuffer = await pdfResponse.arrayBuffer()
+
+          return new NextResponse(Buffer.from(pdfBuffer) as BodyInit, {
+            headers: {
+              'Content-Type': 'application/pdf',
+              'Content-Disposition': `attachment; filename="report-${student.name}.pdf"`,
+              'Content-Length': pdfBuffer.byteLength.toString(),
+              'Cache-Control': 'public, max-age=3600',
+            },
+          })
         }
       } catch (fileError) {
         // File doesn't exist or storage error, regenerate
