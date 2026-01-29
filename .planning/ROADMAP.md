@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: File Infrastructure** - 학생 사진 및 분석용 이미지 업로드 기능
 - [x] **Phase 3: Calculation Analysis** - 사주팔자 및 성명학 분석 제공
 - [x] **Phase 4: MBTI Analysis** - 설문 기반 MBTI 성향 분석 제공
-- [ ] **Phase 5: AI Image Analysis** - AI 기반 관상 및 손금 분석 제공
+- [x] **Phase 5: AI Image Analysis** - AI 기반 관상 및 손금 분석 제공
 - [ ] **Phase 6: AI Integration** - 통합 성향 분석 및 맞춤형 학습/진로 전략 제공
 - [ ] **Phase 7: Reports** - 종합 상담 보고서 PDF 출력
 
@@ -108,11 +108,11 @@ Plans:
 **Plans**: 5 plans
 
 Plans:
-- [ ] 05-01-PLAN.md — AI Vision 인프라 구축 (Claude API, 프롬프트, 검증)
-- [ ] 05-02-PLAN.md — DB 스키마 및 Server Actions 구현
-- [ ] 05-03-PLAN.md — 관상 분석 UI 구현
-- [ ] 05-04-PLAN.md — 손금 분석 UI 구현
-- [ ] 05-05-PLAN.md — 통합 검증 및 UI 폴리시
+- [x] 05-01-PLAN.md — AI Vision 인프라 구축 (Claude API, 프롬프트, 검증)
+- [x] 05-02-PLAN.md — DB 스키마 및 Server Actions 구현
+- [x] 05-03-PLAN.md — 관상 분석 UI 구현
+- [x] 05-04-PLAN.md — 손금 분석 UI 구현
+- [x] 05-05-PLAN.md — 통합 검증 및 UI 폴리시
 
 ### Phase 6: AI Integration
 **Goal**: 모든 분석 결과를 통합하여 맞춤형 학습 전략 및 진로 가이드를 제공한다
@@ -155,6 +155,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 2. File Infrastructure | 4/4 | Complete | 2026-01-28 |
 | 3. Calculation Analysis | 4/4 | Complete | 2026-01-28 |
 | 4. MBTI Analysis | 4/4 | Complete | 2026-01-29 |
-| 5. AI Image Analysis | 0/5 | Ready to start | - |
+| 5. AI Image Analysis | 5/5 | Complete | 2026-01-29 |
 | 6. AI Integration | 0/TBD | Not started | - |
 | 7. Reports | 0/TBD | Not started | - |
