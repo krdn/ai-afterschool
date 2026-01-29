@@ -47,6 +47,10 @@ services:
       context: .
       dockerfile: Dockerfile.prod
       target: production
+      args:
+        SESSION_SECRET: ${SESSION_SECRET:-default-secret-for-build-min-32-chars-long}
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+        DATABASE_URL: postgresql://${DATABASE_USER:-postgres}:${DATABASE_PASSWORD:-postgres}@postgres:5432/${DATABASE_DB:-ai_afterschool}?connection_limit=10
     container_name: ai-afterschool-app
     ports:
       - "3000:3000"
