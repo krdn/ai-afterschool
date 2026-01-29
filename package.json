@@ -10,7 +10,10 @@
     "test": "vitest run",
     "validate:env": "tsx scripts/validate-env.ts",
     "validate:env:prod": "tsx scripts/validate-env.ts --production",
-    "setup:minio": "tsx scripts/setup-minio.ts"
+    "setup:minio": "tsx scripts/setup-minio.ts",
+    "migrate:pdfs": "tsx scripts/migrate-pdfs-to-s3.ts",
+    "migrate:pdfs:execute": "tsx scripts/migrate-pdfs-to-s3.ts --execute",
+    "migrate:pdfs:rollback": "tsx scripts/migrate-pdfs-to-s3.ts --rollback"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
