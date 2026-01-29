@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 ## Current Position
 
 Phase: 5 of 7 (AI Image Analysis)
-Plan: 1 of 4 in current phase
+Plan: 2 of 4 in current phase
 Status: In progress
-Last activity: 2026-01-29 - Completed 05-01-PLAN.md
+Last activity: 2026-01-29 - Completed 05-02-PLAN.md
 
-Progress: [█████████████████░░] 86%
+Progress: [█████████████████░░] 89%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 21
+- Total plans completed: 22
 - Average duration: 8.0 min
-- Total execution time: 2.8 hours
+- Total execution time: 2.9 hours
 
 **By Phase:**
 
@@ -31,11 +31,11 @@ Progress: [█████████████████░░] 86%
 | 2 (File Infrastructure) | 4 | 4 | 6.3 min |
 | 3 (Calculation Analysis) | 4 | 4 | 13.8 min |
 | 4 (MBTI Analysis) | 4 | 4 | 11.5 min |
-| 5 (AI Image Analysis) | 1 | 4 | 8.0 min |
+| 5 (AI Image Analysis) | 2 | 4 | 8.0 min |
 
 **Recent Trend:**
-- Last 5 plans: 05-01 (8 min), 04-04 (5 min), 04-03 (10 min), 04-01 (5 min), 03-04 (20 min)
-- Trend: Consistent execution, Phase 5 started
+- Last 5 plans: 05-02 (8 min), 05-01 (8 min), 04-04 (5 min), 04-03 (10 min), 04-01 (5 min)
+- Trend: Consistent execution, Phase 5 progressing
 
 *Updated after each plan completion*
 
@@ -46,6 +46,9 @@ Progress: [█████████████████░░] 86%
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
+- Phase 5: AI Database Schema - FaceAnalysis/PalmAnalysis models with JSON result storage (Phase 5-02)
+- Phase 5: Async AI Processing - Used Next.js after() API for non-blocking Claude Vision calls (Phase 5-02)
+- Phase 5: AI Error Recovery - Store failed status with error messages for UI display (Phase 5-02)
 - Phase 5: AI Client Pattern - Singleton Claude client with environment-based initialization (Phase 5-01)
 - Phase 5: Image Validation - Two-stage validation (basic + blur detection) using Sharp (Phase 5-01)
 - Phase 5: Blur Detection Threshold - Laplacian variance with threshold 10 (Phase 5-01)
@@ -73,13 +76,14 @@ None yet.
 - 사주 전문가 자문 필요
 
 **Phase 5 readiness:**
+- Production migration file needed before deployment (used db push in development)
 - AI 관상/손금 신뢰도 검증 필요
 - 엔터테인먼트 면책 조항 법률 검토 필요
 
 ## Session Continuity
 
 Last session: 2026-01-29
-Stopped at: Completed 05-01-PLAN.md (Phase 5, Plan 1)
+Stopped at: Completed 05-02-PLAN.md (Phase 5, Plan 2)
 Resume file: None
 
 Config (if exists):
