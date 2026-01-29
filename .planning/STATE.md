@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 ## Current Position
 
 Phase: 8 of 10 (Production Infrastructure Foundation)
-Plan: 4 of 8 in current phase
+Plan: 5 of 8 in current phase
 Status: In progress
-Last activity: 2026-01-30 — Completed 08-04 PDF Storage Abstraction Layer
+Last activity: 2026-01-30 — Completed 08-05 PDF Data Migration Script
 
-Progress: [██████████░░░░░░░░░] 63%
+Progress: [████████████░░░░░░░] 65%
 
 ## Milestone Summary
 
@@ -33,9 +33,9 @@ Progress: [██████████░░░░░░░░░] 63%
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 40
+- Total plans completed: 41
 - Average duration: ~5 min
-- Total execution time: ~3.5 hours
+- Total execution time: ~3.6 hours
 
 **By Phase:**
 
@@ -48,10 +48,10 @@ Progress: [██████████░░░░░░░░░] 63%
 | 5 (AI Image Analysis) | 5 | 41 min | 8.2 min |
 | 6 (AI Integration) | 5 | 22 min | 4.4 min |
 | 7 (Reports) | 7 | 14 min | 2.0 min |
-| 8 (Production Infrastructure) | 4 | 47 min | 11.8 min |
+| 8 (Production Infrastructure) | 5 | 51 min | 10.2 min |
 
 **Recent Trend:**
-- Latest: 08-04 PDF Storage Abstraction Layer (12 min)
+- Latest: 08-05 PDF Data Migration Script (4 min)
 - Trend: Stable (Phase 8 progressing well)
 
 ## Accumulated Context
@@ -99,6 +99,14 @@ Recent milestone decisions:
 - Factory pattern for environment-based backend switching via PDF_STORAGE_TYPE
 - Local storage serves PDFs directly, S3 storage uses presigned URLs for security
 
+**Phase 8 Plan 05 (PDF Data Migration Script):**
+- Created migration script with dry run, execute, and rollback modes
+- Automatic backup creation before migration at `./backups/pdf-migration/`
+- Upload verification via size check for each file
+- Atomic database updates (ReportPDF model with fileUrl field)
+- Rollback restores both files and database URLs
+- Local files NOT deleted automatically (manual cleanup after verification)
+
 ### Pending Todos
 
 **v1.1 Planning:**
@@ -127,9 +135,9 @@ Recent milestone decisions:
 ## Session Continuity
 
 Last session: 2026-01-30
-Stopped at: Completed 08-04 PDF Storage Abstraction Layer
+Stopped at: Completed 08-05 PDF Data Migration Script
 Resume file: None
-Next: Continue with Phase 8 plans (08-05 MinIO PDF Storage Setup)
+Next: Continue with Phase 8 plans (08-06 Database Connection Pooling)
 
 Config (if exists):
 {
