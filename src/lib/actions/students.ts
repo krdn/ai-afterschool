@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
+import { Prisma } from "@prisma/client"
 import { db } from "@/lib/db"
 import { verifySession } from "@/lib/dal"
 import {
@@ -197,7 +198,7 @@ export async function createStudent(
     const student = await db.student.create({
       data: {
         ...studentData,
-        nameHanja: nameHanjaPayload.nameHanja,
+        nameHanja: nameHanjaPayload.nameHanja as Prisma.InputJsonValue,
         birthDate: new Date(validatedFields.data.birthDate),
         ...birthTime,
         teacherId: session.userId,
@@ -308,7 +309,7 @@ export async function updateStudent(
       where: { id: studentId },
       data: {
         ...updateData,
-        nameHanja: nameHanjaPayload.nameHanja,
+        nameHanja: nameHanjaPayload.nameHanja as Prisma.InputJsonValue,
         birthDate: validatedFields.data.birthDate
           ? new Date(validatedFields.data.birthDate)
           : undefined,

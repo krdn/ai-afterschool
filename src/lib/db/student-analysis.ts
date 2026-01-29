@@ -73,8 +73,8 @@ export async function upsertSajuAnalysis(
 ) {
   const calculatedAt = payload.calculatedAt ?? new Date()
   const data = {
-    inputSnapshot: payload.inputSnapshot,
-    result: payload.result,
+    inputSnapshot: payload.inputSnapshot as Prisma.InputJsonValue,
+    result: payload.result as Prisma.InputJsonValue,
     interpretation: payload.interpretation ?? null,
     status: payload.status ?? "complete",
     version: payload.version ?? 1,
@@ -97,8 +97,8 @@ export async function upsertNameAnalysis(
 ) {
   const calculatedAt = payload.calculatedAt ?? new Date()
   const data = {
-    inputSnapshot: payload.inputSnapshot,
-    result: payload.result,
+    inputSnapshot: payload.inputSnapshot as Prisma.InputJsonValue,
+    result: payload.result as Prisma.InputJsonValue,
     interpretation: payload.interpretation ?? null,
     status: payload.status ?? "complete",
     version: payload.version ?? 1,
