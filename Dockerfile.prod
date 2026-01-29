@@ -18,6 +18,10 @@ ENV SESSION_SECRET=${SESSION_SECRET:-default-build-secret-minimum-32-characters-
 ENV NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
 # Set a dummy DATABASE_URL for build (Prisma generate doesn't need real DB)
 ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
+# Set dummy Cloudinary credentials for build (API routes are analyzed at build time)
+ENV CLOUDINARY_CLOUD_NAME="dummy"
+ENV CLOUDINARY_API_KEY="dummy"
+ENV CLOUDINARY_API_SECRET="dummy"
 
 COPY package.json package-lock.json ./
 RUN npm ci
