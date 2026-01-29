@@ -1,3 +1,4 @@
+import React from 'react'
 import { NextRequest, NextResponse } from 'next/server'
 import { verifySession } from '@/lib/dal'
 import { db } from '@/lib/db'
@@ -79,11 +80,11 @@ export async function GET(
 
     // Render PDF to buffer
     const pdfBuffer = await pdfToBuffer(
-      <ConsultationReport {...reportData} />
+      React.createElement(ConsultationReport, reportData) as React.ReactElement<any>
     )
 
     // Return PDF
-    return new NextResponse(pdfBuffer, {
+    return new NextResponse(pdfBuffer as any, {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="report-${student.name}.pdf"`,
