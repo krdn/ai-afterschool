@@ -1,4 +1,5 @@
 import React from 'react'
+import type { DocumentProps } from '@react-pdf/renderer'
 import { NextRequest, NextResponse } from 'next/server'
 import { verifySession } from '@/lib/dal'
 import { db } from '@/lib/db'
@@ -80,7 +81,7 @@ export async function GET(
 
     // Render PDF to buffer
     const pdfBuffer = await pdfToBuffer(
-      React.createElement(ConsultationReport, reportData) as React.ReactElement
+      React.createElement(ConsultationReport, reportData) as React.ReactElement<DocumentProps>
     )
 
     // Return PDF
