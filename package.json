@@ -9,7 +9,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "validate:env": "tsx scripts/validate-env.ts",
-    "validate:env:prod": "tsx scripts/validate-env.ts --production"
+    "validate:env:prod": "tsx scripts/validate-env.ts --production",
+    "setup:minio": "tsx scripts/setup-minio.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
