@@ -14,8 +14,8 @@ import {
 } from '@/lib/db/reports'
 import { getPersonalitySummary } from '@/lib/db/personality-summary'
 import { ConsultationReport } from '@/lib/pdf/templates/consultation-report'
-import { pdfToFile, generateReportFilename, getPdfStoragePath } from '@/lib/pdf/generator'
-import path from 'path'
+import { pdfToBuffer, generateReportFilename } from '@/lib/pdf/generator'
+import { createPDFStorage } from '@/lib/storage/factory'
 import { revalidatePath } from 'next/cache'
 
 /**
@@ -78,20 +78,23 @@ export async function generateConsultationReport(studentId: string) {
         throw new Error('보고서 데이터를 가져올 수 없습니다.')
       }
 
-      // Generate PDF file
+      // Generate PDF file using storage interface
       const filename = generateReportFilename(
         studentId,
         student.name,
         Date.now()
       )
-      const storagePath = getPdfStoragePath()
-      const filepath = path.join(storagePath, filename)
+      const storage = createPDFStorage()
 
-      await pdfToFile(React.createElement(ConsultationReport, reportData) as React.ReactElement<DocumentProps>, filepath)
+      // Render PDF to buffer and upload
+      const pdfBuffer = await pdfToBuffer(
+        React.createElement(ConsultationReport, reportData) as React.ReactElement<DocumentProps>
+      )
+      await storage.upload(filename, Buffer.from(pdfBuffer))
 
-      // Mark as complete
-      const relativeUrl = `/reports/${filename}`
-      await markPDFComplete(studentId, relativeUrl, currentDataVersion)
+      // Mark as complete with storage URL
+      const reportUrl = await storage.getPresignedUrl(filename)
+      await markPDFComplete(studentId, reportUrl, currentDataVersion)
 
       // Revalidate path to refresh UI
       revalidatePath(`/students/${studentId}`)

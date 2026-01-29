@@ -6,7 +6,7 @@ import { db } from '@/lib/db'
 import { getStudentReportPDF } from '@/lib/db/reports'
 import { ConsultationReport } from '@/lib/pdf/templates/consultation-report'
 import { pdfToBuffer } from '@/lib/pdf/generator'
-import { readFile } from 'fs/promises'
+import { createPDFStorage } from '@/lib/storage/factory'
 import path from 'path'
 
 /**
@@ -48,25 +48,35 @@ export async function GET(
     const report = await getStudentReportPDF(studentId)
 
     if (report?.status === 'complete' && report.fileUrl) {
-      // Serve cached PDF
-      const storagePath = process.env.PDF_STORAGE_PATH || './public/reports'
+      // Serve cached PDF using storage interface
+      const storage = createPDFStorage()
       const filename = path.basename(report.fileUrl)
-      const filepath = path.join(storagePath, filename)
 
       try {
-        const pdfBuffer = await readFile(filepath)
+        const fileExists = await storage.exists(filename)
 
-        return new NextResponse(pdfBuffer, {
-          headers: {
-            'Content-Type': 'application/pdf',
-            'Content-Disposition': `attachment; filename="report-${student.name}.pdf"`,
-            'Content-Length': pdfBuffer.length.toString(),
-            'Cache-Control': 'public, max-age=3600',
-          },
-        })
+        if (fileExists) {
+          // For local storage, serve directly
+          if (process.env.PDF_STORAGE_TYPE === 'local' || !process.env.PDF_STORAGE_TYPE) {
+            const pdfBuffer = await storage.download(filename)
+
+            return new NextResponse(pdfBuffer, {
+              headers: {
+                'Content-Type': 'application/pdf',
+                'Content-Disposition': `attachment; filename="report-${student.name}.pdf"`,
+                'Content-Length': pdfBuffer.length.toString(),
+                'Cache-Control': 'public, max-age=3600',
+              },
+            })
+          }
+
+          // For S3 storage, return presigned URL
+          const presignedUrl = await storage.getPresignedUrl(filename)
+          return NextResponse.json({ url: presignedUrl }, { status: 200 })
+        }
       } catch (fileError) {
-        // File doesn't exist, regenerate
-        console.error('Cached PDF file missing:', fileError)
+        // File doesn't exist or storage error, regenerate
+        console.error('Cached PDF access error:', fileError)
       }
     }
 
