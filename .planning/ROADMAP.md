@@ -50,17 +50,20 @@ Decimal phases appear between their surrounding integers in numeric order.
   6. PDF 다운로드가 보안 presigned URL을 통해 작동
   7. 환경변수가 적절히 격리됨 (Docker 이미지에 포함되지 않음)
   8. 무중단 배포가 작동하며 배포 실패 시 자동 롤백 활성화
-**Plans**: TBD
 
 Plans:
-- [ ] 08-01: Docker Compose 프로덕션 구성 (멀티스테이지 빌드, 헬스체크)
-- [ ] 08-02: Caddy 리버스 프록시와 자동 SSL
-- [ ] 08-03: MinIO S3 호환 스토리지 설정
-- [ ] 08-04: PDF 저장소 추상화 레이어
-- [ ] 08-05: PDF 데이터 마이그레이션 스크립트
-- [ ] 08-06: 헬스체크 엔드포인트
-- [ ] 08-07: 환경변수 관리 및 .dockerignore
-- [ ] 08-08: 무중단 배포 및 롤백 전략
+- [x] 08-01: Docker Compose 프로덕션 구성 (멀티스테이지 빌드, 헬스체크)
+- [x] 08-02: Caddy 리버스 프록시와 자동 SSL
+- [x] 08-03: MinIO S3 호환 스토리지 설정
+- [x] 08-04: PDF 저장소 추상화 레이어
+- [x] 08-05: PDF 데이터 마이그레이션 스크립트
+- [x] 08-06: 헬스체크 엔드포인트
+- [x] 08-07: 환경변수 관리 및 .dockerignore
+- [x] 08-08: 무중단 배포 및 롤백 전략
+
+**Gap Closure (In Progress):**
+- [ ] 08-09: PDF Presigned URL 만료 문제 해결
+- [ ] 08-10: CI/CD 자동 롤백 구현
 
 #### Phase 9: Performance & Database Optimization
 **Goal**: 데이터베이스 쿼리 최적화, 연결 풀링, 이미지 최적화로 프로덕션 규모 지원
@@ -72,7 +75,6 @@ Plans:
   3. 학생 목록 및 보고서 페이지가 N+1 쿼리 성능 저하 없이 로드
   4. 데이터베이스 인덱스가 자주 조회하는 필드의 쿼리 실행 시간 단축
   5. 학생 사진이 최적화되어 최신 포맷(WebP/AVIF)으로 제공
-**Plans**: TBD
 
 Plans:
 - [ ] 09-01: 데이터베이스 마이그레이션 자동화 (prisma migrate deploy)
@@ -93,7 +95,6 @@ Plans:
   5. 번들 크기가 분석되고 코드 스플리팅이 최적화됨
   6. 병렬 데이터 페칭으로 페이지 로드 시간 단축
   7. Phase 1 VERIFICATION.md 파일 생성됨
-**Plans**: TBD
 
 Plans:
 - [ ] 10-01: 코드 중복 제거 (fetchReportData 추출)
@@ -124,7 +125,7 @@ Phases execute in numeric order: 8 → 9 → 10
 | 5. AI Image Analysis | v1.0 | 5/5 | Complete | 2026-01-29 |
 | 6. AI Integration | v1.0 | 5/5 | Complete | 2026-01-29 |
 | 7. Reports | v1.0 | 7/7 | Complete | 2026-01-29 |
-| 8. Production Infrastructure Foundation | v1.1 | 0/8 | Not started | - |
+| 8. Production Infrastructure Foundation | v1.1 | 8/10 | Gap closure | - |
 | 9. Performance & Database Optimization | v1.1 | 0/5 | Not started | - |
 | 10. Technical Debt Resolution & Monitoring | v1.1 | 0/7 | Not started | - |
 
