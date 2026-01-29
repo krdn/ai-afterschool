@@ -1,0 +1,151 @@
+import { NextResponse } from 'next/server'
+import { db } from '@/lib/db'
+import { getPdfStoragePath } from '@/lib/pdf/generator'
+import { existsSync } from 'fs'
+import { constants } from 'fs/promises'
+
+/**
+ * Health check response shape
+ */
+interface HealthCheckResult {
+  status: 'healthy' | 'unhealthy' | 'degraded'
+  timestamp: string
+  checks: {
+    database: HealthCheckItem
+    storage: HealthCheckItem
+  }
+  uptime: number
+  version?: string
+}
+
+interface HealthCheckItem {
+  status: 'healthy' | 'unhealthy' | 'unknown'
+  message?: string
+  responseTime?: number  // milliseconds
+}
+
+/**
+ * GET /api/health
+ *
+ * Health check endpoint for:
+ * - Docker container health checks
+ * - Load balancer health checks
+ * - Deployment readiness probes
+ * - Monitoring and alerting
+ *
+ * Returns 200 if all checks pass, 503 if any check fails
+ */
+export async function GET() {
+  const startTime = Date.now()
+  const results: HealthCheckResult = {
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    checks: {
+      database: { status: 'unknown' },
+      storage: { status: 'unknown' },
+    },
+    uptime: process.uptime(),
+  }
+
+  // Optional: Add version from package.json
+  try {
+    const packagePath = process.cwd() + '/package.json'
+    const pkg = await import(packagePath)
+    results.version = pkg.version
+  } catch {
+    // Version is optional
+  }
+
+  // 1. Database health check
+  try {
+    const dbStart = Date.now()
+    await db.$queryRaw`SELECT 1`
+    const dbTime = Date.now() - dbStart
+
+    results.checks.database = {
+      status: 'healthy',
+      message: 'Database connection successful',
+      responseTime: dbTime,
+    }
+
+    // Warn if slow response
+    if (dbTime > 1000) {
+      results.checks.database.message += ` (slow: ${dbTime}ms)`
+      results.status = 'degraded'
+    }
+  } catch (error: any) {
+    results.checks.database = {
+      status: 'unhealthy',
+      message: error.message || 'Database connection failed',
+    }
+    results.status = 'unhealthy'
+  }
+
+  // 2. Storage health check
+  try {
+    const storageStart = Date.now()
+    const storagePath = getPdfStoragePath()
+
+    // Check if storage directory exists and is accessible
+    const pathExists = existsSync(storagePath)
+
+    if (pathExists) {
+      const storageTime = Date.now() - storageStart
+
+      results.checks.storage = {
+        status: 'healthy',
+        message: 'Storage accessible',
+        responseTime: storageTime,
+      }
+
+      if (storageTime > 1000) {
+        results.checks.storage.message += ` (slow: ${storageTime}ms)`
+        if (results.status !== 'unhealthy') {
+          results.status = 'degraded'
+        }
+      }
+    } else {
+      results.checks.storage = {
+        status: 'unhealthy',
+        message: `Storage directory not found: ${storagePath}`,
+      }
+      results.status = 'unhealthy'
+    }
+  } catch (error: any) {
+    results.checks.storage = {
+      status: 'unhealthy',
+      message: error.message || 'Storage check failed',
+    }
+    results.status = 'unhealthy'
+  }
+
+  // 3. Calculate total response time
+  const totalTime = Date.now() - startTime
+
+  // 4. Return appropriate status code
+  const statusCode = results.status === 'healthy' ? 200 : 503
+
+  return NextResponse.json(results, {
+    status: statusCode,
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'X-Response-Time': `${totalTime}`,
+    },
+  })
+}
+
+/**
+ * HEAD /api/health
+ *
+ * Lightweight health check for load balancers that only need status code
+ */
+export async function HEAD() {
+  try {
+    // Quick database check only
+    await db.$queryRaw`SELECT 1`
+    return new NextResponse(null, { status: 200 })
+  } catch {
+    return new NextResponse(null, { status: 503 })
+  }
+}
