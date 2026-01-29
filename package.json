@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "vitest run"
+    "test": "vitest run",
+    "validate:env": "tsx scripts/validate-env.ts",
+    "validate:env:prod": "tsx scripts/validate-env.ts --production"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
