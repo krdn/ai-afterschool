@@ -86,7 +86,7 @@ export async function generateConsultationReport(studentId: string) {
       const storagePath = getPdfStoragePath()
       const filepath = path.join(storagePath, filename)
 
-      await pdfToFile(React.createElement(ConsultationReport, reportData) as React.ReactElement<any>, filepath)
+      await pdfToFile(React.createElement(ConsultationReport, reportData) as React.ReactElement, filepath)
 
       // Mark as complete
       const relativeUrl = `/reports/${filename}`

@@ -80,11 +80,11 @@ export async function GET(
 
     // Render PDF to buffer
     const pdfBuffer = await pdfToBuffer(
-      React.createElement(ConsultationReport, reportData) as React.ReactElement<any>
+      React.createElement(ConsultationReport, reportData) as React.ReactElement
     )
 
     // Return PDF
-    return new NextResponse(pdfBuffer as any, {
+    return new NextResponse(Buffer.from(pdfBuffer) as BodyInit, {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="report-${student.name}.pdf"`,
