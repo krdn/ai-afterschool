@@ -27,6 +27,7 @@ export function MbtiSurveyForm({ studentId, initialDraft }: {
   const router = useRouter()
   const [focusedQuestionId, setFocusedQuestionId] = useState<number | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [unansweredIds, setUnansweredIds] = useState<Set<number>>(new Set())
 
   const methods = useForm<FormData>({
     defaultValues: {
@@ -88,15 +89,34 @@ export function MbtiSurveyForm({ studentId, initialDraft }: {
     return () => observer.disconnect()
   }, [])
 
+  // 응답이 변경될 때 unansweredIds 업데이트
+  const responses = methods.watch("responses")
+  useEffect(() => {
+    if (unansweredIds.size > 0 && responses) {
+      const stillUnanswered = new Set<number>()
+      for (const id of unansweredIds) {
+        if (responses[id] === undefined) {
+          stillUnanswered.add(id)
+        }
+      }
+      setUnansweredIds(stillUnanswered)
+    }
+  }, [responses, unansweredIds])
+
   const onSubmit = useCallback(async (data: FormData) => {
     const unanswered = questions.filter(q => data.responses[q.id] === undefined)
     if (unanswered.length > 0) {
+      // unanswered 문항 ID 목록을 설정하여 빨간 테두리 표시
+      setUnansweredIds(new Set(unanswered.map(q => q.id)))
       document.getElementById(`question-${unanswered[0].id}`)?.scrollIntoView({
         behavior: "smooth",
         block: "center"
       })
       return
     }
+
+    // unanswered 상태 초기화
+    setUnansweredIds(new Set())
 
     setIsSubmitting(true)
     cancelAutosave()
@@ -132,10 +152,10 @@ export function MbtiSurveyForm({ studentId, initialDraft }: {
         {(["EI", "SN", "TF", "JP"] as const).map(dim => (
           <QuestionGroup
             key={dim}
-            dimension={dim}
             dimensionLabel={dimensionLabels[dim]}
             questions={grouped[dim] || []}
             focusedQuestionId={focusedQuestionId}
+            unansweredIds={unansweredIds}
           />
         ))}
 

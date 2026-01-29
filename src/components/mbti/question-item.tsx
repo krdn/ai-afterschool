@@ -8,13 +8,14 @@ type Props = {
   questionText: string
   description?: string
   isFocused: boolean
+  hasError?: boolean
 }
 
-export function QuestionItem({ questionId, questionText, description, isFocused }: Props) {
+export function QuestionItem({ questionId, questionText, description, isFocused, hasError }: Props) {
   const { watch, setValue, formState } = useFormContext()
   const responses = watch("responses")
   const answered = responses?.[questionId] !== undefined
-  const showError = formState.isSubmitted && !answered
+  const showError = (formState.isSubmitted && !answered) || hasError
 
   return (
     <div
