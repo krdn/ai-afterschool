@@ -40,18 +40,16 @@
 - fetchReportData() 함수 중복 (낮은 우선순위 기술 부채)
 - PDF 저장소 로컬 파일시스템 사용 (프로덕션용 S3 마이그레이션 필요)
 
-## Next Milestone Goals (v1.1)
+## Current Milestone: v1.1 Production Readiness
 
-**Focus Areas:**
-1. Production deployment preparation
-2. Performance optimization
-3. Technical debt resolution
+**Goal:** 프로덕션 환경 배포를 위한 인프라 구축, 성능 최적화, 기술 부채 해결
 
-**Potential Enhancements:**
-- PDF 저장소 S3 마이그레이션
-- fetchReportData() 중복 해제
-- 배포 자동화 (CI/CD)
-- 성능 모니터링 도구 추가
+**Target features:**
+- Docker 기반 프로덕션 배포 환경 구축
+- 데이터베이스 쿼리 및 렌더링 성능 최적화
+- 기술 부채 해결 (PDF 저장소 마이그레이션, 코드 중복 제거)
+- CI/CD 파이프라인 구축
+- 운영 환경 모니터링 설정
 
 ## Requirements
 
@@ -74,7 +72,23 @@
 
 ### Active
 
-(Next milestone planning will define new requirements)
+**프로덕션 배포:**
+- [ ] Docker Compose 프로덕션 환경 구성
+- [ ] 환경 변수 관리 (Docker Secrets)
+- [ ] SSL/TLS 인증서 설정
+- [ ] 건강성 확인(health check) 엔드포인트
+- [ ] 로그 수집 및 모니터링
+
+**성능 최적화:**
+- [ ] 데이터베이스 쿼리 최적화
+- [ ] 이미지 최적화 (Next.js Image)
+- [ ] 코드 스플리팅 및 레이지 로딩
+- [ ] 캐싱 전략 (Redis 또는 Next.js 캐시)
+
+**기술 부채 해결:**
+- [ ] PDF 저장소 로컬 → S3 호환 스토리지 마이그레이션
+- [ ] fetchReportData() 함수 중복 해제
+- [ ] 누락된 VERIFICATION.md 파일 생성
 
 ### Out of Scope
 
@@ -143,4 +157,4 @@
 | 선생님별 개별 계정 사용 | 여러 선생님이 동시 사용 | ✓ 성공 — 다중 계정 분리 확인 |
 
 ---
-*Last updated: 2026-01-30 after v1.0 milestone*
+*Last updated: 2026-01-30 after v1.1 milestone initialization*
