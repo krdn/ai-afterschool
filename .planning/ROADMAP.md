@@ -125,10 +125,14 @@ Plans:
   4. 학생 성향 요약 카드를 한눈에 볼 수 있다
   5. 과거 분석 결과 이력을 저장하고 조회할 수 있다
   6. 일부 분석 데이터가 없어도 사용 가능한 데이터만으로 제안을 생성한다
-**Plans**: TBD
+**Plans**: 5 plans
 
 Plans:
-- [ ] TBD during planning
+- [ ] 06-01-PLAN.md — DB 스키마 및 통합 데이터 조회 함수
+- [ ] 06-02-PLAN.md — AI 프롬프트 및 Server Actions
+- [ ] 06-03-PLAN.md — 통합 성향 요약 카드
+- [ ] 06-04-PLAN.md — 학습 전략 및 진로 가이드 패널
+- [ ] 06-05-PLAN.md — 페이지 통합 및 전체 검증
 
 ### Phase 7: Reports
 **Goal**: 종합 상담 보고서를 PDF로 출력하여 학부모 상담에 활용할 수 있다
@@ -156,5 +160,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 3. Calculation Analysis | 4/4 | Complete | 2026-01-28 |
 | 4. MBTI Analysis | 4/4 | Complete | 2026-01-29 |
 | 5. AI Image Analysis | 5/5 | Complete | 2026-01-29 |
-| 6. AI Integration | 0/TBD | Not started | - |
+| 6. AI Integration | 0/5 | Not started | - |
 | 7. Reports | 0/TBD | Not started | - |
