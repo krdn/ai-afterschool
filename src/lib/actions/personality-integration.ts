@@ -112,7 +112,7 @@ export async function generateLearningStrategy(studentId: string) {
         studentId,
         status: "complete",
         coreTraits: validatedResult.coreTraits,
-        learningStrategy: validatedResult as any,
+        learningStrategy: validatedResult,
         careerGuidance: null,
       })
 
@@ -235,7 +235,7 @@ export async function generateCareerGuidance(studentId: string) {
         status: "complete",
         coreTraits: validatedResult.coreTraits,
         learningStrategy: null,
-        careerGuidance: validatedResult as any,
+        careerGuidance: validatedResult,
       })
 
       // 9. 페이지 갱신
