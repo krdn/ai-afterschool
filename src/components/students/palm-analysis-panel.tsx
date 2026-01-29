@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useTransition } from "react"
+import Image from "next/image"
 import { Hand, Sparkles, AlertCircle } from "lucide-react"
 import { analyzePalmImage } from "@/lib/actions/ai-image-analysis"
 import { DISCLAIMER_TEXT } from "@/lib/ai/prompts"
@@ -16,18 +17,16 @@ type PalmAnalysis = {
 
 type Props = {
   studentId: string
-  studentName: string
   analysis: PalmAnalysis
   palmImageUrl: string | null
 }
 
 export function PalmAnalysisPanel({
   studentId,
-  studentName,
   analysis,
   palmImageUrl
 }: Props) {
-  const [isPending, startTransition] = useTransition()
+  const [, startTransition] = useTransition()
   const [localStatus, setLocalStatus] = useState<'idle' | 'analyzing'>('idle')
   const [selectedHand, setSelectedHand] = useState<'left' | 'right'>(
     (analysis?.hand === 'left' || analysis?.hand === 'right') ? analysis.hand : 'right'
@@ -112,9 +111,11 @@ function AnalysisResult({ result, imageUrl, hand }: { result: unknown; imageUrl:
     <div className="space-y-6">
       {/* Image Preview with Hand Label */}
       <div className="flex flex-col items-center">
-        <img
+        <Image
           src={imageUrl}
           alt={`${hand === 'left' ? '왼손' : '오른손'} 손바닥 사진`}
+          width={192}
+          height={192}
           className="w-48 h-48 object-cover rounded-lg shadow-md"
         />
         <span className="mt-2 text-sm text-gray-500">

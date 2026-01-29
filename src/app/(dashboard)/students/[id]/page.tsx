@@ -46,7 +46,7 @@ export default async function StudentPage({
   type FaceAnalysisRecord = {
     id: string
     status: string
-    result: any
+    result: unknown
     imageUrl: string
     errorMessage: string | null
   } | null
@@ -54,7 +54,7 @@ export default async function StudentPage({
   type PalmAnalysisRecord = {
     id: string
     status: string
-    result: any
+    result: unknown
     imageUrl: string
     hand: string
     errorMessage: string | null
@@ -160,7 +160,6 @@ export default async function StudentPage({
       {faceImageUrl && (
         <FaceAnalysisPanel
           studentId={student.id}
-          studentName={student.name}
           analysis={faceAnalysis}
           faceImageUrl={faceImageUrl}
         />
@@ -168,7 +167,6 @@ export default async function StudentPage({
       {palmImageUrl && (
         <PalmAnalysisPanel
           studentId={student.id}
-          studentName={student.name}
           analysis={palmAnalysis}
           palmImageUrl={palmImageUrl}
         />
