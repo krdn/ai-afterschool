@@ -1,4 +1,5 @@
 import { db as prisma } from '@/lib/db'
+import { Prisma } from '@prisma/client'
 
 /**
  * 손금 분석 결과 생성
@@ -7,7 +8,7 @@ export async function createPalmAnalysis(data: {
   studentId: string
   hand: 'left' | 'right'
   imageUrl: string
-  result: any
+  result: unknown
   status: string
   errorMessage?: string
 }) {
@@ -16,7 +17,7 @@ export async function createPalmAnalysis(data: {
       studentId: data.studentId,
       hand: data.hand,
       imageUrl: data.imageUrl,
-      result: data.result,
+      result: data.result as Prisma.InputJsonValue,
       status: data.status,
       errorMessage: data.errorMessage,
       analyzedAt: new Date()
@@ -31,7 +32,7 @@ export async function upsertPalmAnalysis(data: {
   studentId: string
   hand: 'left' | 'right'
   imageUrl: string
-  result: any | null
+  result: unknown | null
   status: string
   errorMessage?: string
 }) {
@@ -41,7 +42,7 @@ export async function upsertPalmAnalysis(data: {
       studentId: data.studentId,
       hand: data.hand,
       imageUrl: data.imageUrl,
-      result: data.result,
+      result: data.result as Prisma.InputJsonValue,
       status: data.status,
       errorMessage: data.errorMessage,
       analyzedAt: new Date()
@@ -49,7 +50,7 @@ export async function upsertPalmAnalysis(data: {
     update: {
       hand: data.hand,
       imageUrl: data.imageUrl,
-      result: data.result,
+      result: data.result as Prisma.InputJsonValue,
       status: data.status,
       errorMessage: data.errorMessage,
       analyzedAt: new Date(),

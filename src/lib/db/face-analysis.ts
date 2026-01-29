@@ -1,4 +1,5 @@
 import { db as prisma } from '@/lib/db'
+import { Prisma } from '@prisma/client'
 
 /**
  * 관상 분석 결과 생성
@@ -6,7 +7,7 @@ import { db as prisma } from '@/lib/db'
 export async function createFaceAnalysis(data: {
   studentId: string
   imageUrl: string
-  result: any
+  result: unknown
   status: string
   errorMessage?: string
 }) {
@@ -14,7 +15,7 @@ export async function createFaceAnalysis(data: {
     data: {
       studentId: data.studentId,
       imageUrl: data.imageUrl,
-      result: data.result,
+      result: data.result as Prisma.InputJsonValue,
       status: data.status,
       errorMessage: data.errorMessage,
       analyzedAt: new Date()
@@ -28,7 +29,7 @@ export async function createFaceAnalysis(data: {
 export async function upsertFaceAnalysis(data: {
   studentId: string
   imageUrl: string
-  result: any | null
+  result: unknown | null
   status: string
   errorMessage?: string
 }) {
@@ -37,14 +38,14 @@ export async function upsertFaceAnalysis(data: {
     create: {
       studentId: data.studentId,
       imageUrl: data.imageUrl,
-      result: data.result,
+      result: data.result as Prisma.InputJsonValue,
       status: data.status,
       errorMessage: data.errorMessage,
       analyzedAt: new Date()
     },
     update: {
       imageUrl: data.imageUrl,
-      result: data.result,
+      result: data.result as Prisma.InputJsonValue,
       status: data.status,
       errorMessage: data.errorMessage,
       analyzedAt: new Date(),

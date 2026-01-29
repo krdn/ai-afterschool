@@ -8,25 +8,23 @@ import { DISCLAIMER_TEXT } from "@/lib/ai/prompts"
 type FaceAnalysis = {
   id: string
   status: string
-  result: any
+  result: unknown
   imageUrl: string
   errorMessage: string | null
 } | null
 
 type Props = {
   studentId: string
-  studentName: string
   analysis: FaceAnalysis
   faceImageUrl: string | null
 }
 
 export function FaceAnalysisPanel({
   studentId,
-  studentName,
   analysis,
   faceImageUrl
 }: Props) {
-  const [isPending, startTransition] = useTransition()
+  const [, startTransition] = useTransition()
   const [localStatus, setLocalStatus] = useState<'idle' | 'analyzing'>('idle')
 
   const handleAnalyze = () => {
@@ -85,7 +83,25 @@ export function FaceAnalysisPanel({
   )
 }
 
-function AnalysisResult({ result, imageUrl }: { result: any; imageUrl: string | null }) {
+function AnalysisResult({ result, imageUrl }: { result: unknown; imageUrl: string | null }) {
+  const analysisResult = result as {
+    faceShape: string
+    features: {
+      eyes: string
+      nose: string
+      mouth: string
+      ears: string
+      forehead: string
+      chin: string
+    }
+    personalityTraits: string[]
+    fortune: {
+      academic: string
+      career: string
+      relationships: string
+    }
+    overallInterpretation?: string
+  }
   return (
     <div className="space-y-6">
       {/* Image Preview */}
@@ -109,19 +125,19 @@ function AnalysisResult({ result, imageUrl }: { result: any; imageUrl: string | 
       {/* Face Shape */}
       <div>
         <h3 className="font-semibold mb-2">얼굴형</h3>
-        <p className="text-gray-700">{result.faceShape}</p>
+        <p className="text-gray-700">{analysisResult.faceShape}</p>
       </div>
 
       {/* Features */}
       <div>
         <h3 className="font-semibold mb-2">이목구비</h3>
         <dl className="grid grid-cols-2 gap-3">
-          <FeatureItem label="눈" value={result.features.eyes} />
-          <FeatureItem label="코" value={result.features.nose} />
-          <FeatureItem label="입" value={result.features.mouth} />
-          <FeatureItem label="귀" value={result.features.ears} />
-          <FeatureItem label="이마" value={result.features.forehead} />
-          <FeatureItem label="턱" value={result.features.chin} />
+          <FeatureItem label="눈" value={analysisResult.features.eyes} />
+          <FeatureItem label="코" value={analysisResult.features.nose} />
+          <FeatureItem label="입" value={analysisResult.features.mouth} />
+          <FeatureItem label="귀" value={analysisResult.features.ears} />
+          <FeatureItem label="이마" value={analysisResult.features.forehead} />
+          <FeatureItem label="턱" value={analysisResult.features.chin} />
         </dl>
       </div>
 
@@ -129,7 +145,7 @@ function AnalysisResult({ result, imageUrl }: { result: any; imageUrl: string | 
       <div>
         <h3 className="font-semibold mb-2">성격 특성</h3>
         <ul className="list-disc list-inside space-y-1">
-          {result.personalityTraits.map((trait: string, i: number) => (
+          {analysisResult.personalityTraits.map((trait: string, i: number) => (
             <li key={i} className="text-gray-700">{trait}</li>
           ))}
         </ul>
@@ -139,18 +155,18 @@ function AnalysisResult({ result, imageUrl }: { result: any; imageUrl: string | 
       <div>
         <h3 className="font-semibold mb-2">운세 해석</h3>
         <div className="space-y-2 text-sm">
-          <p><span className="font-medium">학업:</span> {result.fortune.academic}</p>
-          <p><span className="font-medium">진로:</span> {result.fortune.career}</p>
-          <p><span className="font-medium">인간관계:</span> {result.fortune.relationships}</p>
+          <p><span className="font-medium">학업:</span> {analysisResult.fortune.academic}</p>
+          <p><span className="font-medium">진로:</span> {analysisResult.fortune.career}</p>
+          <p><span className="font-medium">인간관계:</span> {analysisResult.fortune.relationships}</p>
         </div>
       </div>
 
       {/* Overall Interpretation */}
-      {result.overallInterpretation && (
+      {analysisResult.overallInterpretation && (
         <div>
           <h3 className="font-semibold mb-2">종합 해석</h3>
           <p className="text-gray-700 text-sm leading-relaxed">
-            {result.overallInterpretation}
+            {analysisResult.overallInterpretation}
           </p>
         </div>
       )}
