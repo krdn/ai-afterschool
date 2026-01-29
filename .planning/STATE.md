@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 Phase: 8 of 10 (Production Infrastructure Foundation)
 Plan: 5 of 8 in current phase
 Status: In progress
-Last activity: 2026-01-30 — Completed 08-05 PDF Data Migration Script
+Last activity: 2026-01-30 — Completed 08-03 MinIO S3-Compatible Storage Setup
 
 Progress: [████████████░░░░░░░] 65%
 
@@ -99,13 +99,13 @@ Recent milestone decisions:
 - Factory pattern for environment-based backend switching via PDF_STORAGE_TYPE
 - Local storage serves PDFs directly, S3 storage uses presigned URLs for security
 
-**Phase 8 Plan 05 (PDF Data Migration Script):**
-- Created migration script with dry run, execute, and rollback modes
-- Automatic backup creation before migration at `./backups/pdf-migration/`
-- Upload verification via size check for each file
-- Atomic database updates (ReportPDF model with fileUrl field)
-- Rollback restores both files and database URLs
-- Local files NOT deleted automatically (manual cleanup after verification)
+**Phase 8 Plan 03 (MinIO S3-Compatible Storage Setup):**
+- MinIO service configured with MINIO_ROOT_USER/MINIO_ROOT_PASSWORD credentials
+- Added MINIO_DEFAULT_BUCKETS for automatic bucket creation on container start
+- Created setup-minio.ts script for bucket and policy configuration using AWS SDK v3
+- Verified MinIO connectivity, bucket creation, and file operations
+- Public read policy for reports bucket (review for production security)
+- Change default credentials before production deployment
 
 ### Pending Todos
 
@@ -135,7 +135,7 @@ Recent milestone decisions:
 ## Session Continuity
 
 Last session: 2026-01-30
-Stopped at: Completed 08-05 PDF Data Migration Script
+Stopped at: Completed 08-03 MinIO S3-Compatible Storage Setup
 Resume file: None
 Next: Continue with Phase 8 plans (08-06 Database Connection Pooling)
 
