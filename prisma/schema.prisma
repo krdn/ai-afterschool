@@ -41,6 +41,8 @@ model Student {
   mbtiSurveyDraft                MbtiSurveyDraft?
   nameAnalysis                   NameAnalysis?
   sajuAnalysis                   SajuAnalysis?
+  faceAnalysis                   FaceAnalysis?
+  palmAnalysis                   PalmAnalysis?
   teacher                        Teacher          @relation(fields: [teacherId], references: [id])
   images                         StudentImage[]
 
@@ -144,4 +146,37 @@ enum StudentImageType {
   profile
   face
   palm
+}
+
+model FaceAnalysis {
+  id           String   @id @default(cuid())
+  studentId    String   @unique
+  imageUrl     String
+  result       Json
+  status       String   @default("complete")
+  errorMessage String?
+  version      Int      @default(1)
+  analyzedAt   DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  student      Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+}
+
+model PalmAnalysis {
+  id           String   @id @default(cuid())
+  studentId    String   @unique
+  hand         String
+  imageUrl     String
+  result       Json
+  status       String   @default("complete")
+  errorMessage String?
+  version      Int      @default(1)
+  analyzedAt   DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  student      Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
 }
