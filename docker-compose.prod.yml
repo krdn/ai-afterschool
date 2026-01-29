@@ -49,8 +49,10 @@ services:
       dockerfile: Dockerfile.prod
       target: production
       args:
+        VERSION: ${VERSION:-latest}
         SESSION_SECRET: ${SESSION_SECRET:-default-secret-for-build-min-32-chars-long}
         NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+    image: ai-afterschool:${VERSION:-latest}
     container_name: ai-afterschool-app
     ports:
       - "3000:3000"
@@ -74,7 +76,7 @@ services:
       minio:
         condition: service_started
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/api/health"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -82,6 +84,16 @@ services:
     restart: unless-stopped
     networks:
       - internal
+    # Enable rolling updates
+    deploy:
+      rollback_config:
+        parallelism: 1
+        delay: 10s
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+        order: start-first
 
   caddy:
     image: caddy:2-alpine
