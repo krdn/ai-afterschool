@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-30)
 
 **Core value:** 학생 정보 통합 관리를 기반으로 AI 성향 분석 및 맞춤형 학습/진로 제안 제공
-**Current focus:** v1.1 Production Readiness — 프로덕션 배포 준비, 성능 최적화, 기술 부채 해결
+**Current focus:** Phase 8 - Production Infrastructure Foundation
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-01-30 — Milestone v1.1 started
+Phase: 8 of 10 (Production Infrastructure Foundation)
+Plan: 0 of 8 in current phase
+Status: Ready to plan
+Last activity: 2026-01-30 — v1.1 로드맵 생성 완료
 
-Progress: [░░░░░░░░░░░░░░░░░░░░] 0% (planning phase)
+Progress: [████████░░░░░░░░░░░░░] 59%
 
 ## Milestone Summary
 
@@ -24,6 +24,11 @@ Progress: [░░░░░░░░░░░░░░░░░░░░] 0% (pla
 - 20/20 requirements satisfied (100%)
 - Integration health score: 98/100
 - 3 days from project start to ship
+
+**v1.1 Production Readiness (In Progress):**
+- 3 phases (8-10), 20 planned plans
+- 22 v1.1 requirements defined
+- Focus: Docker deployment, performance optimization, technical debt resolution
 
 ## Performance Metrics
 
@@ -36,15 +41,19 @@ Progress: [░░░░░░░░░░░░░░░░░░░░] 0% (pla
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 1 (Foundation & Authentication) | 7 | 7 | 7.7 min |
-| 2 (File Infrastructure) | 4 | 4 | 6.3 min |
-| 3 (Calculation Analysis) | 4 | 4 | 13.8 min |
-| 4 (MBTI Analysis) | 4 | 4 | 11.5 min |
-| 5 (AI Image Analysis) | 5 | 5 | 8.2 min |
-| 6 (AI Integration) | 5 | 5 | 4.4 min |
-| 7 (Reports) | 7 | 7 | 2.0 min |
+| 1 (Foundation & Authentication) | 7 | 54 min | 7.7 min |
+| 2 (File Infrastructure) | 4 | 25 min | 6.3 min |
+| 3 (Calculation Analysis) | 4 | 55 min | 13.8 min |
+| 4 (MBTI Analysis) | 4 | 46 min | 11.5 min |
+| 5 (AI Image Analysis) | 5 | 41 min | 8.2 min |
+| 6 (AI Integration) | 5 | 22 min | 4.4 min |
+| 7 (Reports) | 7 | 14 min | 2.0 min |
 
-*Updated after each plan completion*
+**Recent Trend:**
+- Last 5 plans: All completed in v1.0 Phase 7
+- Trend: Stable (consistent velocity across phases)
+
+*Updated after v1.0 completion*
 
 ## Accumulated Context
 
@@ -57,19 +66,33 @@ Recent milestone decisions:
 - Technical debt identified: fetchReportData duplication, PDF storage local filesystem
 - Next milestone focus: Production deployment, performance optimization, debt resolution
 
+**v1.1 Key Decisions (from research):**
+- Docker Compose selected for production deployment (sufficient for single-server scale)
+- MinIO chosen for PDF storage (S3-compatible, self-hosted, cost-effective)
+- Caddy selected over Nginx (simpler SSL automation)
+- Connection pooling limit set to 10 for Docker environments
+- Performance optimization deferred until infrastructure is stable
+- Code deduplication placed in final phase (lower priority than blockers)
+
 ### Pending Todos
 
 **v1.1 Planning:**
-- Define production deployment requirements
-- Plan performance optimization tasks
-- Address technical debt (fetchReportData, PDF storage)
+- [x] Define production deployment requirements (REQUIREMENTS-v1.1.md)
+- [x] Research production infrastructure patterns (research/SUMMARY-v1.1.md)
+- [x] Create roadmap with phases 8-10
+- [ ] Plan Phase 8 details (run /gsd:plan-phase 8)
 
 ### Blockers/Concerns
 
-**Production Readiness:**
-- PDF 저장소 로컬 파일시스템 → S3 마이그레이션 필요
-- fetchReportData() 함수 중복 해제 필요
-- 환경 변수 설정 가이드 필요 (ANTHROPIC_API_KEY, RESEND_API_KEY)
+**From v1.0:**
+- PDF 저장소 로컬 파일시스템 사용 (`./public/reports`) — 컨테이너 배포 시 문제
+- `fetchReportData()` 함수 중복 (`actions.ts`와 `route.ts`)
+- Phase 1 VERIFICATION.md 파일 누락
+
+**From research:**
+- PDF 마이그레이션 범위 미확정 (현재 PDF 개수와 저장소 크기 분석 필요)
+- Timezone 데이터에 UTC/KST 혼합 가능성 (데이터베이스 감사 필요)
+- N+1 쿼리 패턴 미식별 (쿼리 로깅으로 코드베이스 감사 필요)
 
 **Legal/Compliance:**
 - 한국 개인정보보호법 준수 확인 필요
@@ -79,9 +102,9 @@ Recent milestone decisions:
 ## Session Continuity
 
 Last session: 2026-01-30
-Stopped at: v1.0 milestone complete, archived, and tagged
+Stopped at: v1.1 로드맵 생성 완료 (ROADMAP.md, STATE.md)
 Resume file: None
-Next: Run /gsd:new-milestone to plan v1.1
+Next: /gsd:plan-phase 8 실행하여 Phase 8 상세 계획 수립
 
 Config (if exists):
 {
