@@ -43,6 +43,7 @@ model Student {
   sajuAnalysis                   SajuAnalysis?
   faceAnalysis                   FaceAnalysis?
   palmAnalysis                   PalmAnalysis?
+  personalitySummary             PersonalitySummary?
   teacher                        Teacher          @relation(fields: [teacherId], references: [id])
   images                         StudentImage[]
 
@@ -179,4 +180,35 @@ model PalmAnalysis {
   student      Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@index([studentId])
+}
+
+model PersonalitySummary {
+  id               String   @id @default(cuid())
+  studentId        String   @unique
+  coreTraits       String?
+  learningStrategy Json?
+  careerGuidance   Json?
+  status           String   @default("none")
+  errorMessage     String?
+  version          Int      @default(1)
+  generatedAt      DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  student          Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+}
+
+model PersonalitySummaryHistory {
+  id               String   @id @default(cuid())
+  studentId        String
+  coreTraits       String?
+  learningStrategy Json?
+  careerGuidance   Json?
+  version          Int
+  generatedAt      DateTime?
+  createdAt        DateTime @default(now())
+
+  @@index([studentId])
+  @@index([createdAt(sort: Desc)])
 }
