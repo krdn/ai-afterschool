@@ -10,7 +10,7 @@ type ReportStatus = 'none' | 'generating' | 'complete' | 'failed'
 interface ReportButtonClientProps {
   studentId: string
   initialStatus: ReportStatus
-  initialFileUrl: string | null
+  initialFileUrl?: string | null  // Kept for backward compatibility but unused
 }
 
 export function ReportButtonClient({
@@ -19,7 +19,6 @@ export function ReportButtonClient({
   initialFileUrl,
 }: ReportButtonClientProps) {
   const [status, setStatus] = useState<ReportStatus>(initialStatus)
-  const [fileUrl, setFileUrl] = useState<string | null>(initialFileUrl)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [isPolling, setIsPolling] = useState(false)
 
@@ -36,7 +35,6 @@ export function ReportButtonClient({
 
       const data = await response.json()
       setStatus(data.status || 'none')
-      setFileUrl(data.fileUrl)
       setErrorMessage(data.errorMessage)
 
       // Stop polling if complete or failed
@@ -63,10 +61,9 @@ export function ReportButtonClient({
     const result = await generateConsultationReport(studentId)
 
     if (result.success) {
-      if (result.cached && result.fileUrl) {
+      if (result.cached) {
         // Cached PDF available immediately
         setStatus('complete')
-        setFileUrl(result.fileUrl)
       } else {
         // Start generation
         setStatus('generating')
@@ -96,10 +93,10 @@ export function ReportButtonClient({
     )
   }
 
-  if (status === 'complete' && fileUrl) {
+  if (status === 'complete') {
     return (
       <Button asChild>
-        <a href={fileUrl} download>
+        <a href={`/api/students/${studentId}/report`} download>
           <Download className="mr-2 h-4 w-4" />
           PDF 다운로드
         </a>
