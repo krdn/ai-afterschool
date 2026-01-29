@@ -121,3 +121,78 @@ export async function getPersonalitySummaryHistory(
     orderBy: { createdAt: "desc" },
   })
 }
+
+/**
+ * PersonalitySummary upsert 페이로드 타입
+ */
+export type PersonalitySummaryUpsertPayload = {
+  studentId: string
+  coreTraits?: string | null
+  learningStrategy?: Prisma.InputJsonValue | null
+  careerGuidance?: Prisma.InputJsonValue | null
+  status?: string
+  errorMessage?: string | null
+  generatedAt?: Date
+}
+
+/**
+ * AI 통합 분석 요약을 생성 또는 갱신
+ * 업데이트 시 과거 이력을 PersonalitySummaryHistory에 자동 저장
+ *
+ * @param payload - 업서트 페이로드
+ * @returns 생성 또는 갱신된 PersonalitySummary
+ */
+export async function upsertPersonalitySummary(
+  payload: PersonalitySummaryUpsertPayload
+) {
+  const {
+    studentId,
+    coreTraits,
+    learningStrategy,
+    careerGuidance,
+    status,
+    errorMessage,
+    generatedAt,
+  } = payload
+
+  // 기존 레코드 조회 (이력 저장용)
+  const existing = await db.personalitySummary.findUnique({
+    where: { studentId },
+  })
+
+  // 업데이트 시 기존 데이터를 이력에 저장
+  if (existing && (existing.coreTraits || existing.learningStrategy || existing.careerGuidance)) {
+    await db.personalitySummaryHistory.create({
+      data: {
+        studentId,
+        coreTraits: existing.coreTraits,
+        learningStrategy: existing.learningStrategy as Prisma.InputJsonValue,
+        careerGuidance: existing.careerGuidance as Prisma.InputJsonValue,
+        version: existing.version,
+        generatedAt: existing.generatedAt,
+      },
+    })
+  }
+
+  // 데이터 매핑
+  const data = {
+    coreTraits: coreTraits ?? undefined,
+    learningStrategy: learningStrategy !== undefined ? learningStrategy as Prisma.InputJsonValue : undefined,
+    careerGuidance: careerGuidance !== undefined ? careerGuidance as Prisma.InputJsonValue : undefined,
+    status: status ?? undefined,
+    errorMessage: errorMessage ?? undefined,
+    generatedAt: generatedAt ?? new Date(),
+    // 기존 레코드가 있으면 version 증가, 없으면 1
+    version: existing ? existing.version + 1 : 1,
+  }
+
+  // upsert 실행
+  return db.personalitySummary.upsert({
+    where: { studentId },
+    create: {
+      studentId,
+      ...data,
+    },
+    update: data,
+  })
+}
