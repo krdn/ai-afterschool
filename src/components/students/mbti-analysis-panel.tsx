@@ -1,8 +1,12 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
-import { Brain, Pencil } from "lucide-react"
+import { Brain, Pencil, Edit3 } from "lucide-react"
 import { MbtiResultsDisplay } from "@/components/mbti/results-display"
+import { MbtiDirectInputModal } from "@/components/students/mbti-direct-input-modal"
+import { saveMbtiDirectInput } from "@/lib/actions/mbti-survey"
+import { useRouter } from "next/navigation"
 
 type MbtiAnalysis = {
   mbtiType: string
@@ -17,6 +21,25 @@ type Props = {
 }
 
 export function MbtiAnalysisPanel({ studentId, studentName, analysis }: Props) {
+  const [showDirectInput, setShowDirectInput] = useState(false)
+  const router = useRouter()
+
+  const handleDirectInputSave = async (data: {
+    mbtiType: string
+    percentages: {
+      E: number; I: number
+      S: number; N: number
+      T: number; F: number
+      J: number; P: number
+    }
+  }) => {
+    const result = await saveMbtiDirectInput(studentId, data)
+    if (result.success) {
+      setShowDirectInput(false)
+      router.refresh() // 페이지 새로고침
+    }
+  }
+
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden">
       <div className="px-6 py-4 border-b flex items-center justify-between">
@@ -27,13 +50,26 @@ export function MbtiAnalysisPanel({ studentId, studentName, analysis }: Props) {
           <h2 className="text-lg font-semibold">MBTI 성향 분석</h2>
         </div>
         {analysis && (
-          <Link
-            href={`/students/${studentId}/mbti`}
-            className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700"
-          >
-            <Pencil className="w-4 h-4" />
-            수정
-          </Link>
+          <div className="flex items-center gap-2">
+            {/* 직접 입력 버튼 */}
+            <button
+              onClick={() => setShowDirectInput(true)}
+              className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 px-2 py-1 hover:bg-gray-100 rounded-lg transition-colors"
+              title="MBTI 유형 직접 입력"
+            >
+              <Edit3 className="w-4 h-4" />
+              <span className="hidden sm:inline">직접 입력</span>
+            </button>
+            {/* 설문 수정 버튼 */}
+            <Link
+              href={`/students/${studentId}/mbti`}
+              className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 px-2 py-1 hover:bg-gray-100 rounded-lg transition-colors"
+              title="설문 재검사"
+            >
+              <Pencil className="w-4 h-4" />
+              <span className="hidden sm:inline">재검사</span>
+            </Link>
+          </div>
         )}
       </div>
 
@@ -57,16 +93,46 @@ export function MbtiAnalysisPanel({ studentId, studentName, analysis }: Props) {
             <p className="text-gray-500 mb-4">
               아직 MBTI 분석이 없습니다.
             </p>
-            <Link
-              href={`/students/${studentId}/mbti`}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
-            >
-              <Brain className="w-4 h-4" />
-              MBTI 검사 시작
-            </Link>
+            <div className="flex gap-3 justify-center">
+              {/* 직접 입력 버튼 (분석 없을 때) */}
+              <button
+                onClick={() => setShowDirectInput(true)}
+                className="inline-flex items-center gap-2 px-4 py-2 border border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 transition-colors"
+              >
+                <Edit3 className="w-4 h-4" />
+                직접 입력
+              </button>
+              {/* 설문 시작 버튼 */}
+              <Link
+                href={`/students/${studentId}/mbti`}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+              >
+                <Brain className="w-4 h-4" />
+                설문 시작
+              </Link>
+            </div>
           </div>
         )}
       </div>
+
+      {/* 직접 입력 모달 */}
+      {showDirectInput && (
+        <MbtiDirectInputModal
+          studentId={studentId}
+          studentName={studentName}
+          existingData={analysis ? {
+            mbtiType: analysis.mbtiType,
+            percentages: analysis.percentages as {
+              E: number; I: number
+              S: number; N: number
+              T: number; F: number
+              J: number; P: number
+            }
+          } : undefined}
+          onSave={handleDirectInputSave}
+          onCancel={() => setShowDirectInput(false)}
+        />
+      )}
     </div>
   )
 }

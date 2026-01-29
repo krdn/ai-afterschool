@@ -150,3 +150,94 @@ export async function getMbtiAnalysis(studentId: string) {
   const analysis = await getMbtiAnalysisDb(studentId)
   return analysis
 }
+
+/**
+ * MBTI 직접 입력 (설문 없이 유형과 백분율 직접 저장)
+ */
+export async function saveMbtiDirectInput(
+  studentId: string,
+  data: {
+    mbtiType: string
+    percentages: {
+      E: number
+      I: number
+      S: number
+      N: number
+      T: number
+      F: number
+      J: number
+      P: number
+    }
+  }
+) {
+  const session = await verifySession()
+  await ensureStudentAccess(studentId, session.userId)
+
+  // 유형 설명 로드
+  const typeDescription = descriptions[data.mbtiType as keyof typeof descriptions]
+
+  if (!typeDescription) {
+    throw new Error(`MBTI 유형 설명을 찾을 수 없습니다: ${data.mbtiType}`)
+  }
+
+  // 해석 텍스트 생성
+  const interpretation = `## ${typeDescription.name}
+
+${typeDescription.summary}
+
+### 주요 강점
+${typeDescription.strengths.map((s) => `- ${s}`).join("\n")}
+
+### 주의할 점
+${typeDescription.weaknesses.map((w) => `- ${w}`).join("\n")}
+
+### 학습 스타일
+${typeDescription.learningStyle}
+
+### 추천 직업
+${typeDescription.careers.join(", ")}
+
+### 대표 인물
+${typeDescription.famousPeople.join(", ")}
+`
+
+  // 빈 scores 생성 (직접 입력이므로 응답 없음)
+  const scores = {
+    e: 0,
+    i: 0,
+    s: 0,
+    n: 0,
+    t: 0,
+    f: 0,
+    j: 0,
+    p: 0,
+  }
+
+  // 분석 결과 저장
+  await upsertMbtiAnalysis(studentId, {
+    responses: {}, // 직접 입력이므로 빈 응답
+    scores,
+    mbtiType: data.mbtiType,
+    percentages: data.percentages,
+    interpretation,
+  })
+
+  // Draft 삭제 (있을 경우)
+  try {
+    await deleteMbtiDraft(studentId)
+  } catch {
+    // Draft가 없으면 무시
+  }
+
+  // 캐시 무효화
+  revalidatePath(`/students/${studentId}`)
+
+  return {
+    success: true,
+    result: {
+      mbtiType: data.mbtiType,
+      percentages: data.percentages,
+      interpretation,
+    },
+  }
+}
