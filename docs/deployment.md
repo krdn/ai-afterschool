@@ -66,3 +66,80 @@ docker-compose -f docker-compose.prod.yml up -d
 **Health check failing:**
 - Ensure app container is healthy
 - Verify `/api/health` endpoint is accessible
+
+## Zero-Downtime Deployment
+
+### Manual Deployment
+
+```bash
+# Deploy latest version
+./scripts/deploy.sh
+
+# Deploy specific version
+./scripts/deploy.sh --tag=v1.1.0
+
+# Deploy without confirmation
+./scripts/deploy.sh --force
+```
+
+### What Happens During Deployment
+
+1. **Pre-deployment checks**
+   - Verify docker-compose file exists
+   - Check Docker is running
+   - Validate environment
+
+2. **Backup**
+   - Save current image tag for rollback
+
+3. **Build**
+   - Build new Docker image
+   - Tag with version
+
+4. **Deploy**
+   - Pull latest base images (postgres, minio, caddy)
+   - Start new containers
+   - Wait for health check
+
+5. **Success**
+   - Cleanup old images
+   - Remove backup tag
+
+6. **Failure → Auto-rollback**
+   - Restore previous image tag
+   - Restart containers with backup
+   - Verify health
+
+### Rolling Back
+
+```bash
+# Rollback to previous version
+./scripts/rollback.sh
+
+# Rollback to specific version
+./scripts/rollback.sh --tag=v1.0.0
+```
+
+### CI/CD Integration
+
+For automated deployment via GitHub Actions, see `.github/workflows/deploy.yml`.
+
+Required secrets:
+- `SERVER_HOST` - Server IP/hostname
+- `SERVER_USER` - SSH username
+- `SSH_PRIVATE_KEY` - SSH private key
+
+### Environment Variables
+
+The deployment script supports these environment variables:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `COMPOSE_FILE` | `docker-compose.prod.yml` | Path to docker-compose file |
+| `HEALTH_CHECK_TIMEOUT` | `60` | Seconds to wait for health check |
+| `HEALTH_CHECK_URL` | `http://localhost:3000/api/health` | Health check endpoint |
+
+Example:
+```bash
+HEALTH_CHECK_TIMEOUT=120 ./scripts/deploy.sh
+```
