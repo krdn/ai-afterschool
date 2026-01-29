@@ -7,11 +7,11 @@ import { DISCLAIMER_TEXT } from "@/lib/ai/prompts"
 
 type PalmAnalysis = {
   id: string
-  status: 'pending' | 'complete' | 'failed'
-  result: any | null
-  imageUrl: string | null
-  hand: 'left' | 'right'
-  errorMessage?: string
+  status: string
+  result: unknown
+  imageUrl: string
+  hand: string
+  errorMessage: string | null
 } | null
 
 type Props = {
@@ -30,7 +30,7 @@ export function PalmAnalysisPanel({
   const [isPending, startTransition] = useTransition()
   const [localStatus, setLocalStatus] = useState<'idle' | 'analyzing'>('idle')
   const [selectedHand, setSelectedHand] = useState<'left' | 'right'>(
-    analysis?.hand || 'right'
+    (analysis?.hand === 'left' || analysis?.hand === 'right') ? analysis.hand : 'right'
   )
 
   const handleAnalyze = () => {
@@ -52,7 +52,7 @@ export function PalmAnalysisPanel({
   }
 
   const isAnalyzing = localStatus === 'analyzing' ||
-    (analysis?.status === 'pending' && analysis?.result === null)
+    (analysis?.status === 'pending')
 
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden">
@@ -69,7 +69,7 @@ export function PalmAnalysisPanel({
       {/* Content */}
       <div className="p-6">
         {analysis?.status === 'complete' && analysis.result ? (
-          <AnalysisResult result={analysis.result} imageUrl={analysis.imageUrl} hand={analysis.hand} />
+          <AnalysisResult result={analysis.result} imageUrl={analysis.imageUrl} hand={analysis.hand as 'left' | 'right'} />
         ) : analysis?.status === 'failed' ? (
           <ErrorState
             message={analysis.errorMessage || "분석에 실패했습니다."}
@@ -90,7 +90,24 @@ export function PalmAnalysisPanel({
   )
 }
 
-function AnalysisResult({ result, imageUrl, hand }: { result: any; imageUrl: string; hand: 'left' | 'right' }) {
+function AnalysisResult({ result, imageUrl, hand }: { result: unknown; imageUrl: string; hand: 'left' | 'right' }) {
+  const analysisResult = result as {
+    clarity: 'clear' | 'unclear' | 'partial'
+    linesDetected: {
+      lifeLine: string
+      headLine: string
+      heartLine: string
+      fateLine?: string
+      marriageLine?: string
+    }
+    personalityTraits: string[]
+    fortune: {
+      academic: string
+      career: string
+      talents: string
+    }
+    overallInterpretation?: string
+  }
   return (
     <div className="space-y-6">
       {/* Image Preview with Hand Label */}
@@ -115,21 +132,21 @@ function AnalysisResult({ result, imageUrl, hand }: { result: any; imageUrl: str
       {/* Clarity Indicator */}
       <div className="flex items-center gap-2">
         <span className="text-sm font-medium">손금 선명도:</span>
-        <ClarityBadge clarity={result.clarity} />
+        <ClarityBadge clarity={analysisResult.clarity} />
       </div>
 
       {/* Lines Detected */}
       <div>
         <h3 className="font-semibold mb-2">주요 손금</h3>
         <dl className="space-y-3">
-          <LineItem label="생명선" description={result.linesDetected.lifeLine} />
-          <LineItem label="두뇌선" description={result.linesDetected.headLine} />
-          <LineItem label="감정선" description={result.linesDetected.heartLine} />
-          {result.linesDetected.fateLine && (
-            <LineItem label="운명선" description={result.linesDetected.fateLine} />
+          <LineItem label="생명선" description={analysisResult.linesDetected.lifeLine} />
+          <LineItem label="두뇌선" description={analysisResult.linesDetected.headLine} />
+          <LineItem label="감정선" description={analysisResult.linesDetected.heartLine} />
+          {analysisResult.linesDetected.fateLine && (
+            <LineItem label="운명선" description={analysisResult.linesDetected.fateLine} />
           )}
-          {result.linesDetected.marriageLine && (
-            <LineItem label="결혼선" description={result.linesDetected.marriageLine} />
+          {analysisResult.linesDetected.marriageLine && (
+            <LineItem label="결혼선" description={analysisResult.linesDetected.marriageLine} />
           )}
         </dl>
       </div>
@@ -138,7 +155,7 @@ function AnalysisResult({ result, imageUrl, hand }: { result: any; imageUrl: str
       <div>
         <h3 className="font-semibold mb-2">성격 특성</h3>
         <ul className="list-disc list-inside space-y-1">
-          {result.personalityTraits.map((trait: string, i: number) => (
+          {analysisResult.personalityTraits.map((trait: string, i: number) => (
             <li key={i} className="text-gray-700">{trait}</li>
           ))}
         </ul>
@@ -148,18 +165,18 @@ function AnalysisResult({ result, imageUrl, hand }: { result: any; imageUrl: str
       <div>
         <h3 className="font-semibold mb-2">운세 해석</h3>
         <div className="space-y-2 text-sm">
-          <p><span className="font-medium">학업 적성:</span> {result.fortune.academic}</p>
-          <p><span className="font-medium">진로 적성:</span> {result.fortune.career}</p>
-          <p><span className="font-medium">특이사항:</span> {result.fortune.talents}</p>
+          <p><span className="font-medium">학업 적성:</span> {analysisResult.fortune.academic}</p>
+          <p><span className="font-medium">진로 적성:</span> {analysisResult.fortune.career}</p>
+          <p><span className="font-medium">특이사항:</span> {analysisResult.fortune.talents}</p>
         </div>
       </div>
 
       {/* Overall Interpretation */}
-      {result.overallInterpretation && (
+      {analysisResult.overallInterpretation && (
         <div>
           <h3 className="font-semibold mb-2">종합 해석</h3>
           <p className="text-gray-700 text-sm leading-relaxed">
-            {result.overallInterpretation}
+            {analysisResult.overallInterpretation}
           </p>
         </div>
       )}
