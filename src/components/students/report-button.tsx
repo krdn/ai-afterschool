@@ -6,9 +6,9 @@ interface ReportButtonProps {
 }
 
 // Dynamic import to avoid 'use client' in server component
+// Note: In Next.js 15+, Server Components don't SSR dynamic imports by default
 const ReportButtonClient = dynamic(
-  () => import('./report-button-client').then(mod => ({ default: mod.ReportButtonClient })),
-  { ssr: false }
+  () => import('./report-button-client').then(mod => ({ default: mod.ReportButtonClient }))
 )
 
 export async function ReportButton({ studentId }: ReportButtonProps) {
