@@ -1,4 +1,5 @@
 import { renderToBuffer, renderToFile } from '@react-pdf/renderer'
+import type { DocumentProps } from '@react-pdf/renderer'
 import fs from 'fs/promises'
 import path from 'path'
 
@@ -6,7 +7,7 @@ import path from 'path'
  * Render React PDF component to buffer (for streaming response)
  */
 export async function pdfToBuffer(
-  component: React.ReactElement
+  component: React.ReactElement<DocumentProps>
 ): Promise<Buffer> {
   return await renderToBuffer(component)
 }
@@ -15,7 +16,7 @@ export async function pdfToBuffer(
  * Render React PDF component to file (for caching/storage)
  */
 export async function pdfToFile(
-  component: React.ReactElement,
+  component: React.ReactElement<DocumentProps>,
   outputPath: string
 ): Promise<void> {
   // Ensure directory exists
