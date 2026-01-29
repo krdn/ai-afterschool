@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { getPdfStoragePath } from '@/lib/pdf/generator'
 import { existsSync } from 'fs'
-import { constants } from 'fs/promises'
 
 /**
  * Health check response shape
@@ -84,32 +82,61 @@ export async function GET() {
   // 2. Storage health check
   try {
     const storageStart = Date.now()
-    const storagePath = getPdfStoragePath()
+    const storageType = process.env.PDF_STORAGE_TYPE || 'local'
 
-    // Check if storage directory exists and is accessible
-    const pathExists = existsSync(storagePath)
+    if (storageType === 's3') {
+      // For S3/MinIO, check if configuration exists
+      const minioEndpoint = process.env.MINIO_ENDPOINT
+      const minioAccessKey = process.env.MINIO_ACCESS_KEY
+      const minioSecretKey = process.env.MINIO_SECRET_KEY
 
-    if (pathExists) {
-      const storageTime = Date.now() - storageStart
-
-      results.checks.storage = {
-        status: 'healthy',
-        message: 'Storage accessible',
-        responseTime: storageTime,
-      }
-
-      if (storageTime > 1000) {
-        results.checks.storage.message += ` (slow: ${storageTime}ms)`
-        if (results.status !== 'unhealthy') {
-          results.status = 'degraded'
+      if (minioEndpoint && minioAccessKey && minioSecretKey) {
+        const storageTime = Date.now() - storageStart
+        results.checks.storage = {
+          status: 'healthy',
+          message: `S3 storage configured (${minioEndpoint})`,
+          responseTime: storageTime,
         }
+
+        if (storageTime > 1000) {
+          results.checks.storage.message += ` (slow: ${storageTime}ms)`
+          if (results.status !== 'unhealthy') {
+            results.status = 'degraded'
+          }
+        }
+      } else {
+        results.checks.storage = {
+          status: 'unhealthy',
+          message: 'S3 storage incomplete configuration',
+        }
+        results.status = 'unhealthy'
       }
     } else {
-      results.checks.storage = {
-        status: 'unhealthy',
-        message: `Storage directory not found: ${storagePath}`,
+      // For local storage, check if directory exists
+      const storagePath = process.env.PDF_STORAGE_PATH || './public/reports'
+      const pathExists = existsSync(storagePath)
+
+      if (pathExists) {
+        const storageTime = Date.now() - storageStart
+        results.checks.storage = {
+          status: 'healthy',
+          message: `Local storage accessible (${storagePath})`,
+          responseTime: storageTime,
+        }
+
+        if (storageTime > 1000) {
+          results.checks.storage.message += ` (slow: ${storageTime}ms)`
+          if (results.status !== 'unhealthy') {
+            results.status = 'degraded'
+          }
+        }
+      } else {
+        results.checks.storage = {
+          status: 'unhealthy',
+          message: `Storage directory not found: ${storagePath}`,
+        }
+        results.status = 'unhealthy'
       }
-      results.status = 'unhealthy'
     }
   } catch (error: any) {
     results.checks.storage = {
