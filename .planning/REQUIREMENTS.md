@@ -35,15 +35,15 @@
 
 ### AI Recommendations (AI 제안)
 
-- [ ] **AIREC-01**: 모든 분석 결과를 종합한 통합 성향 분석을 제공한다
-- [ ] **AIREC-02**: 성향 기반 맞춤형 학습 전략을 AI가 제안한다
-- [ ] **AIREC-03**: 성향 기반 학과/직업 진로 가이드를 AI가 제안한다
+- [x] **AIREC-01**: 모든 분석 결과를 종합한 통합 성향 분석을 제공한다
+- [x] **AIREC-02**: 성향 기반 맞춤형 학습 전략을 AI가 제안한다
+- [x] **AIREC-03**: 성향 기반 학과/직업 진로 가이드를 AI가 제안한다
 
 ### Reports (보고서)
 
 - [ ] **REPT-01**: 종합 상담 보고서를 PDF로 출력할 수 있다
-- [ ] **REPT-02**: 학생 성향 요약 카드를 한눈에 볼 수 있다
-- [ ] **REPT-03**: 과거 분석 결과 이력을 저장하고 조회할 수 있다
+- [x] **REPT-02**: 학생 성향 요약 카드를 한눈에 볼 수 있다
+- [x] **REPT-03**: 과거 분석 결과 이력을 저장하고 조회할 수 있다
 
 ## v2 Requirements
 
@@ -96,12 +96,12 @@
 | CALC-03 | Phase 4 | Complete |
 | AIAN-01 | Phase 5 | Complete |
 | AIAN-02 | Phase 5 | Complete |
-| AIREC-01 | Phase 6 | Pending |
-| AIREC-02 | Phase 6 | Pending |
-| AIREC-03 | Phase 6 | Pending |
+| AIREC-01 | Phase 6 | Complete |
+| AIREC-02 | Phase 6 | Complete |
+| AIREC-03 | Phase 6 | Complete |
 | REPT-01 | Phase 7 | Pending |
-| REPT-02 | Phase 6 | Pending |
-| REPT-03 | Phase 6 | Pending |
+| REPT-02 | Phase 6 | Complete |
+| REPT-03 | Phase 6 | Complete |
 
 **Coverage:**
 - v1 requirements: 20 total
@@ -110,4 +110,4 @@
 
 ---
 *Requirements defined: 2026-01-27*
-*Last updated: 2026-01-29 after Phase 5 completion*
+*Last updated: 2026-01-29 after Phase 6 completion*
