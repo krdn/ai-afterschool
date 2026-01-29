@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 ## Current Position
 
 Phase: 8 of 10 (Production Infrastructure Foundation)
-Plan: 10 of 10 in current phase (gap closure plan)
-Status: In progress - pending checkpoint verification
-Last activity: 2026-01-30 — Implemented 08-10 CI/CD Auto-Rollback
+Plan: 9 of 10 in current phase (gap closure plan)
+Status: In progress
+Last activity: 2026-01-30 — Completed 08-09 S3 Presigned URL Expiration Fix
 
-Progress: [█████████████░░░░░░] 77%
+Progress: [██████████████░░░░░] 88%
 
 ## Milestone Summary
 
@@ -33,7 +33,7 @@ Progress: [█████████████░░░░░░] 77%
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 43
+- Total plans completed: 44
 - Average duration: ~5 min
 - Total execution time: ~3.8 hours
 
@@ -48,10 +48,10 @@ Progress: [█████████████░░░░░░] 77%
 | 5 (AI Image Analysis) | 5 | 41 min | 8.2 min |
 | 6 (AI Integration) | 5 | 22 min | 4.4 min |
 | 7 (Reports) | 7 | 14 min | 2.0 min |
-| 8 (Production Infrastructure) | 7 | ~57 min | 8.1 min |
+| 8 (Production Infrastructure) | 8 | ~58 min | 7.3 min |
 
 **Recent Trend:**
-- Latest: 08-08 Zero-Downtime Deployment & Rollback Strategy (~5 min)
+- Latest: 08-09 S3 Presigned URL Expiration Fix (~1 min)
 - Trend: Stable (Phase 8 nearly complete)
 
 ## Accumulated Context
@@ -134,6 +134,13 @@ Recent milestone decisions:
 - Health check verification after rollback ensures recovery
 - Workflow fails even after rollback to indicate original deployment failure
 
+**Phase 8 Plan 09 (S3 Presigned URL Expiration Fix):**
+- API endpoint proxies S3 PDFs instead of returning presigned URL JSON
+- Frontend calls API endpoint directly, eliminating fileUrl state dependency
+- Presigned URL used internally by backend only, never exposed to frontend
+- Unified response format for both local and S3 storage backends
+- Resolved presigned URL expiration issue that caused download failures after 1 hour
+
 ### Pending Todos
 
 **v1.1 Planning:**
@@ -146,6 +153,7 @@ Recent milestone decisions:
 
 **From v1.0:**
 - PDF 저장소 로컬 파일시스템 사용 (`./public/reports`) — 컨테이너 배포 시 문제 (mitigated by 08-04: storage abstraction ready)
+- Presigned URL 만료로 인한 다운로드 실패 — 해결됨 (08-09: S3 프록시 패턴 구현)
 - `fetchReportData()` 함수 중복 (`actions.ts`와 `route.ts`)
 - Phase 1 VERIFICATION.md 파일 누락
 
@@ -162,9 +170,9 @@ Recent milestone decisions:
 ## Session Continuity
 
 Last session: 2026-01-30
-Stopped at: Completed 08-10 CI/CD Auto-Rollback Implementation (pending checkpoint verification)
+Stopped at: Completed 08-09 S3 Presigned URL Expiration Fix
 Resume file: None
-Next: Await user verification of automatic rollback in CI/CD environment, then proceed to remaining gap closure plans
+Next: Continue with remaining gap closure plan (08-10)
 
 Config (if exists):
 {
