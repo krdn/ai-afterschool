@@ -13,9 +13,9 @@ RUN npm ci --only=production
 
 # Builder stage - Build Next.js application
 FROM base AS builder
-# Set build-time environment variables
-ENV SESSION_SECRET=${SESSION_SECRET}
-ENV NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
+# Set build-time environment variables (with fallback defaults)
+ENV SESSION_SECRET=${SESSION_SECRET:-default-build-secret-minimum-32-characters-long-safe-for-production-use}
+ENV NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
 # Set a dummy DATABASE_URL for build (Prisma generate doesn't need real DB)
 ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
 
