@@ -85,7 +85,6 @@ export const styles = StyleSheet.create({
 
   // Tags/Badges
   tag: {
-    display: 'inline-block',
     paddingHorizontal: 6,
     paddingVertical: 2,
     backgroundColor: '#DBEAFE',
