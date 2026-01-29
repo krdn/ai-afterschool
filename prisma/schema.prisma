@@ -212,3 +212,17 @@ model PersonalitySummaryHistory {
   @@index([studentId])
   @@index([createdAt(sort: Desc)])
 }
+
+model ReportPDF {
+  id           String   @id @default(cuid())
+  studentId    String   @unique
+  status       String   @default("none")  // none, generating, complete, failed
+  fileUrl      String?  // Relative path to PDF file
+  dataVersion  Int?     // PersonalitySummary.version for cache invalidation
+  errorMessage String?
+  generatedAt  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([studentId])
+}
