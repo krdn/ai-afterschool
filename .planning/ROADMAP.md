@@ -143,10 +143,14 @@ Plans:
   2. PDF는 전문적인 레이아웃으로 학부모 제공용으로 적합하다
   3. PDF 생성은 비동기로 처리되어 UI가 블로킹되지 않는다
   4. 동일 학생의 보고서 중복 생성 시 캐싱으로 재사용한다
-**Plans**: TBD
+**Plans**: 5 plans
 
 Plans:
-- [ ] TBD during planning
+- [ ] 07-01-PLAN.md — PDF 인프라 구축 (라이브러리, 스키마, 폰트, 유틸리티)
+- [ ] 07-02-PLAN.md — PDF 템플릿 컴포넌트 (메인 문서 + 5개 섹션 + 스타일)
+- [ ] 07-03-PLAN.md — Server Actions 및 API 라우트 (비동기 생성, 캐싱)
+- [ ] 07-04-PLAN.md — 보고서 버튼 UI (폴링 기반 상태 표시)
+- [ ] 07-05-PLAN.md — 전체 흐름 검증
 
 ## Progress
 
@@ -161,4 +165,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 4. MBTI Analysis | 4/4 | Complete | 2026-01-29 |
 | 5. AI Image Analysis | 5/5 | Complete | 2026-01-29 |
 | 6. AI Integration | 5/5 | Complete | 2026-01-29 |
-| 7. Reports | 0/TBD | Not started | - |
+| 7. Reports | 0/5 | Planned | 2026-01-29 |
