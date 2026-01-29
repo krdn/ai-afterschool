@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: Calculation Analysis** - 사주팔자 및 성명학 분석 제공
 - [x] **Phase 4: MBTI Analysis** - 설문 기반 MBTI 성향 분석 제공
 - [x] **Phase 5: AI Image Analysis** - AI 기반 관상 및 손금 분석 제공
-- [ ] **Phase 6: AI Integration** - 통합 성향 분석 및 맞춤형 학습/진로 전략 제공
+- [x] **Phase 6: AI Integration** - 통합 성향 분석 및 맞춤형 학습/진로 전략 제공
 - [ ] **Phase 7: Reports** - 종합 상담 보고서 PDF 출력
 
 ## Phase Details
@@ -128,11 +128,11 @@ Plans:
 **Plans**: 5 plans
 
 Plans:
-- [ ] 06-01-PLAN.md — DB 스키마 및 통합 데이터 조회 함수
-- [ ] 06-02-PLAN.md — AI 프롬프트 및 Server Actions
-- [ ] 06-03-PLAN.md — 통합 성향 요약 카드
-- [ ] 06-04-PLAN.md — 학습 전략 및 진로 가이드 패널
-- [ ] 06-05-PLAN.md — 페이지 통합 및 전체 검증
+- [x] 06-01-PLAN.md — DB 스키마 및 통합 데이터 조회 함수
+- [x] 06-02-PLAN.md — AI 프롬프트 및 Server Actions
+- [x] 06-03-PLAN.md — 통합 성향 요약 카드
+- [x] 06-04-PLAN.md — 학습 전략 및 진로 가이드 패널
+- [x] 06-05-PLAN.md — 페이지 통합 및 전체 검증
 
 ### Phase 7: Reports
 **Goal**: 종합 상담 보고서를 PDF로 출력하여 학부모 상담에 활용할 수 있다
@@ -160,5 +160,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 3. Calculation Analysis | 4/4 | Complete | 2026-01-28 |
 | 4. MBTI Analysis | 4/4 | Complete | 2026-01-29 |
 | 5. AI Image Analysis | 5/5 | Complete | 2026-01-29 |
-| 6. AI Integration | 0/5 | Not started | - |
+| 6. AI Integration | 5/5 | Complete | 2026-01-29 |
 | 7. Reports | 0/TBD | Not started | - |
