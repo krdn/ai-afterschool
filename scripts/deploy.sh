@@ -252,15 +252,18 @@ main() {
         log_error "Deployment failed at deploy stage"
         log_info "Rolling back to previous version..."
 
+        # Rollback and ensure deployment is marked as failed
         if [ -f "$BACKUP_TAG_FILE" ]; then
             BACKUP_TAG=$(cat "$BACKUP_TAG_FILE")
             if [ "$BACKUP_TAG" != "none" ]; then
-                ./scripts/rollback.sh --tag="$BACKUP_TAG"
+                # Ignore rollback exit code - we want to exit with 1 anyway
+                ./scripts/rollback.sh --tag="$BACKUP_TAG" --force || true
             else
                 log_warning "No backup to rollback to"
             fi
         fi
 
+        # Always exit with error after rollback
         exit 1
     fi
 
