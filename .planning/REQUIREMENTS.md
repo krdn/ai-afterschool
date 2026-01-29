@@ -41,7 +41,7 @@
 
 ### Reports (보고서)
 
-- [ ] **REPT-01**: 종합 상담 보고서를 PDF로 출력할 수 있다
+- [x] **REPT-01**: 종합 상담 보고서를 PDF로 출력할 수 있다
 - [x] **REPT-02**: 학생 성향 요약 카드를 한눈에 볼 수 있다
 - [x] **REPT-03**: 과거 분석 결과 이력을 저장하고 조회할 수 있다
 
@@ -99,7 +99,7 @@
 | AIREC-01 | Phase 6 | Complete |
 | AIREC-02 | Phase 6 | Complete |
 | AIREC-03 | Phase 6 | Complete |
-| REPT-01 | Phase 7 | Pending |
+| REPT-01 | Phase 7 | Complete |
 | REPT-02 | Phase 6 | Complete |
 | REPT-03 | Phase 6 | Complete |
 
