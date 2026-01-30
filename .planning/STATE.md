@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-30)
 
 **Core value:** 학생 정보 통합 관리를 기반으로 AI 성향 분석 및 맞춤형 학습/진로 제안 제공
-**Current focus:** Phase 11 - Teacher Infrastructure & Access Control
+**Current focus:** Phase 12 - Teacher Analysis & Team Data Access
 
 ## Current Position
 
-Phase: 11 of 15 (Teacher Infrastructure & Access Control)
-Plan: 7 of 7 in current phase
-Status: Complete ✅
-Last activity: 2026-01-30 — Phase 11 verified, ready for Phase 12
+Phase: 12 of 15 (Teacher Analysis & Team Data Access)
+Plan: 1 of 8 in current phase
+Status: In progress
+Last activity: 2026-01-30 — Completed 12-01 (Teacher Analysis Tables)
 
-Progress: [████████████████░░░░░░░░░░] 70.65%
+Progress: [█████████████████░░░░░░░░░] 72.46%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 65
+- Total plans completed: 66
 - Average duration: ~5 min
-- Total execution time: ~5.5 hours
+- Total execution time: ~5.6 hours
 
 **By Phase:**
 
@@ -30,12 +30,13 @@ Progress: [████████████████░░░░░░░
 | 1-7 (v1.0) | 36 | 254 min | ~7 min |
 | 8-10 (v1.1) | 22 | ~102 min | ~5 min |
 | 11 (v2.0) | 7 | 26 min | ~4 min |
+| 12 (v2.0) | 1 | 1 min | ~1 min |
 
 **Recent Trend:**
-- Last 5 plans: Student.teamId Migration, Teacher Detail Page, Teacher List UI, Teacher CRUD API, Prisma Extensions + RLS
+- Last 5 plans: Teacher Analysis Tables, Student.teamId Migration, Teacher Detail Page, Teacher List UI, Teacher CRUD API
 - Trend: Stable (v2.0 execution progressing)
 
-*Updated after Phase 11 completion*
+*Updated after Phase 12-01 completion*
 
 ## Accumulated Context
 
@@ -60,6 +61,9 @@ Recent decisions affecting current work:
 - [11-06] Client component pattern for teacher detail - 'use client' directive for interactive UI elements (buttons, links)
 - [11-07] Student.teamId migration already completed in 11-01 - Verification confirmed 6/6 students with NULL teamId (data preserved)
 - [11-07] Docker-based backup strategy - Using docker exec with pg_dump for PostgreSQL backups
+- [12-01] Teacher*Analysis models mirror Student*Analysis structure exactly - Enables code reuse for teacher personality analysis calculations
+- [12-01] ON DELETE CASCADE for Teacher analysis relationships - Automatic cleanup when Teacher deleted
+- [12-01] Manual migration workaround for shadow database sync issue - Same pattern as Phase 11-01 (monitor for future migrations)
 - [v2.0] 팀 단위 데이터 분리: 보안 및 프라이버시 보장을 위해 Prisma middleware + PostgreSQL RLS 적용
 - [v2.0] 선생님 성향 분석: 학생과 동일한 방식으로 궁합 계산 (기존 분석 모듈 재사용)
 - [v2.0] LLM 전체 공통 설정: 관리 용이성 및 비용 효율성을 위해 Vercel AI SDK로 통합
@@ -80,6 +84,9 @@ None yet.
 - Session module must call setRLSSessionContext before every DB query - RESOLVED: Now integrated in verifySession
 - Server Actions must use getRBACPrisma instead of raw db - RESOLVED: Teacher/Team actions use explicit RBAC checks
 
+**From Phase 12-01 execution:**
+- Shadow database sync issue: Recurred from Phase 11-01. Prisma migrate dev failed due to ReportPDF table missing in shadow DB. Manual workaround (create migration dir, write SQL, db execute, migrate resolve) worked successfully. Monitor for future migrations - becoming a pattern.
+
 **From Phase 11-01 execution:**
 - Shadow database sync issue: Prisma migrate dev failed due to ReportPDF table missing in shadow DB. Workaround: Manual migration creation and apply. Monitor for future migrations.
 
@@ -89,8 +96,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-30 (Phase 11 execution complete)
-Stopped at: Phase 11 verified (10/10 must-haves), ready for Phase 12
+Last session: 2026-01-30 (Phase 12-01 execution complete)
+Stopped at: Completed 12-01 (Teacher Analysis Tables), ready for 12-02 (Teacher Saju Analysis)
 Resume file: None
 
 ---
