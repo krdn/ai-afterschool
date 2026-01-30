@@ -70,7 +70,7 @@ export default async function StudentPage({
       <MbtiAnalysisPanel
         studentId={student.id}
         studentName={student.name}
-        analysis={student.mbtiAnalysis as any}
+        analysis={student.mbtiAnalysis as { mbtiType: string; percentages: Record<string, number>; calculatedAt: Date } | null}
       />
       {faceImageUrl && (
         <FaceAnalysisPanel
