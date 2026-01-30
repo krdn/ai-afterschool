@@ -35,6 +35,7 @@ model Teacher {
   teacherNameAnalysis     TeacherNameAnalysis?
   teacherPalmAnalysis     TeacherPalmAnalysis?
   teacherFaceAnalysis     TeacherFaceAnalysis?
+  compatibilityResults    CompatibilityResult[]
 }
 
 model Team {
@@ -77,6 +78,7 @@ model Student {
   personalitySummary             PersonalitySummary?
   teacher                        Teacher          @relation(fields: [teacherId], references: [id])
   images                         StudentImage[]
+  compatibilityResults           CompatibilityResult[]
 
   // 기존 단일 인덱스 (유지)
   @@index([teacherId])
@@ -300,6 +302,25 @@ model TeacherFaceAnalysis {
   teacher      Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
 
   @@index([teacherId])
+}
+
+model CompatibilityResult {
+  id           String   @id @default(cuid())
+  teacherId    String
+  studentId    String
+  overallScore Float
+  breakdown    Json
+  reasons      Json?
+  calculatedAt DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  teacher      Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  student      Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([teacherId, studentId])
+  @@index([teacherId])
+  @@index([studentId])
+  @@index([overallScore])
 }
 
 model PersonalitySummary {
