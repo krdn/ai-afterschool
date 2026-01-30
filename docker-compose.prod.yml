@@ -121,6 +121,32 @@ services:
         failure_action: rollback
         order: start-first
 
+  db-backup:
+    image: alpine:latest
+    container_name: ai-afterschool-db-backup
+    volumes:
+      - ./scripts/backup-db.sh:/usr/local/bin/backup-db.sh:ro
+      - ./backups:/backups
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      BACKUP_DIR: /backups
+      DB_NAME: ${POSTGRES_DB:-ai_afterschool}
+      DB_USER: ${POSTGRES_USER:-postgres}
+      RETENTION_DAYS: ${RETENTION_DAYS:-30}
+      POSTGRES_CONTAINER: ai-afterschool-postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: sh -c "echo '0 2 * * * /usr/local/bin/backup-db.sh >> /var/log/backup.log 2>&1' | crond -f -l 2"
+    restart: unless-stopped
+    networks:
+      - internal
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
   # Caddy disabled - using existing Nginx reverse proxy
   # caddy:
   #   image: caddy:2-alpine
