@@ -3,6 +3,7 @@ import { format } from "date-fns"
 import { getPersonalitySummary } from "@/lib/db/personality-summary"
 import { generateCareerGuidance } from "@/lib/actions/personality-integration"
 import { CareerGuidanceRetryButton } from "./career-guidance-retry-button"
+import type { PersonalitySummary } from "@prisma/client"
 
 type CareerGuidanceResult = {
   coreTraits: string
@@ -22,10 +23,14 @@ type CareerGuidanceResult = {
 type Props = {
   studentId: string
   teacherId: string
+  /** 미리 조회된 summary (可选优化) */
+  summary?: PersonalitySummary | null
 }
 
-export async function CareerGuidancePanel({ studentId, teacherId }: Props) {
-  const summary = await getPersonalitySummary(studentId)
+export async function CareerGuidancePanel({ studentId, teacherId, summary: prefetchedSummary }: Props) {
+  const summary = prefetchedSummary !== undefined
+    ? prefetchedSummary
+    : await getPersonalitySummary(studentId)
 
   if (!summary || summary.status === 'none') {
     return <EmptyState />

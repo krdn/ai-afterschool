@@ -5,10 +5,13 @@ import {
   getPersonalitySummary,
 } from "@/lib/db/personality-summary"
 import { GenerateActionButton } from "./personality-summary-card-client"
+import type { PersonalitySummary } from "@prisma/client"
 
 type PersonalitySummaryCardProps = {
   studentId: string
   teacherId: string
+  /** 미리 조회된 summary (可选优化) */
+  summary?: PersonalitySummary | null
 }
 
 /**
@@ -18,11 +21,15 @@ type PersonalitySummaryCardProps = {
 export async function PersonalitySummaryCard({
   studentId,
   teacherId,
+  summary: prefetchedSummary,
 }: PersonalitySummaryCardProps) {
   // 통합 데이터 조회 - 병렬 실행으로 최적화
+  // summary가 이미 전달된 경우 추가 조회하지 않음
   const [data, summary] = await Promise.all([
     getUnifiedPersonalityData(studentId, teacherId),
-    getPersonalitySummary(studentId),
+    prefetchedSummary !== undefined
+      ? Promise.resolve(prefetchedSummary)
+      : getPersonalitySummary(studentId),
   ])
 
   if (!data) {

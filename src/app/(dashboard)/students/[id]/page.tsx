@@ -1,16 +1,15 @@
 import { notFound } from "next/navigation"
 import { verifySession } from "@/lib/dal"
 import { db } from "@/lib/db"
-import { getPersonalitySummary } from "@/lib/db/personality-summary"
 import { StudentDetail } from "@/components/students/student-detail"
 import { SajuAnalysisPanel } from "@/components/students/saju-analysis-panel"
 import { NameAnalysisPanel } from "@/components/students/name-analysis-panel"
 import { MbtiAnalysisPanel } from "@/components/students/mbti-analysis-panel"
 import { FaceAnalysisPanel } from "@/components/students/face-analysis-panel"
 import { PalmAnalysisPanel } from "@/components/students/palm-analysis-panel"
-import { PersonalitySummaryCardInline } from "@/components/students/personality-summary-card-inline"
-import { LearningStrategyPanelInline } from "@/components/students/learning-strategy-panel-inline"
-import { CareerGuidancePanelInline } from "@/components/students/career-guidance-panel-inline"
+import { PersonalitySummaryCard } from "@/components/students/personality-summary-card"
+import { LearningStrategyPanel } from "@/components/students/learning-strategy-panel"
+import { CareerGuidancePanel } from "@/components/students/career-guidance-panel"
 import { ReportButton } from "@/components/students/report-button"
 
 export default async function StudentPage({
@@ -71,7 +70,7 @@ export default async function StudentPage({
       <MbtiAnalysisPanel
         studentId={student.id}
         studentName={student.name}
-        analysis={student.mbtiAnalysis}
+        analysis={student.mbtiAnalysis as any}
       />
       {faceImageUrl && (
         <FaceAnalysisPanel
@@ -90,14 +89,26 @@ export default async function StudentPage({
 
       <section>
         <h2 className="text-2xl font-bold mb-4">통합 성향 분석</h2>
-        <PersonalitySummaryCard studentId={student.id} teacherId={session.userId} />
+        <PersonalitySummaryCard
+          studentId={student.id}
+          teacherId={session.userId}
+          summary={student.personalitySummary}
+        />
       </section>
 
       <section>
         <h2 className="text-2xl font-bold mb-4">AI 맞춤형 제안</h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <LearningStrategyPanel studentId={student.id} teacherId={session.userId} />
-          <CareerGuidancePanel studentId={student.id} teacherId={session.userId} />
+          <LearningStrategyPanel
+            studentId={student.id}
+            teacherId={session.userId}
+            summary={student.personalitySummary}
+          />
+          <CareerGuidancePanel
+            studentId={student.id}
+            teacherId={session.userId}
+            summary={student.personalitySummary}
+          />
         </div>
       </section>
 
