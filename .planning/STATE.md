@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 ## Current Position
 
 Phase: 11 of 15 (Teacher Infrastructure & Access Control)
-Plan: 4 of 7 in current phase
+Plan: 5 of 7 in current phase
 Status: In progress
-Last activity: 2026-01-30 — Completed 11-04-PLAN.md (Teacher CRUD API with RBAC)
+Last activity: 2026-01-30 — Completed 11-05-PLAN.md (Teacher List UI)
 
-Progress: [██████████████░░░░░░░░░░░░] 68.97%
+Progress: [███████████████░░░░░░░░░░░] 72.41%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 59
+- Total plans completed: 60
 - Average duration: ~5 min
-- Total execution time: ~4.8 hours
+- Total execution time: ~4.9 hours
 
 **By Phase:**
 
@@ -29,13 +29,13 @@ Progress: [██████████████░░░░░░░░░
 |-------|-------|-------|----------|
 | 1-7 (v1.0) | 36 | 254 min | ~7 min |
 | 8-10 (v1.1) | 22 | ~102 min | ~5 min |
-| 11 (v2.0) | 1 | 3 min | ~3 min |
+| 11 (v2.0) | 2 | 5 min | ~2.5 min |
 
 **Recent Trend:**
-- Last 5 plans: Session extension, Prisma Extensions + RLS, Database backup, Code deduplication, Bundle analyzer
-- Trend: Stable (v2.0 execution started)
+- Last 5 plans: Teacher CRUD API, Teacher List UI, Prisma Extensions + RLS, Database backup, Code deduplication
+- Trend: Stable (v2.0 execution progressing)
 
-*Updated after 11-03 completion*
+*Updated after 11-05 completion*
 
 ## Accumulated Context
 
@@ -54,6 +54,8 @@ Recent decisions affecting current work:
 - [11-03] Backward-compatible JWT payload - Role defaults to TEACHER, teamId defaults to null for existing sessions
 - [11-04] Explicit RBAC checks in Server Actions - Clear permission model with role-based CRUD matrix (Directors full access, users self-update)
 - [11-04] Form state pattern for validation errors - Field-specific and _form errors for user feedback
+- [11-05] Client-side filtering for teacher list - TanStack Table with useMemo for instant search/filter response
+- [11-05] Dynamic team filter dropdown - Extracted from teacher data instead of separate API call
 - [v2.0] 팀 단위 데이터 분리: 보안 및 프라이버시 보장을 위해 Prisma middleware + PostgreSQL RLS 적용
 - [v2.0] 선생님 성향 분석: 학생과 동일한 방식으로 궁합 계산 (기존 분석 모듈 재사용)
 - [v2.0] LLM 전체 공통 설정: 관리 용이성 및 비용 효율성을 위해 Vercel AI SDK로 통합
@@ -63,6 +65,9 @@ Recent decisions affecting current work:
 None yet.
 
 ### Blockers/Concerns
+
+**From Phase 11-05 execution:**
+- None identified
 
 **From Phase 11-04 execution:**
 - None identified
@@ -80,8 +85,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-30 09:44 (Phase 11 Plan 04 execution)
-Stopped at: Completed 11-04-PLAN.md (Teacher CRUD API with RBAC)
+Last session: 2026-01-30 09:53 (Phase 11 Plan 05 execution)
+Stopped at: Completed 11-05-PLAN.md (Teacher List UI)
 Resume file: None
 
 ---
