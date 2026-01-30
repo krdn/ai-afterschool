@@ -3,7 +3,7 @@ import type { DocumentProps } from '@react-pdf/renderer'
 import { NextRequest, NextResponse } from 'next/server'
 import { verifySession } from '@/lib/dal'
 import { db } from '@/lib/db'
-import { getStudentReportPDF } from '@/lib/db/reports'
+import { getStudentReportPDF, fetchReportData } from '@/lib/db/reports'
 import { ConsultationReport } from '@/lib/pdf/templates/consultation-report'
 import { pdfToBuffer } from '@/lib/pdf/generator'
 import { createPDFStorage } from '@/lib/storage/factory'
@@ -125,87 +125,5 @@ export async function GET(
       { error: 'PDF 생성에 실패했습니다.' },
       { status: 500 }
     )
-  }
-}
-
-/**
- * Fetch all data needed for consultation report (duplicate from actions.ts)
- * TODO: Extract to shared function in lib/db/reports.ts to avoid duplication
- */
-async function fetchReportData(studentId: string, teacherId: string) {
-  const student = await db.student.findFirst({
-    where: {
-      id: studentId,
-      teacherId,
-    },
-    include: {
-      images: true,
-      sajuAnalysis: true,
-      nameAnalysis: true,
-      mbtiAnalysis: true,
-      faceAnalysis: true,
-      palmAnalysis: true,
-      personalitySummary: true,
-    },
-  })
-
-  if (!student) return null
-
-  return {
-    student: {
-      name: student.name,
-      birthDate: student.birthDate,
-      school: student.school,
-      grade: student.grade,
-      targetUniversity: student.targetUniversity,
-      targetMajor: student.targetMajor,
-      bloodType: student.bloodType,
-    },
-    analyses: {
-      saju: student.sajuAnalysis
-        ? {
-            result: student.sajuAnalysis.result,
-            interpretation: student.sajuAnalysis.interpretation,
-            calculatedAt: student.sajuAnalysis.calculatedAt,
-          }
-        : null,
-      name: student.nameAnalysis
-        ? {
-            result: student.nameAnalysis.result,
-            interpretation: student.nameAnalysis.interpretation,
-            calculatedAt: student.nameAnalysis.calculatedAt,
-          }
-        : null,
-      mbti: student.mbtiAnalysis
-        ? {
-            mbtiType: student.mbtiAnalysis.mbtiType,
-            percentages: student.mbtiAnalysis.percentages as Record<string, number>,
-            calculatedAt: student.mbtiAnalysis.calculatedAt,
-          }
-        : null,
-      face: student.faceAnalysis
-        ? {
-            result: student.faceAnalysis.result,
-            status: student.faceAnalysis.status,
-            errorMessage: student.faceAnalysis.errorMessage,
-          }
-        : null,
-      palm: student.palmAnalysis
-        ? {
-            result: student.palmAnalysis.result,
-            status: student.palmAnalysis.status,
-            errorMessage: student.palmAnalysis.errorMessage,
-          }
-        : null,
-    },
-    personalitySummary: student.personalitySummary
-      ? {
-          coreTraits: student.personalitySummary.coreTraits,
-          learningStrategy: student.personalitySummary.learningStrategy,
-          careerGuidance: student.personalitySummary.careerGuidance,
-          status: student.personalitySummary.status,
-        }
-      : null,
-    generatedAt: new Date(),
   }
 }
