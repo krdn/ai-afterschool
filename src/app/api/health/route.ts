@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import { db, pool } from '@/lib/db'
 import { existsSync } from 'fs'
 
 /**
@@ -20,6 +20,11 @@ interface HealthCheckItem {
   status: 'healthy' | 'unhealthy' | 'unknown'
   message?: string
   responseTime?: number  // milliseconds
+  connectionPool?: {
+    total: number      // 전체 연결 수
+    idle: number       // 유휴 연결 수
+    waiting: number    // 대기 중인 요청 수
+  }
 }
 
 /**
@@ -60,10 +65,24 @@ export async function GET() {
     await db.$queryRaw`SELECT 1`
     const dbTime = Date.now() - dbStart
 
+    // 연결 풀 메트릭 수집
+    const connectionPoolMetrics = {
+      total: pool.totalCount,
+      idle: pool.idleCount,
+      waiting: pool.waitingCount,
+    }
+
+    // 연결 풀 사용률 계산 및 경고 (max: 10)
+    const poolUsage = pool.totalCount / 10
+    if (poolUsage > 0.8) {
+      console.warn(`Connection pool usage high: ${(poolUsage * 100).toFixed(0)}%`)
+    }
+
     results.checks.database = {
       status: 'healthy',
       message: 'Database connection successful',
       responseTime: dbTime,
+      connectionPool: connectionPoolMetrics,
     }
 
     // Warn if slow response
@@ -76,6 +95,11 @@ export async function GET() {
     results.checks.database = {
       status: 'unhealthy',
       message: errorMessage,
+      connectionPool: {
+        total: pool.totalCount,
+        idle: pool.idleCount,
+        waiting: pool.waitingCount,
+      },
     }
     results.status = 'unhealthy'
   }
