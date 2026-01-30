@@ -285,6 +285,22 @@ model TeacherPalmAnalysis {
   @@index([teacherId])
 }
 
+model TeacherFaceAnalysis {
+  id           String   @id @default(cuid())
+  teacherId    String   @unique
+  imageUrl     String
+  result       Json
+  status       String   @default("complete")
+  errorMessage String?
+  version      Int      @default(1)
+  analyzedAt   DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  teacher      Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@index([teacherId])
+}
+
 model PersonalitySummary {
   id               String   @id @default(cuid())
   studentId        String   @unique
