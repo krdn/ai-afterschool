@@ -255,3 +255,41 @@ model ReportPDF {
   @@index([studentId])
   @@index([status])  // PDF 생성 상태 모니터링
 }
+
+// RLS (Row-Level Security) Policies
+// Execute in psql after migration:
+//
+// -- Enable RLS on Student and Teacher tables
+// ALTER TABLE "Student" ENABLE ROW LEVEL SECURITY;
+// ALTER TABLE "Teacher" ENABLE ROW LEVEL SECURITY;
+//
+// -- Student table policies
+// CREATE POLICY "Student_director_all_access"
+// ON "Student"
+// FOR ALL
+// USING (current_setting('rls.teacher_role', TRUE) = 'DIRECTOR');
+//
+// CREATE POLICY "Student_team_isolation"
+// ON "Student"
+// FOR ALL
+// USING (
+//   current_setting('rls.teacher_role', TRUE) = 'TEAM_LEADER' AND
+//   teamId = current_setting('rls.team_id', TRUE)
+// );
+//
+// -- Teacher table policies
+// CREATE POLICY "Teacher_director_all_access"
+// ON "Teacher"
+// FOR ALL
+// USING (current_setting('rls.teacher_role', TRUE) = 'DIRECTOR');
+//
+// CREATE POLICY "Teacher_team_isolation"
+// ON "Teacher"
+// FOR ALL
+// USING (
+//   current_setting('rls.teacher_role', TRUE) = 'TEAM_LEADER' AND
+//   teamId = current_setting('rls.team_id', TRUE)
+// );
+//
+// -- Verify policies
+// SELECT * FROM pg_policies WHERE tablename IN ('Student', 'Teacher');
