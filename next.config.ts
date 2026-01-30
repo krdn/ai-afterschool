@@ -1,13 +1,21 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
+import { withBundleAnalyzer } from "@next/bundle-analyzer";
 
 const nextConfig: NextConfig = {
   /* config options here */
 };
 
+// Bundle analyzer wrapper for visual bundle size analysis
+// Enable with ANALYZE=true environment variable
+// @see https://www.npmjs.com/package/@next/bundle-analyzer
+const withAnalyzer = withBundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+});
+
 // Sentry wrapper configuration for source maps upload
 // @see https://docs.sentry.io/platforms/javascript/guides/nextjs/sourcemaps/
-export default withSentryConfig(nextConfig, {
+export default withSentryConfig(withAnalyzer(nextConfig), {
   // Sentry organization and project
   org: process.env.SENTRY_ORG,
   project: process.env.SENTRY_PROJECT,
