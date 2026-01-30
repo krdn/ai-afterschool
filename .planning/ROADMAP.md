@@ -176,25 +176,24 @@ Plans:
 **Depends on**: Phase 11
 **Requirements**: TEACH-04
 **Success Criteria** (what must be TRUE):
-  1. 선생님에 대해 MBTI, 사주, 성명학, 관상, 손금 분석이 가능하다
+  1. 선생님에 대해 MBTI, 사주, 성명학 분석이 가능하다
   2. 선생님 분석 결과가 학생 분석과 동일한 형식으로 저장된다
   3. 선생님 프로필 페이지에서 모든 분석 결과가 통합 표시된다
   4. 팀 기반 쿼리 최적화로 N+1 문제가 발생하지 않는다
-**Plans**: TBD
+**Plans**: 6 plans in 3 waves
 
 **Reuses existing modules:**
 - MBTI scoring (mbti-scoring)
 - Saju calculation (saju)
 - Name numerology (name-numerology)
-- Face/Palm reading (Claude Vision)
 
 Plans:
-- [ ] 12-01: Teacher MBTI analysis (기존 설문 시스템 재사용)
-- [ ] 12-02: Teacher saju analysis (기존 사주 계산 모듈 재사용)
-- [ ] 12-03: Teacher name analysis (기존 성명학 모듈 재사용)
-- [ ] 12-04: Teacher face/palm analysis (Claude Vision API 재사용)
-- [ ] 12-05: Teacher integrated analysis UI (통합 프로필 페이지)
-- [ ] 12-06: Team-based query optimization (Prisma include, N+1 방지)
+- [ ] 12-01-PLAN.md — Teacher analysis database schema (Teacher*Analysis 모델)
+- [ ] 12-02-PLAN.md — Teacher analysis DB functions (CRUD 모듈)
+- [ ] 12-03-PLAN.md — Teacher analysis Server Actions (분석 실행)
+- [ ] 12-04-PLAN.md — Teacher analysis UI components (분석 패널)
+- [ ] 12-05-PLAN.md — Teacher profile page integration (통합 상세 페이지)
+- [ ] 12-06-PLAN.md — Teacher input fields & N+1 optimization (생년월일시/한자 추가, 쿼리 최적화)
 
 #### Phase 13: Compatibility Analysis & Matching
 **Goal**: 선생님-학생 궁합 분석 및 자동 배정 제안
