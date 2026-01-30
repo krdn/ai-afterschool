@@ -14,37 +14,39 @@ enum Role {
 }
 
 model Teacher {
-  id                      String                    @id @default(cuid())
-  email                   String                    @unique
-  password                String
-  name                    String
-  nameHanja               String?
-  birthDate               DateTime?
-  birthTimeHour           Int?
-  birthTimeMinute         Int?
-  role                    Role                      @default(TEACHER)
-  teamId                  String?
-  team                    Team?                     @relation(fields: [teamId], references: [id])
-  phone                   String?
-  createdAt               DateTime                  @default(now())
-  updatedAt               DateTime                  @updatedAt
-  passwordResetTokens     PasswordResetToken[]
-  students                Student[]
-  teacherSajuAnalysis     TeacherSajuAnalysis?
-  teacherMbtiAnalysis     TeacherMbtiAnalysis?
-  teacherNameAnalysis     TeacherNameAnalysis?
-  teacherPalmAnalysis     TeacherPalmAnalysis?
-  teacherFaceAnalysis     TeacherFaceAnalysis?
-  compatibilityResults    CompatibilityResult[]
+  id                    String                  @id @default(cuid())
+  email                 String                  @unique
+  password              String
+  name                  String
+  nameHanja             String?
+  birthDate             DateTime?
+  birthTimeHour         Int?
+  birthTimeMinute       Int?
+  role                  Role                    @default(TEACHER)
+  teamId                String?
+  team                  Team?                   @relation(fields: [teamId], references: [id])
+  phone                 String?
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  passwordResetTokens   PasswordResetToken[]
+  students              Student[]
+  teacherSajuAnalysis   TeacherSajuAnalysis?
+  teacherMbtiAnalysis   TeacherMbtiAnalysis?
+  teacherNameAnalysis   TeacherNameAnalysis?
+  teacherPalmAnalysis   TeacherPalmAnalysis?
+  teacherFaceAnalysis   TeacherFaceAnalysis?
+  compatibilityResults  CompatibilityResult[]
+  assignmentProposalsCreated AssignmentProposal[] @relation("ProposedBy")
 }
 
 model Team {
-  id        String    @id @default(cuid())
-  name      String    @unique
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  teachers  Teacher[]
-  students  Student[]
+  id                String               @id @default(cuid())
+  name              String               @unique
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  teachers          Teacher[]
+  students          Student[]
+  assignmentProposals AssignmentProposal[]
 }
 
 model Student {
@@ -367,6 +369,25 @@ model ReportPDF {
 
   @@index([studentId])
   @@index([status])  // PDF 생성 상태 모니터링
+}
+
+// 자동 배정 제안 모델
+model AssignmentProposal {
+  id          String   @id @default(cuid())
+  name        String   // 제안 이름 (예: "2026년 1학기 자동 배정")
+  teamId      String?  // FK to Team (nullable for 전체 배정)
+  proposedBy  String   // FK to Teacher (제안 생성자)
+  assignments Json     // 배정 목록: [{ studentId, teacherId, score }]
+  summary     Json     // 요약: { totalStudents, assignedStudents, averageScore, teacherLoads }
+  status      String   @default("pending") // pending, approved, rejected
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  team        Team?    @relation(fields: [teamId], references: [id])
+  proposer    Teacher  @relation("ProposedBy", fields: [proposedBy], references: [id])
+
+  @@index([teamId])
+  @@index([proposedBy])
+  @@index([status])
 }
 
 // RLS (Row-Level Security) Policies
