@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 ## Current Position
 
 Phase: 11 of 15 (Teacher Infrastructure & Access Control)
-Plan: 1 of 7 in current phase
+Plan: 2 of 7 in current phase
 Status: In progress
-Last activity: 2026-01-30 — Completed 11-01-PLAN.md (Role enum and Team model)
+Last activity: 2026-01-30 — Completed 11-02-PLAN.md (Prisma Extensions + PostgreSQL RLS)
 
-Progress: [███████████░░░░░░░░░░░░░░░░] 64.29%
+Progress: [████████████░░░░░░░░░░░░░░] 65.18%
 
 ## Performance Metrics
 
@@ -47,6 +47,9 @@ Recent decisions affecting current work:
 - [11-01] Role enum with default TEACHER for zero-downtime migration - Existing teachers get TEACHER role, promoted later by admin
 - [11-01] Nullable teamId on Teacher/Student for gradual team rollout - Teams assigned in future plans without schema changes
 - [11-01] FK with ON DELETE SET NULL for referential integrity - Prevents orphaned records when Team deleted
+- [11-02] Prisma Client Extensions over deprecated Middleware - $allOperations pattern for automatic teamId filtering
+- [11-02] PostgreSQL RLS with quoted identifiers for case sensitivity - "teamId" vs teamid to prevent folding
+- [11-02] Defense in Depth: App-layer (Prisma Extensions) + DB-layer (RLS) for tenant isolation
 - [v2.0] 팀 단위 데이터 분리: 보안 및 프라이버시 보장을 위해 Prisma middleware + PostgreSQL RLS 적용
 - [v2.0] 선생님 성향 분석: 학생과 동일한 방식으로 궁합 계산 (기존 분석 모듈 재사용)
 - [v2.0] LLM 전체 공통 설정: 관리 용이성 및 비용 효율성을 위해 Vercel AI SDK로 통합
@@ -57,6 +60,10 @@ None yet.
 
 ### Blockers/Concerns
 
+**From Phase 11-02 execution:**
+- Session module must call setRLSSessionContext before every DB query - Need middleware pattern for automatic RLS context
+- Server Actions must use getRBACPrisma instead of raw db - Code audit required before phase 11-04
+
 **From Phase 11-01 execution:**
 - Shadow database sync issue: Prisma migrate dev failed due to ReportPDF table missing in shadow DB. Workaround: Manual migration creation and apply. Monitor for future migrations.
 
@@ -66,8 +73,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-30 18:27 (Phase 11 Plan 01 execution)
-Stopped at: Completed 11-01-PLAN.md (Role enum and Team model schema)
+Last session: 2026-01-30 18:34 (Phase 11 Plan 02 execution)
+Stopped at: Completed 11-02-PLAN.md (Prisma Extensions + PostgreSQL RLS)
 Resume file: None
 
 ---
