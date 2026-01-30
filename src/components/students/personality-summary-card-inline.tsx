@@ -1,29 +1,28 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { CheckCircle2, Circle, Sparkles } from "lucide-react"
+import type { PersonalitySummary } from "@prisma/client"
 import {
   getUnifiedPersonalityData,
-  getPersonalitySummary,
 } from "@/lib/db/personality-summary"
 import { GenerateActionButton } from "./personality-summary-card-client"
 
-type PersonalitySummaryCardProps = {
+type PersonalitySummaryCardInlineProps = {
   studentId: string
   teacherId: string
+  summary: PersonalitySummary | null
 }
 
 /**
  * 통합 성향 요약 카드 컴포넌트 (Server Component)
- * 학생의 모든 분석 완료 상태를 한눈에 보여주고 AI 통합 분석 생성 진입점 제공
+ * 미리 조회된 summary를 받아서 병렬 쿼리로 최적화
  */
-export async function PersonalitySummaryCard({
+export async function PersonalitySummaryCardInline({
   studentId,
   teacherId,
-}: PersonalitySummaryCardProps) {
-  // 통합 데이터 조회 - 병렬 실행으로 최적화
-  const [data, summary] = await Promise.all([
-    getUnifiedPersonalityData(studentId, teacherId),
-    getPersonalitySummary(studentId),
-  ])
+  summary,
+}: PersonalitySummaryCardInlineProps) {
+  // 통합 데이터만 조회 (summary는 이미 전달받음)
+  const data = await getUnifiedPersonalityData(studentId, teacherId)
 
   if (!data) {
     return null
