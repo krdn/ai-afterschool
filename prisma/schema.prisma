@@ -34,6 +34,7 @@ model Teacher {
   teacherMbtiAnalysis     TeacherMbtiAnalysis?
   teacherNameAnalysis     TeacherNameAnalysis?
   teacherPalmAnalysis     TeacherPalmAnalysis?
+  teacherFaceAnalysis     TeacherFaceAnalysis?
 }
 
 model Team {
