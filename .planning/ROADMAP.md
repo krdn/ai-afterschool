@@ -60,10 +60,8 @@ Plans:
 - [x] 08-06: 헬스체크 엔드포인트
 - [x] 08-07: 환경변수 관리 및 .dockerignore
 - [x] 08-08: 무중단 배포 및 롤백 전략
-
-**Gap Closure (In Progress):**
-- [ ] 08-09: PDF Presigned URL 만료 문제 해결
-- [ ] 08-10: CI/CD 자동 롤백 구현
+- [x] 08-09: PDF Presigned URL 만료 문제 해결
+- [x] 08-10: CI/CD 자동 롤백 구현
 
 #### Phase 9: Performance & Database Optimization
 **Goal**: 데이터베이스 쿼리 최적화, 연결 풀링, 이미지 최적화로 프로덕션 규모 지원
@@ -125,8 +123,8 @@ Phases execute in numeric order: 8 → 9 → 10
 | 5. AI Image Analysis | v1.0 | 5/5 | Complete | 2026-01-29 |
 | 6. AI Integration | v1.0 | 5/5 | Complete | 2026-01-29 |
 | 7. Reports | v1.0 | 7/7 | Complete | 2026-01-29 |
-| 8. Production Infrastructure Foundation | v1.1 | 8/10 | Gap closure | - |
+| 8. Production Infrastructure Foundation | v1.1 | 10/10 | Complete | 2026-01-30 |
 | 9. Performance & Database Optimization | v1.1 | 0/5 | Not started | - |
 | 10. Technical Debt Resolution & Monitoring | v1.1 | 0/7 | Not started | - |
 
-**Overall Progress:** 36/61 plans complete (59%)
+**Overall Progress:** 46/61 plans complete (75%)
