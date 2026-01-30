@@ -6,15 +6,34 @@ datasource db {
   provider = "postgresql"
 }
 
+enum Role {
+  DIRECTOR
+  TEAM_LEADER
+  MANAGER
+  TEACHER
+}
+
 model Teacher {
   id                  String               @id @default(cuid())
   email               String               @unique
   password            String
   name                String
+  role                Role                 @default(TEACHER)
+  teamId              String?
+  team                Team?                @relation(fields: [teamId], references: [id])
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
   passwordResetTokens PasswordResetToken[]
   students            Student[]
+}
+
+model Team {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  teachers  Teacher[]
+  students  Student[]
 }
 
 model Student {
@@ -28,6 +47,8 @@ model Student {
   targetMajor                    String?
   bloodType                      BloodType?
   teacherId                      String
+  teamId                         String?
+  team                           Team?            @relation(fields: [teamId], references: [id])
   createdAt                      DateTime         @default(now())
   updatedAt                      DateTime         @updatedAt
   expiresAt                      DateTime?
