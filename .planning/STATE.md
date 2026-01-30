@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 ## Current Position
 
 Phase: 11 of 15 (Teacher Infrastructure & Access Control)
-Plan: 5 of 7 in current phase
+Plan: 6 of 7 in current phase
 Status: In progress
-Last activity: 2026-01-30 — Completed 11-05-PLAN.md (Teacher List UI)
+Last activity: 2026-01-30 — Completed 11-06-PLAN.md (Teacher Detail Page)
 
-Progress: [███████████████░░░░░░░░░░░] 72.41%
+Progress: [███████████████░░░░░░░░░░░] 75.86%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 60
+- Total plans completed: 61
 - Average duration: ~5 min
-- Total execution time: ~4.9 hours
+- Total execution time: ~5 hours
 
 **By Phase:**
 
@@ -29,13 +29,13 @@ Progress: [███████████████░░░░░░░░
 |-------|-------|-------|----------|
 | 1-7 (v1.0) | 36 | 254 min | ~7 min |
 | 8-10 (v1.1) | 22 | ~102 min | ~5 min |
-| 11 (v2.0) | 2 | 5 min | ~2.5 min |
+| 11 (v2.0) | 3 | 9 min | ~3 min |
 
 **Recent Trend:**
-- Last 5 plans: Teacher CRUD API, Teacher List UI, Prisma Extensions + RLS, Database backup, Code deduplication
+- Last 5 plans: Teacher Detail Page, Teacher List UI, Teacher CRUD API, Prisma Extensions + RLS, Database backup
 - Trend: Stable (v2.0 execution progressing)
 
-*Updated after 11-05 completion*
+*Updated after 11-06 completion*
 
 ## Accumulated Context
 
@@ -56,6 +56,8 @@ Recent decisions affecting current work:
 - [11-04] Form state pattern for validation errors - Field-specific and _form errors for user feedback
 - [11-05] Client-side filtering for teacher list - TanStack Table with useMemo for instant search/filter response
 - [11-05] Dynamic team filter dropdown - Extracted from teacher data instead of separate API call
+- [11-06] Next.js 15 params as Promise - Dynamic route params must be typed as Promise and awaited before use
+- [11-06] Client component pattern for teacher detail - 'use client' directive for interactive UI elements (buttons, links)
 - [v2.0] 팀 단위 데이터 분리: 보안 및 프라이버시 보장을 위해 Prisma middleware + PostgreSQL RLS 적용
 - [v2.0] 선생님 성향 분석: 학생과 동일한 방식으로 궁합 계산 (기존 분석 모듈 재사용)
 - [v2.0] LLM 전체 공통 설정: 관리 용이성 및 비용 효율성을 위해 Vercel AI SDK로 통합
@@ -85,8 +87,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-30 09:53 (Phase 11 Plan 05 execution)
-Stopped at: Completed 11-05-PLAN.md (Teacher List UI)
+Last session: 2026-01-30 09:54 (Phase 11 Plan 06 execution)
+Stopped at: Completed 11-06-PLAN.md (Teacher Detail Page)
 Resume file: None
 
 ---
