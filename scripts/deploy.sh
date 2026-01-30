@@ -182,6 +182,15 @@ deploy_new_version() {
         return 1
     fi
 
+    # Wait for migration to complete
+    log_info "Waiting for database migrations to complete..."
+    if docker compose -f "$COMPOSE_FILE" up migrate --exit-code-from migrate; then
+        log_success "Database migrations applied successfully"
+    else
+        log_error "Migration failed - check logs with: docker compose -f $COMPOSE_FILE logs migrate"
+        return 1
+    fi
+
     # Wait for app to be healthy
     if ! [ "$SKIP_HEALTH" = "true" ]; then
         if ! health_check "$HEALTH_CHECK_TIMEOUT"; then
