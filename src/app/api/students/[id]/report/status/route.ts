@@ -11,8 +11,12 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  // Declare studentId at function level so catch block can access it
+  let studentId: string | undefined
+
   try {
-    const { id: studentId } = await params
+    const { id: id } = await params
+    studentId = id
 
     // Authentication
     const session = await verifySession()
