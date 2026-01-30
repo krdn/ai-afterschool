@@ -97,11 +97,11 @@ rollback_deployment() {
 
     # Stop current containers
     log_info "Stopping current containers..."
-    docker-compose -f "$COMPOSE_FILE" down
+    docker compose -f "$COMPOSE_FILE" down
 
     # Start with previous version
     log_info "Starting previous version..."
-    docker-compose -f "$COMPOSE_FILE" up -d
+    docker compose -f "$COMPOSE_FILE" up -d
 
     # Health check
     if ! health_check "$HEALTH_CHECK_TIMEOUT"; then

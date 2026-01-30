@@ -88,7 +88,7 @@ backup_current_deployment() {
     log_info "Backing up current deployment..."
 
     # Get current running image tag
-    CURRENT_TAG=$(docker-compose -f "$COMPOSE_FILE" ps -q app | xargs docker inspect --format='{{index .Config.Image}}' 2>/dev/null || echo "")
+    CURRENT_TAG=$(docker compose -f "$COMPOSE_FILE" ps -q app | xargs docker inspect --format='{{index .Config.Image}}' 2>/dev/null || echo "")
 
     if [ -n "$CURRENT_TAG" ]; then
         echo "$CURRENT_TAG" > "$BACKUP_TAG_FILE"
@@ -109,7 +109,7 @@ build_new_image() {
     log_info "Building new image: $tag"
 
     # Build new image
-    if docker-compose -f "$COMPOSE_FILE" build --buildarg VERSION="$tag"; then
+    if docker compose -f "$COMPOSE_FILE" build --build-arg VERSION="$tag"; then
         log_success "Image built successfully"
     else
         log_error "Image build failed"
@@ -152,11 +152,11 @@ deploy_new_version() {
 
     # Pull latest images (for postgres, minio, caddy)
     log_info "Pulling latest images..."
-    docker-compose -f "$COMPOSE_FILE" pull postgres minio caddy 2>/dev/null || true
+    docker compose -f "$COMPOSE_FILE" pull postgres minio caddy 2>/dev/null || true
 
     # Start new containers
     log_info "Starting new containers..."
-    if docker-compose -f "$COMPOSE_FILE" up -d; then
+    if docker compose -f "$COMPOSE_FILE" up -d; then
         log_success "Containers started"
     else
         log_error "Failed to start containers"
