@@ -1,0 +1,73 @@
+import Link from 'next/link'
+import { verifySession } from '@/lib/dal'
+import { getTeachers } from '@/lib/actions/teachers'
+import { Button } from '@/components/ui/button'
+import { TeacherTable } from '@/components/teachers/teacher-table'
+import { EmptyState } from '@/components/students/empty-state'
+import { GraduationCap } from 'lucide-react'
+
+function TeacherEmptyState() {
+  return (
+    <div className="flex flex-col items-center justify-center py-12 text-center">
+      <div className="mb-6 flex h-32 w-32 items-center justify-center rounded-full bg-gray-100">
+        <GraduationCap className="h-16 w-16 text-gray-400" />
+      </div>
+
+      <h2 className="mb-2 text-xl font-semibold text-gray-900">
+        아직 등록된 선생님이 없어요
+      </h2>
+      <p className="mb-6 max-w-sm text-gray-500">
+        선생님을 등록하고 팀을 구성해보세요. 선생님 정보와 성향 분석 결과를
+        한눈에 확인할 수 있어요.
+      </p>
+
+      <Button asChild size="lg">
+        <Link href="/teachers/new">첫 선생님 등록하기</Link>
+      </Button>
+    </div>
+  )
+}
+
+export default async function TeachersPage() {
+  const session = await verifySession()
+
+  // 권한 검증: 원장 또는 팀장만 선생님 목록 접근 가능
+  if (session.role === 'MANAGER' || session.role === 'TEACHER') {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-2xl font-bold">선생님 관리</h1>
+        <p className="text-gray-500">
+          선생님 목록을 볼 권한이 없어요
+        </p>
+      </div>
+    )
+  }
+
+  const teachers = await getTeachers()
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">선생님 관리</h1>
+          <p className="text-gray-500">
+            {teachers.length > 0
+              ? `총 ${teachers.length}명의 선생님이 등록되어 있어요`
+              : '선생님을 등록해보세요'}
+          </p>
+        </div>
+        {session.role === 'DIRECTOR' && teachers.length > 0 && (
+          <Button asChild>
+            <Link href="/teachers/new">선생님 등록</Link>
+          </Button>
+        )}
+      </div>
+
+      {teachers.length === 0 ? (
+        <TeacherEmptyState />
+      ) : (
+        <TeacherTable data={teachers} />
+      )}
+    </div>
+  )
+}
