@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 ## Current Position
 
 Phase: 12 of 15 (Teacher Analysis & Team Data Access)
-Plan: 8 of 8 in current phase
-Status: Phase complete
-Last activity: 2026-01-30 — Completed 12-08 (Teacher Palm Analysis)
+Plan: 5 of 8 in current phase
+Status: In progress
+Last activity: 2026-01-30 — Completed 12-05 (Teacher Analysis Integration Page)
 
-Progress: [████████████████████████] 82.61%
+Progress: [████████████████████░░░] 80.43%
 
 ## Performance Metrics
 
@@ -72,6 +72,8 @@ Recent decisions affecting current work:
 - [12-07] AI face analysis is pure function - Claude Vision API logic works for both Student and Teacher without modification
 - [12-08] Teacher palm analysis mirrors Student palm analysis pattern exactly - upsertTeacherPalmAnalysis, runTeacherPalmAnalysis, TeacherPalmPanel all mirror Student equivalents
 - [12-08] Hand field for left/right palm distinction - Toggle UI in component, hand parameter passed to AI analysis
+- [12-05] Teacher detail page integrates all 5 analysis panels (MBTI, Saju, Name, Face, Palm) - Type casting Prisma JsonValue to component-expected types at boundary
+- [12-05] Teacher image URLs sourced from analysis records - Unlike Student with separate images table, Teacher face/palm analysis stores imageUrl directly
 - [v2.0] 팀 단위 데이터 분리: 보안 및 프라이버시 보장을 위해 Prisma middleware + PostgreSQL RLS 적용
 - [v2.0] 선생님 성향 분석: 학생과 동일한 방식으로 궁합 계산 (기존 분석 모듈 재사용)
 - [v2.0] LLM 전체 공통 설정: 관리 용이성 및 비용 효율성을 위해 Vercel AI SDK로 통합
@@ -91,6 +93,10 @@ None yet.
 **From Phase 11-02 execution:**
 - Session module must call setRLSSessionContext before every DB query - RESOLVED: Now integrated in verifySession
 - Server Actions must use getRBACPrisma instead of raw db - RESOLVED: Teacher/Team actions use explicit RBAC checks
+
+**From Phase 12-05 execution:**
+- Teacher profile edit form needed: Existing teachers have null `birthDate`, `birthTimeHour`, `birthTimeMinute`, `nameHanja` fields. Saju and Name analysis panels show "cannot analyze" messages until populated.
+- Teacher image storage missing: No TeacherImage model exists (unlike Student). Face/Palm analysis expects image upload functionality which may not be implemented yet.
 
 **From Phase 12-04 execution:**
 - Teacher data migration needed: Existing teachers have null birthDate and nameHanja - analysis will fail until populated. May need data entry UI or bulk import.
@@ -114,8 +120,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-30 (Phase 12-08 execution complete)
-Stopped at: Completed 12-08 (Teacher Palm Analysis), Phase 12 complete
+Last session: 2026-01-30 (Phase 12-05 execution complete)
+Stopped at: Completed 12-05 (Teacher Analysis Integration Page)
 Resume file: None
 
 ---
