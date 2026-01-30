@@ -11,6 +11,7 @@ import {
   markPDFGenerating,
   markPDFComplete,
   markPDFFailed,
+  fetchReportData,
 } from '@/lib/db/reports'
 import { getPersonalitySummary } from '@/lib/db/personality-summary'
 import { ConsultationReport } from '@/lib/pdf/templates/consultation-report'
@@ -133,86 +134,5 @@ export async function getReportStatus(studentId: string) {
     fileUrl: report?.fileUrl || null,
     errorMessage: report?.errorMessage || null,
     generatedAt: report?.generatedAt || null,
-  }
-}
-
-/**
- * Fetch all data needed for consultation report
- */
-async function fetchReportData(studentId: string, teacherId: string) {
-  const student = await db.student.findFirst({
-    where: {
-      id: studentId,
-      teacherId,
-    },
-    include: {
-      images: true,
-      sajuAnalysis: true,
-      nameAnalysis: true,
-      mbtiAnalysis: true,
-      faceAnalysis: true,
-      palmAnalysis: true,
-      personalitySummary: true,
-    },
-  })
-
-  if (!student) return null
-
-  return {
-    student: {
-      name: student.name,
-      birthDate: student.birthDate,
-      school: student.school,
-      grade: student.grade,
-      targetUniversity: student.targetUniversity,
-      targetMajor: student.targetMajor,
-      bloodType: student.bloodType,
-    },
-    analyses: {
-      saju: student.sajuAnalysis
-        ? {
-            result: student.sajuAnalysis.result,
-            interpretation: student.sajuAnalysis.interpretation,
-            calculatedAt: student.sajuAnalysis.calculatedAt,
-          }
-        : null,
-      name: student.nameAnalysis
-        ? {
-            result: student.nameAnalysis.result,
-            interpretation: student.nameAnalysis.interpretation,
-            calculatedAt: student.nameAnalysis.calculatedAt,
-          }
-        : null,
-      mbti: student.mbtiAnalysis
-        ? {
-            mbtiType: student.mbtiAnalysis.mbtiType,
-            percentages: student.mbtiAnalysis.percentages as Record<string, number>,
-            calculatedAt: student.mbtiAnalysis.calculatedAt,
-          }
-        : null,
-      face: student.faceAnalysis
-        ? {
-            result: student.faceAnalysis.result,
-            status: student.faceAnalysis.status,
-            errorMessage: student.faceAnalysis.errorMessage,
-          }
-        : null,
-      palm: student.palmAnalysis
-        ? {
-            result: student.palmAnalysis.result,
-            status: student.palmAnalysis.status,
-            errorMessage: student.palmAnalysis.errorMessage,
-          }
-        : null,
-    },
-    personalitySummary: student.personalitySummary
-      ? {
-          coreTraits: student.personalitySummary.coreTraits,
-          learningStrategy: student.personalitySummary.learningStrategy,
-          careerGuidance: student.personalitySummary.careerGuidance,
-          status: student.personalitySummary.status,
-        }
-      : null,
-    generatedAt: new Date(),
   }
 }
