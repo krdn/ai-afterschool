@@ -18,6 +18,10 @@ model Teacher {
   email                 String                  @unique
   password              String
   name                  String
+  nameHanja             String?
+  birthDate             DateTime?
+  birthTimeHour         Int?
+  birthTimeMinute       Int?
   role                  Role                    @default(TEACHER)
   teamId                String?
   team                  Team?                   @relation(fields: [teamId], references: [id])
