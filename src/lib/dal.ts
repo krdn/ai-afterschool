@@ -21,7 +21,12 @@ export const verifySession = cache(async () => {
 
   await updateSession()
 
-  return { isAuth: true, userId: payload.userId }
+  return {
+    isAuth: true,
+    userId: payload.userId,
+    role: payload.role || 'TEACHER',
+    teamId: payload.teamId || null,
+  }
 })
 
 /**
