@@ -14,18 +14,21 @@ enum Role {
 }
 
 model Teacher {
-  id                  String               @id @default(cuid())
-  email               String               @unique
-  password            String
-  name                String
-  role                Role                 @default(TEACHER)
-  teamId              String?
-  team                Team?                @relation(fields: [teamId], references: [id])
-  phone               String?
-  createdAt           DateTime             @default(now())
-  updatedAt           DateTime             @updatedAt
-  passwordResetTokens PasswordResetToken[]
-  students            Student[]
+  id                    String                  @id @default(cuid())
+  email                 String                  @unique
+  password              String
+  name                  String
+  role                  Role                    @default(TEACHER)
+  teamId                String?
+  team                  Team?                   @relation(fields: [teamId], references: [id])
+  phone                 String?
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  passwordResetTokens   PasswordResetToken[]
+  students              Student[]
+  teacherSajuAnalysis   TeacherSajuAnalysis?
+  teacherMbtiAnalysis   TeacherMbtiAnalysis?
+  teacherNameAnalysis   TeacherNameAnalysis?
 }
 
 model Team {
@@ -134,6 +137,55 @@ model MbtiAnalysis {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   student        Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+}
+
+model TeacherSajuAnalysis {
+  id             String   @id @default(cuid())
+  teacherId      String   @unique
+  inputSnapshot  Json
+  result         Json
+  interpretation String?
+  status         String   @default("complete")
+  version        Int      @default(1)
+  calculatedAt   DateTime
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  teacher        Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@index([teacherId])
+}
+
+model TeacherMbtiAnalysis {
+  id             String   @id @default(cuid())
+  teacherId      String   @unique
+  responses      Json
+  scores         Json
+  mbtiType       String
+  percentages    Json
+  interpretation String?
+  version        Int      @default(1)
+  calculatedAt   DateTime
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  teacher        Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@index([teacherId])
+}
+
+model TeacherNameAnalysis {
+  id             String   @id @default(cuid())
+  teacherId      String   @unique
+  inputSnapshot  Json
+  result         Json
+  interpretation String?
+  status         String   @default("complete")
+  version        Int      @default(1)
+  calculatedAt   DateTime
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  teacher        Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@index([teacherId])
 }
 
 model StudentImage {
