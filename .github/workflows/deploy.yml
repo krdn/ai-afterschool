@@ -21,7 +21,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /path/to/ai-afterschool
+            cd /home/gon/projects/ai/ai-afterschool
             git pull origin main
             ./scripts/deploy.sh --force --tag=${{ github.sha }}
 
@@ -33,7 +33,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /path/to/ai-afterschool
+            cd /home/gon/projects/ai/ai-afterschool
             ./scripts/rollback.sh --force
 
       - name: Verify rollback health
