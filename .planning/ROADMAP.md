@@ -154,21 +154,21 @@ Plans:
   3. 선생님 목록에서 검색(이름, 이메일, 팀)과 필터링이 가능하다
   4. 선생님 상세 페이지에서 기본 정보와 소속 팀이 표시된다
   5. 기존 학생 데이터에 팀 외래 키 마이그레이션이 무중단으로 완료된다
-**Plans**: TBD
+**Plans**: 7 plans in 3 waves
 
 **Key concerns addressed:**
-- Data leakage between teams (Prisma middleware + PostgreSQL RLS)
+- Data leakage between teams (Prisma Client Extensions + PostgreSQL RLS)
 - Migration FK failures (NOT VALID constraints)
 - Middleware-only authentication bypass (defense in depth)
 
 Plans:
-- [ ] 11-01: Teacher database schema (Teacher 모델, Role 열거형, Team 관계)
-- [ ] 11-02: Team-based RBAC implementation (Prisma middleware, RLS)
-- [ ] 11-03: Session extension (role, teamId JWT 포함)
-- [ ] 11-04: Teacher CRUD operations (기본 정보 생성, 수정, 삭제)
-- [ ] 11-05: Teacher list UI (검색, 필터, 페이지네이션)
-- [ ] 11-06: Teacher detail page (기본 정보, 소속 팀 표시)
-- [ ] 11-07: Database migration (학생 테이블 teamId 추가, NOT VALID 제약조건)
+- [ ] 11-01-PLAN.md — Teacher database schema (Teacher 모델, Role 열거형, Team 관계)
+- [ ] 11-02-PLAN.md — Team-based RBAC implementation (Prisma Client Extensions, RLS)
+- [ ] 11-03-PLAN.md — Session extension (role, teamId JWT 포함)
+- [ ] 11-04-PLAN.md — Teacher CRUD operations (기본 정보 생성, 수정, 삭제)
+- [ ] 11-05-PLAN.md — Teacher list UI (검색, 필터, 페이지네이션)
+- [ ] 11-06-PLAN.md — Teacher detail page (기본 정보, 소속 팀 표시)
+- [ ] 11-07-PLAN.md — Database migration (학생 테이블 teamId 추가, NOT VALID 제약조건)
 
 #### Phase 12: Teacher Analysis & Team Data Access
 **Goal**: 선생님 성향 분석 및 기존 분석 모듈 재사용
