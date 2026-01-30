@@ -11,7 +11,6 @@ import { PersonalitySummaryCard } from "@/components/students/personality-summar
 import { LearningStrategyPanel } from "@/components/students/learning-strategy-panel"
 import { CareerGuidancePanel } from "@/components/students/career-guidance-panel"
 import { ReportButton } from "@/components/students/report-button"
-import { getCalculationStatus } from "@/lib/actions/calculation-analysis"
 
 export default async function StudentPage({
   params,
@@ -21,6 +20,7 @@ export default async function StudentPage({
   const { id } = await params
   const session = await verifySession()
 
+  // 단일 쿼리로 모든 관계 로드 (N+1 최적화)
   const student = await db.student.findFirst({
     where: {
       id,
@@ -28,6 +28,12 @@ export default async function StudentPage({
     },
     include: {
       images: true,
+      sajuAnalysis: true,
+      nameAnalysis: true,
+      mbtiAnalysis: true,
+      faceAnalysis: true,
+      palmAnalysis: true,
+      personalitySummary: true,
     },
   })
 
@@ -35,117 +41,22 @@ export default async function StudentPage({
     notFound()
   }
 
-  type SajuAnalysisRecord = {
-    result: unknown
-    interpretation: string | null
-    calculatedAt: Date
+  // getCalculationStatus에서 필요한 데이터를 student에서 직접 계산
+  const analysisStatus = {
+    studentId: student.id,
+    sajuCalculatedAt: student.sajuAnalysis?.calculatedAt ?? null,
+    nameCalculatedAt: student.nameAnalysis?.calculatedAt ?? null,
+    latestCalculatedAt: (() => {
+      const sajuAt = student.sajuAnalysis?.calculatedAt ?? null
+      const nameAt = student.nameAnalysis?.calculatedAt ?? null
+      if (!sajuAt && !nameAt) return null
+      if (sajuAt && nameAt) return sajuAt > nameAt ? sajuAt : nameAt
+      return sajuAt ?? nameAt
+    })(),
+    needsRecalculation: student.calculationRecalculationNeeded,
+    recalculationReason: student.calculationRecalculationReason,
+    recalculationAt: student.calculationRecalculationAt,
   }
-
-  type NameAnalysisRecord = {
-    result: unknown
-    interpretation: string | null
-    calculatedAt: Date
-  }
-
-  type FaceAnalysisRecord = {
-    id: string
-    status: string
-    result: unknown
-    imageUrl: string
-    errorMessage: string | null
-  } | null
-
-  type PalmAnalysisRecord = {
-    id: string
-    status: string
-    result: unknown
-    imageUrl: string
-    hand: string
-    errorMessage: string | null
-  } | null
-
-  const sajuAnalysisDelegate = (
-    db as unknown as {
-      sajuAnalysis: {
-        findUnique: (args: {
-          where: { studentId: string }
-        }) => Promise<SajuAnalysisRecord | null>
-      }
-    }
-  ).sajuAnalysis
-
-  const nameAnalysisDelegate = (
-    db as unknown as {
-      nameAnalysis: {
-        findUnique: (args: {
-          where: { studentId: string }
-        }) => Promise<NameAnalysisRecord | null>
-      }
-    }
-  ).nameAnalysis
-
-  const mbtiAnalysisDelegate = (
-    db as unknown as {
-      mbtiAnalysis: {
-        findUnique: (args: {
-          where: { studentId: string }
-        }) => Promise<{
-          mbtiType: string
-          percentages: Record<string, number>
-          calculatedAt: Date
-        } | null>
-      }
-    }
-  ).mbtiAnalysis
-
-  const faceAnalysisDelegate = (
-    db as unknown as {
-      faceAnalysis: {
-        findUnique: (args: {
-          where: { studentId: string }
-        }) => Promise<FaceAnalysisRecord>
-      }
-    }
-  ).faceAnalysis
-
-  const palmAnalysisDelegate = (
-    db as unknown as {
-      palmAnalysis: {
-        findUnique: (args: {
-          where: { studentId: string }
-        }) => Promise<PalmAnalysisRecord>
-      }
-    }
-  ).palmAnalysis
-
-  const [analysisStatus, sajuAnalysis, nameAnalysis, mbtiAnalysis, faceAnalysis, palmAnalysis] = await Promise.all([
-    getCalculationStatus(student.id),
-    sajuAnalysisDelegate.findUnique({
-      where: {
-        studentId: student.id,
-      },
-    }),
-    nameAnalysisDelegate.findUnique({
-      where: {
-        studentId: student.id,
-      },
-    }),
-    mbtiAnalysisDelegate.findUnique({
-      where: {
-        studentId: student.id,
-      },
-    }),
-    faceAnalysisDelegate.findUnique({
-      where: {
-        studentId: student.id,
-      },
-    }),
-    palmAnalysisDelegate.findUnique({
-      where: {
-        studentId: student.id,
-      },
-    }),
-  ])
 
   // Extract face and palm image URLs from student images
   const faceImageUrl = student.images.find(img => img.type === 'face')?.resizedUrl || null
@@ -154,24 +65,24 @@ export default async function StudentPage({
   return (
     <div className="space-y-6">
       <StudentDetail student={student} analysisStatus={analysisStatus} />
-      <SajuAnalysisPanel student={student} analysis={sajuAnalysis} />
-      <NameAnalysisPanel student={student} analysis={nameAnalysis} />
+      <SajuAnalysisPanel student={student} analysis={student.sajuAnalysis} />
+      <NameAnalysisPanel student={student} analysis={student.nameAnalysis} />
       <MbtiAnalysisPanel
         studentId={student.id}
         studentName={student.name}
-        analysis={mbtiAnalysis}
+        analysis={student.mbtiAnalysis}
       />
       {faceImageUrl && (
         <FaceAnalysisPanel
           studentId={student.id}
-          analysis={faceAnalysis}
+          analysis={student.faceAnalysis}
           faceImageUrl={faceImageUrl}
         />
       )}
       {palmImageUrl && (
         <PalmAnalysisPanel
           studentId={student.id}
-          analysis={palmAnalysis}
+          analysis={student.palmAnalysis}
           palmImageUrl={palmImageUrl}
         />
       )}
