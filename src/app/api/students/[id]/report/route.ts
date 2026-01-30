@@ -7,6 +7,7 @@ import { getStudentReportPDF, fetchReportData } from '@/lib/db/reports'
 import { ConsultationReport } from '@/lib/pdf/templates/consultation-report'
 import { pdfToBuffer } from '@/lib/pdf/generator'
 import { createPDFStorage } from '@/lib/storage/factory'
+import { logger } from '@/lib/logger'
 import path from 'path'
 
 /**
@@ -92,7 +93,7 @@ export async function GET(
         }
       } catch (fileError) {
         // File doesn't exist or storage error, regenerate
-        console.error('Cached PDF access error:', fileError)
+        logger.error({ error: fileError, studentId }, 'Cached PDF access error')
       }
     }
 
@@ -120,7 +121,7 @@ export async function GET(
       },
     })
   } catch (error) {
-    console.error('PDF generation error:', error)
+    logger.error({ error, studentId }, 'PDF generation error')
     return NextResponse.json(
       { error: 'PDF 생성에 실패했습니다.' },
       { status: 500 }
