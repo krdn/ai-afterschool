@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 ## Current Position
 
 Phase: 11 of 15 (Teacher Infrastructure & Access Control)
-Plan: 0 of 7 in current phase
-Status: Ready to plan
-Last activity: 2026-01-30 — v2.0 roadmap created, Phase 11 ready for planning
+Plan: 1 of 7 in current phase
+Status: In progress
+Last activity: 2026-01-30 — Completed 11-01-PLAN.md (Role enum and Team model)
 
-Progress: [██████████░░░░░░░░░░░░░░░░░] 63.04%
+Progress: [███████████░░░░░░░░░░░░░░░░] 64.29%
 
 ## Performance Metrics
 
@@ -44,6 +44,9 @@ Progress: [██████████░░░░░░░░░░░░░
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
+- [11-01] Role enum with default TEACHER for zero-downtime migration - Existing teachers get TEACHER role, promoted later by admin
+- [11-01] Nullable teamId on Teacher/Student for gradual team rollout - Teams assigned in future plans without schema changes
+- [11-01] FK with ON DELETE SET NULL for referential integrity - Prevents orphaned records when Team deleted
 - [v2.0] 팀 단위 데이터 분리: 보안 및 프라이버시 보장을 위해 Prisma middleware + PostgreSQL RLS 적용
 - [v2.0] 선생님 성향 분석: 학생과 동일한 방식으로 궁합 계산 (기존 분석 모듈 재사용)
 - [v2.0] LLM 전체 공통 설정: 관리 용이성 및 비용 효율성을 위해 Vercel AI SDK로 통합
@@ -54,14 +57,17 @@ None yet.
 
 ### Blockers/Concerns
 
+**From Phase 11-01 execution:**
+- Shadow database sync issue: Prisma migrate dev failed due to ReportPDF table missing in shadow DB. Workaround: Manual migration creation and apply. Monitor for future migrations.
+
 **From Phase 11 planning:**
 - Ollama Docker networking: Docker 컨테이너에서 192.168.0.5:11434 접속 가능성 확인 필요 (Phase 15)
 - Korean saju compatibility validation: 학술적 검증 부족으로 도메인 전문가 상담 필요 (Phase 13)
 
 ## Session Continuity
 
-Last session: 2026-01-30 (roadmap creation)
-Stopped at: v2.0 roadmap created with 5 phases (11-15), ready for Phase 11 planning
+Last session: 2026-01-30 18:27 (Phase 11 Plan 01 execution)
+Stopped at: Completed 11-01-PLAN.md (Role enum and Team model schema)
 Resume file: None
 
 ---
