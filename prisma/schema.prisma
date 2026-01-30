@@ -14,25 +14,26 @@ enum Role {
 }
 
 model Teacher {
-  id                    String                  @id @default(cuid())
-  email                 String                  @unique
-  password              String
-  name                  String
-  nameHanja             String?
-  birthDate             DateTime?
-  birthTimeHour         Int?
-  birthTimeMinute       Int?
-  role                  Role                    @default(TEACHER)
-  teamId                String?
-  team                  Team?                   @relation(fields: [teamId], references: [id])
-  phone                 String?
-  createdAt             DateTime                @default(now())
-  updatedAt             DateTime                @updatedAt
-  passwordResetTokens   PasswordResetToken[]
-  students              Student[]
-  teacherSajuAnalysis   TeacherSajuAnalysis?
-  teacherMbtiAnalysis   TeacherMbtiAnalysis?
-  teacherNameAnalysis   TeacherNameAnalysis?
+  id                      String                    @id @default(cuid())
+  email                   String                    @unique
+  password                String
+  name                    String
+  nameHanja               String?
+  birthDate               DateTime?
+  birthTimeHour           Int?
+  birthTimeMinute         Int?
+  role                    Role                      @default(TEACHER)
+  teamId                  String?
+  team                    Team?                     @relation(fields: [teamId], references: [id])
+  phone                   String?
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @updatedAt
+  passwordResetTokens     PasswordResetToken[]
+  students                Student[]
+  teacherSajuAnalysis     TeacherSajuAnalysis?
+  teacherMbtiAnalysis     TeacherMbtiAnalysis?
+  teacherNameAnalysis     TeacherNameAnalysis?
+  teacherPalmAnalysis     TeacherPalmAnalysis?
 }
 
 model Team {
@@ -265,6 +266,23 @@ model PalmAnalysis {
   student      Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@index([studentId])
+}
+
+model TeacherPalmAnalysis {
+  id           String   @id @default(cuid())
+  teacherId    String   @unique
+  hand         String
+  imageUrl     String
+  result       Json
+  status       String   @default("complete")
+  errorMessage String?
+  version      Int      @default(1)
+  analyzedAt   DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  teacher      Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@index([teacherId])
 }
 
 model PersonalitySummary {
