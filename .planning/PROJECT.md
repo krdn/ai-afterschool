@@ -12,44 +12,63 @@
 
 ## Current State
 
-**Version:** v1.0 MVP (Shipped 2026-01-30)
+**Version:** v1.1 Production Readiness (Shipped 2026-01-30)
 
 **Delivered Features:**
-- 선생님 인증 (이메일/비밀번호 로그인, 비밀번호 재설정, 다중 계정 지원)
-- 학생 정보 관리 (기본 정보 CRUD, 사진 업로드, 검색/정렬/페이지네이션)
-- 전통 분석 (사주팔자, 성명학, MBTI 설문)
-- AI 이미지 분석 (관상/손금 사진 업로드 후 Claude Vision API 분석)
-- 통합 성향 분석 (모든 분석 결과 종합 및 성격 요약 카드)
-- AI 맞춤형 제안 (학습 전략 및 진로 가이드 자동 생성)
-- 종합 보고서 PDF (한글 지원 전문 레이아웃)
+- **v1.0 MVP 모든 기능 포함:**
+  - 선생님 인증 (이메일/비밀번호 로그인, 비밀번호 재설정, 다중 계정 지원)
+  - 학생 정보 관리 (기본 정보 CRUD, 사진 업로드, 검색/정렬/페이지네이션)
+  - 전통 분석 (사주팔자, 성명학, MBTI 설문)
+  - AI 이미지 분석 (관상/손금 사진 업로드 후 Claude Vision API 분석)
+  - 통합 성향 분석 (모든 분석 결과 종합 및 성격 요약 카드)
+  - AI 맞춤형 제안 (학습 전략 및 진로 가이드 자동 생성)
+  - 종합 보고서 PDF (한글 지원 전문 레이아웃)
+
+- **v1.1 프로덕션 준비 기능:**
+  - Docker Compose 프로덕션 환경 (멀티스테이지 빌드)
+  - Caddy 리버스 프록시와 자동 SSL/TLS
+  - MinIO S3 호환 스토리지와 PDF 저장소 추상화
+  - 헬스체크 엔드포인트 (/api/health)
+  - 무중단 배포 및 자동 롤백
+  - 데이터베이스 마이그레이션 자동화
+  - 연결 풀링 및 N+1 쿼리 최적화
+  - Next.js Image 최적화 (WebP/AVIF)
+  - Sentry 오류 추적
+  - 구조화된 로깅 (Pino)
+  - 데이터베이스 백업 자동화
 
 **Tech Stack:**
 - Next.js 15 (App Router)
 - Prisma + PostgreSQL
+- MinIO (S3-compatible PDF storage)
 - Cloudinary (이미지 저장)
 - Claude API (AI 분석)
 - @react-pdf/renderer (PDF 생성)
 - TanStack Table (테이블 UI)
+- Docker + Docker Compose
+- Caddy (리버스 프록시)
+- Sentry (오류 추적)
+- Pino (로깅)
 
 **Codebase Stats:**
-- 11,451 lines of TypeScript/JSX
-- 36 plans across 7 phases
-- Integration health score: 98/100
+- ~17,300 lines of TypeScript/JSX
+- 58 plans across 10 phases (v1.0: 36, v1.1: 22)
+- Integration health score: 92% (v1.1)
 
-**Known Issues:**
-- fetchReportData() 함수 중복 (낮은 우선순위 기술 부채)
-- PDF 저장소 로컬 파일시스템 사용 (프로덕션용 S3 마이그레이션 필요)
+**Known Issues (Minor Technical Debt):**
+- 2개 `<img>` 태그가 Next.js Image를 사용하지 않음 (face-analysis-panel.tsx, student-image-tabs.tsx)
+- 여러 컴포넌트에서 사용하지 않는 import 존재
+- 자동 알림 (health check degradation) - 수동 모니터링 필요
 
-## Current Milestone: v1.1 Production Readiness
+## Next Milestone Goals (v2.0)
 
-**Goal:** 프로덕션 환경 배포를 위한 인프라 구축, 성능 최적화, 기술 부채 해결
+**Target:** 프로덕션 운영 안정화 이후 학원 관리 기능 강화
 
-**Target features:**
-- Docker 기반 프로덕션 배포 환경 구축
-- 데이터베이스 쿼리 및 렌더링 성능 최적화
-- 기술 부채 해결 (PDF 저장소 마이그레이션, 코드 중복 제거)
-- CI/CD 파이프라인 구축
-- 운영 환경 모니터링 설정
+**Potential Features:**
+- 학원/학교 정보 관리
+- 대학/학과 데이터베이스 구축
+- 학부모 포털
+- 출결/수강료 관리
 
 ## Requirements
 
@@ -70,25 +89,40 @@
 - [x] AI 진로 가이드 (성향 기반 학과/직업 추천) — v1.0
 - [x] 상담 보고서 출력 (종합 성향 및 제안 리포트) — v1.0
 
+**v1.1 프로덕션 준비:**
+- [x] Docker Compose 프로덕션 환경 구성 — v1.1
+- [x] Caddy 리버스 프록시와 자동 SSL/TLS — v1.1
+- [x] `/api/health` 엔드포인트 — v1.1
+- [x] `.dockerignore`로 환경변수 파일 제외 — v1.1
+- [x] 환경별 설정 파일 분리 (.env.development, .env.production) — v1.1
+- [x] 무중단 배포 전략 — v1.1
+- [x] 배포 실패 시 자동 롤백 — v1.1
+- [x] MinIO S3 호환 스토리지 — v1.1
+- [x] PDF 저장소 추상화 (로컬/S3 전환 가능) — v1.1
+- [x] PDF 데이터 마이그레이션 — v1.1
+- [x] Presigned URL PDF 다운로드 — v1.1
+- [x] `prisma migrate deploy` 자동화 — v1.1
+- [x] Prisma 연결 풀링 (connection_limit=10) — v1.1
+- [x] Prisma include로 N+1 쿼리 해결 — v1.1
+- [x] 데이터베이스 복합 인덱스 — v1.1
+- [x] Next.js Image 최적화 (WebP/AVIF) — v1.1
+- [x] Promise.all() 병렬 데이터 페칭 — v1.1
+- [x] 코드 스플리팅 최적화 (번들 분석) — v1.1
+- [x] Sentry 오류 추적 — v1.1
+- [x] 데이터베이스 백업 자동화 — v1.1
+- [x] JSON 구조화된 로깅 (요청 ID 추적) — v1.1
+- [x] fetchReportData() 함수 중복 해제 — v1.1
+- [x] Phase 1 VERIFICATION.md 생성 — v1.1
+
 ### Active
 
-**프로덕션 배포:**
-- [ ] Docker Compose 프로덕션 환경 구성
-- [ ] 환경 변수 관리 (Docker Secrets)
-- [ ] SSL/TLS 인증서 설정
-- [ ] 건강성 확인(health check) 엔드포인트
-- [ ] 로그 수집 및 모니터링
+*다음 마일스톤(v2.0)을 위한 요구사항 정리 필요*
 
-**성능 최적화:**
-- [ ] 데이터베이스 쿼리 최적화
-- [ ] 이미지 최적화 (Next.js Image)
-- [ ] 코드 스플리팅 및 레이지 로딩
-- [ ] 캐싱 전략 (Redis 또는 Next.js 캐시)
-
-**기술 부채 해결:**
-- [ ] PDF 저장소 로컬 → S3 호환 스토리지 마이그레이션
-- [ ] fetchReportData() 함수 중복 해제
-- [ ] 누락된 VERIFICATION.md 파일 생성
+**잠재적 v2.0 기능:**
+- 학원/학교 정보 관리
+- 대학/학과 데이터베이스
+- 학부모 포털
+- 출결/수강료 관리
 
 ### Out of Scope
 
@@ -111,9 +145,9 @@
 - 관상/손금 분석은 AI 이미지 분석 기능 필요 (API 또는 자체 모델)
 - 사주/성명학은 전통적인 계산 로직 구현 필요
 
-### After v1.0 (Brownfield)
+### After v1.1 (Brownfield - Production Ready)
 
-**사용 가능한 데이터:**
+**사용 가능한 데이터 (v1.0 + 추가):**
 - 학생 기본 정보 (이름, 생년월일, 연락처, 사진, 학교, 학년, 목표 대학/학과, 혈액형)
 - 사주 분석 결과 (천간지지, 오행, 십성)
 - 성명학 분석 결과 (획수, 수리)
@@ -123,17 +157,28 @@
 - AI 맞춤형 제안 (학습 전략, 진로 가이드)
 - PDF 보고서 이력
 
-**사용 가능한 인프라:**
-- Prisma + PostgreSQL 데이터베이스
-- Cloudinary 이미지 저장소
+**사용 가능한 인프라 (v1.0 + 추가):**
+- Prisma + PostgreSQL 데이터베이스 (연결 풀링 최적화)
+- MinIO S3 호환 스토리지 (PDF 저장)
+- Cloudinary 이미지 저장소 (최적화됨)
 - Claude API 통합 (Text + Vision)
 - @react-pdf/renderer PDF 생성
 - Next.js App Router 아키텍처
+- Docker Compose 프로덕션 환경 (4 서비스)
+- Caddy 리버스 프록시 (자동 SSL)
+- Sentry 오류 추적
+- Pino 구조화된 로깅
+- 데이터베이스 백업 자동화
 
-**기술 부채:**
-- fetchReportData() 함수 중복 (actions.ts와 route.ts)
-- PDF 저장소 로컬 파일시스템 (./public/reports)
-- VERIFICATION.md 파일 누락 (Phase 1)
+**기술 부채 (해결됨):**
+- ✅ fetchReportData() 함수 중복 → 공유 모듈로 추출 완료
+- ✅ PDF 저장소 로컬 파일시스템 → S3 호환 추상화 완료
+- ✅ VERIFICATION.md 파일 누락 → Phase 1 retrospective verification 완료
+
+**남은 사소한 기술 부채 (비차단):**
+- 2개 `<img>` 태그가 Next.js Image 미사용
+- 여러 컴포넌트에서 사용하지 않는 import 존재
+- Health check degradation 자동 알림 (수동 모니터링 필요)
 
 ## Constraints
 
@@ -156,5 +201,18 @@
 | 대학 정보 수집은 v2로 미룸 | v1은 핵심 기능에 집중 | — Pending — v1.1에서 재검토 |
 | 선생님별 개별 계정 사용 | 여러 선생님이 동시 사용 | ✓ 성공 — 다중 계정 분리 확인 |
 
+**v1.1 결정들:**
+| Decision | Rationale | Outcome |
+|----------|-----------|---------|
+| Docker Compose 프로덕션 배포 | 단일 서버 배포에는 충분, 복잡도 낮음 | ✓ 성공 — 4 서비스 구성, 헬스체크 통합 |
+| MinIO S3 호환 스토리지 | 셀프 호스팅, 비용 효율적, S3 API 호환 | ✓ 성공 — PDF 추상화, 마이그레이션 완료 |
+| Caddy vs Nginx | 자동 SSL 설정 간단, 설정 직관적 | ✓ 성공 — Let's Encrypt 자동 인증서 |
+| 연결 풀 제한 10 | Docker 환경 작은 규모 (50-200 학생) | ✓ 성공 — 풀 고갈 없음 |
+| Prisma include로 N+1 해결 | 단일 쿼리로 관계 데이터 로드 | ✓ 성공 — 7쿼리 → 1쿼리 (85% 감소) |
+| Sentry 오류 추적 | 프로덕션 오류 모니터링 필수 | ✓ 성공 — 다중 런타임 구성 |
+| Pino 구조화된 로깅 | JSON 형식, 요청 ID 추적 | ✓ 성공 — 디버깅 용이성 향상 |
+| PDF API 프록시 패턴 | Presigned URL 만료 문제 해결 | ✓ 성공 — 1시간 제거, 직접 반환 |
+| 코드 중복 공유 모듈 추출 | 유지보수성 향상, 단일 진실 공급원 | ✓ 성공 — 164라인 중복 제거 |
+
 ---
-*Last updated: 2026-01-30 after v1.1 milestone initialization*
+*Last updated: 2026-01-30 after v1.1 milestone completion*
