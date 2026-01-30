@@ -43,6 +43,28 @@ services:
     networks:
       - internal
 
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+      target: production
+      args:
+        VERSION: ${VERSION:-latest}
+        SESSION_SECRET: ${SESSION_SECRET:-default-secret-for-build-min-32-chars-long}
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+    image: ai-afterschool:${VERSION:-latest}
+    container_name: ai-afterschool-migrate
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${DATABASE_USER:-postgres}:${DATABASE_PASSWORD:-postgres}@postgres:5432/${DATABASE_DB:-ai_afterschool}?connection_limit=10
+    command: sh -c "npx prisma migrate deploy && echo 'Migration complete'"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+    networks:
+      - internal
+
   app:
     build:
       context: .
@@ -59,6 +81,7 @@ services:
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://${DATABASE_USER:-postgres}:${DATABASE_PASSWORD:-postgres}@postgres:5432/${DATABASE_DB:-ai_afterschool}?connection_limit=10
+      DATABASE_URL_PROXY: postgresql://${DATABASE_USER:-postgres}:${DATABASE_PASSWORD:-postgres}@postgres:5432/${DATABASE_DB:-ai_afterschool}?connection_limit=10&pgbouncer=true
       SESSION_SECRET: ${SESSION_SECRET}
       MINIO_ENDPOINT: minio:9000
       MINIO_REGION: ${MINIO_REGION:-us-east-1}
@@ -76,6 +99,8 @@ services:
         condition: service_healthy
       minio:
         condition: service_started
+      migrate:
+        condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health"]
       interval: 30s
