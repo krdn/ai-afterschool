@@ -1,6 +1,7 @@
 "use client"
 
 import { CldUploadWidget } from "next-cloudinary"
+import { CldImage } from "next-cloudinary"
 import { Button } from "@/components/ui/button"
 
 export type StudentImageType = "profile" | "face" | "palm"
@@ -28,6 +29,14 @@ type StudentImageUploaderProps = {
 
 const allowedFormats = ["jpg", "jpeg", "png", "heic"]
 
+// Cloudinary URL에서 publicId 추출
+function extractPublicId(url: string): string {
+  // 예: https://res.cloudinary.com/.../image/upload/v123456/students/student123/profile/abc123
+  // → students/student123/profile/abc123
+  const match = url.match(/\/upload\/v\d+\/(.+)$/)
+  return match ? match[1] : url
+}
+
 export function StudentImageUploader({
   type,
   label,
@@ -43,6 +52,9 @@ export function StudentImageUploader({
     : `students/drafts/${draftId || "draft"}/${type}`
 
   const hasPreview = Boolean(previewUrl || value)
+
+  // Cloudinary publicId 우선 사용, 없으면 URL에서 추출
+  const publicId = value?.publicId || (previewUrl ? extractPublicId(previewUrl) : "")
 
   return (
     <div className="space-y-3">
@@ -118,12 +130,21 @@ export function StudentImageUploader({
             </CldUploadWidget>
           </div>
 
-          {previewUrl ? (
+          {publicId ? (
             <div className="rounded-md border border-gray-100 bg-white p-2">
-              <img
-                src={previewUrl}
+              <CldImage
+                width={128}
+                height={128}
+                src={publicId}
+                sizes="(max-width: 768px) 100vw, 128px"
                 alt={`${label} 미리보기`}
                 className="h-32 w-32 rounded-md object-cover"
+                crop="fill"
+                gravity="auto"
+                quality="auto"
+                format="auto"
+                loading="lazy"
+                priority={false}
               />
             </div>
           ) : null}
