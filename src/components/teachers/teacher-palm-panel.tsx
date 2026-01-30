@@ -42,11 +42,13 @@ export function TeacherPalmPanel({
 
     setLocalStatus('analyzing')
     startTransition(async () => {
-      const result = await runTeacherPalmAnalysis(teacherId, palmImageUrl, selectedHand)
-      if (result.success) {
-        window.location.reload()
-      } else {
-        alert(result.error || "분석에 실패했습니다.")
+      try {
+        const result = await runTeacherPalmAnalysis(teacherId, palmImageUrl, selectedHand)
+        if (result.success) {
+          window.location.reload()
+        }
+      } catch (error) {
+        alert("분석 시작에 실패했습니다. 다시 시도해주세요.")
         setLocalStatus('idle')
       }
     })
