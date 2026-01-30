@@ -208,19 +208,19 @@ Plans:
   3. AI가 궁합과 부하 분산을 고려하여 자동 배정 제안을 생성한다
   4. 학생별로 적합한 선생님 순위와 추천 이유가 표시된다
   5. 궁합 분석 결과가 편향되지 않았는지 공정성 메트릭으로 검증된다
-**Plans**: TBD
+**Plans**: 6 plans in 5 waves
 
 **Key concerns addressed:**
 - Algorithmic bias (fairness metrics, human-in-the-loop)
 - Lack of explainability (transparent weights, reasoning)
 
 Plans:
-- [ ] 13-01: Compatibility scoring algorithm (가중 평균 계산)
-- [ ] 13-02: Manual student assignment (선생님-학생 배정 UI)
-- [ ] 13-03: AI automatic assignment suggestions (최적화 알고리즘)
-- [ ] 13-04: Student-specific teacher recommendations (개인화된 순위)
-- [ ] 13-05: Compatibility report UI (궁합 분석 시각화 - Recharts)
-- [ ] 13-06: Fairness metrics implementation (ABROCA, Disparity Index)
+- [ ] 13-01-PLAN.md — Compatibility scoring algorithm (CompatibilityResult 모델, calculateCompatibilityScore 순수 함수, DB CRUD)
+- [ ] 13-02-PLAN.md — Compatibility calculation Server Action & API (calculateCompatibilityAction, POST /api/compatibility/calculate)
+- [ ] 13-03-PLAN.md — AI automatic assignment algorithm (탐욕 알고리즘, AssignmentProposal 모델, generateAutoAssignments)
+- [ ] 13-04-PLAN.md — Student-specific teacher recommendations (/students/[id]/compatibility 페이지, TeacherRecommendationList)
+- [ ] 13-05-PLAN.md — Manual student assignment & auto-assignment application (ManualAssignmentDialog, /admin/assignments)
+- [ ] 13-06-PLAN.md — Fairness metrics implementation (Disparity Index, ABROCA, Distribution Balance, /admin/fairness)
 
 #### Phase 14: Performance Analytics & Team Insights
 **Goal**: 선생님 성과 분석 및 팀 구성 분석
@@ -292,7 +292,7 @@ Phases execute in numeric order: 11 → 12 → 13 → 14 → 15
 | 10. Technical Debt Resolution & Monitoring | v1.1 | 7/7 | Complete | 2026-01-30 |
 | 11. Teacher Infrastructure & Access Control | v2.0 | 7/7 | Complete | 2026-01-30 |
 | 12. Teacher Analysis & Team Data Access | v2.0 | 8/8 | Complete | 2026-01-30 |
-| 13. Compatibility Analysis & Matching | v2.0 | 0/6 | Not started | - |
+| 13. Compatibility Analysis & Matching | v2.0 | 0/6 | Planning | - |
 | 14. Performance Analytics & Team Insights | v2.0 | 0/7 | Not started | - |
 | 15. Multi-LLM Integration & Smart Routing | v2.0 | 0/8 | Not started | - |
 
