@@ -1,5 +1,4 @@
 import * as Sentry from "@sentry/nextjs";
-import { BrowserTracing } from "@sentry/nextjs";
 
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
@@ -39,43 +38,24 @@ Sentry.init({
 
   // Client-side integrations
   integrations: [
-    new BrowserTracing({
-      shouldCreateSpanForRequest: (url) => {
-        // Don't trace Sentry's own requests
-        return !url.includes('/sentry/') && !url.includes('sentry.io');
-      },
-    }),
-    Sentry.breadcrumbsIntegration({
-      console: true,
-      dom: true,
-      fetch: true,
-      history: true,
-      sentry: true,
-      xhr: true,
-    }),
+    Sentry.browserTracingIntegration(),
     Sentry.replayIntegration({
-      sessionSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 0,
       maskAllText: true,
       maskAllInputs: true,
       blockAllMedia: true,
     }),
+    Sentry.captureConsoleIntegration({
+      levels: ['error', 'warn'],
+    }),
   ],
+
+  // Session Replay sampling
+  replaysSessionSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 0,
+  replaysOnErrorSampleRate: 1.0,
 
   // Set release from environment or package.json version
   release: process.env.SENTRY_RELEASE || process.env.npm_package_version || '1.0.0',
 
   // Enable performance monitoring in development
   debug: process.env.NODE_ENV === 'development',
-
-  // Capture user feedback for errors
-  beforeSend(event, hint) {
-    // Check if the event is an error
-    if (event.exception) {
-      event.feedback = {
-        message: event.message || 'An error occurred',
-        name: 'User Feedback',
-      };
-    }
-    return event;
-  },
 });
