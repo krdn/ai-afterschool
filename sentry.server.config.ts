@@ -27,7 +27,8 @@ Sentry.init({
 
     // Redact query parameters that might contain sensitive data
     if (event.request?.query_string) {
-      event.request.query_string = event.request.query_string
+      const queryString = String(event.request.query_string);
+      event.request.query_string = queryString
         .replace(/password=[^&]+/gi, 'password=***')
         .replace(/token=[^&]+/gi, 'token=***')
         .replace(/apiKey=[^&]+/gi, 'apiKey=***')
@@ -39,17 +40,8 @@ Sentry.init({
 
   // Capture context for better debugging
   integrations: [
-    Sentry.breadcrumbsIntegration({
-      console: true,
-      dom: true,
-      fetch: true,
-      history: true,
-      sentry: true,
-      xhr: true,
-    }),
     Sentry.httpIntegration({
       breadcrumbs: true,
-      tracing: true,
     }),
     Sentry.extraErrorDataIntegration({
       depth: 10,
