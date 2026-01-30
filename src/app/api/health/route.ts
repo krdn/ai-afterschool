@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { db, pool } from '@/lib/db'
 import { existsSync } from 'fs'
+import { logger } from '@/lib/logger'
 
 /**
  * Health check response shape
@@ -75,7 +76,7 @@ export async function GET() {
     // 연결 풀 사용률 계산 및 경고 (max: 10)
     const poolUsage = pool.totalCount / 10
     if (poolUsage > 0.8) {
-      console.warn(`Connection pool usage high: ${(poolUsage * 100).toFixed(0)}%`)
+      logger.warn({ poolUsage: `${(poolUsage * 100).toFixed(0)}%`, pool: connectionPoolMetrics }, 'Connection pool usage high')
     }
 
     results.checks.database = {

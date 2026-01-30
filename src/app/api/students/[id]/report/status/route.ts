@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifySession } from '@/lib/dal'
 import { getStudentReportPDF } from '@/lib/db/reports'
+import { logger } from '@/lib/logger'
 
 /**
  * GET /api/students/[id]/report/status
@@ -32,7 +33,7 @@ export async function GET(
       generatedAt: report?.generatedAt || null,
     })
   } catch (error) {
-    console.error('Status check error:', error)
+    logger.error({ error, studentId }, 'Status check error')
     return NextResponse.json(
       { error: '상태 조회 실패' },
       { status: 500 }
