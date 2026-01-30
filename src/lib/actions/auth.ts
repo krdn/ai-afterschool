@@ -70,6 +70,14 @@ export async function login(
 
   const teacher = await db.teacher.findUnique({
     where: { email },
+    select: {
+      id: true,
+      email: true,
+      password: true,
+      name: true,
+      role: true,
+      teamId: true,
+    },
   })
 
   if (!teacher) {
@@ -90,7 +98,7 @@ export async function login(
     }
   }
 
-  await createSession(teacher.id)
+  await createSession(teacher.id, teacher.role, teacher.teamId)
 
   redirect("/students")
 }
@@ -134,9 +142,16 @@ export async function signup(
       email,
       password: hashedPassword,
     },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      role: true,
+      teamId: true,
+    },
   })
 
-  await createSession(teacher.id)
+  await createSession(teacher.id, teacher.role, teacher.teamId)
 
   redirect("/students")
 }
