@@ -95,38 +95,39 @@ services:
         failure_action: rollback
         order: start-first
 
-  caddy:
-    image: caddy:2-alpine
-    container_name: ai-afterschool-caddy
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-      - caddy_logs:/var/log/caddy
-    environment:
-      APP_DOMAIN: ${APP_DOMAIN:-ai-afterschool.example.com}
-      CADDY_EMAIL: ${CADDY_EMAIL:-admin@example.com}
-    depends_on:
-      app:
-        condition: service_healthy
-    restart: unless-stopped
-    networks:
-      - internal
+  # Caddy disabled - using existing Nginx reverse proxy
+  # caddy:
+  #   image: caddy:2-alpine
+  #   container_name: ai-afterschool-caddy
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./Caddyfile:/etc/caddy/Caddyfile:ro
+  #     - caddy_data:/data
+  #     - caddy_config:/config
+  #     - caddy_logs:/var/log/caddy
+  #   environment:
+  #     APP_DOMAIN: ${APP_DOMAIN:-ai-afterschool.example.com}
+  #     CADDY_EMAIL: ${CADDY_EMAIL:-admin@example.com}
+  #   depends_on:
+  #     app:
+  #       condition: service_healthy
+  #   restart: unless-stopped
+  #   networks:
+  #     - internal
 
 volumes:
   postgres_data:
     driver: local
   minio_data:
     driver: local
-  caddy_data:
-    driver: local
-  caddy_config:
-    driver: local
-  caddy_logs:
-    driver: local
+  # caddy_data:
+  #   driver: local
+  # caddy_config:
+  #   driver: local
+  # caddy_logs:
+  #   driver: local
 
 networks:
   internal:
