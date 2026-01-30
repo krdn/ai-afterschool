@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
 import { db, pool } from '@/lib/db'
-import { existsSync } from 'fs'
+import { existsSync, readdirSync, statSync } from 'fs'
 import { logger } from '@/lib/logger'
+import { join } from 'path'
 
 /**
  * Health check response shape
@@ -12,6 +13,7 @@ interface HealthCheckResult {
   checks: {
     database: HealthCheckItem
     storage: HealthCheckItem
+    backup?: HealthCheckItem
   }
   uptime: number
   version?: string
@@ -173,10 +175,78 @@ export async function GET() {
     results.status = 'unhealthy'
   }
 
-  // 3. Calculate total response time
+  // 3. Backup health check (optional)
+  try {
+    const backupStart = Date.now()
+    const backupDir = process.env.BACKUP_DIR || './backups'
+    const dbName = process.env.POSTGRES_DB || 'ai_afterschool'
+
+    // Check if backup directory exists
+    if (existsSync(backupDir)) {
+      // Find backup files for this database
+      const files = readdirSync(backupDir)
+        .filter(f => f.startsWith(`${dbName}-`) && f.endsWith('.sql.gz'))
+
+      if (files.length > 0) {
+        // Get the most recent backup
+        const latestFile = files
+          .map(f => ({
+            name: f,
+            mtime: statSync(join(backupDir, f)).mtime.getTime(),
+          }))
+          .sort((a, b) => b.mtime - a.mtime)[0]
+
+        const latestPath = join(backupDir, latestFile.name)
+        const backupAge = Date.now() - latestFile.mtime
+        const backupSize = statSync(latestPath).size
+        const backupTime = Date.now() - backupStart
+
+        // Check if backup is recent (within 48 hours)
+        const hoursSinceBackup = backupAge / (1000 * 60 * 60)
+        if (hoursSinceBackup <= 48) {
+          results.checks.backup = {
+            status: 'healthy',
+            message: `Last backup: ${latestFile.name} (${hoursSinceBackup.toFixed(1)}h ago, ${(backupSize / 1024).toFixed(1)}KB)`,
+            responseTime: backupTime,
+          }
+        } else {
+          results.checks.backup = {
+            status: 'unhealthy',
+            message: `No recent backup (last: ${hoursSinceBackup.toFixed(0)}h ago)`,
+            responseTime: backupTime,
+          }
+          if (results.status !== 'unhealthy') {
+            results.status = 'degraded'
+          }
+        }
+      } else {
+        results.checks.backup = {
+          status: 'unhealthy',
+          message: 'No backup files found',
+        }
+        if (results.status !== 'unhealthy') {
+          results.status = 'degraded'
+        }
+      }
+    } else {
+      // Backup directory doesn't exist - warn but don't fail
+      results.checks.backup = {
+        status: 'healthy',
+        message: 'Backup directory not configured',
+      }
+    }
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Backup check failed'
+    results.checks.backup = {
+      status: 'unknown',
+      message: errorMessage,
+    }
+  }
+
+  // 4. Calculate total response time
   const totalTime = Date.now() - startTime
 
-  // 4. Return appropriate status code
+  // 5. Return appropriate status code
   const statusCode = results.status === 'healthy' ? 200 : 503
 
   return NextResponse.json(results, {
