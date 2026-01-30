@@ -99,7 +99,7 @@ export function TeacherSajuPanel({
                   })}
                 </p>
                 <p>
-                  출생 시간: {formatBirthTime(teacherBirthTimeHour, teacherBirthTimeMinute)}
+                  출생 시간: {formatBirthTime(teacherBirthTimeHour ?? null, teacherBirthTimeMinute ?? null)}
                   {teacherBirthTimeHour === null ? " (시주 계산 제외)" : ""}
                 </p>
               </>
