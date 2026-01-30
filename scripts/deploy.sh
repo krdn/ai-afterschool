@@ -81,6 +81,25 @@ pre_deploy_checks() {
 }
 
 #=============================================================================
+# Backup database
+#=============================================================================
+
+backup_database() {
+    log_info "Creating database backup..."
+    local backup_file="backups/db-backup-$(date +%Y%m%d-%H%M%S).sql"
+
+    mkdir -p backups
+
+    # Docker exec를 사용하여 pg_dump 실행
+    if docker compose -f "$COMPOSE_FILE" exec -T postgres pg_dump -U postgres \
+        --clean --if-exists --no-owner --no-acl > "$backup_file" 2>/dev/null; then
+        log_success "Database backup created: $backup_file"
+    else
+        log_warning "Database backup failed (continuing anyway)"
+    fi
+}
+
+#=============================================================================
 # Backup current deployment
 #=============================================================================
 
@@ -241,6 +260,7 @@ main() {
     local start_time=$(date +%s)
 
     pre_deploy_checks
+    backup_database
     backup_current_deployment
 
     if ! build_new_image "$tag"; then
