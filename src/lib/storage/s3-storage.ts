@@ -66,7 +66,8 @@ export class S3PDFStorage implements PDFStorage {
 
     // Convert stream to buffer
     const chunks: Uint8Array[] = []
-    for await (const chunk of response.Body as any) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    for await (const chunk of response.Body as AsyncIterable<Uint8Array>) {
       chunks.push(chunk)
     }
     return Buffer.concat(chunks)
@@ -98,8 +99,9 @@ export class S3PDFStorage implements PDFStorage {
       })
       await this.client.send(command)
       return true
-    } catch (error: any) {
-      if (error.name === 'NoSuchKey' || error.$metadata?.httpStatusCode === 404) {
+    } catch (error: unknown) {
+      const s3Error = error as { name?: string; $metadata?: { httpStatusCode?: number } }
+      if (s3Error.name === 'NoSuchKey' || s3Error.$metadata?.httpStatusCode === 404) {
         return false
       }
       throw error
