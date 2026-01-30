@@ -14,7 +14,7 @@ set -e
 
 COMPOSE_FILE="${COMPOSE_FILE:-docker-compose.prod.yml}"
 HEALTH_CHECK_TIMEOUT="${HEALTH_CHECK_TIMEOUT:-60}"
-HEALTH_CHECK_URL="${HEALTH_CHECK_URL:-http://localhost:3000/api/health}"
+HEALTH_CHECK_URL="${HEALTH_CHECK_URL:-http://localhost:3001/api/health}"
 
 #=============================================================================
 # Colors

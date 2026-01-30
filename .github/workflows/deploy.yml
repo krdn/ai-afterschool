@@ -47,7 +47,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            curl -f http://localhost:3000/api/health || exit 1
+            curl -f http://localhost:3001/api/health || exit 1
 
       - name: Fail workflow
         if: failure() && steps.deploy.outcome == 'failure'
