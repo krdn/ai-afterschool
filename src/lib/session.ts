@@ -10,6 +10,8 @@ const encodedKey = new TextEncoder().encode(secretKey)
 
 export type SessionPayload = {
   userId: string
+  role: 'DIRECTOR' | 'TEAM_LEADER' | 'MANAGER' | 'TEACHER'
+  teamId: string | null
   expiresAt: Date
 }
 
@@ -32,6 +34,8 @@ export async function decrypt(
     })
     return {
       userId: payload.userId as string,
+      role: (payload.role || 'TEACHER') as SessionPayload['role'],
+      teamId: (payload.teamId || null) as string | null,
       expiresAt: new Date(payload.expiresAt as string),
     }
   } catch (error) {
@@ -40,9 +44,13 @@ export async function decrypt(
   }
 }
 
-export async function createSession(userId: string): Promise<void> {
+export async function createSession(
+  userId: string,
+  role: SessionPayload['role'] = 'TEACHER',
+  teamId: string | null = null
+): Promise<void> {
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-  const session = await encrypt({ userId, expiresAt })
+  const session = await encrypt({ userId, role, teamId, expiresAt })
   const cookieStore = await cookies()
 
   cookieStore.set('session', session, {
@@ -54,7 +62,11 @@ export async function createSession(userId: string): Promise<void> {
   })
 }
 
-export async function updateSession(): Promise<void> {
+export async function updateSession(
+  userId: string,
+  role: SessionPayload['role'],
+  teamId: string | null
+): Promise<void> {
   const cookieStore = await cookies()
   const session = cookieStore.get('session')?.value
   const payload = await decrypt(session)
@@ -63,7 +75,7 @@ export async function updateSession(): Promise<void> {
 
   const oneDayFromNow = new Date(Date.now() + 24 * 60 * 60 * 1000)
   if (payload.expiresAt < oneDayFromNow) {
-    await createSession(payload.userId)
+    await createSession(userId, role, teamId)
   }
 }
 
