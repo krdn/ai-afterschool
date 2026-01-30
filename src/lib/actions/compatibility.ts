@@ -5,6 +5,9 @@ import { db } from "@/lib/db"
 import { verifySession } from "@/lib/dal"
 import { calculateCompatibilityScore } from "@/lib/analysis/compatibility-scoring"
 import { upsertCompatibilityResult } from "@/lib/db/compatibility-result"
+import type { MbtiPercentages } from "@/lib/analysis/mbti-scoring"
+import type { SajuResult } from "@/lib/analysis/saju"
+import type { NameNumerologyResult } from "@/lib/analysis/name-numerology"
 
 /**
  * 선생님-학생 궁합 분석 실행
@@ -20,7 +23,7 @@ export async function analyzeCompatibility(
   teacherId: string,
   studentId: string
 ) {
-  const session = await verifySession()
+  await verifySession() // RLS 적용을 위해 세션 확인
 
   // Teacher 조회 (관련 분석 포함)
   const teacher = await db.teacher.findUnique({
@@ -84,15 +87,15 @@ export async function analyzeCompatibility(
   // 궁합 점수 계산
   const score = calculateCompatibilityScore(
     {
-      mbti: teacher.teacherMbtiAnalysis?.percentages as any,
-      saju: teacher.teacherSajuAnalysis?.result as any,
-      name: teacher.teacherNameAnalysis?.result as any,
+      mbti: (teacher.teacherMbtiAnalysis?.percentages as unknown as MbtiPercentages | null) ?? null,
+      saju: (teacher.teacherSajuAnalysis?.result as unknown as SajuResult | null) ?? null,
+      name: (teacher.teacherNameAnalysis?.result as unknown as NameNumerologyResult | null) ?? null,
       currentLoad: teacher._count.students,
     },
     {
-      mbti: student.mbtiAnalysis?.percentages as any,
-      saju: student.sajuAnalysis?.result as any,
-      name: student.nameAnalysis?.result as any,
+      mbti: (student.mbtiAnalysis?.percentages as unknown as MbtiPercentages | null) ?? null,
+      saju: (student.sajuAnalysis?.result as unknown as SajuResult | null) ?? null,
+      name: (student.nameAnalysis?.result as unknown as NameNumerologyResult | null) ?? null,
     }
   )
 
@@ -119,7 +122,7 @@ export async function analyzeCompatibility(
  * @returns 각 학생별 궁합 분석 결과
  */
 export async function batchAnalyzeCompatibility(studentIds: string[]) {
-  const session = await verifySession()
+  await verifySession() // RLS 적용을 위해 세션 확인
 
   // 팀 내 모든 선생님 조회
   const teachers = await db.teacher.findMany({
