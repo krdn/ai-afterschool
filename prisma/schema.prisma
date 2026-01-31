@@ -520,3 +520,83 @@ model StudentSatisfaction {
 //
 // -- Verify policies
 // SELECT * FROM pg_policies WHERE tablename IN ('Student', 'Teacher');
+
+// ========================================
+// LLM Configuration & Usage Tracking
+// ========================================
+
+model LLMConfig {
+  id              String    @id @default(cuid())
+  provider        String    @unique
+  displayName     String
+  apiKeyEncrypted String?
+  isEnabled       Boolean   @default(false)
+  isValidated     Boolean   @default(false)
+  validatedAt     DateTime?
+  baseUrl         String?
+  defaultModel    String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model LLMFeatureConfig {
+  id              String   @id @default(cuid())
+  featureType     String   @unique
+  primaryProvider String
+  fallbackOrder   Json
+  modelOverride   String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model LLMUsage {
+  id             String   @id @default(cuid())
+  provider       String
+  modelId        String
+  featureType    String
+  teacherId      String?
+  inputTokens    Int
+  outputTokens   Int
+  totalTokens    Int
+  costUsd        Float
+  responseTimeMs Int
+  success        Boolean  @default(true)
+  errorMessage   String?
+  failoverFrom   String?
+  createdAt      DateTime @default(now())
+
+  @@index([provider, createdAt])
+  @@index([featureType, createdAt])
+  @@index([teacherId, createdAt])
+  @@index([createdAt])
+}
+
+model LLMUsageMonthly {
+  id                 String   @id @default(cuid())
+  year               Int
+  month              Int
+  provider           String
+  featureType        String
+  totalRequests      Int
+  totalInputTokens   BigInt
+  totalOutputTokens  BigInt
+  totalCostUsd       Float
+  avgResponseTimeMs  Float
+  successRate        Float
+  createdAt          DateTime @default(now())
+
+  @@unique([year, month, provider, featureType])
+  @@index([year, month])
+}
+
+model LLMBudget {
+  id                 String    @id @default(cuid())
+  period             String    @unique
+  budgetUsd          Float
+  alertAt80          Boolean   @default(true)
+  alertAt100         Boolean   @default(true)
+  lastAlertAt        DateTime?
+  lastAlertThreshold Int?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+}
