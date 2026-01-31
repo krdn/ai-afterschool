@@ -235,19 +235,21 @@ Plans:
   2. 다차원 성과 분석(성적 향상률, 상담 횟수, 학생 만족도)이 가능하다
   3. 팀 구성 분석(성향 다양성, 전문성 커버리지) 결과가 시각화된다
   4. 통제 변수(학생 초기 성적, 출석률)가 고려된 공정한 평가가 제공된다
-**Plans**: 6 plans in 3 waves
+**Plans**: 8 plans
 
 **Key concerns addressed:**
 - Single-metric bias (multi-dimensional evaluation)
 - Unfair teacher comparison (control variables)
 
  Plans:
- - [x] 14-01-PLAN.md — Performance database schema (GradeHistory, CounselingSession, StudentSatisfaction 모델)
- - [x] 14-02-PLAN.md — Teacher student list view (담당 학생 목록 페이지, TeacherStudentList 컴포넌트)
- - [x] 14-03-PLAN.md — Grade improvement algorithm (성적 향상률 계산, 통제 변수 적용, TDD)
- - [x] 14-04-PLAN.md — Counseling & satisfaction tracking (상담 기록, 만족도 조사 폼)
- - [x] 14-05-PLAN.md — Performance dashboard (성과 대시보드, Recharts 시각화)
- - [x] 14-06-PLAN.md — Team composition analysis (성향 다양성, 전문성 커버리지 분석)
+  - [x] 14-01-PLAN.md — Performance database schema (GradeHistory, CounselingSession, StudentSatisfaction 모델)
+  - [x] 14-02-PLAN.md — Teacher student list view (담당 학생 목록 페이지, TeacherStudentList 컴포넌트)
+  - [x] 14-03-PLAN.md — Grade improvement algorithm (성적 향상률 계산, 통제 변수 적용, TDD)
+  - [x] 14-04-PLAN.md — Counseling & satisfaction tracking (상담 기록, 만족도 조사 폼)
+  - [x] 14-05-PLAN.md — Performance dashboard (성과 대시보드, Recharts 시각화)
+  - [x] 14-06-PLAN.md — Team composition analysis (성향 다양성, 전문성 커버리지 분석)
+  - [ ] 14-07-PLAN.md — Analytics page data fetching (Analytics 페이지 데이터 연결)
+  - [ ] 14-08-PLAN.md — PerformanceDashboard real data integration (성과 대시보드 실제 데이터 연동)
 
 #### Phase 15: Multi-LLM Integration & Smart Routing
 **Goal**: 다중 LLM 지원 및 비용 최적화 라우팅
