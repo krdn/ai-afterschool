@@ -1,0 +1,96 @@
+import { redirect } from 'next/navigation';
+import { verifySession } from '@/lib/dal';
+import { getAllLLMConfigs, getAllFeatureConfigs } from '@/lib/ai/config';
+import { PROVIDER_CONFIGS, type ProviderName } from '@/lib/ai/providers';
+import { ProviderCard } from './provider-card';
+import { FeatureMapping } from './feature-mapping';
+
+export const metadata = {
+  title: 'LLM 설정 | AI AfterSchool',
+  description: 'LLM 제공자 설정 및 기능별 매핑',
+};
+
+interface LLMConfigData {
+  provider: string;
+  isEnabled: boolean;
+  isValidated: boolean;
+  validatedAt: Date | null;
+  apiKeyMasked: string | null;
+  baseUrl: string | null;
+  defaultModel: string | null;
+}
+
+export default async function LLMSettingsPage() {
+  const session = await verifySession();
+  if (!session || session.role !== 'DIRECTOR') {
+    redirect('/dashboard');
+  }
+
+  const llmConfigs = await getAllLLMConfigs();
+  const featureConfigs = await getAllFeatureConfigs();
+
+  const enabledProviders = llmConfigs
+    .filter((c: LLMConfigData) => c.isEnabled && c.isValidated)
+    .map((c: LLMConfigData) => c.provider as ProviderName);
+
+  const configMap = new Map<string, LLMConfigData>(
+    llmConfigs.map((c: LLMConfigData) => [c.provider, c])
+  );
+
+  return (
+    <div className="container py-6 space-y-8">
+      <div>
+        <h1 className="text-2xl font-bold">LLM 설정</h1>
+        <p className="text-muted-foreground">
+          AI 분석에 사용할 LLM 제공자를 설정합니다.
+        </p>
+      </div>
+
+      <section className="space-y-4">
+        <h2 className="text-lg font-semibold">제공자 설정</h2>
+        <div className="grid gap-4 md:grid-cols-2">
+          {(Object.entries(PROVIDER_CONFIGS) as [ProviderName, typeof PROVIDER_CONFIGS[ProviderName]][]).map(
+            ([provider, config]) => {
+              const saved = configMap.get(provider);
+              return (
+                <ProviderCard
+                  key={provider}
+                  provider={provider}
+                  config={config}
+                  savedConfig={saved ? {
+                    isEnabled: saved.isEnabled,
+                    isValidated: saved.isValidated,
+                    validatedAt: saved.validatedAt,
+                    apiKeyMasked: saved.apiKeyMasked,
+                    baseUrl: saved.baseUrl,
+                    defaultModel: saved.defaultModel,
+                  } : undefined}
+                />
+              );
+            }
+          )}
+        </div>
+      </section>
+
+      <section className="space-y-4">
+        <h2 className="text-lg font-semibold">기능별 매핑</h2>
+        {enabledProviders.length === 0 ? (
+          <div className="bg-muted p-4 rounded-lg text-center">
+            <p className="text-muted-foreground">
+              먼저 최소 1개의 제공자를 활성화하고 API 키를 검증해주세요.
+            </p>
+          </div>
+        ) : (
+          <FeatureMapping
+            enabledProviders={enabledProviders}
+            savedConfigs={featureConfigs.map((c: { featureType: string; primaryProvider: string; fallbackOrder: unknown }) => ({
+              featureType: c.featureType,
+              primaryProvider: c.primaryProvider,
+              fallbackOrder: c.fallbackOrder as ProviderName[],
+            }))}
+          />
+        )}
+      </section>
+    </div>
+  );
+}
