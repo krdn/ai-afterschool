@@ -1,6 +1,5 @@
-import { notFound, redirect } from "next/navigation"
+import { redirect } from "next/navigation"
 import { verifySession } from "@/lib/dal"
-import { db } from "@/lib/db"
 import { listAssignmentProposals } from "@/lib/db/assignment"
 import { calculateFairnessMetrics } from "@/lib/analysis/fairness-metrics"
 import { FairnessMetricsPanel } from "@/components/compatibility/fairness-metrics-panel"
