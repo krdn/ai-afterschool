@@ -118,11 +118,20 @@ export function PerformanceDashboard({
               <CardContent>
                 <Select>
                   <SelectTrigger>
-                    <SelectValue placeholder="첫 번째 선생님" />
+                    <SelectValue placeholder="선생님 선택" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="teacher1">선생님 1</SelectItem>
-                    <SelectItem value="teacher2">선생님 2</SelectItem>
+                    {teachers.length > 0 ? (
+                      teachers.map((teacher) => (
+                        <SelectItem key={teacher.id} value={teacher.id}>
+                          {teacher.name}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="" disabled>
+                        데이터를 불러오는 중입니다...
+                      </SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
               </CardContent>
