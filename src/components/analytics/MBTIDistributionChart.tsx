@@ -1,0 +1,89 @@
+"use client"
+
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts"
+import type { MBTIDistribution } from "@/lib/analysis/team-composition-types"
+
+interface MBTIDistributionChartProps {
+  distribution: MBTIDistribution
+}
+
+const MBTI_COLORS: Record<string, string> = {
+  "INTJ": "#3b82f6",
+  "INTP": "#6366f1",
+  "ENTJ": "#8b5cf6",
+  "ENTP": "#a855f7",
+  "INFJ": "#ec4899",
+  "INFP": "#f43f5e",
+  "ENFJ": "#ef4444",
+  "ENFP": "#f97316",
+  "ISTJ": "#f59e0b",
+  "ISFJ": "#eab308",
+  "ESTJ": "#84cc16",
+  "ESFJ": "#22c55e",
+  "ISTP": "#10b981",
+  "ISFP": "#14b8a6",
+  "ESTP": "#06b6d4",
+  "ESFP": "#0ea5e9",
+}
+
+export function MBTIDistributionChart({ distribution }: MBTIDistributionChartProps) {
+  const types = Object.keys(distribution.typeCounts)
+  const totalCount = Object.values(distribution.typeCounts).reduce((a, b) => a + b, 0)
+
+  if (totalCount === 0) {
+    return (
+      <div className="h-[400px] flex items-center justify-center text-gray-500">
+        MBTI 데이터가 없습니다
+      </div>
+    )
+  }
+
+  const data = types.map(type => ({
+    type,
+    count: distribution.typeCounts[type],
+    percentage: Math.round((distribution.typeCounts[type] / totalCount) * 100),
+    color: MBTI_COLORS[type] || "#94a3b8",
+  }))
+
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-lg">
+          <p className="font-medium">{payload[0].payload.type}</p>
+          <p className="text-sm text-gray-600">{payload[0].payload.count}명 ({payload[0].payload.percentage}%)</p>
+        </div>
+      )
+    }
+    return null
+  }
+
+  return (
+    <div className="w-full h-[400px]">
+      <ResponsiveContainer width="100%" height="100%">
+        <PieChart>
+          <Pie
+            data={data}
+            dataKey="count"
+            nameKey="type"
+            cx="50%"
+            cy="50%"
+            outerRadius={120}
+            label={(entry) => `${entry.percent}%`}
+            labelLine={false}
+          >
+            {data.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={entry.color} />
+            ))}
+          </Pie>
+          <Tooltip content={<CustomTooltip />} />
+          <Legend
+            verticalAlign="bottom"
+            height={100}
+            iconType="circle"
+            formatter={(value: number, entry: any) => `${entry.payload.type}: ${value}명`}
+          />
+        </PieChart>
+      </ResponsiveContainer>
+    </div>
+  )
+}
