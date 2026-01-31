@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 ## Current Position
 
 Phase: 15 of 15 (Multi-LLM Integration & Smart Routing)
-Plan: 2 of 8 in current phase
+Plan: 3 of 8 in current phase
 Status: In progress
-Last activity: 2026-01-31 — Completed 15-02-PLAN.md (LLM router & usage tracking)
+Last activity: 2026-01-31 — Completed 15-03-PLAN.md (Admin LLM settings UI)
 
-Progress: [████████████████████████░] 97.9% (93/95 plans complete)
+Progress: [████████████████████████░] 98.9% (94/95 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 93
+- Total plans completed: 94
 - Average duration: ~4.5 min
-- Total execution time: ~7 hours
+- Total execution time: ~7.1 hours
 
 **By Phase:**
 
@@ -33,13 +33,13 @@ Progress: [███████████████████████
 | 12 (v2.0) | 8 | 20 min | ~2.5 min |
 | 13 (v2.0) | 8 | 13 min | ~1.6 min |
 | 14 (v2.0) | 8 | 25 min | ~3.1 min |
-| 15 (v2.0) | 2 | 9 min | ~4.5 min |
+| 15 (v2.0) | 3 | 16 min | ~5.3 min |
 
 **Recent Trend:**
-- Last 5 plans: LLM router & usage tracking (15-02), Vercel AI SDK integration (15-01), PerformanceDashboard 실제 데이터 연동 (14-08), Analytics 페이지 데이터 연결 (14-07), 팀 구성 분석 (14-06)
-- Trend: Phase 15 progressing, router and tracking services complete
+- Last 5 plans: Admin LLM settings UI (15-03), LLM router & usage tracking (15-02), Vercel AI SDK integration (15-01), PerformanceDashboard 실제 데이터 연동 (14-08), Analytics 페이지 데이터 연결 (14-07)
+- Trend: Phase 15 progressing, admin settings UI complete
 
-*Updated after Phase 15-02 completion*
+*Updated after Phase 15-03 completion*
 
 ## Accumulated Context
 
@@ -123,6 +123,8 @@ Recent decisions affecting current work:
 - [15-01] AES-256-GCM for API key encryption: iv:authTag:encrypted format stored in LLMConfig.apiKeyEncrypted
 - [15-02] Vercel AI SDK v6 uses maxOutputTokens (not maxTokens) and inputTokens/outputTokens (not promptTokens/completionTokens)
 - [15-02] Feature-based routing with default fallback order: ollama -> anthropic -> openai -> google
+- [15-03] requireDirector() pattern for DIRECTOR-only Server Actions in LLM settings
+- [15-03] Vision features (face/palm analysis) filtered to only show vision-capable providers in feature mapping
 
 ### Pending Todos
 
@@ -176,8 +178,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-31 16:45 KST
-Stopped at: Completed 15-02-PLAN.md (LLM router & usage tracking)
+Last session: 2026-01-31 16:47 KST
+Stopped at: Completed 15-03-PLAN.md (Admin LLM settings UI)
 Resume file: None
 
 ---
