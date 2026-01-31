@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 ## Current Position
 
 Phase: 15 of 15 (Multi-LLM Integration & Smart Routing)
-Plan: 1 of 8 in current phase
+Plan: 2 of 8 in current phase
 Status: In progress
-Last activity: 2026-01-31 — Completed 15-01-PLAN.md (Vercel AI SDK integration & DB schema)
+Last activity: 2026-01-31 — Completed 15-02-PLAN.md (LLM router & usage tracking)
 
-Progress: [████████████████████████░] 96.8% (92/95 plans complete)
+Progress: [████████████████████████░] 97.9% (93/95 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 92
+- Total plans completed: 93
 - Average duration: ~4.5 min
-- Total execution time: ~6.9 hours
+- Total execution time: ~7 hours
 
 **By Phase:**
 
@@ -33,13 +33,13 @@ Progress: [███████████████████████
 | 12 (v2.0) | 8 | 20 min | ~2.5 min |
 | 13 (v2.0) | 8 | 13 min | ~1.6 min |
 | 14 (v2.0) | 8 | 25 min | ~3.1 min |
-| 15 (v2.0) | 1 | 4 min | ~4 min |
+| 15 (v2.0) | 2 | 9 min | ~4.5 min |
 
 **Recent Trend:**
-- Last 5 plans: Vercel AI SDK integration (15-01), PerformanceDashboard 실제 데이터 연동 (14-08), Analytics 페이지 데이터 연결 (14-07), 팀 구성 분석 (14-06), 다차원 성과 대시보드 (14-05)
-- Trend: Phase 15 starting, multi-LLM foundation laid
+- Last 5 plans: LLM router & usage tracking (15-02), Vercel AI SDK integration (15-01), PerformanceDashboard 실제 데이터 연동 (14-08), Analytics 페이지 데이터 연결 (14-07), 팀 구성 분석 (14-06)
+- Trend: Phase 15 progressing, router and tracking services complete
 
-*Updated after Phase 15-01 completion*
+*Updated after Phase 15-02 completion*
 
 ## Accumulated Context
 
@@ -121,6 +121,8 @@ Recent decisions affecting current work:
 - [15-01] Vercel AI SDK unified interface: ai, @ai-sdk/anthropic, @ai-sdk/openai, @ai-sdk/google, ollama-ai-provider-v2 for multi-provider support
 - [15-01] ollama-ai-provider-v2 over v1: Zod v4 compatibility required v2 package
 - [15-01] AES-256-GCM for API key encryption: iv:authTag:encrypted format stored in LLMConfig.apiKeyEncrypted
+- [15-02] Vercel AI SDK v6 uses maxOutputTokens (not maxTokens) and inputTokens/outputTokens (not promptTokens/completionTokens)
+- [15-02] Feature-based routing with default fallback order: ollama -> anthropic -> openai -> google
 
 ### Pending Todos
 
@@ -174,8 +176,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-31 16:35 KST
-Stopped at: Completed 15-01-PLAN.md (Vercel AI SDK integration & DB schema)
+Last session: 2026-01-31 16:45 KST
+Stopped at: Completed 15-02-PLAN.md (LLM router & usage tracking)
 Resume file: None
 
 ---
