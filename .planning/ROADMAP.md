@@ -261,7 +261,8 @@ Plans:
   3. LLM 장애 시 자동으로 다른 제공자로 failover가 동작한다
   4. 비용 기반 스마트 라우팅(Ollama 우선 → Claude 폴백)으로 비용이 절감된다
   5. 토큰 사용량과 비용 추적 대시보드가 제공된다
-**Plans**: TBD
+**Plans**: 8 plans in 4 waves
+**Status**: Ready for execution
 
 **Key concerns addressed:**
 - Cost explosion (token tracking, cost alerts, smart routing)
@@ -269,14 +270,14 @@ Plans:
 - Rate limiting (queue system)
 
 Plans:
-- [ ] 15-01: Vercel AI SDK integration (통일된 LLM 인터페이스)
-- [ ] 15-02: LLM provider router (Claude, Gemini, OpenAI, Ollama)
-- [ ] 15-03: Admin settings UI (LLM 선택, API 키 관리)
-- [ ] 15-04: Automatic failover implementation (장애 시 폴백)
-- [ ] 15-05: Smart routing (비용 기반 우선순위)
-- [ ] 15-06: Token usage tracking (사용량 모니터링)
-- [ ] 15-07: Cost alert dashboard (비용 추적 및 알림)
-- [ ] 15-08: Ollama Docker networking (192.168.0.5:11434 연결)
+- [ ] 15-01-PLAN.md — Vercel AI SDK integration & DB schema (패키지 설치, 타입 정의, Prisma 모델)
+- [ ] 15-02-PLAN.md — LLM provider router (generateWithProvider, 사용량 추적)
+- [ ] 15-03-PLAN.md — Admin settings UI (제공자 카드, 기능별 매핑)
+- [ ] 15-04-PLAN.md — Automatic failover (FailoverError, 로깅, 기존 코드 마이그레이션)
+- [ ] 15-05-PLAN.md — Smart routing (비용 기반 정렬, 예산 설정 UI)
+- [ ] 15-06-PLAN.md — Token usage tracking (월별 집계, Cron 엔드포인트)
+- [ ] 15-07-PLAN.md — Cost dashboard (Recharts 차트, 인앱 알림)
+- [ ] 15-08-PLAN.md — Ollama Docker networking (연결 유틸리티, 상태 확인)
 
 ## Progress
 
