@@ -4,6 +4,12 @@ import { revalidatePath } from "next/cache"
 import { db } from "@/lib/db"
 import { verifySession } from "@/lib/dal"
 import { calculateCompatibilityScore } from "@/lib/analysis/compatibility-scoring"
+import { calculateFairnessMetrics } from "@/lib/analysis/fairness-metrics"
+import {
+  generateAutoAssignment,
+  type Assignment,
+  type AutoAssignmentOptions,
+} from "@/lib/optimization/auto-assignment"
 import type { MbtiPercentages } from "@/lib/analysis/mbti-scoring"
 import type { SajuResult } from "@/lib/analysis/saju"
 import type { NameNumerologyResult } from "@/lib/analysis/name-numerology"
@@ -317,5 +323,107 @@ export async function getTeacherRecommendations(studentId: string) {
     studentId: student.id,
     studentName: student.name,
     recommendations,
+  }
+}
+
+/**
+ * AI 자동 배정 제안 생성
+ *
+ * RBAC: DIRECTOR, TEAM_LEADER만 사용 가능
+ *
+ * @param studentIds - 배정할 학생 ID 목록
+ * @param options - 자동 배정 옵션
+ * @returns 배정 제안 (assignments, fairnessMetrics, summary)
+ */
+export async function generateAutoAssignmentSuggestions(
+  studentIds: string[],
+  options: AutoAssignmentOptions = {}
+) {
+  const session = await verifySession()
+
+  // RBAC: DIRECTOR, TEAM_LEADER만 사용 가능
+  if (session.role !== "DIRECTOR" && session.role !== "TEAM_LEADER") {
+    throw new Error("자동 배정 제안 생성 권한이 없습니다.")
+  }
+
+  // 자동 배정 생성
+  const assignments = await generateAutoAssignment(studentIds, options)
+
+  // fairness metrics 계산 (score.overall을 number로 변환)
+  const fairnessAssignments = assignments.map((a) => ({
+    studentId: a.studentId,
+    teacherId: a.teacherId,
+    score: a.score.overall,
+  }))
+  const fairnessMetrics = await calculateFairnessMetrics(fairnessAssignments)
+
+  // summary 계산
+  const summary = {
+    totalStudents: studentIds.length,
+    assignedStudents: assignments.length,
+    averageScore:
+      assignments.length > 0
+        ? assignments.reduce((sum, a) => sum + a.score.overall, 0) /
+          assignments.length
+        : 0,
+    minScore:
+      assignments.length > 0
+        ? Math.min(...assignments.map((a) => a.score.overall))
+        : 0,
+    maxScore:
+      assignments.length > 0
+        ? Math.max(...assignments.map((a) => a.score.overall))
+        : 0,
+  }
+
+  return {
+    assignments,
+    fairnessMetrics,
+    summary,
+  }
+}
+
+/**
+ * 자동 배정 제안 적용
+ *
+ * RBAC: DIRECTOR, TEAM_LEADER만 적용 가능
+ *
+ * @param assignments - 배정 목록
+ * @returns 적용 결과 (success, count)
+ */
+export async function applyAutoAssignment(assignments: Assignment[]) {
+  const session = await verifySession()
+
+  // RBAC: DIRECTOR, TEAM_LEADER만 적용 가능
+  if (session.role !== "DIRECTOR" && session.role !== "TEAM_LEADER") {
+    throw new Error("자동 배정 적용 권한이 없습니다.")
+  }
+
+  if (assignments.length === 0) {
+    throw new Error("적용할 배정이 없습니다.")
+  }
+
+  // Promise.all로 일괄 업데이트
+  try {
+    await Promise.all(
+      assignments.map(({ studentId, teacherId }) =>
+        db.student.update({
+          where: { id: studentId },
+          data: { teacherId },
+        })
+      )
+    )
+  } catch (error) {
+    console.error("Failed to apply auto assignments:", error)
+    throw new Error("자동 배정 적용 중 오류가 발생했습니다.")
+  }
+
+  // 캐시 무효화
+  revalidatePath("/matching")
+  revalidatePath("/students")
+
+  return {
+    success: true,
+    count: assignments.length,
   }
 }
