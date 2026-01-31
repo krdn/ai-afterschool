@@ -235,20 +235,19 @@ Plans:
   2. 다차원 성과 분석(성적 향상률, 상담 횟수, 학생 만족도)이 가능하다
   3. 팀 구성 분석(성향 다양성, 전문성 커버리지) 결과가 시각화된다
   4. 통제 변수(학생 초기 성적, 출석률)가 고려된 공정한 평가가 제공된다
-**Plans**: TBD
+**Plans**: 6 plans in 3 waves
 
 **Key concerns addressed:**
 - Single-metric bias (multi-dimensional evaluation)
 - Unfair teacher comparison (control variables)
 
 Plans:
-- [ ] 14-01: Teacher student list view (담당 학생 목록)
-- [ ] 14-02: Grade improvement tracking (성적 향상률 계산)
-- [ ] 14-03: Counseling history tracking (상담 횟수, 이력)
-- [ ] 14-04: Student satisfaction metrics (학생 만족도 조사)
-- [ ] 14-05: Multi-dimensional performance dashboard (Recharts 시각화)
-- [ ] 14-06: Team composition analysis (성향 다양성, 전문성 커버리지)
-- [ ] 14-07: Control variable normalization (공정한 비교를 위한 정규화)
+- [ ] 14-01-PLAN.md — Performance database schema (GradeHistory, CounselingSession, StudentSatisfaction 모델)
+- [ ] 14-02-PLAN.md — Teacher student list view (담당 학생 목록 페이지, TeacherStudentList 컴포넌트)
+- [ ] 14-03-PLAN.md — Grade improvement algorithm (성적 향상률 계산, 통제 변수 적용, TDD)
+- [ ] 14-04-PLAN.md — Counseling & satisfaction tracking (상담 기록, 만족도 조사 폼)
+- [ ] 14-05-PLAN.md — Performance dashboard (성과 대시보드, Recharts 시각화)
+- [ ] 14-06-PLAN.md — Team composition analysis (성향 다양성, 전문성 커버리지 분석)
 
 #### Phase 15: Multi-LLM Integration & Smart Routing
 **Goal**: 다중 LLM 지원 및 비용 최적화 라우팅
