@@ -2,8 +2,8 @@
 
 import { verifySession } from "@/lib/dal"
 import { getRBACPrisma } from "@/lib/db/rbac"
+import { db } from "@/lib/db"
 import { calculateImprovementRate, calculateGradeTrend } from "@/lib/analysis/grade-analytics"
-import type { GradeHistory } from "@prisma/client"
 
 /**
  * 학생 성적 향상 조회 Server Action
@@ -186,5 +186,157 @@ export async function getGradeTrendDataAction(
   } catch (error) {
     console.error("Error calculating grade trend:", error)
     return { error: "성적 추이 계산에 실패했습니다." }
+  }
+}
+
+export interface CounselingStats {
+  totalSessions: number
+  averageDuration: number
+  typeDistribution: Record<string, number>
+  satisfactionAverage: number
+}
+
+export async function getCounselingStats(
+  teamId?: string
+): Promise<{ data: CounselingStats } | { error: string }> {
+  const session = await verifySession()
+  if (!session) {
+    return { error: "인증이 필요합니다." }
+  }
+
+  const rbacDb = getRBACPrisma(session)
+
+  // RBAC: DIRECTOR can query all teams, others only their own team
+  const whereClause: any = {}
+  if (session.role === "DIRECTOR" && teamId) {
+    whereClause.teacher = { teamId }
+  } else if (session.role !== "DIRECTOR" && session.teamId) {
+    whereClause.teacher = { teamId: session.teamId }
+  }
+
+  try {
+    const counselingSessions = await rbacDb.counselingSession.findMany({
+      where: whereClause,
+      select: {
+        duration: true,
+        type: true,
+        satisfactionScore: true,
+      },
+    })
+
+    if (counselingSessions.length === 0) {
+      return {
+        data: {
+          totalSessions: 0,
+          averageDuration: 0,
+          typeDistribution: {},
+          satisfactionAverage: 0,
+        },
+      }
+    }
+
+    const totalSessions = counselingSessions.length
+    const averageDuration =
+      counselingSessions.reduce((sum, s) => sum + s.duration, 0) / totalSessions
+
+    const typeDistribution: Record<string, number> = {}
+    counselingSessions.forEach((session) => {
+      const type = session.type as string
+      typeDistribution[type] = (typeDistribution[type] || 0) + 1
+    })
+
+    const satisfactionScores = counselingSessions
+      .map((s) => s.satisfactionScore)
+      .filter((score): score is number => score !== null)
+    const satisfactionAverage =
+      satisfactionScores.length > 0
+        ? satisfactionScores.reduce((sum, score) => sum + score, 0) /
+          satisfactionScores.length
+        : 0
+
+    return {
+      data: {
+        totalSessions,
+        averageDuration: Math.round(averageDuration),
+        typeDistribution,
+        satisfactionAverage: Math.round(satisfactionAverage * 10) / 10,
+      },
+    }
+  } catch (error) {
+    console.error("Error fetching counseling stats:", error)
+    return { error: "상담 통계 조회에 실패했습니다." }
+  }
+}
+
+export async function compareTeachersByGradeImprovement(
+  teamId?: string
+): Promise<{ data: any[] } | { error: string }> {
+  const session = await verifySession()
+  if (!session) {
+    return { error: "인증이 필요합니다." }
+  }
+
+  const rbacDb = getRBACPrisma(session)
+
+  // RBAC: DIRECTOR can query all teams, others only their own team
+  const whereClause: any = { role: { in: ["TEACHER", "MANAGER", "TEAM_LEADER"] } }
+  if (session.role === "DIRECTOR" && teamId) {
+    whereClause.teamId = teamId
+  } else if (session.role !== "DIRECTOR" && session.teamId) {
+    whereClause.teamId = session.teamId
+  }
+
+  try {
+    const teachers = await rbacDb.teacher.findMany({
+      where: whereClause,
+      select: {
+        id: true,
+        name: true,
+      },
+    })
+
+    const teacherStats = await Promise.all(
+      teachers.map(async (teacher) => {
+        const students = await db.student.findMany({
+          where: { teacherId: teacher.id },
+        })
+
+        const improvements: number[] = []
+
+        for (const student of students) {
+          const studentGrades = await db.gradeHistory.findMany({
+            where: { studentId: student.id },
+            orderBy: { testDate: "desc" },
+            select: {
+              score: true,
+              testDate: true,
+              normalizedScore: true,
+            },
+          })
+
+          const gradeHistory = studentGrades
+          if (gradeHistory.length >= 2) {
+            const sorted = [...gradeHistory].sort((a, b) =>
+              a.testDate.getTime() - b.testDate.getTime()
+            )
+            const baseline = sorted[0].normalizedScore
+            const current = sorted[sorted.length - 1].normalizedScore
+            const improvement = ((current - baseline) / baseline) * 100
+            improvements.push(improvement)
+          }
+        }
+
+        return {
+          teacherId: teacher.id,
+          teacherName: teacher.name,
+          studentImprovements: improvements,
+        }
+      })
+    )
+
+    return { data: teacherStats }
+  } catch (error) {
+    console.error("Error comparing teachers:", error)
+    return { error: "선생님 비교에 실패했습니다." }
   }
 }
