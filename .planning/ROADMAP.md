@@ -248,8 +248,8 @@ Plans:
   - [x] 14-04-PLAN.md — Counseling & satisfaction tracking (상담 기록, 만족도 조사 폼)
   - [x] 14-05-PLAN.md — Performance dashboard (성과 대시보드, Recharts 시각화)
   - [x] 14-06-PLAN.md — Team composition analysis (성향 다양성, 전문성 커버리지 분석)
-  - [ ] 14-07-PLAN.md — Analytics page data fetching (Analytics 페이지 데이터 연결)
-  - [ ] 14-08-PLAN.md — PerformanceDashboard real data integration (성과 대시보드 실제 데이터 연동)
+  - [x] 14-07-PLAN.md — Analytics page data fetching (Analytics 페이지 데이터 연결)
+  - [x] 14-08-PLAN.md — PerformanceDashboard real data integration (성과 대시보드 실제 데이터 연동)
 
 #### Phase 15: Multi-LLM Integration & Smart Routing
 **Goal**: 다중 LLM 지원 및 비용 최적화 라우팅
@@ -297,8 +297,8 @@ Phases execute in numeric order: 11 → 12 → 13 → 14 → 15
 | 10. Technical Debt Resolution & Monitoring | v1.1 | 7/7 | Complete | 2026-01-30 |
 | 11. Teacher Infrastructure & Access Control | v2.0 | 7/7 | Complete | 2026-01-30 |
 | 12. Teacher Analysis & Team Data Access | v2.0 | 8/8 | Complete | 2026-01-30 |
- | 13. Compatibility Analysis & Matching | v2.0 | 8/8 | Complete | 2026-01-31 |
-| 14. Performance Analytics & Team Insights | v2.0 | 7/8 | Complete | 2026-01-31 |
+| 13. Compatibility Analysis & Matching | v2.0 | 8/8 | Complete | 2026-01-31 |
+| 14. Performance Analytics & Team Insights | v2.0 | 8/8 | Complete | 2026-01-31 |
 | 15. Multi-LLM Integration & Smart Routing | v2.0 | 0/8 | Not started | - |
 
 **Overall Progress:** 90/93 plans complete (96.77%)
