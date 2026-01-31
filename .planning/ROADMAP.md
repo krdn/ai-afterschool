@@ -242,8 +242,8 @@ Plans:
 - Unfair teacher comparison (control variables)
 
 Plans:
-- [ ] 14-01-PLAN.md — Performance database schema (GradeHistory, CounselingSession, StudentSatisfaction 모델)
-- [ ] 14-02-PLAN.md — Teacher student list view (담당 학생 목록 페이지, TeacherStudentList 컴포넌트)
+- [x] 14-01-PLAN.md — Performance database schema (GradeHistory, CounselingSession, StudentSatisfaction 모델)
+- [x] 14-02-PLAN.md — Teacher student list view (담당 학생 목록 페이지, TeacherStudentList 컴포넌트)
 - [ ] 14-03-PLAN.md — Grade improvement algorithm (성적 향상률 계산, 통제 변수 적용, TDD)
 - [ ] 14-04-PLAN.md — Counseling & satisfaction tracking (상담 기록, 만족도 조사 폼)
 - [ ] 14-05-PLAN.md — Performance dashboard (성과 대시보드, Recharts 시각화)
@@ -299,7 +299,7 @@ Phases execute in numeric order: 11 → 12 → 13 → 14 → 15
 | 14. Performance Analytics & Team Insights | v2.0 | 0/7 | Not started | - |
 | 15. Multi-LLM Integration & Smart Routing | v2.0 | 0/8 | Not started | - |
 
-**Overall Progress:** 81/92 plans complete (87.96%)
+**Overall Progress:** 83/93 plans complete (89.25%)
 
 ---
-*Last updated: 2026-01-31 (Phase 13 complete)*
+*Last updated: 2026-01-31 (Phase 14-02 complete)*
