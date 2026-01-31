@@ -37,6 +37,9 @@ model Teacher {
   teacherFaceAnalysis   TeacherFaceAnalysis?
   compatibilityResults  CompatibilityResult[]
   assignmentProposalsCreated AssignmentProposal[] @relation("ProposedBy")
+  gradeHistoryTaught    GradeHistory[]
+  counselingSessions    CounselingSession[]
+  studentSatisfactions  StudentSatisfaction[]
 }
 
 model Team {
@@ -71,6 +74,11 @@ model Student {
   nameHanja                      Json?
   birthTimeHour                  Int?
   birthTimeMinute                Int?
+  
+  // 통제 변수 (성과 분석용)
+  initialGradeLevel              String?            // HIGH, MID, LOW
+  attendanceRate                 Float?             // 0-100
+  priorAcademicPerformance       Json?              // 이전 학기 성적 등
   mbtiAnalysis                   MbtiAnalysis?
   mbtiSurveyDraft                MbtiSurveyDraft?
   nameAnalysis                   NameAnalysis?
@@ -81,6 +89,9 @@ model Student {
   teacher                        Teacher          @relation(fields: [teacherId], references: [id])
   images                         StudentImage[]
   compatibilityResults           CompatibilityResult[]
+  gradeHistory                   GradeHistory[]
+  counselingSessions             CounselingSession[]
+  studentSatisfactions           StudentSatisfaction[]
 
   // 기존 단일 인덱스 (유지)
   @@index([teacherId])
@@ -232,6 +243,20 @@ enum BloodType {
   B
   AB
   O
+}
+
+enum GradeType {
+  MIDTERM
+  FINAL
+  QUIZ
+  ASSIGNMENT
+}
+
+enum CounselingType {
+  ACADEMIC
+  CAREER
+  PSYCHOLOGICAL
+  BEHAVIORAL
 }
 
 enum StudentImageType {
@@ -388,6 +413,74 @@ model AssignmentProposal {
   @@index([teamId])
   @@index([proposedBy])
   @@index([status])
+}
+
+// 성과 분석 모델
+model GradeHistory {
+  id                String     @id @default(cuid())
+  studentId         String
+  teacherId         String?    // FK to Teacher (nullable for self-study cases)
+  subject           String     // 과목명
+  gradeType         GradeType  // MIDTERM, FINAL, QUIZ, ASSIGNMENT
+  score             Float      // 실제 점수
+  maxScore          Float      @default(100) // 만점
+  normalizedScore   Float      // 정규화 점수 (0-100)
+  testDate          DateTime   // 시험일
+  academicYear      Int        // 학년도 (예: 2026)
+  semester          Int        // 학기 (1 또는 2)
+  notes             String?    // 비고
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  
+  student           Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  teacher           Teacher?   @relation(fields: [teacherId], references: [id], onDelete: SetNull)
+  
+  @@index([studentId, subject, testDate])
+  @@index([studentId, academicYear, semester])
+  @@index([teacherId])
+}
+
+model CounselingSession {
+  id                String          @id @default(cuid())
+  studentId         String
+  teacherId         String
+  sessionDate       DateTime        // 상담일
+  duration          Int             // 상담 시간 (분)
+  type              CounselingType  // ACADEMIC, CAREER, PSYCHOLOGICAL, BEHAVIORAL
+  summary           String          // 상담 내용 요약
+  followUpRequired  Boolean         @default(false) // 후속 조치 필요 여부
+  followUpDate      DateTime?       // 후속 조치 예정일
+  satisfactionScore Int?            // 만족도 점수 (1-5)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  
+  student           Student         @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  teacher           Teacher         @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  
+  @@index([studentId, sessionDate])
+  @@index([teacherId, sessionDate])
+  @@index([studentId, type])
+}
+
+model StudentSatisfaction {
+  id                    String    @id @default(cuid())
+  studentId             String
+  teacherId             String
+  surveyDate            DateTime  // 조사일
+  overallSatisfaction   Int       // 전체 만족도 (1-10)
+  teachingQuality       Int       // 수업 품질 (1-10)
+  communication         Int       // 의사소통 (1-10)
+  supportLevel          Int       // 지원 수준 (1-10)
+  feedback              String?   // 자유 의견
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  
+  student               Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  teacher               Teacher   @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  
+  @@unique([studentId, teacherId, surveyDate])
+  @@index([studentId, surveyDate])
+  @@index([teacherId, surveyDate])
 }
 
 // RLS (Row-Level Security) Policies
