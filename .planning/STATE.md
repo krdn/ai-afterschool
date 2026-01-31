@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 ## Current Position
 
 Phase: 13 of 15 (Compatibility Analysis & Matching)
-Plan: 5 of 8 in current phase
+Plan: 6 of 8 in current phase
 Status: In Progress 🔄
-Last activity: 2026-01-31 — Completed 13-05 (수동 배정 UI 컴포넌트 구현)
+Last activity: 2026-01-31 — Completed 13-06 (공정성 메트릭 구현 및 대시보드 UI)
 
-Progress: [██████████████████████░░] 85.71%
+Progress: [███████████████████████░] 86.67%
 
 ## Performance Metrics
 
@@ -34,10 +34,10 @@ Progress: [██████████████████████░
 | 13 (v2.0) | 4 | 9 min | ~2.3 min |
 
 **Recent Trend:**
-- Last 5 plans: 학생별 선생님 추천 (13-04), AI 자동 배정 알고리즘 (13-03), Server Actions & API (13-02), Compatibility Algorithm (13-01), Teacher Input Fields
+- Last 5 plans: 공정성 메트릭 (13-06), 학생별 선생님 추천 (13-04), AI 자동 배정 알고리즘 (13-03), Server Actions & API (13-02), Compatibility Algorithm (13-01)
 - Trend: Accelerating (v2.0 execution progressing efficiently)
 
-*Updated after Phase 13-04 completion*
+*Updated after Phase 13-06 completion*
 
 ## Accumulated Context
 
@@ -89,6 +89,10 @@ Recent decisions affecting current work:
 - [13-04] getTeacherRecommendations Server Action: 학생별 팀 내 모든 Teacher의 궁합 점수 계산, score.overall 내림차순 정렬
 - [13-04] Teacher role filtering: TEACHER, MANAGER, TEAM_LEADER만 추천 목록에 포함 (DIRECTOR 제외)
 - [13-04] Current teacher highlighting: 현재 배정된 선생님을 추천 목록에서 시각적으로 구분
+- [13-06] Disparity Index: 학교별 평균 점수 차이를 (max-min)/100으로 정규화하여 집단 간 편향 측정
+- [13-06] ABROCA: 히스토그램(10 bins) 기반 L1 distance로 점수 분포 편향 측정
+- [13-06] Distribution Balance: 1 - (stdDev/mean) 공식으로 선생님별 배정 균형 정도 표현
+- [13-06] Fairness thresholds: Disparity Index > 0.2, ABROCA > 0.3, Distribution Balance < 0.7 시 경고
 - [v2.0] 팀 단위 데이터 분리: 보안 및 프라이버시 보장을 위해 Prisma middleware + PostgreSQL RLS 적용
 - [v2.0] 선생님 성향 분석: 학생과 동일한 방식으로 궁합 계산 (기존 분석 모듈 재사용)
 - [v2.0] LLM 전체 공통 설정: 관리 용이성 및 비용 효율성을 위해 Vercel AI SDK로 통합
@@ -136,8 +140,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-31 (Phase 13-05 execution complete)
-Stopped at: Completed 13-05 (수동 배정 UI 컴포넌트 구현), 3 tasks done
+Last session: 2026-01-31 (Phase 13-06 execution complete)
+Stopped at: Completed 13-06 (공정성 메트릭 구현 및 대시보드 UI), 3 tasks done
 Resume file: None
 
 ---
