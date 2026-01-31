@@ -6,19 +6,28 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { PerformanceMetricsGrid } from "./PerformanceMetricsGrid"
-import { GradeTrendChart } from "./GradeTrendChart"
+import { GradeTrendChart, TrendDataPoint } from "./GradeTrendChart"
 import { MultiSubjectChart } from "./MultiSubjectChart"
 import { ControlVariablePanel } from "./ControlVariablePanel"
 import { TeacherWithMetrics } from "./TeacherPerformanceCard"
 import { BarChart3, Users, TrendingUp, FileDown } from "lucide-react"
+import { CounselingStats } from "@/lib/actions/analytics"
 
 interface PerformanceDashboardProps {
   teamId?: string
   dateRange?: "1M" | "3M" | "6M" | "1Y"
+  teachers?: TeacherWithMetrics[]
+  gradeTrendData?: TrendDataPoint[]
+  comparisonData?: any[]
+  counselingStats?: CounselingStats | null
 }
 
 export function PerformanceDashboard({
   dateRange = "3M",
+  teachers = [],
+  gradeTrendData = [],
+  comparisonData = [],
+  counselingStats = null,
 }: PerformanceDashboardProps) {
   const [activeTab, setActiveTab] = useState("individual")
   const [selectedDateRange, setSelectedDateRange] = useState(dateRange)
@@ -73,7 +82,7 @@ export function PerformanceDashboard({
         </TabsList>
 
         <TabsContent value="individual" className="space-y-4">
-          <PerformanceMetricsGrid teachers={[]} />
+          <PerformanceMetricsGrid teachers={teachers} />
         </TabsContent>
 
         <TabsContent value="trend" className="space-y-4">
@@ -97,7 +106,7 @@ export function PerformanceDashboard({
               </CardContent>
             </Card>
           </div>
-          <GradeTrendChart data={[]} title="팀 성적 추이" />
+          <GradeTrendChart data={gradeTrendData} title="팀 성적 추이" />
         </TabsContent>
 
         <TabsContent value="comparison" className="space-y-4">
@@ -136,7 +145,7 @@ export function PerformanceDashboard({
               </CardContent>
             </Card>
           </div>
-          <MultiSubjectChart data={[]} title="선생님 비교" comparison={true} />
+          <MultiSubjectChart data={comparisonData} title="선생님 비교" comparison={true} />
         </TabsContent>
 
         <TabsContent value="summary" className="space-y-4">
@@ -149,7 +158,9 @@ export function PerformanceDashboard({
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">0</div>
+                <div className="text-3xl font-bold">
+                  {teachers.reduce((sum, t) => sum + (t.totalStudents || 0), 0)}
+                </div>
               </CardContent>
             </Card>
             <Card>
@@ -160,7 +171,11 @@ export function PerformanceDashboard({
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-green-600">0%</div>
+                <div className="text-3xl font-bold text-green-600">
+                  {teachers.length > 0
+                    ? Math.round(teachers.reduce((sum, t) => sum + (t.averageGradeChange || 0), 0) / teachers.length) + '%'
+                    : '0%'}
+                </div>
               </CardContent>
             </Card>
             <Card>
@@ -171,7 +186,9 @@ export function PerformanceDashboard({
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">0</div>
+                <div className="text-3xl font-bold">
+                  {counselingStats?.totalSessions || 0}
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -180,9 +197,39 @@ export function PerformanceDashboard({
               <CardTitle>팀 통계 상세</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-gray-500 py-8 text-center">
-                데이터를 불러오는 중입니다...
-              </div>
+              {counselingStats ? (
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">총 상담 횟수</span>
+                    <span className="font-semibold">{counselingStats.totalSessions}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">평균 만족도</span>
+                    <span className="font-semibold">{counselingStats.satisfactionAverage}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">평균 상담 시간</span>
+                    <span className="font-semibold">{counselingStats.averageDuration}분</span>
+                  </div>
+                  {Object.keys(counselingStats.typeDistribution || {}).length > 0 && (
+                    <div>
+                      <div className="text-sm font-medium text-gray-700 mb-2">상담 유형별 현황</div>
+                      <div className="space-y-1">
+                        {Object.entries(counselingStats.typeDistribution).map(([type, count]) => (
+                          <div key={type} className="flex justify-between text-sm">
+                            <span className="text-gray-600">{type}</span>
+                            <span className="font-medium">{count}회</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-gray-500 py-8 text-center">
+                  데이터를 불러오는 중입니다...
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
