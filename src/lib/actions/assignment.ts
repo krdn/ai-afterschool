@@ -138,6 +138,65 @@ export async function reassignStudent(
 }
 
 /**
+ * 다수 학생 일괄 배정
+ *
+ * RBAC: DIRECTOR, TEAM_LEADER만 배정 가능
+ *
+ * @param studentIds - 학생 ID 배열
+ * @param teacherId - 배정할 선생님 ID
+ * @returns 배정 결과 (성공 여부, 배정된 학생 수)
+ */
+export async function assignStudentBatch(
+  studentIds: string[],
+  teacherId: string
+) {
+  const session = await verifySession()
+
+  // RBAC: DIRECTOR, TEAM_LEADER만 배정 가능
+  if (session.role !== "DIRECTOR" && session.role !== "TEAM_LEADER") {
+    throw new Error("배정 권한이 없습니다.")
+  }
+
+  if (studentIds.length === 0) {
+    throw new Error("배정할 학생을 선택해주세요.")
+  }
+
+  // Teacher 조회 (본인 팀 데이터만)
+  const teacher = await db.teacher.findUnique({
+    where: { id: teacherId },
+  })
+
+  if (!teacher) {
+    throw new Error("선생님을 찾을 수 없습니다.")
+  }
+
+  // Promise.all로 일괄 업데이트
+  try {
+    await Promise.all(
+      studentIds.map((studentId) =>
+        db.student.update({
+          where: { id: studentId },
+          data: { teacherId },
+        })
+      )
+    )
+  } catch (error) {
+    console.error("Failed to assign students batch:", error)
+    throw new Error("학생 일괄 배정 중 오류가 발생했습니다.")
+  }
+
+  // 캐시 무효화
+  revalidatePath("/matching")
+  revalidatePath("/students")
+  revalidatePath(`/teachers/${teacherId}`)
+
+  return {
+    success: true,
+    count: studentIds.length,
+  }
+}
+
+/**
  * 학생별 선생님 추천 목록 조회
  *
  * 학생별로 팀 내 모든 선생님의 궁합 점수를 계산하고 순위별로 반환합니다.
