@@ -5,39 +5,40 @@
 See: .planning/PROJECT.md (updated 2026-01-30)
 
 **Core value:** 학생 정보 통합 관리를 기반으로 AI 성향 분석 및 맞춤형 학습/진로 제안 제공
-**Current focus:** Phase 13 - Compatibility Analysis & Matching
+**Current focus:** Phase 14 - Performance Analytics & Team Insights
 
 ## Current Position
 
-Phase: 13 of 15 (Compatibility Analysis & Matching)
-Plan: 8 of 8 in current phase
-Status: Phase complete ✅
-Last activity: 2026-01-31 — Completed 13-07 (자동 배정 제안 페이지 구현)
+Phase: 14 of 15 (Performance Analytics & Team Insights)
+Plan: 1 of 6 in current phase
+Status: In progress
+Last activity: 2026-01-31 — Completed 14-01 (성과 분석 데이터베이스 스키마 설계 및 구현)
 
-Progress: [████████████████████████] 100%
+Progress: [██████████████████████░░] 88%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 76
+- Total plans completed: 83
 - Average duration: ~5 min
-- Total execution time: ~6 hours
+- Total execution time: ~7 hours
 
 **By Phase:**
 
-| Phase | Plans | Total | Avg/Plan |
-|-------|-------|-------|----------|
-| 1-7 (v1.0) | 36 | 254 min | ~7 min |
-| 8-10 (v1.1) | 22 | ~102 min | ~5 min |
-| 11 (v2.0) | 7 | 26 min | ~4 min |
-| 12 (v2.0) | 8 | 20 min | ~2.5 min |
-| 13 (v2.0) | 4 | 9 min | ~2.3 min |
+ | Phase | Plans | Total | Avg/Plan |
+ |-------|-------|-------|----------|
+ | 1-7 (v1.0) | 36 | 254 min | ~7 min |
+ | 8-10 (v1.1) | 22 | ~102 min | ~5 min |
+ | 11 (v2.0) | 7 | 26 min | ~4 min |
+ | 12 (v2.0) | 8 | 20 min | ~2.5 min |
+ | 13 (v2.0) | 8 | 13 min | ~1.6 min |
+ | 14 (v2.0) | 1 | 2 min | ~2 min |
 
 **Recent Trend:**
-- Last 5 plans: 공정성 메트릭 (13-06), 학생별 선생님 추천 (13-04), AI 자동 배정 알고리즘 (13-03), Server Actions & API (13-02), Compatibility Algorithm (13-01)
+- Last 5 plans: 성과 분석 DB 스키마 (14-01), 자동 배정 제안 페이지 (13-08), 공정성 메트릭 (13-06), 학생별 선생님 추천 (13-04), AI 자동 배정 알고리즘 (13-03)
 - Trend: Accelerating (v2.0 execution progressing efficiently)
 
-*Updated after Phase 13-06 completion*
+*Updated after Phase 14-01 completion*
 
 ## Accumulated Context
 
@@ -95,6 +96,11 @@ Recent decisions affecting current work:
 - [13-06] Fairness thresholds: Disparity Index > 0.2, ABROCA > 0.3, Distribution Balance < 0.7 시 경고
 - [13-08] Compatibility UI components: Used styled spans instead of Badge (not available), custom progress bars instead of shadcn/ui Progress
 - [13-08] Recharts radar chart: 5-sided visualization with ResponsiveContainer for mobile compatibility
+- [14-01] teacherId nullable in GradeHistory - Supports unassigned/self-study cases, maintains flexibility
+- [14-01] ON DELETE SET NULL for GradeHistory.teacherId - Preserves grade records when teacher deleted (historical data integrity)
+- [14-01] ON DELETE CASCADE for counseling/satisfaction models - Automatic cleanup when student/teacher deleted
+- [14-01] NormalizedScore calculated at write time - Stores 0-100 range for consistent analysis without recalculation
+- [14-01] Composite indexes on [studentId, subject, testDate] - Enables efficient querying of student grade history with time-series tracking
 - [v2.0] 팀 단위 데이터 분리: 보안 및 프라이버시 보장을 위해 Prisma middleware + PostgreSQL RLS 적용
 - [v2.0] 선생님 성향 분석: 학생과 동일한 방식으로 궁합 계산 (기존 분석 모듈 재사용)
 - [v2.0] LLM 전체 공통 설정: 관리 용이성 및 비용 효율성을 위해 Vercel AI SDK로 통합
@@ -145,8 +151,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-31 (Phase 13-07 execution complete)
-Stopped at: Completed 13-07 (자동 배정 제안 페이지 구현), 3 tasks done
+Last session: 2026-01-31 (Phase 14-01 execution complete)
+Stopped at: Completed 14-01 (성과 분석 데이터베이스 스키마 설계 및 구현), 2 tasks done
 Resume file: None
 
 ---
