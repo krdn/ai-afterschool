@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 ## Current Position
 
 Phase: 14 of 15 (Performance Analytics & Team Insights)
-Plan: 4 of 6 in current phase
+Plan: 5 of 6 in current phase
 Status: In progress
-Last activity: 2026-01-31 — Completed 14-04 (상담 이력 및 학생 만족도 추적 기능 구현)
+Last activity: 2026-01-31 — Completed 14-06 (팀 구성 분석 및 인사이트 기능 구현)
 
-Progress: [███████████████████████░] 92%
+Progress: [████████████████████████░] 96%
 
 ## Performance Metrics
 
@@ -109,6 +109,10 @@ Recent decisions affecting current work:
 - [14-03] Trend classification: Based on 10% thresholds (UP > 10%, STABLE ±10%, DOWN < -10%) following educational research
 - [14-03] Linear interpolation for missing data: Fills gaps > 30 days between monthly data points for smooth visualization
 - [14-03] TDD cycle: RED → GREEN with atomic commits (test/feat/refactor pattern)
+- [14-06] Shannon Diversity Index for team composition: Used normalized entropy calculation (0-100 range) with log(n) normalization for consistent diversity scoring across MBTI (16), VARK (4), 오행 (5), subjects (5), grades (6)
+- [14-06] 5-axis radar chart visualization: Combined MBTI, VARK, 오행, subjects, grades into single radar with ideal team reference (80 points)
+- [14-06] Priority-based recommendation system: High (weak subjects, low diversity <30), Medium (weak grades, moderate diversity 30-50), Low (good practices, high diversity >70)
+- [14-06] Color-coded expertise coverage heatmap: Red (weak, <50% of average), Yellow (adequate, 50-100% of average), Green (sufficient, >=average)
 - [v2.0] 팀 단위 데이터 분리: 보안 및 프라이버시 보장을 위해 Prisma middleware + PostgreSQL RLS 적용
 - [v2.0] 선생님 성향 분석: 학생과 동일한 방식으로 궁합 계산 (기존 분석 모듈 재사용)
 - [v2.0] LLM 전체 공통 설정: 관리 용이성 및 비용 효율성을 위해 Vercel AI SDK로 통합
@@ -162,8 +166,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-31 (Phase 14-04 execution complete)
-Stopped at: Completed 14-04 (상담 이력 및 학생 만족도 추적 기능 구현), 4 tasks done
+Last session: 2026-01-31 (Phase 14-06 execution complete)
+Stopped at: Completed 14-06 (팀 구성 분석 및 인사이트 기능 구현), 4 tasks done
 Resume file: None
 
 ---
