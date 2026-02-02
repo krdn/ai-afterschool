@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 ## Current Position
 
 Phase: 15 of 15 (Multi-LLM Integration & Smart Routing)
-Plan: 3 of 8 in current phase
+Plan: 6 of 8 in current phase
 Status: In progress
-Last activity: 2026-01-31 — Completed 15-03-PLAN.md (Admin LLM settings UI)
+Last activity: 2026-02-02 — Completed 15-06-PLAN.md (Token Usage Tracking)
 
-Progress: [████████████████████████░] 98.9% (94/95 plans complete)
+Progress: [████████████████████████░] 99.2% (97/98 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 94
-- Average duration: ~4.5 min
-- Total execution time: ~7.1 hours
+- Total plans completed: 97
+- Average duration: ~4.4 min
+- Total execution time: ~7.2 hours
 
 **By Phase:**
 
@@ -33,13 +33,13 @@ Progress: [███████████████████████
 | 12 (v2.0) | 8 | 20 min | ~2.5 min |
 | 13 (v2.0) | 8 | 13 min | ~1.6 min |
 | 14 (v2.0) | 8 | 25 min | ~3.1 min |
-| 15 (v2.0) | 3 | 16 min | ~5.3 min |
+| 15 (v2.0) | 6 | 20 min | ~3.3 min |
 
 **Recent Trend:**
-- Last 5 plans: Admin LLM settings UI (15-03), LLM router & usage tracking (15-02), Vercel AI SDK integration (15-01), PerformanceDashboard 실제 데이터 연동 (14-08), Analytics 페이지 데이터 연결 (14-07)
-- Trend: Phase 15 progressing, admin settings UI complete
+- Last 5 plans: Token Usage Tracking (15-06), Admin LLM settings UI (15-03), LLM router & usage tracking (15-02), Vercel AI SDK integration (15-01), PerformanceDashboard 실제 데이터 연동 (14-08)
+- Trend: Phase 15 Wave 3 complete, usage tracking ready for dashboard
 
-*Updated after Phase 15-03 completion*
+*Updated after Phase 15-06 completion*
 
 ## Accumulated Context
 
@@ -125,6 +125,9 @@ Recent decisions affecting current work:
 - [15-02] Feature-based routing with default fallback order: ollama -> anthropic -> openai -> google
 - [15-03] requireDirector() pattern for DIRECTOR-only Server Actions in LLM settings
 - [15-03] Vision features (face/palm analysis) filtered to only show vision-capable providers in feature mapping
+- [15-06] CRON_SECRET 환경 변수로 Cron 엔드포인트 인증 (프로덕션 필수)
+- [15-06] BigInt 타입으로 토큰 수 저장 (대규모 사용량 지원)
+- [15-06] 집계 전 데이터 보존 - cleanupOldUsageData에서 삭제 전 해당 기간 먼저 집계
 
 ### Pending Todos
 
@@ -178,9 +181,9 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-31 16:47 KST
-Stopped at: Completed 15-03-PLAN.md (Admin LLM settings UI)
+Last session: 2026-02-02 12:35 KST
+Stopped at: Completed 15-06-PLAN.md (Token Usage Tracking)
 Resume file: None
 
 ---
-*Last updated: 2026-01-31*
+*Last updated: 2026-02-02*
