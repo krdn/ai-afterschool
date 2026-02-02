@@ -1,12 +1,12 @@
 {
-  "servers": {
+  "mcpServers": {
     "playwright": {
       "command": "npx",
       "args": ["-y", "@playwright/mcp@latest"]
     },
     "filesystem": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/mnt/data/projects/ai/ai-afterschool"]
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/home/gon/projects/ai/ai-afterschool"]
     },
     "memory": {
       "command": "npx",
