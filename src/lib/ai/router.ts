@@ -4,14 +4,20 @@ import { getProvider, type ProviderName, type FeatureType, PROVIDER_CONFIGS } fr
 import { getLLMConfig, getFeatureConfig, getEnabledProviders } from './config';
 import { trackUsage, trackFailure } from './usage-tracker';
 import {
-  withFailover,
   FailoverError,
-  logProviderError,
   isRetryableError,
-  type FailoverResult,
 } from './failover';
+import {
+  optimizeProviderOrder,
+  checkAllBudgetThresholds,
+  filterByBudget,
+  getSmartRoutingDecision,
+  type BudgetAlert,
+} from './smart-routing';
 
 export { FailoverError } from './failover';
+export { optimizeProviderOrder, checkAllBudgetThresholds, getSmartRoutingDecision } from './smart-routing';
+export type { BudgetAlert } from './smart-routing';
 
 interface GenerateOptions {
   prompt: string;
@@ -81,10 +87,56 @@ async function setupProviderEnv(provider: ProviderName): Promise<boolean> {
   return true;
 }
 
+/**
+ * 스마트 라우팅 사용 여부 (환경 변수로 제어)
+ * 기본값: true (비용 최적화 활성화)
+ */
+const USE_SMART_ROUTING = process.env.LLM_SMART_ROUTING !== 'false';
+
+/**
+ * 제공자 순서를 결정합니다.
+ *
+ * 스마트 라우팅이 활성화된 경우:
+ * 1. 예산 내 제공자만 필터링
+ * 2. 비용 기반으로 정렬 (Ollama > Google > OpenAI > Anthropic)
+ *
+ * 스마트 라우팅 비활성화 시:
+ * 기존 방식 (기능별 설정의 primaryProvider + fallbackOrder)
+ */
 async function getProviderOrder(featureType: FeatureType): Promise<ProviderName[]> {
   const featureConfig = await getFeatureConfig(featureType);
-  const enabledProviders = await getEnabledProviders();
+  let enabledProviders = await getEnabledProviders();
 
+  if (enabledProviders.length === 0) {
+    throw new Error('No enabled providers available');
+  }
+
+  // 스마트 라우팅: 예산 필터링 + 비용 최적화
+  if (USE_SMART_ROUTING) {
+    // 예산 초과 시 무료 제공자만 허용
+    enabledProviders = await filterByBudget(enabledProviders);
+
+    // 비용 기반 정렬
+    const optimizedOrder = optimizeProviderOrder(enabledProviders, featureType);
+
+    // 예산 임계값 체크 (비동기 알림 트리거)
+    checkAllBudgetThresholds().then((alerts) => {
+      if (alerts.length > 0) {
+        console.warn('[Smart Routing] Budget alerts:', alerts);
+        // TODO: 실제 알림 시스템 연동 (이메일, Slack 등)
+      }
+    }).catch((err) => {
+      console.error('[Smart Routing] Failed to check budget thresholds:', err);
+    });
+
+    if (optimizedOrder.length === 0) {
+      throw new Error('No providers available within budget');
+    }
+
+    return optimizedOrder;
+  }
+
+  // 레거시 방식: 기능별 설정 기반
   const primaryEnabled = enabledProviders.includes(featureConfig.primaryProvider as ProviderName);
   const fallbackFiltered = (featureConfig.fallbackOrder as ProviderName[]).filter(
     (p) => enabledProviders.includes(p)
