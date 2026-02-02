@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { decrypt } from '@/lib/session'
-import { createRequestLogger } from '@/lib/logger/request'
 
 const protectedRoutes = ['/students', '/dashboard']
 const authRoutes = ['/login', '/reset-password']
@@ -9,11 +8,8 @@ const authRoutes = ['/login', '/reset-password']
 export async function middleware(req: NextRequest) {
   const currentPath = req.nextUrl.pathname
 
-  // Create request-scoped logger for tracing
-  const log = createRequestLogger(req)
-
-  // Log incoming request
-  log.info({ pathname: currentPath }, 'Incoming request')
+  // Generate or extract request ID for tracing
+  const requestId = req.headers.get('x-request-id') || crypto.randomUUID()
 
   const sessionCookie = req.cookies.get('session')?.value
   const session = await decrypt(sessionCookie)
@@ -36,7 +32,6 @@ export async function middleware(req: NextRequest) {
   const response = NextResponse.next()
 
   // Attach request ID to response headers for distributed tracing
-  const requestId = log.bindings().requestId as string
   response.headers.set('x-request-id', requestId)
 
   return response
