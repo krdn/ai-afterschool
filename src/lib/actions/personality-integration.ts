@@ -9,13 +9,15 @@ import {
   getPersonalitySummary,
   upsertPersonalitySummary,
 } from "@/lib/db/personality-summary"
-import { anthropic } from "@/lib/ai/claude"
+import { generateWithProvider, FailoverError } from "@/lib/ai/router"
 import { buildLearningStrategyPrompt, buildCareerGuidancePrompt } from "@/lib/ai/integration-prompts"
 import { LearningStrategySchema, CareerGuidanceSchema } from "@/lib/validations/personality"
 
 /**
- * AI 기반 학습 전략 생성 Server Action
- * 최소 3개 이상의 분석이 완료된 경우에만 실행 가능
+ * AI 기반 학습 전략 생성 Server Action (통합 LLM 라우터 사용)
+ *
+ * 최소 3개 이상의 분석이 완료된 경우에만 실행 가능합니다.
+ * 설정된 제공자 순서에 따라 자동 폴백됩니다.
  *
  * @param studentId - 학생 ID
  * @returns 성공/실패 메시지
@@ -74,7 +76,7 @@ export async function generateLearningStrategy(studentId: string) {
     careerGuidance: null,
   })
 
-  // 7. 비동기 AI 호출
+  // 7. 비동기 AI 호출 (통합 라우터 사용)
   after(async () => {
     try {
       // 프롬프트 생성
@@ -84,25 +86,23 @@ export async function generateLearningStrategy(studentId: string) {
         targetMajor: student.targetMajor,
       })
 
-      const response = await anthropic.messages.create({
-        model: "claude-3-5-sonnet-20241022",
-        max_tokens: 3000,
-        messages: [
-          {
-            role: "user",
-            content: prompt,
-          },
-        ],
+      // 통합 라우터를 통한 LLM 호출 (자동 폴백)
+      const response = await generateWithProvider({
+        featureType: 'learning_analysis',
+        teacherId: session.userId,
+        prompt,
+        maxOutputTokens: 3000,
       })
 
-      // 응답 텍스트 추출
-      const content = response.content[0]
-      if (content.type !== "text") {
-        throw new Error("Unexpected response type from Claude")
+      // 폴백 발생 시 로깅
+      if (response.wasFailover) {
+        console.info(
+          `[Learning Strategy] Failover occurred: ${response.failoverFrom} -> ${response.provider}`
+        )
       }
 
       // JSON 파싱
-      const result = JSON.parse(content.text)
+      const result = JSON.parse(response.text)
 
       // Zod 스키마 검증
       const validatedResult = LearningStrategySchema.parse(result)
@@ -121,11 +121,21 @@ export async function generateLearningStrategy(studentId: string) {
     } catch (error) {
       console.error("Failed to generate learning strategy:", error)
 
+      // FailoverError인 경우 상세 로깅
+      if (error instanceof FailoverError) {
+        console.error(
+          `[Learning Strategy] All providers failed (${error.totalAttempts} attempts):`,
+          error.errors.map(e => `${e.provider}: ${e.error.message}`).join('; ')
+        )
+      }
+
       // 에러 저장
       await upsertPersonalitySummary({
         studentId,
         status: "failed",
-        errorMessage: error instanceof Error ? error.message : "알 수 없는 오류",
+        errorMessage: error instanceof FailoverError
+          ? error.userMessage
+          : error instanceof Error ? error.message : "알 수 없는 오류",
       })
 
       revalidatePath(`/students/${studentId}`)
@@ -139,8 +149,10 @@ export async function generateLearningStrategy(studentId: string) {
 }
 
 /**
- * AI 기반 진로 가이드 생성 Server Action
- * 최소 3개 이상의 분석이 완료된 경우에만 실행 가능
+ * AI 기반 진로 가이드 생성 Server Action (통합 LLM 라우터 사용)
+ *
+ * 최소 3개 이상의 분석이 완료된 경우에만 실행 가능합니다.
+ * 설정된 제공자 순서에 따라 자동 폴백됩니다.
  *
  * @param studentId - 학생 ID
  * @returns 성공/실패 메시지
@@ -196,7 +208,7 @@ export async function generateCareerGuidance(studentId: string) {
     status: "pending",
   })
 
-  // 7. 비동기 AI 호출
+  // 7. 비동기 AI 호출 (통합 라우터 사용)
   after(async () => {
     try {
       // 프롬프트 생성
@@ -206,25 +218,23 @@ export async function generateCareerGuidance(studentId: string) {
         targetMajor: student.targetMajor,
       })
 
-      const response = await anthropic.messages.create({
-        model: "claude-3-5-sonnet-20241022",
-        max_tokens: 3000,
-        messages: [
-          {
-            role: "user",
-            content: prompt,
-          },
-        ],
+      // 통합 라우터를 통한 LLM 호출 (자동 폴백)
+      const response = await generateWithProvider({
+        featureType: 'counseling_suggest',
+        teacherId: session.userId,
+        prompt,
+        maxOutputTokens: 3000,
       })
 
-      // 응답 텍스트 추출
-      const content = response.content[0]
-      if (content.type !== "text") {
-        throw new Error("Unexpected response type from Claude")
+      // 폴백 발생 시 로깅
+      if (response.wasFailover) {
+        console.info(
+          `[Career Guidance] Failover occurred: ${response.failoverFrom} -> ${response.provider}`
+        )
       }
 
       // JSON 파싱
-      const result = JSON.parse(content.text)
+      const result = JSON.parse(response.text)
 
       // Zod 스키마 검증
       const validatedResult = CareerGuidanceSchema.parse(result)
@@ -243,11 +253,21 @@ export async function generateCareerGuidance(studentId: string) {
     } catch (error) {
       console.error("Failed to generate career guidance:", error)
 
+      // FailoverError인 경우 상세 로깅
+      if (error instanceof FailoverError) {
+        console.error(
+          `[Career Guidance] All providers failed (${error.totalAttempts} attempts):`,
+          error.errors.map(e => `${e.provider}: ${e.error.message}`).join('; ')
+        )
+      }
+
       // 에러 저장
       await upsertPersonalitySummary({
         studentId,
         status: "failed",
-        errorMessage: error instanceof Error ? error.message : "알 수 없는 오류",
+        errorMessage: error instanceof FailoverError
+          ? error.userMessage
+          : error instanceof Error ? error.message : "알 수 없는 오류",
       })
 
       revalidatePath(`/students/${studentId}`)

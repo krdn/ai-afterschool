@@ -2,13 +2,19 @@
 
 import { revalidatePath } from "next/cache"
 import { after } from "next/server"
-import { anthropic } from "@/lib/ai/claude"
+import { generateWithVision, FailoverError } from "@/lib/ai/router"
 import { FACE_READING_PROMPT, PALM_READING_PROMPT } from "@/lib/ai/prompts"
 import { verifySession } from "@/lib/dal"
 import { db } from "@/lib/db"
 import { upsertFaceAnalysis } from "@/lib/db/face-analysis"
 import { upsertPalmAnalysis } from "@/lib/db/palm-analysis"
 
+/**
+ * 학생 관상 분석 (통합 LLM 라우터 사용)
+ *
+ * Vision을 지원하는 제공자에서 자동 폴백됩니다.
+ * (anthropic, openai, google 순)
+ */
 export async function analyzeFaceImage(studentId: string, imageUrl: string) {
   const session = await verifySession()
 
@@ -29,36 +35,25 @@ export async function analyzeFaceImage(studentId: string, imageUrl: string) {
       const imageBuffer = Buffer.from(await imageResponse.arrayBuffer())
       const base64Image = imageBuffer.toString('base64')
 
-      // Claude Vision API 호출
-      const response = await anthropic.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 2048,
-        messages: [{
-          role: 'user',
-          content: [
-            {
-              type: 'image',
-              source: {
-                type: 'base64',
-                media_type: 'image/jpeg',
-                data: base64Image
-              }
-            },
-            {
-              type: 'text',
-              text: FACE_READING_PROMPT
-            }
-          ]
-        }]
+      // 통합 라우터를 통한 Vision API 호출 (자동 폴백)
+      const response = await generateWithVision({
+        featureType: 'face_analysis',
+        teacherId: session.userId,
+        imageBase64: base64Image,
+        mimeType: 'image/jpeg',
+        prompt: FACE_READING_PROMPT,
+        maxOutputTokens: 2048,
       })
 
       // JSON 응답 파싱
-      const content = response.content[0]
-      if (content.type !== 'text') {
-        throw new Error('Unexpected response type from Claude')
-      }
+      const result = JSON.parse(response.text)
 
-      const result = JSON.parse(content.text)
+      // 폴백 발생 시 로깅
+      if (response.wasFailover) {
+        console.info(
+          `[Face Analysis] Failover occurred: ${response.failoverFrom} -> ${response.provider}`
+        )
+      }
 
       // DB에 저장
       await upsertFaceAnalysis({
@@ -73,13 +68,23 @@ export async function analyzeFaceImage(studentId: string, imageUrl: string) {
     } catch (error) {
       console.error('Face analysis error:', error)
 
+      // FailoverError인 경우 상세 로깅
+      if (error instanceof FailoverError) {
+        console.error(
+          `[Face Analysis] All providers failed (${error.totalAttempts} attempts):`,
+          error.errors.map(e => `${e.provider}: ${e.error.message}`).join('; ')
+        )
+      }
+
       // 에러 상태 저장
       await upsertFaceAnalysis({
         studentId,
         imageUrl,
         result: null,
         status: 'failed',
-        errorMessage: error instanceof Error ? error.message : '알 수 없는 에러'
+        errorMessage: error instanceof FailoverError
+          ? error.userMessage
+          : error instanceof Error ? error.message : '알 수 없는 에러'
       })
 
       revalidatePath(`/students/${studentId}`)
@@ -92,6 +97,11 @@ export async function analyzeFaceImage(studentId: string, imageUrl: string) {
   }
 }
 
+/**
+ * 학생 손금 분석 (통합 LLM 라우터 사용)
+ *
+ * Vision을 지원하는 제공자에서 자동 폴백됩니다.
+ */
 export async function analyzePalmImage(
   studentId: string,
   imageUrl: string,
@@ -113,34 +123,24 @@ export async function analyzePalmImage(
       const imageBuffer = Buffer.from(await imageResponse.arrayBuffer())
       const base64Image = imageBuffer.toString('base64')
 
-      const response = await anthropic.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 2048,
-        messages: [{
-          role: 'user',
-          content: [
-            {
-              type: 'image',
-              source: {
-                type: 'base64',
-                media_type: 'image/jpeg',
-                data: base64Image
-              }
-            },
-            {
-              type: 'text',
-              text: PALM_READING_PROMPT
-            }
-          ]
-        }]
+      // 통합 라우터를 통한 Vision API 호출 (자동 폴백)
+      const response = await generateWithVision({
+        featureType: 'palm_analysis',
+        teacherId: session.userId,
+        imageBase64: base64Image,
+        mimeType: 'image/jpeg',
+        prompt: PALM_READING_PROMPT,
+        maxOutputTokens: 2048,
       })
 
-      const content = response.content[0]
-      if (content.type !== 'text') {
-        throw new Error('Unexpected response type from Claude')
-      }
+      const result = JSON.parse(response.text)
 
-      const result = JSON.parse(content.text)
+      // 폴백 발생 시 로깅
+      if (response.wasFailover) {
+        console.info(
+          `[Palm Analysis] Failover occurred: ${response.failoverFrom} -> ${response.provider}`
+        )
+      }
 
       await upsertPalmAnalysis({
         studentId,
@@ -155,13 +155,23 @@ export async function analyzePalmImage(
     } catch (error) {
       console.error('Palm analysis error:', error)
 
+      // FailoverError인 경우 상세 로깅
+      if (error instanceof FailoverError) {
+        console.error(
+          `[Palm Analysis] All providers failed (${error.totalAttempts} attempts):`,
+          error.errors.map(e => `${e.provider}: ${e.error.message}`).join('; ')
+        )
+      }
+
       await upsertPalmAnalysis({
         studentId,
         hand,
         imageUrl,
         result: null,
         status: 'failed',
-        errorMessage: error instanceof Error ? error.message : '알 수 없는 에러'
+        errorMessage: error instanceof FailoverError
+          ? error.userMessage
+          : error instanceof Error ? error.message : '알 수 없는 에러'
       })
 
       revalidatePath(`/students/${studentId}`)
@@ -174,6 +184,9 @@ export async function analyzePalmImage(
   }
 }
 
+/**
+ * 학생 관상 분석 결과 조회
+ */
 export async function getFaceAnalysis(studentId: string) {
   const session = await verifySession()
 
@@ -193,6 +206,9 @@ export async function getFaceAnalysis(studentId: string) {
   return analysis
 }
 
+/**
+ * 학생 손금 분석 결과 조회
+ */
 export async function getPalmAnalysis(studentId: string) {
   const session = await verifySession()
 
