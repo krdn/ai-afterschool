@@ -91,7 +91,7 @@ export async function getOllamaModels(): Promise<OllamaModel[]> {
   }
 }
 
-export async function testOllamaGeneration(model = 'llama3.1:8b'): Promise<{
+export async function testOllamaGeneration(model = 'llama3.2:3b'): Promise<{
   success: boolean;
   response?: string;
   error?: string;
