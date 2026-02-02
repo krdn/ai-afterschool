@@ -1,7 +1,17 @@
 import { generateText, streamText, type LanguageModelUsage } from 'ai';
-import { getProvider, type ProviderName, type FeatureType } from './providers';
+import type { ModelMessage } from '@ai-sdk/provider-utils';
+import { getProvider, type ProviderName, type FeatureType, PROVIDER_CONFIGS } from './providers';
 import { getLLMConfig, getFeatureConfig, getEnabledProviders } from './config';
 import { trackUsage, trackFailure } from './usage-tracker';
+import {
+  withFailover,
+  FailoverError,
+  logProviderError,
+  isRetryableError,
+  type FailoverResult,
+} from './failover';
+
+export { FailoverError } from './failover';
 
 interface GenerateOptions {
   prompt: string;
@@ -10,6 +20,23 @@ interface GenerateOptions {
   maxOutputTokens?: number;
   temperature?: number;
   system?: string;
+}
+
+/**
+ * Vision 분석 옵션 - 이미지를 포함한 요청
+ */
+interface VisionGenerateOptions {
+  featureType: FeatureType;
+  teacherId?: string;
+  maxOutputTokens?: number;
+  temperature?: number;
+  system?: string;
+  /** base64 인코딩된 이미지 데이터 */
+  imageBase64: string;
+  /** 이미지 MIME 타입 (예: 'image/jpeg', 'image/png') */
+  mimeType: 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp';
+  /** 이미지와 함께 보낼 프롬프트 */
+  prompt: string;
 }
 
 interface GenerateResult {
@@ -237,6 +264,277 @@ export async function generateWithSpecificProvider(
   const result = await generateText({
     model,
     prompt,
+    system,
+    maxOutputTokens,
+    temperature,
+    maxRetries: 2,
+  });
+
+  const responseTimeMs = Date.now() - startTime;
+
+  await trackUsage({
+    provider,
+    modelId: modelId || 'default',
+    featureType,
+    teacherId,
+    inputTokens: result.usage?.inputTokens || 0,
+    outputTokens: result.usage?.outputTokens || 0,
+    responseTimeMs,
+    success: true,
+  });
+
+  return {
+    text: result.text,
+    usage: result.usage,
+    provider,
+    model: modelId || 'default',
+    wasFailover: false,
+  };
+}
+
+/**
+ * Vision 지원 제공자 필터링
+ * 이미지 분석이 필요한 경우, Vision을 지원하는 제공자만 반환
+ */
+async function getVisionProviderOrder(featureType: FeatureType): Promise<ProviderName[]> {
+  const allProviders = await getProviderOrder(featureType);
+
+  // Vision을 지원하는 제공자만 필터링
+  const visionProviders = allProviders.filter(
+    (provider) => PROVIDER_CONFIGS[provider].supportsVision
+  );
+
+  if (visionProviders.length === 0) {
+    throw new Error(
+      `No vision-capable providers available for feature "${featureType}". ` +
+      `Vision is supported by: ${Object.entries(PROVIDER_CONFIGS)
+        .filter(([, config]) => config.supportsVision)
+        .map(([name]) => name)
+        .join(', ')}`
+    );
+  }
+
+  return visionProviders;
+}
+
+/**
+ * Vision 기반 텍스트 생성 (이미지 분석)
+ *
+ * 이미지를 분석하고 텍스트 응답을 생성합니다.
+ * Vision을 지원하는 제공자에서만 실행되며, 실패 시 자동으로 다음 제공자로 폴백합니다.
+ *
+ * @param options - Vision 분석 옵션
+ * @returns GenerateResult with analysis text
+ * @throws FailoverError when all vision-capable providers fail
+ *
+ * @example
+ * ```ts
+ * const result = await generateWithVision({
+ *   featureType: 'face_analysis',
+ *   imageBase64: base64Data,
+ *   mimeType: 'image/jpeg',
+ *   prompt: FACE_READING_PROMPT,
+ *   teacherId: session.userId,
+ * });
+ * ```
+ */
+export async function generateWithVision(
+  options: VisionGenerateOptions
+): Promise<GenerateResult> {
+  const {
+    featureType,
+    teacherId,
+    maxOutputTokens = 2048,
+    temperature,
+    system,
+    imageBase64,
+    mimeType,
+    prompt,
+  } = options;
+
+  const providerOrder = await getVisionProviderOrder(featureType);
+  const featureConfig = await getFeatureConfig(featureType);
+
+  let lastError: Error | null = null;
+  let failoverFrom: ProviderName | undefined;
+
+  for (let i = 0; i < providerOrder.length; i++) {
+    const provider = providerOrder[i];
+    const isFailover = i > 0;
+
+    if (isFailover) {
+      failoverFrom = providerOrder[i - 1];
+      console.warn(
+        `[LLM Router] Vision failover: ${failoverFrom} -> ${provider} for ${featureType}`
+      );
+    }
+
+    const startTime = Date.now();
+
+    try {
+      const isReady = await setupProviderEnv(provider);
+      if (!isReady) {
+        console.warn(`Provider ${provider} not ready for vision, skipping...`);
+        continue;
+      }
+
+      const config = await getLLMConfig(provider);
+      const modelId = featureConfig.modelOverride || config?.defaultModel || undefined;
+
+      const model = getProvider(provider, modelId);
+
+      // Vercel AI SDK messages format with image
+      const messages: ModelMessage[] = [
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'image',
+              image: `data:${mimeType};base64,${imageBase64}`,
+            },
+            {
+              type: 'text',
+              text: prompt,
+            },
+          ],
+        },
+      ];
+
+      const result = await generateText({
+        model,
+        messages,
+        system,
+        maxOutputTokens,
+        temperature,
+        maxRetries: 0,
+      });
+
+      const responseTimeMs = Date.now() - startTime;
+
+      await trackUsage({
+        provider,
+        modelId: modelId || 'default',
+        featureType,
+        teacherId,
+        inputTokens: result.usage?.inputTokens || 0,
+        outputTokens: result.usage?.outputTokens || 0,
+        responseTimeMs,
+        success: true,
+        failoverFrom: isFailover ? failoverFrom : undefined,
+      });
+
+      return {
+        text: result.text,
+        usage: result.usage,
+        provider,
+        model: modelId || 'default',
+        wasFailover: isFailover,
+        failoverFrom: isFailover ? failoverFrom : undefined,
+      };
+    } catch (error) {
+      const responseTimeMs = Date.now() - startTime;
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+
+      console.error(`[LLM Router] Vision provider ${provider} failed:`, errorMessage);
+
+      await trackFailure({
+        provider,
+        modelId: featureConfig.modelOverride || 'default',
+        featureType,
+        teacherId,
+        errorMessage,
+        responseTimeMs,
+      });
+
+      lastError = error instanceof Error ? error : new Error(String(error));
+
+      // Non-retryable errors should stop the failover chain
+      if (!isRetryableError(lastError)) {
+        console.warn(
+          `[LLM Router] Vision error is not retryable, stopping: ${lastError.message}`
+        );
+        break;
+      }
+    }
+  }
+
+  throw new FailoverError(featureType, [
+    {
+      provider: providerOrder[providerOrder.length - 1] || 'unknown' as ProviderName,
+      error: lastError || new Error('Unknown error'),
+      timestamp: new Date(),
+      durationMs: 0,
+    },
+  ]);
+}
+
+/**
+ * 특정 Vision 제공자로 이미지 분석
+ *
+ * 지정된 제공자로만 분석을 시도하며, 폴백하지 않습니다.
+ *
+ * @param provider - 사용할 제공자
+ * @param options - Vision 분석 옵션
+ * @returns GenerateResult with analysis text
+ * @throws Error when provider fails or doesn't support vision
+ */
+export async function generateVisionWithSpecificProvider(
+  provider: ProviderName,
+  options: Omit<VisionGenerateOptions, 'featureType'> & { featureType?: FeatureType }
+): Promise<GenerateResult> {
+  const {
+    featureType = 'face_analysis',
+    teacherId,
+    maxOutputTokens = 2048,
+    temperature,
+    system,
+    imageBase64,
+    mimeType,
+    prompt,
+  } = options;
+
+  // Vision 지원 확인
+  if (!PROVIDER_CONFIGS[provider].supportsVision) {
+    throw new Error(
+      `Provider ${provider} does not support vision. ` +
+      `Use one of: ${Object.entries(PROVIDER_CONFIGS)
+        .filter(([, config]) => config.supportsVision)
+        .map(([name]) => name)
+        .join(', ')}`
+    );
+  }
+
+  const startTime = Date.now();
+
+  const isReady = await setupProviderEnv(provider);
+  if (!isReady) {
+    throw new Error(`Provider ${provider} is not configured or enabled`);
+  }
+
+  const config = await getLLMConfig(provider);
+  const modelId = config?.defaultModel || undefined;
+
+  const model = getProvider(provider, modelId);
+
+  const messages: ModelMessage[] = [
+    {
+      role: 'user',
+      content: [
+        {
+          type: 'image',
+          image: `data:${mimeType};base64,${imageBase64}`,
+        },
+        {
+          type: 'text',
+          text: prompt,
+        },
+      ],
+    },
+  ];
+
+  const result = await generateText({
+    model,
+    messages,
     system,
     maxOutputTokens,
     temperature,
