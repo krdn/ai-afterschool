@@ -11,6 +11,7 @@ import {
   getAllBudgetConfigs,
   saveBudgetConfig,
 } from '@/lib/ai/config';
+import { getBudgetSummary } from '@/lib/ai/smart-routing';
 import type { ProviderName, FeatureType } from '@/lib/ai/providers';
 
 async function requireDirector() {
@@ -100,9 +101,14 @@ export async function saveBudgetConfigAction(input: {
   alertAt100?: boolean;
 }) {
   await requireDirector();
-  
+
   const result = await saveBudgetConfig(input);
   revalidatePath('/admin/llm-settings');
-  
+
   return { success: true, config: result };
+}
+
+export async function getBudgetSummaryAction() {
+  await requireDirector();
+  return getBudgetSummary();
 }

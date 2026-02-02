@@ -1,9 +1,11 @@
 import { redirect } from 'next/navigation';
 import { verifySession } from '@/lib/dal';
-import { getAllLLMConfigs, getAllFeatureConfigs } from '@/lib/ai/config';
+import { getAllLLMConfigs, getAllFeatureConfigs, getAllBudgetConfigs } from '@/lib/ai/config';
+import { getBudgetSummary } from '@/lib/ai/smart-routing';
 import { PROVIDER_CONFIGS, type ProviderName } from '@/lib/ai/providers';
 import { ProviderCard } from './provider-card';
 import { FeatureMapping } from './feature-mapping';
+import { BudgetSettings } from './budget-settings';
 
 export const metadata = {
   title: 'LLM 설정 | AI AfterSchool',
@@ -28,6 +30,8 @@ export default async function LLMSettingsPage() {
 
   const llmConfigs = await getAllLLMConfigs();
   const featureConfigs = await getAllFeatureConfigs();
+  const budgetConfigs = await getAllBudgetConfigs();
+  const usageSummary = await getBudgetSummary();
 
   const enabledProviders = llmConfigs
     .filter((c: LLMConfigData) => c.isEnabled && c.isValidated)
@@ -90,6 +94,23 @@ export default async function LLMSettingsPage() {
             }))}
           />
         )}
+      </section>
+
+      <section className="space-y-4">
+        <h2 className="text-lg font-semibold">예산 관리</h2>
+        <BudgetSettings
+          initialData={budgetConfigs.map((c) => ({
+            period: c.period,
+            budgetUsd: c.budgetUsd,
+            alertAt80: c.alertAt80,
+            alertAt100: c.alertAt100,
+          }))}
+          usageSummary={usageSummary.map((s) => ({
+            period: s.period,
+            currentCost: s.currentCost,
+            percentUsed: s.percentUsed,
+          }))}
+        />
       </section>
     </div>
   );
