@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { getCurrentTeacher } from "@/lib/dal"
 import { LogoutButton } from "@/components/auth/logout-button"
+import { NotificationBell } from "@/components/layout/notification-bell"
 
 export default async function DashboardLayout({
   children,
@@ -28,6 +29,7 @@ export default async function DashboardLayout({
               </nav>
             </div>
             <div className="flex items-center space-x-4">
+              {teacher.role === "DIRECTOR" && <NotificationBell />}
               <span className="text-sm text-gray-600">{teacher.name}</span>
               <LogoutButton />
             </div>
