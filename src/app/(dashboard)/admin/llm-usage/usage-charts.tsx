@@ -141,9 +141,9 @@ export function DailyCostChart({ data, loading = false }: DailyCostChartProps) {
               tickFormatter={(value) => `$${value.toFixed(2)}`}
             />
             <Tooltip
-              formatter={(value: number) => [`$${value.toFixed(4)}`, "비용"]}
+              formatter={(value) => [`$${(value as number)?.toFixed(4) ?? "0"}`, "비용"]}
               labelFormatter={(label) => {
-                const parts = label.split("-");
+                const parts = String(label).split("-");
                 return `${parts[0]}년 ${parts[1]}월 ${parts[2]}일`;
               }}
             />
@@ -230,9 +230,9 @@ export function DailyRequestsChart({
             />
             <YAxis tick={{ fontSize: 12 }} />
             <Tooltip
-              formatter={(value: number) => [value, "요청"]}
+              formatter={(value) => [value as number, "요청"]}
               labelFormatter={(label) => {
-                const parts = label.split("-");
+                const parts = String(label).split("-");
                 return `${parts[0]}년 ${parts[1]}월 ${parts[2]}일`;
               }}
             />
@@ -312,7 +312,7 @@ export function ProviderDistributionChart({
               cy="50%"
               labelLine={false}
               label={({ name, percent }) =>
-                `${PROVIDER_NAMES[name] || name} (${(percent * 100).toFixed(0)}%)`
+                `${PROVIDER_NAMES[name as string] || name} (${((percent ?? 0) * 100).toFixed(0)}%)`
               }
               outerRadius={100}
               fill="#8884d8"
@@ -327,9 +327,9 @@ export function ProviderDistributionChart({
               ))}
             </Pie>
             <Tooltip
-              formatter={(value: number, name: string) => [
-                value,
-                `${PROVIDER_NAMES[name] || name} 요청`,
+              formatter={(value, name) => [
+                value as number,
+                `${PROVIDER_NAMES[name as string] || name} 요청`,
               ]}
             />
           </PieChart>
@@ -411,11 +411,13 @@ export function FeatureUsageChart({
               width={70}
             />
             <Tooltip
-              formatter={(value: number, name: string) => {
-                if (name === "비용 (USD)") {
-                  return [`$${value.toFixed(4)}`, name];
+              formatter={(value, name) => {
+                const numValue = value as number;
+                const strName = name as string;
+                if (strName === "비용 (USD)") {
+                  return [`$${numValue.toFixed(4)}`, strName];
                 }
-                return [value, name];
+                return [numValue, strName];
               }}
             />
             <Legend />
@@ -505,12 +507,12 @@ export function TokenUsageChart({
               }}
             />
             <Tooltip
-              formatter={(value: number, name: string) => [
-                value.toLocaleString(),
-                name,
+              formatter={(value, name) => [
+                (value as number).toLocaleString(),
+                name as string,
               ]}
               labelFormatter={(label) => {
-                const parts = label.split("-");
+                const parts = String(label).split("-");
                 return `${parts[0]}년 ${parts[1]}월 ${parts[2]}일`;
               }}
             />
