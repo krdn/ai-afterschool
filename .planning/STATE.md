@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 ## Current Position
 
 Phase: 15 of 15 (Multi-LLM Integration & Smart Routing)
-Plan: 6 of 8 in current phase
+Plan: 7 of 8 in current phase
 Status: In progress
-Last activity: 2026-02-02 — Completed 15-06-PLAN.md (Token Usage Tracking)
+Last activity: 2026-02-02 — Completed 15-04-PLAN.md (Automatic Failover)
 
-Progress: [████████████████████████░] 99.2% (97/98 plans complete)
+Progress: [████████████████████████░] 99.4% (98/99 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 97
+- Total plans completed: 98
 - Average duration: ~4.4 min
-- Total execution time: ~7.2 hours
+- Total execution time: ~7.3 hours
 
 **By Phase:**
 
@@ -33,13 +33,13 @@ Progress: [███████████████████████
 | 12 (v2.0) | 8 | 20 min | ~2.5 min |
 | 13 (v2.0) | 8 | 13 min | ~1.6 min |
 | 14 (v2.0) | 8 | 25 min | ~3.1 min |
-| 15 (v2.0) | 6 | 20 min | ~3.3 min |
+| 15 (v2.0) | 7 | 26 min | ~3.7 min |
 
 **Recent Trend:**
-- Last 5 plans: Token Usage Tracking (15-06), Admin LLM settings UI (15-03), LLM router & usage tracking (15-02), Vercel AI SDK integration (15-01), PerformanceDashboard 실제 데이터 연동 (14-08)
-- Trend: Phase 15 Wave 3 complete, usage tracking ready for dashboard
+- Last 5 plans: Automatic Failover (15-04), Token Usage Tracking (15-06), Admin LLM settings UI (15-03), LLM router & usage tracking (15-02), Vercel AI SDK integration (15-01)
+- Trend: Phase 15 failover complete, all AI actions migrated to unified router
 
-*Updated after Phase 15-06 completion*
+*Updated after Phase 15-04 completion*
 
 ## Accumulated Context
 
@@ -128,6 +128,9 @@ Recent decisions affecting current work:
 - [15-06] CRON_SECRET 환경 변수로 Cron 엔드포인트 인증 (프로덕션 필수)
 - [15-06] BigInt 타입으로 토큰 수 저장 (대규모 사용량 지원)
 - [15-06] 집계 전 데이터 보존 - cleanupOldUsageData에서 삭제 전 해당 기간 먼저 집계
+- [15-04] isRetryableError로 재시도 가능한 에러 판단 (429, 503, 네트워크 오류는 폴백, 400/401은 즉시 중단)
+- [15-04] Vision 기능은 supportsVision이 true인 제공자만 폴백 체인에 포함 (Ollama 제외)
+- [15-04] 기존 Claude 직접 호출을 모두 통합 라우터로 마이그레이션
 
 ### Pending Todos
 
@@ -181,8 +184,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-02 12:35 KST
-Stopped at: Completed 15-06-PLAN.md (Token Usage Tracking)
+Last session: 2026-02-02 12:15 KST
+Stopped at: Completed 15-04-PLAN.md (Automatic Failover)
 Resume file: None
 
 ---
