@@ -10,7 +10,7 @@ export const providers = {
   google: (model?: string) => google(model || 'gemini-2.5-flash-preview-05-20'),
   ollama: (model?: string) => {
     const ollamaInstance = createOllamaInstance();
-    return ollamaInstance(model || 'llama3.1:8b');
+    return ollamaInstance(model || 'llama3.2:3b');
   },
 } as const;
 
