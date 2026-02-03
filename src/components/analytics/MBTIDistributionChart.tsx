@@ -2,8 +2,6 @@
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts"
 import type { MBTIDistribution } from "@/lib/analysis/team-composition-types"
-import type { TooltipProps } from "recharts"
-import type { ValueType, NameType } from "recharts/types/component/DefaultTooltipContent"
 
 interface MBTIChartDataPoint {
   type: string
@@ -16,9 +14,14 @@ interface MBTIDistributionChartProps {
   distribution: MBTIDistribution
 }
 
-function CustomTooltip({ active, payload }: TooltipProps<ValueType, NameType>) {
+interface CustomTooltipProps {
+  active?: boolean
+  payload?: Array<{ payload: MBTIChartDataPoint }>
+}
+
+function CustomTooltip({ active, payload }: CustomTooltipProps) {
   if (active && payload && payload.length) {
-    const data = payload[0].payload as MBTIChartDataPoint
+    const data = payload[0].payload
     return (
       <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-lg">
         <p className="font-medium">{data.type}</p>

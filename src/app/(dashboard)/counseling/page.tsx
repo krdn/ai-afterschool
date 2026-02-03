@@ -51,6 +51,18 @@ export default async function CounselingPage({
 
   const rbacDb = getRBACPrisma(session)
 
+  // Build teacher filter conditions
+  const teacherConditions: Prisma.TeacherWhereInput = {}
+  if (params.teacherName && canViewTeam) {
+    teacherConditions.name = {
+      contains: params.teacherName,
+      mode: "insensitive",
+    }
+  }
+  if (session.role === "TEAM_LEADER" && session.teamId) {
+    teacherConditions.teamId = session.teamId
+  }
+
   const where: Prisma.CounselingSessionWhereInput = {}
 
   if (params.studentName) {
@@ -62,13 +74,8 @@ export default async function CounselingPage({
     }
   }
 
-  if (params.teacherName && canViewTeam) {
-    where.teacher = {
-      name: {
-        contains: params.teacherName,
-        mode: "insensitive",
-      },
-    }
+  if (Object.keys(teacherConditions).length > 0) {
+    where.teacher = teacherConditions
   }
 
   if (params.type) {
@@ -91,11 +98,6 @@ export default async function CounselingPage({
 
   if (!canViewAll && !canViewTeam) {
     where.teacherId = session.userId
-  } else if (session.role === "TEAM_LEADER") {
-    where.teacher = {
-      ...where.teacher,
-      teamId: session.teamId,
-    }
   }
 
   const sessions = await rbacDb.counselingSession.findMany({

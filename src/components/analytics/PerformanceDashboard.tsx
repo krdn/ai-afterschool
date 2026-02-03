@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button"
 import { PerformanceMetricsGrid } from "./PerformanceMetricsGrid"
 import { GradeTrendChart, TrendDataPoint } from "./GradeTrendChart"
-import { MultiSubjectChart } from "./MultiSubjectChart"
+import { MultiSubjectChart, SubjectAverage } from "./MultiSubjectChart"
 import { ControlVariablePanel } from "./ControlVariablePanel"
 import { TeacherWithMetrics } from "./TeacherPerformanceCard"
 import { BarChart3, Users, TrendingUp, FileDown } from "lucide-react"
@@ -160,7 +160,16 @@ export function PerformanceDashboard({
               </CardContent>
             </Card>
           </div>
-          <MultiSubjectChart data={comparisonData} title="선생님 비교" comparison={true} />
+          <MultiSubjectChart
+            data={comparisonData.map(tc => ({
+              subject: tc.teacherName,
+              averageScore: tc.studentImprovements.length > 0
+                ? tc.studentImprovements.reduce((a, b) => a + b, 0) / tc.studentImprovements.length
+                : 0,
+            })) as SubjectAverage[]}
+            title="선생님 비교"
+            comparison={true}
+          />
         </TabsContent>
 
         <TabsContent value="summary" className="space-y-4">
