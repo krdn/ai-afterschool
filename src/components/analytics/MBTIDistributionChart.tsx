@@ -16,6 +16,19 @@ interface MBTIDistributionChartProps {
   distribution: MBTIDistribution
 }
 
+function CustomTooltip({ active, payload }: TooltipProps<ValueType, NameType>) {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload as MBTIChartDataPoint
+    return (
+      <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-lg">
+        <p className="font-medium">{data.type}</p>
+        <p className="text-sm text-gray-600">{data.count}명 ({data.percentage}%)</p>
+      </div>
+    )
+  }
+  return null
+}
+
 const MBTI_COLORS: Record<string, string> = {
   "INTJ": "#3b82f6",
   "INTP": "#6366f1",
@@ -53,19 +66,6 @@ export function MBTIDistributionChart({ distribution }: MBTIDistributionChartPro
     percentage: Math.round((distribution.typeCounts[type] / totalCount) * 100),
     color: MBTI_COLORS[type] || "#94a3b8",
   }))
-
-  const CustomTooltip = ({ active, payload }: TooltipProps<ValueType, NameType>) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload as MBTIChartDataPoint
-      return (
-        <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-lg">
-          <p className="font-medium">{data.type}</p>
-          <p className="text-sm text-gray-600">{data.count}명 ({data.percentage}%)</p>
-        </div>
-      )
-    }
-    return null
-  }
 
   return (
     <div className="w-full h-[400px]">
