@@ -285,16 +285,15 @@ export async function compareTeachersByGradeImprovement(
   const rbacDb = getRBACPrisma(session)
 
   // RBAC: DIRECTOR can query all teams, others only their own team
-  const whereClause: { role: { in: string[] }; teamId?: string } = { role: { in: ["TEACHER", "MANAGER", "TEAM_LEADER"] } }
-  if (session.role === "DIRECTOR" && teamId) {
-    whereClause.teamId = teamId
-  } else if (session.role !== "DIRECTOR" && session.teamId) {
-    whereClause.teamId = session.teamId
-  }
+  const roleFilter = ["TEACHER", "MANAGER", "TEAM_LEADER"] as const
 
   try {
     const teachers = await rbacDb.teacher.findMany({
-      where: whereClause,
+      where: {
+        role: { in: [...roleFilter] },
+        ...(session.role === "DIRECTOR" && teamId ? { teamId } : {}),
+        ...(session.role !== "DIRECTOR" && session.teamId ? { teamId: session.teamId } : {}),
+      },
       select: {
         id: true,
         name: true,
