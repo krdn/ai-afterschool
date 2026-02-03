@@ -1,15 +1,24 @@
 import Link from 'next/link'
 import { verifySession } from '@/lib/dal'
-import { db } from '@/lib/db'
+import { getRBACPrisma } from '@/lib/db/rbac'
 import { Button } from '@/components/ui/button'
 import { StudentTable } from '@/components/students/student-table'
 import { EmptyState } from '@/components/students/empty-state'
 
 export default async function StudentsPage() {
   const session = await verifySession()
+  const rbacDb = getRBACPrisma(session)
 
-  const students = await db.student.findMany({
-    where: { teacherId: session.userId },
+  // 권한에 따른 학생 조회
+  const canViewAll = session.role === 'DIRECTOR'
+  const canViewTeam = session.role === 'TEAM_LEADER' || session.role === 'MANAGER'
+
+  const students = await rbacDb.student.findMany({
+    where: canViewAll
+      ? undefined
+      : canViewTeam && session.teamId
+      ? { teamId: session.teamId }
+      : { teacherId: session.userId },
     select: {
       id: true,
       name: true,
