@@ -27,7 +27,14 @@ const { Resend } = require("resend") as {
   }
 }
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Lazy initialization to avoid error when API key is not set
+function getResendClient() {
+  const apiKey = process.env.RESEND_API_KEY
+  if (!apiKey) {
+    throw new Error("RESEND_API_KEY is not configured")
+  }
+  return new Resend(apiKey)
+}
 
 export type AuthFormState = {
   errors?: {
@@ -209,6 +216,7 @@ export async function requestPasswordReset(
   const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password/${token}`
 
   try {
+    const resend = getResendClient()
     await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL || "noreply@resend.dev",
       to: email,
