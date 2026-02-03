@@ -2,6 +2,15 @@
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts"
 import type { MBTIDistribution } from "@/lib/analysis/team-composition-types"
+import type { TooltipProps } from "recharts"
+import type { ValueType, NameType } from "recharts/types/component/DefaultTooltipContent"
+
+interface MBTIChartDataPoint {
+  type: string
+  count: number
+  percentage: number
+  color: string
+}
 
 interface MBTIDistributionChartProps {
   distribution: MBTIDistribution
@@ -45,12 +54,13 @@ export function MBTIDistributionChart({ distribution }: MBTIDistributionChartPro
     color: MBTI_COLORS[type] || "#94a3b8",
   }))
 
-  const CustomTooltip = ({ active, payload }: any) => {
+  const CustomTooltip = ({ active, payload }: TooltipProps<ValueType, NameType>) => {
     if (active && payload && payload.length) {
+      const data = payload[0].payload as MBTIChartDataPoint
       return (
         <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-lg">
-          <p className="font-medium">{payload[0].payload.type}</p>
-          <p className="text-sm text-gray-600">{payload[0].payload.count}명 ({payload[0].payload.percentage}%)</p>
+          <p className="font-medium">{data.type}</p>
+          <p className="text-sm text-gray-600">{data.count}명 ({data.percentage}%)</p>
         </div>
       )
     }
@@ -80,7 +90,10 @@ export function MBTIDistributionChart({ distribution }: MBTIDistributionChartPro
             verticalAlign="bottom"
             height={100}
             iconType="circle"
-            formatter={(value: number, entry: any) => `${entry.payload.type}: ${value}명`}
+            formatter={(value) => {
+              const dataPoint = data.find(d => d.count === value)
+              return dataPoint ? `${dataPoint.type}: ${value}명` : `${value}명`
+            }}
           />
         </PieChart>
       </ResponsiveContainer>

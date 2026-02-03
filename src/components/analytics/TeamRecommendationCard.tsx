@@ -17,23 +17,17 @@ const PRIORITY_LABELS: Record<string, string> = {
   low: "낮음",
 }
 
-import { Lightbulb, AlertTriangle, CheckCircle } from "lucide-react"
+import { Lightbulb, AlertTriangle, CheckCircle, type LucideIcon } from "lucide-react"
+import { useMemo } from "react"
 
-function getIconComponent(type: string) {
-  switch (type) {
-    case "diversity":
-      return Lightbulb
-    case "coverage":
-      return AlertTriangle
-    case "balance":
-      return CheckCircle
-    default:
-      return Lightbulb
-  }
+const ICON_MAP: Record<string, LucideIcon> = {
+  diversity: Lightbulb,
+  coverage: AlertTriangle,
+  balance: CheckCircle,
 }
 
 export function TeamRecommendationCard({ recommendation }: TeamRecommendationCardProps) {
-  const Icon = getIconComponent(recommendation.type)
+  const Icon = useMemo(() => ICON_MAP[recommendation.type] || Lightbulb, [recommendation.type])
   const priorityColor = PRIORITY_COLORS[recommendation.priority]
   const priorityLabel = PRIORITY_LABELS[recommendation.priority]
 
