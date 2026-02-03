@@ -30,12 +30,16 @@ export const verifySession = cache(async (): Promise<VerifiedSession> => {
 
   await updateSession(payload.userId, payload.role, payload.teamId)
 
-  // PostgreSQL RLS 세션 컨텍스트 설정
-  await setRLSSessionContext({
-    teacherId: payload.userId,
-    role: payload.role,
-    teamId: payload.teamId,
-  })
+  // PostgreSQL RLS 세션 컨텍스트 설정 (일시적으로 비활성화)
+  // TODO: RLS 설정 후 다시 활성화 필요
+  // 빈 문자열 teamId를 null로 변환
+  // const normalizedTeamId = payload.teamId && payload.teamId.trim() !== '' ? payload.teamId : null
+  //
+  // await setRLSSessionContext({
+  //   teacherId: payload.userId,
+  //   role: payload.role,
+  //   teamId: normalizedTeamId,
+  // })
 
   return {
     isAuth: true,
