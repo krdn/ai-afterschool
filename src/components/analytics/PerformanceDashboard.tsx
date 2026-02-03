@@ -13,12 +13,18 @@ import { TeacherWithMetrics } from "./TeacherPerformanceCard"
 import { BarChart3, Users, TrendingUp, FileDown } from "lucide-react"
 import { CounselingStats } from "@/lib/actions/analytics"
 
+interface TeacherGradeComparison {
+  teacherId: string
+  teacherName: string
+  studentImprovements: number[]
+}
+
 interface PerformanceDashboardProps {
   teamId?: string
   dateRange?: "1M" | "3M" | "6M" | "1Y"
   teachers?: TeacherWithMetrics[]
   gradeTrendData?: TrendDataPoint[]
-  comparisonData?: any[]
+  comparisonData?: TeacherGradeComparison[]
   counselingStats?: CounselingStats | null
 }
 
