@@ -53,3 +53,9 @@ next-env.d.ts
 /backups
 /backups/*.sql.gz
 /scripts/*.log
+
+# Supabase local
+supabase/
+
+# Playwright MCP screenshots
+.playwright-mcp/
