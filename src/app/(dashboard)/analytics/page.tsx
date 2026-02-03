@@ -10,10 +10,16 @@ import { TeacherWithMetrics } from "@/components/analytics/TeacherPerformanceCar
 import { getTeacherStudentMetrics } from "@/lib/actions/teacher-performance"
 import { TrendDataPoint } from "@/components/analytics/GradeTrendChart"
 
+interface TeacherGradeComparison {
+  teacherId: string
+  teacherName: string
+  studentImprovements: number[]
+}
+
 export default function AnalyticsPage() {
   const [teachers, setTeachers] = useState<TeacherWithMetrics[]>([])
   const [gradeTrendData, setGradeTrendData] = useState<TrendDataPoint[]>([])
-  const [comparisonData, setComparisonData] = useState<any[]>([])
+  const [comparisonData, setComparisonData] = useState<TeacherGradeComparison[]>([])
   const [counselingStats, setCounselingStats] = useState<CounselingStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -47,15 +53,15 @@ export default function AnalyticsPage() {
         const comparisonResult = await compareTeachersByGradeImprovement()
         if ("data" in comparisonResult) {
           setComparisonData(comparisonResult.data)
-        } else {
-          console.error("Comparison error:", (comparisonResult as any).error)
+        } else if ("error" in comparisonResult) {
+          console.error("Comparison error:", comparisonResult.error)
         }
 
         const counselingResult = await getCounselingStats()
         if ("data" in counselingResult) {
           setCounselingStats(counselingResult.data)
-        } else {
-          console.error("Counseling error:", (counselingResult as any).error)
+        } else if ("error" in counselingResult) {
+          console.error("Counseling error:", counselingResult.error)
         }
 
         const trendData: TrendDataPoint[] = []
