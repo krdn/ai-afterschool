@@ -19,12 +19,35 @@ export async function setRLSSessionContext({
   role,
   teamId,
 }: RLSSessionContext): Promise<void> {
-  await db.$executeRaw`SET LOCAL rls.teacher_id = ${teacherId}`
-  await db.$executeRaw`SET LOCAL rls.teacher_role = ${role}`
-  if (teamId) {
-    await db.$executeRaw`SET LOCAL rls.team_id = ${teamId}`
+  // PostgreSQL SET LOCAL은 리터럴 값만 허용하므로 unsafeRaw 사용
+  // 입력값 검증: role은 열거형, ID들은 영숫자와 하이픈만 허용
+  const validRoles = ['DIRECTOR', 'TEAM_LEADER', 'MANAGER', 'TEACHER']
+  if (!validRoles.includes(role)) {
+    throw new Error(`Invalid role: ${role}`)
+  }
+
+  // SQL 인젝션 방지: 영숫자, 하이픈, 밑줄만 허용
+  const idRegex = /^[a-zA-Z0-9_-]+$/
+  if (!teacherId || !idRegex.test(teacherId)) {
+    throw new Error(`Invalid teacherId format: ${teacherId}`)
+  }
+
+  // 값 내의 작은따옴표 이스케이프
+  const safeTeacherId = teacherId.replace(/'/g, "''")
+  const safeRole = role.replace(/'/g, "''")
+
+  await db.$executeRawUnsafe(`SET LOCAL rls.teacher_id = '${safeTeacherId}'`)
+  await db.$executeRawUnsafe(`SET LOCAL rls.teacher_role = '${safeRole}'`)
+
+  // teamId 처리: null, undefined, 빈 문자열인 경우 NULL로 설정
+  const hasValidTeamId = teamId != null && String(teamId).trim() !== '' && idRegex.test(String(teamId))
+
+  if (hasValidTeamId) {
+    const safeTeamId = String(teamId).replace(/'/g, "''")
+    await db.$executeRawUnsafe(`SET LOCAL rls.team_id = '${safeTeamId}'`)
   } else {
-    await db.$executeRaw`SET LOCAL rls.team_id = NULL`
+    // 빈 문자열을 방지하기 위해 빈 따옴표 대신 NULL 사용
+    await db.$executeRawUnsafe('SET LOCAL rls.team_id = NULL')
   }
 }
 

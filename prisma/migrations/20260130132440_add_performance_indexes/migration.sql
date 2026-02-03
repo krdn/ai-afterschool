@@ -9,6 +9,3 @@ CREATE INDEX IF NOT EXISTS "Student_expiresAt_idx" ON "Student"("expiresAt");
 
 -- CreateIndex
 CREATE INDEX IF NOT EXISTS "Student_calculationRecalculationNeeded_idx" ON "Student"("calculationRecalculationNeeded");
-
--- CreateIndex
-CREATE INDEX IF NOT EXISTS "ReportPDF_status_idx" ON "ReportPDF"("status");
