@@ -26,6 +26,50 @@ export default async function DashboardLayout({
                 >
                   학생 관리
                 </Link>
+                <Link
+                  href="/counseling"
+                  className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  상담
+                </Link>
+                {(teacher.role === "DIRECTOR" || teacher.role === "TEAM_LEADER") && (
+                  <>
+                    <Link
+                      href="/teachers"
+                      className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                    >
+                      선생님
+                    </Link>
+                    <Link
+                      href="/matching"
+                      className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                    >
+                      매칭
+                    </Link>
+                    <Link
+                      href="/analytics"
+                      className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                    >
+                      분석
+                    </Link>
+                  </>
+                )}
+                {teacher.role === "DIRECTOR" && (
+                  <>
+                    <Link
+                      href="/admin/llm-settings"
+                      className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                    >
+                      LLM 설정
+                    </Link>
+                    <Link
+                      href="/admin/llm-usage"
+                      className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                    >
+                      사용량
+                    </Link>
+                  </>
+                )}
               </nav>
             </div>
             <div className="flex items-center space-x-4">
