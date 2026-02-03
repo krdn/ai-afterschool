@@ -78,7 +78,7 @@ export default async function CounselingPage({
     where.teacher = teacherConditions
   }
 
-  if (params.type) {
+  if (params.type && params.type !== "all") {
     where.type = params.type as CounselingType
   }
 
@@ -237,12 +237,12 @@ export default async function CounselingPage({
 
             <div className="space-y-2">
               <Label htmlFor="type">상담 유형</Label>
-              <Select name="type" defaultValue={params.type || ""}>
+              <Select name="type" defaultValue={params.type || "all"}>
                 <SelectTrigger id="type">
                   <SelectValue placeholder="전체" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">전체</SelectItem>
+                  <SelectItem value="all">전체</SelectItem>
                   <SelectItem value="ACADEMIC">학업</SelectItem>
                   <SelectItem value="CAREER">진로</SelectItem>
                   <SelectItem value="PSYCHOLOGICAL">심리</SelectItem>
@@ -275,13 +275,13 @@ export default async function CounselingPage({
               <Label htmlFor="followUpRequired">후속 조치</Label>
               <Select
                 name="followUpRequired"
-                defaultValue={params.followUpRequired || ""}
+                defaultValue={params.followUpRequired || "all"}
               >
                 <SelectTrigger id="followUpRequired">
                   <SelectValue placeholder="전체" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">전체</SelectItem>
+                  <SelectItem value="all">전체</SelectItem>
                   <SelectItem value="true">필요함</SelectItem>
                   <SelectItem value="false">필요하지 않음</SelectItem>
                 </SelectContent>
