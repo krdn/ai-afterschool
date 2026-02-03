@@ -1,6 +1,12 @@
 "use server"
 
 import { verifySession } from "@/lib/dal"
+
+interface TeacherGradeComparison {
+  teacherId: string
+  teacherName: string
+  studentImprovements: number[]
+}
 import { getRBACPrisma } from "@/lib/db/rbac"
 import { db } from "@/lib/db"
 import { calculateImprovementRate, calculateGradeTrend } from "@/lib/analysis/grade-analytics"
@@ -207,7 +213,7 @@ export async function getCounselingStats(
   const rbacDb = getRBACPrisma(session)
 
   // RBAC: DIRECTOR can query all teams, others only their own team
-  const whereClause: any = {}
+  const whereClause: { teacher?: { teamId: string } } = {}
   if (session.role === "DIRECTOR" && teamId) {
     whereClause.teacher = { teamId }
   } else if (session.role !== "DIRECTOR" && session.teamId) {
@@ -270,7 +276,7 @@ export async function getCounselingStats(
 
 export async function compareTeachersByGradeImprovement(
   teamId?: string
-): Promise<{ data: any[] } | { error: string }> {
+): Promise<{ data: TeacherGradeComparison[] } | { error: string }> {
   const session = await verifySession()
   if (!session) {
     return { error: "인증이 필요합니다." }
@@ -279,7 +285,7 @@ export async function compareTeachersByGradeImprovement(
   const rbacDb = getRBACPrisma(session)
 
   // RBAC: DIRECTOR can query all teams, others only their own team
-  const whereClause: any = { role: { in: ["TEACHER", "MANAGER", "TEAM_LEADER"] } }
+  const whereClause: { role: { in: string[] }; teamId?: string } = { role: { in: ["TEACHER", "MANAGER", "TEAM_LEADER"] } }
   if (session.role === "DIRECTOR" && teamId) {
     whereClause.teamId = teamId
   } else if (session.role !== "DIRECTOR" && session.teamId) {
