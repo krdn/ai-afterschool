@@ -14,8 +14,7 @@ import {
 import {
   CounselingSessionForm,
 } from "@/components/counseling/CounselingSessionForm"
-import type { TeacherRole } from "@/lib/db/rbac"
-import type { CounselingType } from "@prisma/client"
+import type { CounselingType, Prisma } from "@prisma/client"
 
 type PageProps = {
   searchParams: Promise<{
@@ -52,7 +51,7 @@ export default async function CounselingPage({
 
   const rbacDb = getRBACPrisma(session)
 
-  const where: any = {}
+  const where: Prisma.CounselingSessionWhereInput = {}
 
   if (params.studentName) {
     where.student = {
