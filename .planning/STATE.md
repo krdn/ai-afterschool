@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 
 ## Current Position
 
-Phase: 21 - Statistics & Dashboard
-Plan: 07 of 07
-Status: Phase Complete
-Last activity: 2026-02-04 — Completed Plan 21-07 (테스트 및 검증)
+Phase: 22 - AI Integration
+Plan: 01 of 04
+Status: In Progress
+Last activity: 2026-02-05 — Completed Plan 22-01 (Schema 확장 및 프롬프트 빌더)
 
-Progress: [████████████████████░░░░] 86% (6/7 phases complete)
+Progress: [█████████████████████░░░] 88% (6.25/7 phases complete)
 
 **v2.1 학부모 상담 관리 시스템**
 - Phase 16: Parent & Reservation Database Schema (✅ complete)
@@ -45,7 +45,11 @@ Progress: [████████████████████░░░
   - Plan 21-05: 필터 및 테이블 컴포넌트 (✅)
   - Plan 21-06: 페이지 통합 (✅)
   - Plan 21-07: 테스트 및 검증 (✅)
-- Phase 22: AI Integration (pending)
+- Phase 22: AI Integration (in progress)
+  - Plan 22-01: Schema 확장 및 프롬프트 빌더 (✅)
+  - Plan 22-02: 상담 요약 Server Action (pending)
+  - Plan 22-03: 성향 기반 상담 조언 (pending)
+  - Plan 22-04: UI 통합 및 검증 (pending)
 
 ## Performance Metrics
 
@@ -71,13 +75,15 @@ Progress: [████████████████████░░░
 | 19 (v2.1) | 3 | 22 min | ~7 min |
 | 20 (v2.1) | 3 | 7 min | ~2.3 min |
 | 21 (v2.1) | 7 | 109 min | ~15.6 min |
+| 22 (v2.1) | 1/4 | 3 min | ~3 min |
 
 **Recent Trend:**
 - v2.0 complete: 40 plans in ~119 min (~3 min/plan average)
 - v2.1 Phase 16-21 complete: 22 plans in 157 min (~7.1 min/plan average)
+- v2.1 Phase 22 in progress: 1 plan in 3 min
 - Velocity: v1.0 (7 min) → v2.0 (~3 min) → v2.1 (~7 min, includes comprehensive testing)
 
-*Updated after Phase 21 Plan 07 completion*
+*Updated after Phase 22 Plan 01 completion*
 
 ## Accumulated Context
 
@@ -147,6 +153,10 @@ Recent decisions affecting current work:
 - [21-06] getDateRangeFromPreset 유틸리티 분리: "use server" 파일에서 동기 함수 export 불가, 별도 파일로 분리
 - [21-07] ESLint 외부 스크립트 제외: .agent, scripts, prisma.config.ts를 globalIgnores에 추가하여 빌드 안정성 확보
 - [21-07] Playwright 자동 검증: E2E 테스트로 8개 주요 기능 체계적 검증
+- [22-01] 기존 PersonalitySummary 관계 활용: Student.personalitySummary String 필드 대신 기존 관계의 coreTraits 필드 사용 (명명 충돌 방지)
+- [22-01] 상담 요약 출력 형식 Markdown: 핵심 내용, 합의 사항, 관찰 사항, 후속 조치 섹션으로 구조화
+- [22-01] 성향 요약 출력 형식 단순 텍스트: 1-2문장으로 직접 사용 가능
+- [22-01] 이전 상담 이력 5개 제한: 프롬프트 토큰 효율성
 
 **v2.0 결정 (영향 있음):**
 - [11-02] Prisma Client Extensions over deprecated Middleware - $allOperations pattern for automatic teamId filtering
@@ -179,9 +189,9 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-04 23:49 KST
-Stopped at: Completed Phase 21 Plan 07 (테스트 및 검증) - Phase 21 complete
+Last session: 2026-02-05 01:14 KST
+Stopped at: Completed Phase 22 Plan 01 (Schema 확장 및 프롬프트 빌더)
 Resume file: None
 
 ---
-*Last updated: 2026-02-04 (Phase 21 완료)*
+*Last updated: 2026-02-05 (Phase 22-01 완료)*
