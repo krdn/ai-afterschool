@@ -164,6 +164,7 @@ export async function recordCounselingAction(
   const satisfactionScore = formData.get("satisfactionScore")
     ? parseInt(formData.get("satisfactionScore") as string)
     : null
+  const aiSummary = formData.get("aiSummary") as string | null
 
   if (!studentId || !sessionDateStr || isNaN(duration) || !type || !summary) {
     return { error: "필수 항목을 모두 입력해주세요." }
@@ -195,6 +196,7 @@ export async function recordCounselingAction(
       followUpRequired,
       followUpDate,
       satisfactionScore,
+      aiSummary,
     })
 
     revalidatePath(`/students/${studentId}`)

@@ -192,6 +192,7 @@ type CounselingSessionPayload = {
   followUpRequired?: boolean
   followUpDate?: Date | null
   satisfactionScore?: number | null
+  aiSummary?: string | null
 }
 
 /**
@@ -211,6 +212,7 @@ export async function createCounselingSession(payload: CounselingSessionPayload)
     followUpRequired: payload.followUpRequired ?? false,
     followUpDate: payload.followUpDate ?? null,
     satisfactionScore: payload.satisfactionScore ?? null,
+    aiSummary: payload.aiSummary ?? null,
   }
 
   return db.counselingSession.create({
