@@ -2,7 +2,6 @@
 
 import { verifySession } from "@/lib/dal"
 import { getRBACPrisma } from "@/lib/db/rbac"
-import { db } from "@/lib/db"
 import { CounselingType, Prisma } from "@prisma/client"
 import { startOfMonth, endOfMonth, subMonths } from "date-fns"
 import type {
