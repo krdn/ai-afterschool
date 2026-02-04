@@ -1,9 +1,9 @@
 {
   "triggered_by": "git-post-commit-hook",
-  "commit_hash": "a082300b01eb319d532e05a3e25cde78e9adf2c9",
-  "commit_message": "docs(18-04): complete reservation card and list components plan\n\nTasks completed: 3/3\n- AlertDialog component installed (shadcn/ui)\n- ReservationCard component with status change buttons and confirmation\n- ReservationList component with filtering, search, and empty state handling\n\nSUMMARY: .planning/phases/18-reservation-management-ui/18-04-SUMMARY.md\n\nCo-Authored-By: Claude <noreply@anthropic.com>\n",
+  "commit_hash": "7466917579d1af69ddbb46a1a42f6578839e907a",
+  "commit_message": "feat(20-02): 학생 페이지에 상담 섹션 통합\n\n- counselingSessions 데이터 페칭 추가 (studentId, teacherId 필터링)\n- upcomingReservation 데이터 페칭 추가 (SCHEDULED, 미래 예약)\n- CounselingSection 컴포넌트를 페이지 하단에 추가\n- teacherId 기반 보안 필터링 적용\n",
   "commit_author": "gon",
-  "commit_date": "2026-02-04 14:01:47 +0900",
-  "timestamp": 1770181307,
+  "commit_date": "2026-02-04 18:40:36 +0900",
+  "timestamp": 1770198036,
   "branch": "main"
 }
