@@ -412,6 +412,7 @@ model CounselingSession {
   duration          Int
   type              CounselingType
   summary           String
+  aiSummary         String?
   followUpRequired  Boolean                      @default(false)
   followUpDate      DateTime?
   satisfactionScore Int?
