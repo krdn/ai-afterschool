@@ -8,11 +8,22 @@ import {
   getReservations,
   getReservationById,
   createReservationWithConflictCheck,
+  updateReservation,
+  deleteReservation,
+  transitionReservationStatus,
   type GetReservationsParams,
 } from '@/lib/db/reservations'
 import { ReservationStatus } from '@prisma/client'
-import { createReservationSchema } from '@/lib/validations/reservations'
-import type { CreateReservationInput } from '@/lib/validations/reservations'
+import {
+  createReservationSchema,
+  reservationUpdateSchema,
+  reservationDeleteSchema,
+} from '@/lib/validations/reservations'
+import type {
+  CreateReservationInput,
+  UpdateReservationInput,
+  DeleteReservationInput,
+} from '@/lib/validations/reservations'
 
 /**
  * 예약 생성 결과 타입
@@ -274,6 +285,264 @@ export async function createReservationAction(
     return {
       success: false,
       error: '예약 생성 중 오류가 발생했습니다.',
+    }
+  }
+}
+
+/**
+ * 예약 수정 결과 타입
+ */
+export type UpdateReservationResult = {
+  success: boolean
+  data?: {
+    id: string
+    scheduledAt: Date
+    student: { id: string; name: string }
+    parent: { id: string; name: string; relation: string }
+    teacher: { id: string; name: string }
+  }
+  error?: string
+  fieldErrors?: {
+    scheduledAt?: string[]
+    studentId?: string[]
+    parentId?: string[]
+    topic?: string[]
+  }
+}
+
+/**
+ * 예약 삭제 결과 타입
+ */
+export type DeleteReservationResult = {
+  success: boolean
+  error?: string
+}
+
+/**
+ * 예약 수정 액션
+ * - 인증 및 권한 체크
+ * - Zod 검증
+ * - RBAC 체크
+ * - updateReservation() 호출
+ * - revalidatePath()
+ */
+export async function updateReservationAction(
+  input: UpdateReservationInput & { reservationId: string }
+): Promise<UpdateReservationResult> {
+  // 1. 인증 체크
+  const session = await verifySession()
+
+  if (!session) {
+    return {
+      success: false,
+      error: '인증되지 않은 요청입니다.',
+    }
+  }
+
+  // 2. Zod 스키마 검증
+  const validationResult = reservationUpdateSchema.safeParse(input)
+
+  if (!validationResult.success) {
+    return {
+      success: false,
+      fieldErrors: validationResult.error.flatten().fieldErrors,
+    }
+  }
+
+  const { reservationId, scheduledAt, studentId, parentId, topic } =
+    validationResult.data
+
+  // 3. RBAC Prisma Client 생성
+  const rbacDb = getRBACPrisma(session)
+
+  try {
+    // 4. 기존 예약 조회
+    const existingReservation = await rbacDb.parentCounselingReservation.findUnique({
+      where: {
+        id: reservationId,
+        teacherId: session.userId,
+      },
+      select: {
+        id: true,
+        studentId: true,
+        status: true,
+      },
+    })
+
+    if (!existingReservation) {
+      return {
+        success: false,
+        error: '예약을 찾을 수 없습니다.',
+      }
+    }
+
+    // 5. 학생 변경 시 권한 확인
+    if (studentId && studentId !== existingReservation.studentId) {
+      const student = await rbacDb.student.findUnique({
+        where: { id: studentId },
+        select: { id: true, name: true, primaryParentId: true },
+      })
+
+      if (!student) {
+        return {
+          success: false,
+          error: '학생을 찾을 수 없습니다.',
+        }
+      }
+    }
+
+    // 6. 학부모 변경 시 검증
+    const targetStudentId = studentId || existingReservation.studentId
+    if (parentId) {
+      const parent = await rbacDb.parent.findFirst({
+        where: {
+          id: parentId,
+          studentId: targetStudentId,
+        },
+      })
+
+      if (!parent) {
+        return {
+          success: false,
+          error: '학부모를 찾을 수 없습니다.',
+        }
+      }
+    }
+
+    // 7. 예약 수정
+    const updatedReservation = await updateReservation({
+      reservationId,
+      teacherId: session.userId,
+      ...(scheduledAt && { scheduledAt: new Date(scheduledAt) }),
+      ...(studentId && { studentId }),
+      ...(parentId && { parentId }),
+      ...(topic && { topic }),
+    })
+
+    // 8. 캐시 무효화
+    revalidatePath('/reservations')
+    revalidatePath(`/reservations/${reservationId}`)
+    revalidatePath(`/students/${targetStudentId}`)
+
+    return {
+      success: true,
+      data: {
+        id: updatedReservation.id,
+        scheduledAt: updatedReservation.scheduledAt,
+        student: updatedReservation.student,
+        parent: updatedReservation.parent,
+        teacher: updatedReservation.teacher,
+      },
+    }
+  } catch (error) {
+    console.error('Failed to update reservation:', error)
+
+    // 에러 메시지 처리
+    if (error instanceof Error) {
+      if (error.message === '이미 완료된 예약은 수정할 수 없습니다') {
+        return {
+          success: false,
+          error: error.message,
+        }
+      }
+      if (error.message === '이미 해당 시간대에 예약이 있습니다') {
+        return {
+          success: false,
+          error: error.message,
+        }
+      }
+    }
+
+    return {
+      success: false,
+      error: '예약 수정 중 오류가 발생했습니다.',
+    }
+  }
+}
+
+/**
+ * 예약 삭제 액션
+ * - 인증 및 권한 체크
+ * - 상태 검증
+ * - 삭제 처리
+ * - revalidatePath()
+ */
+export async function deleteReservationAction(
+  input: DeleteReservationInput
+): Promise<DeleteReservationResult> {
+  // 1. 인증 체크
+  const session = await verifySession()
+
+  if (!session) {
+    return {
+      success: false,
+      error: '인증되지 않은 요청입니다.',
+    }
+  }
+
+  // 2. Zod 스키마 검증
+  const validationResult = reservationDeleteSchema.safeParse(input)
+
+  if (!validationResult.success) {
+    return {
+      success: false,
+      error: '잘못된 요청입니다.',
+    }
+  }
+
+  const { reservationId } = validationResult.data
+
+  // 3. RBAC Prisma Client 생성
+  const rbacDb = getRBACPrisma(session)
+
+  try {
+    // 4. 기존 예약 조회 (캐시 무효화를 위해 studentId 필요)
+    const existingReservation = await rbacDb.parentCounselingReservation.findUnique({
+      where: {
+        id: reservationId,
+        teacherId: session.userId,
+      },
+      select: {
+        id: true,
+        studentId: true,
+        status: true,
+      },
+    })
+
+    if (!existingReservation) {
+      return {
+        success: false,
+        error: '예약을 찾을 수 없습니다.',
+      }
+    }
+
+    // 5. 예약 삭제
+    await deleteReservation(reservationId, session.userId)
+
+    // 6. 캐시 무효화
+    revalidatePath('/reservations')
+    revalidatePath(`/reservations/${reservationId}`)
+    revalidatePath(`/students/${existingReservation.studentId}`)
+
+    return {
+      success: true,
+    }
+  } catch (error) {
+    console.error('Failed to delete reservation:', error)
+
+    // 에러 메시지 처리
+    if (error instanceof Error) {
+      if (error.message === '이미 완료된 예약은 삭제할 수 없습니다') {
+        return {
+          success: false,
+          error: error.message,
+        }
+      }
+    }
+
+    return {
+      success: false,
+      error: '예약 삭제 중 오류가 발생했습니다.',
     }
   }
 }
