@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 18 - Reservation Management UI
-Plan: 04 of 04 (Plan 18-04 완료)
+Plan: 05 of 05 (Plan 18-05 완료)
 Status: Phase complete
-Last activity: 2026-02-04 — Completed 18-04-PLAN.md
+Last activity: 2026-02-04 — Completed 18-05-PLAN.md
 
-Progress: [██░░░░░░░░░░░░░░░░░░░░░░░] 20% (2/7 phases complete, 4/4 plans in Phase 18)
+Progress: [███░░░░░░░░░░░░░░░░░░░░░░] 27% (3/7 phases complete, 5/5 plans in Phase 18)
 
 **v2.1 학부모 상담 관리 시스템**
 - Phase 16: Parent & Reservation Database Schema (✅ complete)
@@ -28,6 +28,7 @@ Progress: [██░░░░░░░░░░░░░░░░░░░░░
   - Plan 18-02: DatePicker 컴포넌트 생성 (✅)
   - Plan 18-03: 예약 등록 폼 (✅)
   - Plan 18-04: 예약 카드와 목록 (✅)
+  - Plan 18-05: 탭 기반 페이지 통합 (✅)
 - Phase 19: Calendar View (pending)
 - Phase 20: Student Page Integration (pending)
 - Phase 21: Statistics & Dashboard (pending)
@@ -94,6 +95,9 @@ Recent decisions affecting current work:
 - [18-04] AlertDialog 확인 패턴: 모든 상태 변경 전 사용자 확인 다이얼로그 표시
 - [18-04] 상태 변경 버튼 색상: 완료(초록), 취소(회색), 노쇼(주황)
 - [18-04] 검색 디바운스: 300ms 딜레이로 불필요한 필터링 연산 방지
+- [18-05] Server Component + Client Component Tabs 패턴: 페이지는 Server Component로 유지, 탭 상태는 Client Component에서 관리
+- [18-05] FormView 상태 기반 전환: URL 변경 없이 useState로 목록/폼 뷰 전환 (SPA 경험)
+- [18-05] 외부 dateFilter prop: ReservationList가 부모로부터 날짜 필터를 받아서 캘린더 클릭 기반 필터링 구현
 
 **v2.0 결정 (영향 있음):**
 - [11-02] Prisma Client Extensions over deprecated Middleware - $allOperations pattern for automatic teamId filtering
@@ -126,9 +130,9 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-04 14:00 KST
-Stopped at: Completed Phase 18 Plan 04 (예약 카드와 목록 컴포넌트)
+Last session: 2026-02-04 14:15 KST
+Stopped at: Completed Phase 18 Plan 05 (탭 기반 페이지 통합 및 전체 예약 관리 UI 완성)
 Resume file: None
 
 ---
-*Last updated: 2026-02-04 (Phase 18-04 완료)*
+*Last updated: 2026-02-04 (Phase 18-05 완료)*
