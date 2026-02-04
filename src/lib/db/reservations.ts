@@ -217,3 +217,158 @@ export async function getReservationById(id: string, teacherId: string) {
     },
   })
 }
+
+/**
+ * 예약 수정 파라미터
+ */
+export interface UpdateReservationParams {
+  reservationId: string
+  teacherId: string
+  scheduledAt?: Date
+  studentId?: string
+  parentId?: string
+  topic?: string
+}
+
+/**
+ * 예약 수정
+ * - 현재 상태가 SCHEDULED인지 확인
+ * - 시간 변경 시 중복 검증
+ * - 트랜잭션으로 원자적 처리
+ *
+ * @param params 수정 파라미터
+ * @returns 수정된 예약
+ * @throws {Error} SCHEDULED 상태가 아닌 경우
+ * @throws {Error} 시간 중복인 경우
+ */
+export async function updateReservation(params: UpdateReservationParams) {
+  const { reservationId, teacherId, scheduledAt, studentId, parentId, topic } = params
+
+  return await db.$transaction(async (tx) => {
+    // 1. 현재 예약 상태 확인
+    const existingReservation = await tx.parentCounselingReservation.findUnique({
+      where: {
+        id: reservationId,
+        teacherId,
+      },
+    })
+
+    if (!existingReservation) {
+      throw new Error('예약을 찾을 수 없습니다')
+    }
+
+    if (existingReservation.status !== ReservationStatus.SCHEDULED) {
+      throw new Error('이미 완료된 예약은 수정할 수 없습니다')
+    }
+
+    // 2. 시간 변경 시 중복 검증
+    if (scheduledAt) {
+      const slotStart = new Date(scheduledAt)
+      const slotEnd = new Date(slotStart.getTime() + 30 * 60 * 1000)
+
+      const conflictingReservation = await tx.parentCounselingReservation.findFirst({
+        where: {
+          teacherId,
+          status: {
+            not: ReservationStatus.CANCELLED,
+          },
+          id: {
+            not: reservationId, // 자기 자신 제외
+          },
+          OR: [
+            {
+              scheduledAt: {
+                gte: slotStart,
+                lt: slotEnd,
+              },
+            },
+            {
+              scheduledAt: {
+                lt: slotStart,
+              },
+              counselingSessionId: null,
+            },
+          ],
+        },
+      })
+
+      if (conflictingReservation) {
+        throw new Error('이미 해당 시간대에 예약이 있습니다')
+      }
+    }
+
+    // 3. 예약 수정
+    const updatedReservation = await tx.parentCounselingReservation.update({
+      where: {
+        id: reservationId,
+        teacherId,
+      },
+      data: {
+        ...(scheduledAt && { scheduledAt }),
+        ...(studentId && { studentId }),
+        ...(parentId && { parentId }),
+        ...(topic && { topic }),
+      },
+      include: {
+        student: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        parent: {
+          select: {
+            id: true,
+            name: true,
+            relation: true,
+          },
+        },
+        teacher: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    })
+
+    return updatedReservation
+  })
+}
+
+/**
+ * 예약 삭제
+ * - SCHEDULED 상태만 삭제 가능
+ * - hard delete (Prisma cascade로 연관 데이터 자동 정리)
+ *
+ * @param reservationId 예약 ID
+ * @param teacherId 선생님 ID
+ * @throws {Error} SCHEDULED 상태가 아닌 경우
+ */
+export async function deleteReservation(reservationId: string, teacherId: string) {
+  // 1. 현재 예약 상태 확인
+  const existingReservation = await db.parentCounselingReservation.findUnique({
+    where: {
+      id: reservationId,
+      teacherId,
+    },
+  })
+
+  if (!existingReservation) {
+    throw new Error('예약을 찾을 수 없습니다')
+  }
+
+  if (existingReservation.status !== ReservationStatus.SCHEDULED) {
+    throw new Error('이미 완료된 예약은 삭제할 수 없습니다')
+  }
+
+  // 2. hard delete
+  await db.parentCounselingReservation.delete({
+    where: {
+      id: reservationId,
+      teacherId,
+    },
+  })
+
+  return { success: true }
+}
