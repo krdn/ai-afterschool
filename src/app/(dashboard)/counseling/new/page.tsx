@@ -38,5 +38,5 @@ export default async function NewCounselingPage() {
     },
   })
 
-  return <NewCounselingClient students={students} />
+  return <NewCounselingClient students={students} teacherId={session.userId} />
 }
