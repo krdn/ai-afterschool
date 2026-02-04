@@ -348,12 +348,12 @@ Plans:
   2. 학생별 상담 이력이 시간순으로 정렬되어 조회된다
   3. 다음 예약된 상담이 학생 페이지 상단에 표시된다
 **Plans**: 3 plans
-**Status**: Planned
+**Status**: Complete (2026-02-04)
 
 Plans:
-- [ ] 20-01-PLAN.md — shadcn/ui Alert 및 Dialog 컴포넌트 설치
-- [ ] 20-02-PLAN.md — 상담 섹션 컴포넌트 생성 및 페이지 통합
-- [ ] 20-03-PLAN.md — 통합 검증
+- [x] 20-01-PLAN.md — shadcn/ui Alert 및 Dialog 컴포넌트 설치
+- [x] 20-02-PLAN.md — 상담 섹션 컴포넌트 생성 및 페이지 통합
+- [x] 20-03-PLAN.md — 통합 검증
 
 **Key concerns to address:**
 - 기존 학생 상세 페이지 UI 유지하며 섹션 추가 (탭 아님 - Research 확인)
@@ -419,11 +419,11 @@ Phases execute in numeric order: 16 → 17 → 18 → 19 → 20 → 21 → 22
 | 17. Reservation Server Actions | v2.1 | 4/4 | Complete | 2026-02-04 |
 | 18. Reservation Management UI | v2.1 | 5/5 | Complete | 2026-02-04 |
 | 19. Calendar View | v2.1 | 3/3 | Complete | 2026-02-04 |
-| 20. Student Page Integration | v2.1 | 0/3 | Planned | — |
+| 20. Student Page Integration | v2.1 | 3/3 | Complete | 2026-02-04 |
 | 21. Statistics & Dashboard | v2.1 | 0/? | Pending | — |
 | 22. AI Integration | v2.1 | 0/? | Pending | — |
 
-**Overall Progress:** 111/118+ plans complete (v1.0-v2.0: 100%, v2.1: 4/7 phases complete, Phase 20 planned, 2 phases pending)
+**Overall Progress:** 114/118+ plans complete (v1.0-v2.0: 100%, v2.1: 5/7 phases complete, 2 phases pending)
 
 ---
-*Last updated: 2026-02-04 (Phase 20 planned)*
+*Last updated: 2026-02-04 (Phase 20 complete)*
