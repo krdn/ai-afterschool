@@ -35,3 +35,60 @@ export const createReservationSchema = z.object({
 })
 
 export type CreateReservationInput = z.infer<typeof createReservationSchema>
+
+/**
+ * 예약 수정 스키마
+ * - 모든 필드 선택적 (부분 수정 지원)
+ * - 시간 변경 시 30분 단위 검증
+ */
+export const reservationUpdateSchema = z.object({
+  scheduledAt: z
+    .string()
+    .optional()
+    .refine((val) => !val || !Number.isNaN(new Date(val).getTime()), {
+      message: "올바른 날짜 형식이 아닙니다",
+    })
+    .refine((val) => !val || validate30MinuteSlot(val), {
+      message: "예약 시간은 30분 단위로 선택해주세요 (00분 또는 30분)",
+    }),
+  studentId: z.string().optional(),
+  parentId: z.string().optional(),
+  topic: z
+    .string()
+    .min(2, "상담 주제는 2자 이상 입력해주세요")
+    .max(200, "상담 주제는 200자 이하여야 합니다")
+    .optional(),
+})
+
+export type UpdateReservationInput = z.infer<typeof reservationUpdateSchema>
+
+/**
+ * 예약 삭제 스키마
+ * - reservationId 필수
+ */
+export const reservationDeleteSchema = z.object({
+  reservationId: z.string().min(1, "예약 ID가 필요합니다"),
+})
+
+export type DeleteReservationInput = z.infer<typeof reservationDeleteSchema>
+
+/**
+ * 예약 상태 전환 스키마
+ */
+export const statusTransitionSchema = z.object({
+  reservationId: z.string().min(1, "예약 ID를 입력해주세요"),
+  newStatus: z.enum(['COMPLETED', 'CANCELLED', 'NO_SHOW'], {
+    errorMap: () => ({ message: "유효하지 않은 상태입니다" }),
+  }),
+})
+
+/**
+ * 예약 완료 스키마 (상담 내용 포함)
+ */
+export const completeReservationSchema = z.object({
+  reservationId: z.string().min(1, "예약 ID를 입력해주세요"),
+  summary: z.string().optional(),
+})
+
+export type StatusTransitionInput = z.infer<typeof statusTransitionSchema>
+export type CompleteReservationInput = z.infer<typeof completeReservationSchema>
