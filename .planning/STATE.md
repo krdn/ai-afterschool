@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 
 ## Current Position
 
-Phase: 18 - Reservation Management UI
-Plan: 05 of 05 (Plan 18-05 완료)
-Status: Phase complete
-Last activity: 2026-02-04 — Completed 18-05-PLAN.md
+Phase: 19 - Calendar View
+Plan: 00 of 03 (Planning complete)
+Status: Ready for execution
+Last activity: 2026-02-04 — Created 19-01/02/03-PLAN.md
 
-Progress: [███░░░░░░░░░░░░░░░░░░░░░░] 27% (3/7 phases complete, 5/5 plans in Phase 18)
+Progress: [███░░░░░░░░░░░░░░░░░░░░░░] 29% (3/7 phases complete, Phase 19 planned)
 
 **v2.1 학부모 상담 관리 시스템**
 - Phase 16: Parent & Reservation Database Schema (✅ complete)
@@ -29,7 +29,10 @@ Progress: [███░░░░░░░░░░░░░░░░░░░░
   - Plan 18-03: 예약 등록 폼 (✅)
   - Plan 18-04: 예약 카드와 목록 (✅)
   - Plan 18-05: 탭 기반 페이지 통합 (✅)
-- Phase 19: Calendar View (pending)
+- Phase 19: Calendar View (planned)
+  - Plan 19-01: 캘린더 유틸리티 및 월간 뷰 (pending)
+  - Plan 19-02: 주간 캘린더 뷰 (pending)
+  - Plan 19-03: 페이지 통합 및 뷰 전환 (pending)
 - Phase 20: Student Page Integration (pending)
 - Phase 21: Statistics & Dashboard (pending)
 - Phase 22: AI Integration (pending)
