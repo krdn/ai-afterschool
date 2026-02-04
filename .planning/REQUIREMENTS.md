@@ -9,14 +9,14 @@
 
 ### 학부모 정보 관리
 
-- [ ] **PARENT-01**: 학생별 학부모 정보 등록 (이름, 연락처, 관계)
-- [ ] **PARENT-02**: 복수 학부모 지원 (부/모/보호자)
-- [ ] **PARENT-03**: 주 연락처 지정 기능
+- [x] **PARENT-01**: 학생별 학부모 정보 등록 (이름, 연락처, 관계)
+- [x] **PARENT-02**: 복수 학부모 지원 (부/모/보호자)
+- [x] **PARENT-03**: 주 연락처 지정 기능
 
 ### 상담 예약 관리
 
-- [ ] **RESERVE-01**: 상담 예약 등록 (날짜, 시간, 학부모, 주제)
-- [ ] **RESERVE-02**: 예약 상태 관리 (예약됨/완료/취소/불참)
+- [x] **RESERVE-01**: 상담 예약 등록 (날짜, 시간, 학부모, 주제)
+- [x] **RESERVE-02**: 예약 상태 관리 (예약됨/완료/취소/불참)
 - [ ] **RESERVE-03**: 예약 목록 조회 및 검색
 - [ ] **RESERVE-04**: 예약 수정 및 삭제
 - [ ] **RESERVE-05**: 예약 -> 완료 -> 기록 워크플로우
@@ -83,11 +83,11 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PARENT-01 | Phase 16 | Pending |
-| PARENT-02 | Phase 16 | Pending |
-| PARENT-03 | Phase 16 | Pending |
-| RESERVE-01 | Phase 16 | Pending |
-| RESERVE-02 | Phase 16 | Pending |
+| PARENT-01 | Phase 16 | Complete |
+| PARENT-02 | Phase 16 | Complete |
+| PARENT-03 | Phase 16 | Complete |
+| RESERVE-01 | Phase 16 | Complete |
+| RESERVE-02 | Phase 16 | Complete |
 | RESERVE-03 | Phase 17 | Pending |
 | RESERVE-04 | Phase 17 | Pending |
 | RESERVE-05 | Phase 17 | Pending |
@@ -116,4 +116,4 @@
 
 ---
 *Requirements defined: 2026-02-04*
-*Last updated: 2026-02-04 after roadmap creation*
+*Last updated: 2026-02-04 (Phase 16 complete)*
