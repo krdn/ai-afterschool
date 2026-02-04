@@ -1,11 +1,16 @@
+"use client"
+
+import { useState } from "react"
 import type { CounselingSession, Student, Teacher } from "@prisma/client"
 import { CounselingSessionCard, type CounselingSessionWithRelations } from "./CounselingSessionCard"
+import { CounselingSessionModal } from "./CounselingSessionModal"
 
 interface CounselingHistoryListProps {
   sessions: CounselingSessionWithRelations[]
 }
 
 export function CounselingHistoryList({ sessions }: CounselingHistoryListProps) {
+  const [selectedSession, setSelectedSession] = useState<CounselingSessionWithRelations | null>(null)
   if (sessions.length === 0) {
     return (
       <div className="text-center py-12">
@@ -23,11 +28,23 @@ export function CounselingHistoryList({ sessions }: CounselingHistoryListProps) 
           <h3 className="text-lg font-semibold mb-3 text-gray-800">{month}</h3>
           <div className="space-y-3">
             {monthSessions.map((session) => (
-              <CounselingSessionCard key={session.id} session={session} />
+              <CounselingSessionCard
+                key={session.id}
+                session={session}
+                onClick={() => setSelectedSession(session)}
+              />
             ))}
           </div>
         </div>
       ))}
+      {/* Modal */}
+      {selectedSession && (
+        <CounselingSessionModal
+          session={selectedSession}
+          open={!!selectedSession}
+          onOpenChange={(open) => !open && setSelectedSession(null)}
+        />
+      )}
     </div>
   )
 }
