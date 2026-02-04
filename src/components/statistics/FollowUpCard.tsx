@@ -6,7 +6,6 @@ import { ko } from "date-fns/locale"
 import type { FollowUpItem } from "@/types/follow-up"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
   AlertCircle,
