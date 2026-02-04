@@ -47,7 +47,17 @@ export default async function StudentsPage() {
         )}
       </div>
 
-      {students.length === 0 ? <EmptyState /> : <StudentTable data={students} />}
+      {students.length === 0 ? (
+        <EmptyState
+          tips={[
+            '이름, 생년월일, 학교, 학년 정보만으로 등록할 수 있어요',
+            '등록 후 MBTI 검사와 성향 분석을 진행할 수 있어요',
+            '사진을 업로드하면 관상/손금 분석도 가능해요',
+          ]}
+        />
+      ) : (
+        <StudentTable data={students} />
+      )}
     </div>
   )
 }

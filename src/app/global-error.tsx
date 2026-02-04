@@ -48,16 +48,25 @@ export default function GlobalError({
             </div>
 
             <h1 className="mb-2 text-center text-2xl font-bold text-gray-900">
-              오류가 발생했습니다
+              일시적인 문제가 발생했어요
             </h1>
-            <p className="mb-6 text-center text-gray-600">
-              죄송합니다. 예기치 않은 오류가 발생했습니다.
-              {error.digest && (
-                <span className="block mt-2 text-sm text-gray-500">
-                  오류 코드: {error.digest}
-                </span>
-              )}
+            <p className="mb-4 text-center text-gray-600">
+              페이지를 불러오는 중 문제가 발생했어요.
             </p>
+
+            <div className="mb-6 p-3 rounded-lg bg-gray-50 text-sm text-gray-600">
+              <p className="font-medium mb-2">이렇게 해보세요:</p>
+              <ul className="list-disc list-inside space-y-1">
+                <li>페이지를 새로고침 해보세요</li>
+                <li>인터넷 연결을 확인해보세요</li>
+                <li>잠시 후 다시 시도해보세요</li>
+              </ul>
+              {error.digest && (
+                <p className="mt-3 text-xs text-gray-400">
+                  문의 시 참고 코드: {error.digest}
+                </p>
+              )}
+            </div>
 
             <div className="space-y-3">
               <button
@@ -67,16 +76,16 @@ export default function GlobalError({
                 다시 시도
               </button>
               <button
-                onClick={() => window.location.href = '/'}
+                onClick={() => window.location.href = '/students'}
                 className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-700 font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
               >
-                홈으로 가기
+                학생 목록으로 가기
               </button>
             </div>
 
             <div className="mt-6 border-t pt-4">
               <p className="text-center text-sm text-gray-500">
-                이 문제가 계속되면 관리자에게 문의해 주세요.
+                문제가 계속되면 관리자에게 문의해 주세요.
               </p>
             </div>
           </div>

@@ -1,9 +1,10 @@
 "use client"
 
-import { startTransition, useActionState, useEffect, useId, useState } from "react"
+import { startTransition, useActionState, useEffect, useId, useState, useRef } from "react"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { toast } from "sonner"
 import {
   createStudent,
   updateStudent,
@@ -83,6 +84,23 @@ export function StudentForm({ student }: StudentFormProps) {
     isEditing ? boundUpdateStudent! : createStudent,
     { errors: {} }
   )
+
+  // 폼 에러 발생 시 토스트 표시
+  const prevErrorRef = useRef<string | undefined>(undefined)
+  useEffect(() => {
+    const errorMessage = state?.errors?._form?.[0]
+    if (errorMessage && errorMessage !== prevErrorRef.current) {
+      toast.error(errorMessage, { id: "student-form-submit" })
+      prevErrorRef.current = errorMessage
+    }
+  }, [state?.errors?._form])
+
+  // pending이 끝났지만 에러가 없으면 로딩 토스트 닫기 (성공 시 redirect되므로 보통 이 경우는 발생하지 않음)
+  useEffect(() => {
+    if (!pending && !state?.errors?._form) {
+      toast.dismiss("student-form-submit")
+    }
+  }, [pending, state?.errors?._form])
 
   type StudentFormValues = z.input<typeof CreateStudentSchema>
 
@@ -173,6 +191,11 @@ export function StudentForm({ student }: StudentFormProps) {
     }
 
     const formData = new FormData(formElement)
+
+    // 제출 시작 토스트 표시
+    toast.loading(isEditing ? "학생 정보 수정 중..." : "학생 등록 중...", {
+      id: "student-form-submit",
+    })
 
     startTransition(() => {
       formAction(formData)
