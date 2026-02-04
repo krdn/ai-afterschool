@@ -7,16 +7,20 @@ export type CounselingSessionWithRelations = CounselingSession & {
 
 interface CounselingSessionCardProps {
   session: CounselingSessionWithRelations
+  onClick?: () => void
 }
 
-export function CounselingSessionCard({ session }: CounselingSessionCardProps) {
+export function CounselingSessionCard({ session, onClick }: CounselingSessionCardProps) {
   const relativeTime = getRelativeTime(session.sessionDate)
   const typeLabel = getTypeLabel(session.type)
   const typeColor = getTypeColor(session.type)
   const satisfactionScore = session.satisfactionScore ?? undefined
 
   return (
-    <div className="border rounded-lg p-4 space-y-3 hover:bg-gray-50 transition-colors">
+    <div
+      className="border rounded-lg p-4 space-y-3 hover:bg-gray-50 transition-colors cursor-pointer"
+      onClick={onClick}
+    >
       {/* Header: Date and Type */}
       <div className="flex items-center justify-between">
         <span className="text-sm text-gray-500">{relativeTime}</span>
