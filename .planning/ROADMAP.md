@@ -272,8 +272,11 @@ Plans:
   2. 학부모 중 한 명을 주 연락처로 지정할 수 있다
   3. 상담 예약 데이터(날짜, 시간, 학부모, 주제)가 저장된다
   4. 예약 상태(SCHEDULED/COMPLETED/CANCELLED/NO_SHOW)가 관리된다
-**Plans**: TBD
-**Status**: Pending
+**Plans**: 1 plan in 1 wave
+**Status**: Planned
+
+Plans:
+- [ ] 16-01-PLAN.md — Parent & ParentCounselingReservation Prisma 모델 정의 및 DB 마이그레이션
 
 **Key concerns to address:**
 - 기존 CounselingSession 모델과 분리하여 예약 전용 모델 생성
@@ -397,7 +400,7 @@ Phases execute in numeric order: 16 → 17 → 18 → 19 → 20 → 21 → 22
 | 13. Compatibility Analysis & Matching | v2.0 | 8/8 | Complete | 2026-01-31 |
 | 14. Performance Analytics & Team Insights | v2.0 | 8/8 | Complete | 2026-01-31 |
 | 15. Multi-LLM Integration & Smart Routing | v2.0 | 8/8 | Complete | 2026-02-02 |
-| 16. Parent & Reservation Database Schema | v2.1 | 0/? | Pending | — |
+| 16. Parent & Reservation Database Schema | v2.1 | 0/1 | Planned | — |
 | 17. Reservation Server Actions | v2.1 | 0/? | Pending | — |
 | 18. Reservation Management UI | v2.1 | 0/? | Pending | — |
 | 19. Calendar View | v2.1 | 0/? | Pending | — |
@@ -405,7 +408,7 @@ Phases execute in numeric order: 16 → 17 → 18 → 19 → 20 → 21 → 22
 | 21. Statistics & Dashboard | v2.1 | 0/? | Pending | — |
 | 22. AI Integration | v2.1 | 0/? | Pending | — |
 
-**Overall Progress:** 98/98+ plans complete (v1.0-v2.0: 100%, v2.1: 0%)
+**Overall Progress:** 98/99+ plans complete (v1.0-v2.0: 100%, v2.1: 0%)
 
 ---
-*Last updated: 2026-02-04 (v2.1 roadmap created)*
+*Last updated: 2026-02-04 (Phase 16 planned)*
