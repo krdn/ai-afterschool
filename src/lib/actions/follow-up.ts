@@ -181,7 +181,6 @@ export async function completeFollowUpAction(input: CompleteFollowUpInput) {
     // 완료 처리: satisfactionScore를 임시값(1)으로 설정
     // Note: 기존 스키마에 followUpCompleted 필드가 없으므로,
     //       satisfactionScore !== null을 완료 기준으로 사용
-    const now = new Date();
     const updatedSession = await db.counselingSession.update({
       where: { id: input.sessionId },
       data: {
