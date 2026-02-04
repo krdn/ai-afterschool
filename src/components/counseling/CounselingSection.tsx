@@ -24,7 +24,7 @@ export function CounselingSection({ sessions, upcomingReservation }: CounselingS
           <AlertDescription className="text-blue-800">
             {format(new Date(upcomingReservation.scheduledAt), "M월 d일 E요일 HH:mm", { locale: ko })}에{" "}
             {upcomingReservation.parent.name} ({upcomingReservation.parent.relation})와{" "}
-            "{upcomingReservation.topic}" 주제로 상담이 예정되어 있습니다.
+            &quot;{upcomingReservation.topic}&quot; 주제로 상담이 예정되어 있습니다.
           </AlertDescription>
         </Alert>
       ) : null}
