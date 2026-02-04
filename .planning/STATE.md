@@ -9,16 +9,20 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 
 ## Current Position
 
-Phase: 16 - Parent & Reservation Database Schema
-Plan: 01 of 01 (Plan 16-01 완료)
-Status: Phase 16 complete
-Last activity: 2026-02-04 — Completed 16-01-PLAN.md
+Phase: 17 - Reservation Server Actions
+Plan: 02 of 04 (Plan 17-02 완료)
+Status: In progress
+Last activity: 2026-02-04 — Completed 17-02-PLAN.md
 
-Progress: [███░░░░░░░░░░░░░░░░░░░░░░] 14% (1/7 phases complete)
+Progress: [███░░░░░░░░░░░░░░░░░░░░░░] 15% (2/7 phases complete, 2/4 plans in Phase 17)
 
 **v2.1 학부모 상담 관리 시스템**
 - Phase 16: Parent & Reservation Database Schema (✅ complete)
-- Phase 17: Reservation Server Actions (pending)
+- Phase 17: Reservation Server Actions (🔄 in progress - 2/4 complete)
+  - Plan 17-01: 예약 생성 Server Actions (✅)
+  - Plan 17-02: 예약 목록 조회 및 검색 (✅)
+  - Plan 17-03: 예약 수정/삭제 (pending)
+  - Plan 17-04: 예약 상태 변경 (pending)
 - Phase 18: Reservation Management UI (pending)
 - Phase 19: Calendar View (pending)
 - Phase 20: Student Page Integration (pending)
@@ -44,13 +48,14 @@ Progress: [███░░░░░░░░░░░░░░░░░░░░
 | 14 (v2.0) | 8 | 25 min | ~3.1 min |
 | 15 (v2.0) | 8 | 35 min | ~4.4 min |
 | 16 (v2.1) | 1 | 2 min | ~2 min |
+| 17 (v2.1) | 2 | 4 min | ~2 min |
 
 **Recent Trend:**
 - v2.0 complete: 40 plans in ~119 min (~3 min/plan average)
-- v2.1 started: Phase 16 complete in 2 min (1 plan)
+- v2.1 started: Phase 16-17 (3 plans) in 6 min (~2 min/plan average)
 - Velocity improved significantly from v1.0 (7 min) to v2.0-v2.1 (~2-3 min)
 
-*Updated after Phase 16 completion*
+*Updated after Phase 17-02 completion*
 
 ## Accumulated Context
 
@@ -67,6 +72,8 @@ Recent decisions affecting current work:
 - [16-01] Student FK 간접 격리: Parent/Reservation은 Student를 참조하여 기존 RBAC Extension 재사용
 - [16-01] 주 연락처 이중 저장: Student.primaryParentId FK + Parent.isPrimary 플래그로 빠른 조회와 관리 모두 지원
 - [16-01] ON DELETE CASCADE: Parent/Reservation FK에 Cascade 적용 (Phase 14 결정사항과 일관성)
+- [17-02] 예약 조회 시 teacherId 필터링: getReservationById에서 teacherId를 where 조건에 포함하여 다른 선생님 예약 접근 방지
+- [17-02] Server Action 응답 형식 통일: { success, data?, error? } 형식을 사용하여 기존 students.ts 패턴과 일관성 유지
 
 **v2.0 결정 (영향 있음):**
 - [11-02] Prisma Client Extensions over deprecated Middleware - $allOperations pattern for automatic teamId filtering
@@ -99,9 +106,9 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-04 12:10 KST
-Stopped at: Completed Phase 16 Plan 01 (Parent & Reservation Database Schema)
+Last session: 2026-02-04 12:53 KST
+Stopped at: Completed Phase 17 Plan 02 (Reservation List & Search)
 Resume file: None
 
 ---
-*Last updated: 2026-02-04 (Phase 16-01 완료)*
+*Last updated: 2026-02-04 (Phase 17-02 완료)*
