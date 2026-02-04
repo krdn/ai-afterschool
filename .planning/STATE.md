@@ -10,14 +10,14 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 16 - Parent & Reservation Database Schema
-Plan: —
-Status: Ready to start Phase 16
-Last activity: 2026-02-04 — v2.1 Roadmap created
+Plan: 01 of 01 (Plan 16-01 완료)
+Status: Phase 16 complete
+Last activity: 2026-02-04 — Completed 16-01-PLAN.md
 
-Progress: [░░░░░░░░░░░░░░░░░░░░░░░░░] 0% (0/7 phases complete)
+Progress: [███░░░░░░░░░░░░░░░░░░░░░░] 14% (1/7 phases complete)
 
 **v2.1 학부모 상담 관리 시스템**
-- Phase 16: Parent & Reservation Database Schema (pending)
+- Phase 16: Parent & Reservation Database Schema (✅ complete)
 - Phase 17: Reservation Server Actions (pending)
 - Phase 18: Reservation Management UI (pending)
 - Phase 19: Calendar View (pending)
@@ -28,9 +28,9 @@ Progress: [░░░░░░░░░░░░░░░░░░░░░░░
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 98 (v1.0-v2.0)
-- Average duration: ~4.4 min
-- Total execution time: ~7.3 hours
+- Total plans completed: 99 (v1.0-v2.1)
+- Average duration: ~4.3 min
+- Total execution time: ~7.4 hours
 
 **By Phase:**
 
@@ -43,12 +43,14 @@ Progress: [░░░░░░░░░░░░░░░░░░░░░░░
 | 13 (v2.0) | 8 | 13 min | ~1.6 min |
 | 14 (v2.0) | 8 | 25 min | ~3.1 min |
 | 15 (v2.0) | 8 | 35 min | ~4.4 min |
+| 16 (v2.1) | 1 | 2 min | ~2 min |
 
 **Recent Trend:**
 - v2.0 complete: 40 plans in ~119 min (~3 min/plan average)
-- Velocity improved significantly from v1.0 (7 min) to v2.0 (3 min)
+- v2.1 started: Phase 16 complete in 2 min (1 plan)
+- Velocity improved significantly from v1.0 (7 min) to v2.0-v2.1 (~2-3 min)
 
-*Updated after v2.1 roadmap creation*
+*Updated after Phase 16 completion*
 
 ## Accumulated Context
 
@@ -62,6 +64,9 @@ Recent decisions affecting current work:
 - [v2.1] 내부 기록 전용: 외부 알림 없이 시스템에만 기록
 - [v2.1] ParentCounselingReservation 별도 모델: 기존 CounselingSession과 분리하여 예약 전용 책임 부여
 - [v2.1] react-day-picker + shadcn/ui Calendar: 날짜 선택 UX 개선 (45KB gzipped)
+- [16-01] Student FK 간접 격리: Parent/Reservation은 Student를 참조하여 기존 RBAC Extension 재사용
+- [16-01] 주 연락처 이중 저장: Student.primaryParentId FK + Parent.isPrimary 플래그로 빠른 조회와 관리 모두 지원
+- [16-01] ON DELETE CASCADE: Parent/Reservation FK에 Cascade 적용 (Phase 14 결정사항과 일관성)
 
 **v2.0 결정 (영향 있음):**
 - [11-02] Prisma Client Extensions over deprecated Middleware - $allOperations pattern for automatic teamId filtering
@@ -94,9 +99,9 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-04 14:30 KST
-Stopped at: v2.1 Roadmap created, ready for Phase 16 planning
+Last session: 2026-02-04 12:10 KST
+Stopped at: Completed Phase 16 Plan 01 (Parent & Reservation Database Schema)
 Resume file: None
 
 ---
-*Last updated: 2026-02-04 (v2.1 roadmap created)*
+*Last updated: 2026-02-04 (Phase 16-01 완료)*
