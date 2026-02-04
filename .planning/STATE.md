@@ -5,22 +5,22 @@
 See: .planning/PROJECT.md (updated 2026-02-04)
 
 **Core value:** 학생 정보 통합 관리를 기반으로 AI 성향 분석 및 맞춤형 학습/진로 제안 제공
-**Current focus:** v2.1 - Parent Counseling Management (Phase 16 ready)
+**Current focus:** v2.1 - Parent Counseling Management (Phase 16-17)
 
 ## Current Position
 
 Phase: 17 - Reservation Server Actions
-Plan: 02 of 04 (Plan 17-02 완료)
+Plan: 01 of 04 (Plan 17-01 완료)
 Status: In progress
-Last activity: 2026-02-04 — Completed 17-02-PLAN.md
+Last activity: 2026-02-04 — Completed 17-01-PLAN.md
 
-Progress: [███░░░░░░░░░░░░░░░░░░░░░░] 15% (2/7 phases complete, 2/4 plans in Phase 17)
+Progress: [███░░░░░░░░░░░░░░░░░░░░░░] 15% (2/7 phases complete, 1/4 plans in Phase 17)
 
 **v2.1 학부모 상담 관리 시스템**
 - Phase 16: Parent & Reservation Database Schema (✅ complete)
-- Phase 17: Reservation Server Actions (🔄 in progress - 2/4 complete)
+- Phase 17: Reservation Server Actions (🔄 in progress - 1/4 complete)
   - Plan 17-01: 예약 생성 Server Actions (✅)
-  - Plan 17-02: 예약 목록 조회 및 검색 (✅)
+  - Plan 17-02: 예약 목록 조회 및 검색 (pending)
   - Plan 17-03: 예약 수정/삭제 (pending)
   - Plan 17-04: 예약 상태 변경 (pending)
 - Phase 18: Reservation Management UI (pending)
@@ -32,9 +32,9 @@ Progress: [███░░░░░░░░░░░░░░░░░░░░
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 99 (v1.0-v2.1)
+- Total plans completed: 100 (v1.0-v2.1)
 - Average duration: ~4.3 min
-- Total execution time: ~7.4 hours
+- Total execution time: ~7.5 hours
 
 **By Phase:**
 
@@ -48,14 +48,14 @@ Progress: [███░░░░░░░░░░░░░░░░░░░░
 | 14 (v2.0) | 8 | 25 min | ~3.1 min |
 | 15 (v2.0) | 8 | 35 min | ~4.4 min |
 | 16 (v2.1) | 1 | 2 min | ~2 min |
-| 17 (v2.1) | 2 | 4 min | ~2 min |
+| 17 (v2.1) | 1 | 4 min | ~4 min |
 
 **Recent Trend:**
 - v2.0 complete: 40 plans in ~119 min (~3 min/plan average)
-- v2.1 started: Phase 16-17 (3 plans) in 6 min (~2 min/plan average)
+- v2.1 started: Phase 16-17 (2 plans) in 6 min (~3 min/plan average)
 - Velocity improved significantly from v1.0 (7 min) to v2.0-v2.1 (~2-3 min)
 
-*Updated after Phase 17-02 completion*
+*Updated after Phase 17-01 completion*
 
 ## Accumulated Context
 
@@ -72,8 +72,9 @@ Recent decisions affecting current work:
 - [16-01] Student FK 간접 격리: Parent/Reservation은 Student를 참조하여 기존 RBAC Extension 재사용
 - [16-01] 주 연락처 이중 저장: Student.primaryParentId FK + Parent.isPrimary 플래그로 빠른 조회와 관리 모두 지원
 - [16-01] ON DELETE CASCADE: Parent/Reservation FK에 Cascade 적용 (Phase 14 결정사항과 일관성)
-- [17-02] 예약 조회 시 teacherId 필터링: getReservationById에서 teacherId를 where 조건에 포함하여 다른 선생님 예약 접근 방지
-- [17-02] Server Action 응답 형식 통일: { success, data?, error? } 형식을 사용하여 기존 students.ts 패턴과 일관성 유지
+- [17-01] 30분 단위 시간 슬롯 검증: Zod 커스텀 규칙으로 분이 0 또는 30인지 확인
+- [17-01] 트랜잭션 기반 중복 검증: 같은 선생님의 같은 시간대 예약을 CANCELLED 상태 제외하고 확인
+- [17-01] Prisma 타입 사용: ESLint 오류 방지를 위해 any 대신 Prisma.ParentCounselingReservationWhereInput 사용
 
 **v2.0 결정 (영향 있음):**
 - [11-02] Prisma Client Extensions over deprecated Middleware - $allOperations pattern for automatic teamId filtering
@@ -106,9 +107,9 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-04 12:53 KST
-Stopped at: Completed Phase 17 Plan 02 (Reservation List & Search)
+Last session: 2026-02-04 12:57 KST
+Stopped at: Completed Phase 17 Plan 01 (예약 생성 Server Actions)
 Resume file: None
 
 ---
-*Last updated: 2026-02-04 (Phase 17-02 완료)*
+*Last updated: 2026-02-04 (Phase 17-01 완료)*
