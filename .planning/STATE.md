@@ -32,7 +32,7 @@ Progress: [███░░░░░░░░░░░░░░░░░░░░
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 100 (v1.0-v2.1)
+- Total plans completed: 101 (v1.0-v2.1)
 - Average duration: ~4.3 min
 - Total execution time: ~7.5 hours
 
@@ -52,10 +52,10 @@ Progress: [███░░░░░░░░░░░░░░░░░░░░
 
 **Recent Trend:**
 - v2.0 complete: 40 plans in ~119 min (~3 min/plan average)
-- v2.1 started: Phase 16-17 (5 plans) in 9 min (~2 min/plan average)
+- v2.1 started: Phase 16-17 (5 plans) in 10 min (~2 min/plan average)
 - Velocity improved significantly from v1.0 (7 min) to v2.0-v2.1 (~2-3 min)
 
-*Updated after Phase 17-03 completion*
+*Updated after Phase 17-04 completion*
 
 ## Accumulated Context
 
@@ -78,6 +78,9 @@ Recent decisions affecting current work:
 - [17-03] Hard delete for SCHEDULED reservations: Prisma cascade로 연관 데이터 자동 정리
 - [17-03] 상태 기반 수정/삭제 제어: SCHEDULED 상태만 수정/삭제 가능 (COMPLETED/CANCELLED/NO_SHOW 불가)
 - [17-03] 부분 수정 지원: 모든 필드 선택적 (scheduledAt, studentId, parentId, topic)
+- [17-04] COMPLETED 전환 시 CounselingSession 자동 생성: 트랜잭션으로 원자성 보장
+- [17-04] 상태 전환 제어: SCHEDULED 상태에서만 COMPLETED/CANCELLED/NO_SHOW로 전환 가능
+- [17-04] CounselingSession 기본값: duration 30분, type ACADEMIC (필요시 변경 가능)
 
 **v2.0 결정 (영향 있음):**
 - [11-02] Prisma Client Extensions over deprecated Middleware - $allOperations pattern for automatic teamId filtering
@@ -111,8 +114,8 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-04 13:00 KST
-Stopped at: Completed Phase 17 Plan 03 (예약 수정/삭제 Server Actions)
+Stopped at: Completed Phase 17 Plan 04 (상태 전환 및 CounselingSession 연결)
 Resume file: None
 
 ---
-*Last updated: 2026-02-04 (Phase 17-03 완료)*
+*Last updated: 2026-02-04 (Phase 17-04 완료, Phase 17 전체 완료)*
