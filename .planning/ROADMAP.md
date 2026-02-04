@@ -388,19 +388,29 @@ Plans:
 - 후속 조치 지연 상태 계산 및 시각적 강조
 
 #### Phase 22: AI Integration
-**Goal**: AI 기반 상담 지원 기능
+**Goal**: AI 기반 상담 지원 기능 - 성향 정보 표시, 궁합 점수 참조, AI 요약 생성
 **Depends on**: Phase 21
 **Requirements**: AI-01, AI-02, AI-03
 **Success Criteria** (what must be TRUE):
   1. 상담 시 학생의 기존 성향 분석 정보가 자동으로 표시된다
   2. 선생님-학생 궁합 점수가 상담 화면에서 참조 가능하다
   3. AI가 상담 내용 요약문 초안을 생성할 수 있다
-**Plans**: TBD
-**Status**: Pending
+**Plans**: 7 plans in 4 waves
+**Status**: Planned
+
+Plans:
+- [ ] 22-01-PLAN.md — Schema 확장 및 프롬프트 빌더 (aiSummary, personalitySummary 필드)
+- [ ] 22-02-PLAN.md — shadcn/ui Sheet, Collapsible 컴포넌트 설치
+- [ ] 22-03-PLAN.md — AI 상담 지원 Server Actions (데이터 조회, 요약 생성)
+- [ ] 22-04-PLAN.md — AI 지원 패널 내부 컴포넌트 (성향/궁합/요약)
+- [ ] 22-05-PLAN.md — AI 지원 사이드 패널 (Sheet 기반)
+- [ ] 22-06-PLAN.md — 상담 폼에 AI 지원 패널 통합
+- [ ] 22-07-PLAN.md — 통합 테스트 및 검증
 
 **Key concerns to address:**
 - 기존 LLM 라우터(Phase 15) 활용
 - 요약 생성 프롬프트 설계
+- 모바일 반응형 사이드 패널
 
 ## Progress
 
@@ -430,9 +440,9 @@ Phases execute in numeric order: 16 → 17 → 18 → 19 → 20 → 21 → 22
 | 19. Calendar View | v2.1 | 3/3 | Complete | 2026-02-04 |
 | 20. Student Page Integration | v2.1 | 3/3 | Complete | 2026-02-04 |
 | 21. Statistics & Dashboard | v2.1 | 7/7 | Complete | 2026-02-04 |
-| 22. AI Integration | v2.1 | 0/? | Pending | — |
+| 22. AI Integration | v2.1 | 0/7 | Planned | — |
 
-**Overall Progress:** 121/121+ plans complete (v1.0-v2.0: 100%, v2.1: 6/7 phases complete, 1 phase pending)
+**Overall Progress:** 121/128 plans complete (v1.0-v2.0: 100%, v2.1: 6/7 phases complete, Phase 22 planned)
 
 ---
-*Last updated: 2026-02-04 (Phase 21 complete)*
+*Last updated: 2026-02-05 (Phase 22 planning complete)*
