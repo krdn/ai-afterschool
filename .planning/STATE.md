@@ -9,10 +9,10 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 
 ## Current Position
 
-Phase: 20 - Student Page Integration
-Plan: 03 of 03
-Status: ✅ Complete
-Last activity: 2026-02-04 — Completed Plan 20-03 (테스트 및 검증)
+Phase: 21 - Statistics & Dashboard
+Plan: 02 of 03
+Status: In Progress
+Last activity: 2026-02-04 — Completed Plan 21-02 (후속 조치 Server Actions)
 
 Progress: [█████░░░░░░░░░░░░░░░░░░░░] 43% (4/7 phases complete)
 
@@ -37,15 +37,18 @@ Progress: [█████░░░░░░░░░░░░░░░░░░
   - Plan 20-01: shadcn/ui Alert & Dialog 설치 (✅)
   - Plan 20-02: 상담 섹션 컴포넌트 구현 (✅)
   - Plan 20-03: 테스트 및 검증 (✅)
-- Phase 21: Statistics & Dashboard (pending)
+- Phase 21: Statistics & Dashboard (in progress)
+  - Plan 21-01: 상담 통계 Server Actions (✅)
+  - Plan 21-02: 후속 조치 Server Actions (✅)
+  - Plan 21-03: 대시보드 UI (pending)
 - Phase 22: AI Integration (pending)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 114 (v1.0-v2.1)
-- Average duration: ~4.3 min
-- Total execution time: ~7.8 hours
+- Total plans completed: 116 (v1.0-v2.1)
+- Average duration: ~4.1 min
+- Total execution time: ~7.9 hours
 
 **By Phase:**
 
@@ -63,13 +66,14 @@ Progress: [█████░░░░░░░░░░░░░░░░░░
 | 18 (v2.1) | 5 | 14 min | ~3 min |
 | 19 (v2.1) | 3 | 22 min | ~7 min |
 | 20 (v2.1) | 3 | 7 min | ~2.3 min |
+| 21 (v2.1) | 2 | 6 min | ~3 min |
 
 **Recent Trend:**
 - v2.0 complete: 40 plans in ~119 min (~3 min/plan average)
-- v2.1 complete: Phase 16-20 (16 plans) in 53 min (~3.3 min/plan average)
+- v2.1 in progress: Phase 16-21 (18 plans) in 59 min (~3.3 min/plan average)
 - Velocity improved significantly from v1.0 (7 min) to v2.0-v2.1 (~3 min)
 
-*Updated after Phase 20 completion*
+*Updated after Phase 21 Plan 02 completion*
 
 ## Accumulated Context
 
@@ -122,6 +126,10 @@ Recent decisions affecting current work:
 - [20-02] TypeScript null safety: satisfactionScore에 nullish coalescing (??) 연산자 사용으로 null 참조 오류 방지
 - [20-03] Manual browser verification: UI/UX 검증을 위해 브라우저에서 직접 테스트 후 체크포인트 통과
 - [20-03] Screenshot documentation: 스크린샷을 planning docs에 저장하여 향후 회귀 테스트 기준 확보
+- [21-02] satisfactionScore 활용: 기존 스키마의 satisfactionScore !== null을 후속 조치 완료 기준으로 사용
+- [21-02] date-fns 날짜 범위: startOfDay, endOfDay, startOfWeek, endOfWeek로 오늘/이번 주 필터링, 한국 로케일(ko) 적용
+- [21-02] isBefore 지연 계산: followUpDate < today && 미완료 조건으로 overdue 상태 자동 계산
+- [21-02] 마감일 임박순 정렬: followUpDate ASC로 긴급한 후속 조치 먼저 표시
 
 **v2.0 결정 (영향 있음):**
 - [11-02] Prisma Client Extensions over deprecated Middleware - $allOperations pattern for automatic teamId filtering
@@ -154,9 +162,9 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-04 19:00 KST
-Stopped at: Completed Phase 20 Plan 03 (테스트 및 검증) - Phase 20 complete
+Last session: 2026-02-04 21:55 KST
+Stopped at: Completed Phase 21 Plan 02 (후속 조치 Server Actions) - Phase 21 in progress
 Resume file: None
 
 ---
-*Last updated: 2026-02-04 (Phase 20 완료)*
+*Last updated: 2026-02-04 (Phase 21 Plan 02 완료)*
