@@ -83,37 +83,37 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PARENT-01 | TBD | Pending |
-| PARENT-02 | TBD | Pending |
-| PARENT-03 | TBD | Pending |
-| RESERVE-01 | TBD | Pending |
-| RESERVE-02 | TBD | Pending |
-| RESERVE-03 | TBD | Pending |
-| RESERVE-04 | TBD | Pending |
-| RESERVE-05 | TBD | Pending |
-| CALENDAR-01 | TBD | Pending |
-| CALENDAR-02 | TBD | Pending |
-| CALENDAR-03 | TBD | Pending |
-| HISTORY-01 | TBD | Pending |
-| HISTORY-02 | TBD | Pending |
-| HISTORY-03 | TBD | Pending |
-| HISTORY-04 | TBD | Pending |
-| STATS-01 | TBD | Pending |
-| STATS-02 | TBD | Pending |
-| STATS-03 | TBD | Pending |
-| STATS-04 | TBD | Pending |
-| AI-01 | TBD | Pending |
-| AI-02 | TBD | Pending |
-| AI-03 | TBD | Pending |
-| FOLLOWUP-01 | TBD | Pending |
-| FOLLOWUP-02 | TBD | Pending |
-| FOLLOWUP-03 | TBD | Pending |
+| PARENT-01 | Phase 16 | Pending |
+| PARENT-02 | Phase 16 | Pending |
+| PARENT-03 | Phase 16 | Pending |
+| RESERVE-01 | Phase 16 | Pending |
+| RESERVE-02 | Phase 16 | Pending |
+| RESERVE-03 | Phase 17 | Pending |
+| RESERVE-04 | Phase 17 | Pending |
+| RESERVE-05 | Phase 17 | Pending |
+| CALENDAR-01 | Phase 19 | Pending |
+| CALENDAR-02 | Phase 19 | Pending |
+| CALENDAR-03 | Phase 18 | Pending |
+| HISTORY-01 | Phase 20 | Pending |
+| HISTORY-02 | Phase 20 | Pending |
+| HISTORY-03 | Phase 20 | Pending |
+| HISTORY-04 | Phase 18 | Pending |
+| STATS-01 | Phase 21 | Pending |
+| STATS-02 | Phase 21 | Pending |
+| STATS-03 | Phase 21 | Pending |
+| STATS-04 | Phase 21 | Pending |
+| AI-01 | Phase 22 | Pending |
+| AI-02 | Phase 22 | Pending |
+| AI-03 | Phase 22 | Pending |
+| FOLLOWUP-01 | Phase 21 | Pending |
+| FOLLOWUP-02 | Phase 21 | Pending |
+| FOLLOWUP-03 | Phase 21 | Pending |
 
 **Coverage:**
 - v2.1 requirements: 25 total
-- Mapped to phases: 0
-- Unmapped: 25 ⚠️
+- Mapped to phases: 25
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-04*
-*Last updated: 2026-02-04 after initial definition*
+*Last updated: 2026-02-04 after roadmap creation*
