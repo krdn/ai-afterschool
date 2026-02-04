@@ -23,16 +23,16 @@
 
 ### 캘린더 뷰
 
-- [ ] **CALENDAR-01**: 월간 캘린더 뷰로 예약 현황 시각화
-- [ ] **CALENDAR-02**: 주간 캘린더 뷰
-- [ ] **CALENDAR-03**: 날짜 클릭 시 해당 일 상담 목록 표시
+- [x] **CALENDAR-01**: 월간 캘린더 뷰로 예약 현황 시각화
+- [x] **CALENDAR-02**: 주간 캘린더 뷰
+- [x] **CALENDAR-03**: 날짜 클릭 시 해당 일 상담 목록 표시
 
 ### 상담 이력 조회
 
-- [ ] **HISTORY-01**: 학생별 상담 이력 목록
-- [ ] **HISTORY-02**: 학생 상세 페이지 내 상담 탭 추가
-- [ ] **HISTORY-03**: 다음 예약된 상담 표시
-- [ ] **HISTORY-04**: 빠른 상담 기록 버튼
+- [x] **HISTORY-01**: 학생별 상담 이력 목록
+- [x] **HISTORY-02**: 학생 상세 페이지 내 상담 탭 추가
+- [x] **HISTORY-03**: 다음 예약된 상담 표시
+- [x] **HISTORY-04**: 빠른 상담 기록 버튼
 
 ### 상담 통계
 
@@ -43,9 +43,9 @@
 
 ### AI 기능
 
-- [ ] **AI-01**: 상담 시 학생 성향 분석 정보 자동 표시
-- [ ] **AI-02**: 선생님-학생 궁합 점수 참조
-- [ ] **AI-03**: AI 기반 상담 내용 요약문 초안 생성
+- [x] **AI-01**: 상담 시 학생 성향 분석 정보 자동 표시
+- [x] **AI-02**: 선생님-학생 궁합 점수 참조
+- [x] **AI-03**: AI 기반 상담 내용 요약문 초안 생성
 
 ### 후속 조치 관리
 
@@ -91,20 +91,20 @@
 | RESERVE-03 | Phase 17 | Complete |
 | RESERVE-04 | Phase 17 | Complete |
 | RESERVE-05 | Phase 17 | Complete |
-| CALENDAR-01 | Phase 19 | Pending |
-| CALENDAR-02 | Phase 19 | Pending |
-| CALENDAR-03 | Phase 18 | Pending |
-| HISTORY-01 | Phase 20 | Pending |
-| HISTORY-02 | Phase 20 | Pending |
-| HISTORY-03 | Phase 20 | Pending |
-| HISTORY-04 | Phase 18 | Pending |
+| CALENDAR-01 | Phase 19 | Complete |
+| CALENDAR-02 | Phase 19 | Complete |
+| CALENDAR-03 | Phase 18 | Complete |
+| HISTORY-01 | Phase 20 | Complete |
+| HISTORY-02 | Phase 20 | Complete |
+| HISTORY-03 | Phase 20 | Complete |
+| HISTORY-04 | Phase 18 | Complete |
 | STATS-01 | Phase 21 | Complete |
 | STATS-02 | Phase 21 | Complete |
 | STATS-03 | Phase 21 | Complete |
 | STATS-04 | Phase 21 | Complete |
-| AI-01 | Phase 22 | Pending |
-| AI-02 | Phase 22 | Pending |
-| AI-03 | Phase 22 | Pending |
+| AI-01 | Phase 22 | Complete |
+| AI-02 | Phase 22 | Complete |
+| AI-03 | Phase 22 | Complete |
 | FOLLOWUP-01 | Phase 21 | Complete |
 | FOLLOWUP-02 | Phase 21 | Complete |
 | FOLLOWUP-03 | Phase 21 | Complete |
@@ -112,9 +112,9 @@
 **Coverage:**
 - v2.1 requirements: 25 total
 - Mapped to phases: 25
-- Complete: 8/25 (32%)
+- Complete: 25/25 (100%) ✅
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-04*
-*Last updated: 2026-02-04 (Phase 17 complete)*
+*Last updated: 2026-02-05 (v2.1 마일스톤 완료)*
