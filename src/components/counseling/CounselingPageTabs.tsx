@@ -7,7 +7,7 @@ import { Plus } from "lucide-react"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { ReservationList } from "@/components/counseling/ReservationList"
 import { ReservationForm } from "@/components/counseling/ReservationForm"
-import { ReservationCalendar } from "@/components/counseling/ReservationCalendar"
+import { ReservationCalendarView } from "@/components/counseling/ReservationCalendarView"
 import { getReservationsAction } from "@/lib/actions/reservations"
 import type { ReservationWithRelations } from "@/components/counseling/ReservationCard"
 import type { CounselingSessionData } from "./types"
@@ -25,14 +25,20 @@ interface CounselingPageTabsProps {
 
 type FormView = "list" | "form"
 
+type TabType = "history" | "reservations" | "calendar"
+
 export function CounselingPageTabs({ initialTab, sessions, session, children }: CounselingPageTabsProps) {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState<"history" | "reservations">(
-    initialTab === "reservations" ? "reservations" : "history"
+  const [activeTab, setActiveTab] = useState<TabType>(
+    (initialTab === "reservations" || initialTab === "calendar") ? initialTab as TabType : "history"
   )
   const [formView, setFormView] = useState<FormView>("list")
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
   const [reservations, setReservations] = useState<ReservationWithRelations[]>([])
+
+  // 캘린더 뷰 관련 상태
+  const [calendarViewDate, setCalendarViewDate] = useState<Date>(new Date())
+  const [calendarDateFilter, setCalendarDateFilter] = useState<Date | undefined>(undefined)
 
   // 컴포넌트 마운트 시 예약 목록 로드
   useEffect(() => {
@@ -63,10 +69,11 @@ export function CounselingPageTabs({ initialTab, sessions, session, children }: 
   }
 
   return (
-    <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "history" | "reservations")}>
+    <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as TabType)}>
       <TabsList>
         <TabsTrigger value="history">상담 기록</TabsTrigger>
         <TabsTrigger value="reservations">예약 관리</TabsTrigger>
+        <TabsTrigger value="calendar">캘린더</TabsTrigger>
       </TabsList>
 
       {/* 상담 기록 탭 */}
@@ -79,29 +86,29 @@ export function CounselingPageTabs({ initialTab, sessions, session, children }: 
         <div className="space-y-6">
           {formView === "list" ? (
             <>
-              {/* 탭 헤더: 날짜 선택 + 새 예약 등록 버튼 */}
-              <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-                <div className="flex-1">
-                  <ReservationCalendar
-                    selected={selectedDate}
-                    onSelect={setSelectedDate}
-                    className="max-w-md"
-                  />
-                  {selectedDate && (
+              {/* 탭 헤더: 캘린더 뷰 + 새 예약 등록 버튼 */}
+              <div className="space-y-4">
+                <div className="flex justify-end">
+                  <Button onClick={() => setFormView("form")} className="flex items-center gap-2">
+                    <Plus className="h-4 w-4" />
+                    새 예약 등록
+                  </Button>
+                </div>
+                <ReservationCalendarView
+                  initialDate={selectedDate}
+                  onDateSelect={setSelectedDate}
+                />
+                {selectedDate && (
+                  <div className="flex justify-center">
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={clearDateFilter}
-                      className="mt-2"
                     >
                       날짜 필터 해제
                     </Button>
-                  )}
-                </div>
-                <Button onClick={() => setFormView("form")} className="flex items-center gap-2">
-                  <Plus className="h-4 w-4" />
-                  새 예약 등록
-                </Button>
+                  </div>
+                )}
               </div>
 
               {/* 예약 목록 */}
@@ -124,6 +131,41 @@ export function CounselingPageTabs({ initialTab, sessions, session, children }: 
                 router.refresh()
               }}
             />
+          )}
+        </div>
+      </TabsContent>
+
+      {/* 캘린더 탭 */}
+      <TabsContent value="calendar" className="mt-4">
+        <div className="space-y-6">
+          {/* 캘린더 뷰 */}
+          <ReservationCalendarView
+            initialDate={calendarViewDate}
+            onDateSelect={(date) => {
+              setCalendarDateFilter(date)
+              // 캘린더에서 날짜 선택 시 자동으로 예약 관리 탭으로 전환
+              if (date) {
+                setSelectedDate(date)
+                setActiveTab("reservations")
+              }
+            }}
+          />
+
+          {/* 선택한 날짜 정보 표시 */}
+          {calendarDateFilter && (
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground">
+                선택한 날짜: {calendarDateFilter.toLocaleDateString("ko-KR")}
+              </p>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setCalendarDateFilter(undefined)}
+                className="mt-2"
+              >
+                날짜 선택 초기화
+              </Button>
+            </div>
           )}
         </div>
       </TabsContent>
