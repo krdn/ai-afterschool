@@ -19,8 +19,8 @@ import {
   getTeacherMonthlyStatsAction,
   getCounselingTypeDistributionAction,
   getMonthlyTrendAction,
-  getDateRangeFromPreset,
 } from "@/lib/actions/counseling-stats"
+import { getDateRangeFromPreset } from "@/lib/utils/date-range"
 import { getFollowUpsAction, completeFollowUpAction } from "@/lib/actions/follow-up"
 import { toast } from "sonner"
 
@@ -73,9 +73,9 @@ export function StatisticsDashboard({
         if (teacherStatsRes.success && typeDistRes.success && trendRes.success) {
           setStats(prev => ({
             ...prev,
-            teacherStats: teacherStatsRes.data,
-            typeDistribution: typeDistRes.data,
-            monthlyTrend: trendRes.data,
+            teacherStats: teacherStatsRes.data!,
+            typeDistribution: typeDistRes.data!,
+            monthlyTrend: trendRes.data!,
           }))
         }
       } catch (error) {
@@ -102,7 +102,7 @@ export function StatisticsDashboard({
 
         // 후속 조치 목록 재조회
         const followUpResult = await getFollowUpsAction({ scope: 'week' })
-        if (followUpResult.success) {
+        if (followUpResult.success && followUpResult.data) {
           setFollowUps(followUpResult.data)
         }
       } else {
