@@ -10,19 +10,19 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 17 - Reservation Server Actions
-Plan: 01 of 04 (Plan 17-01 완료)
-Status: In progress
-Last activity: 2026-02-04 — Completed 17-01-PLAN.md
+Plan: 04 of 04 (Plan 17-04 완료)
+Status: Phase complete
+Last activity: 2026-02-04 — Completed 17-04-PLAN.md
 
-Progress: [███░░░░░░░░░░░░░░░░░░░░░░] 15% (2/7 phases complete, 1/4 plans in Phase 17)
+Progress: [███░░░░░░░░░░░░░░░░░░░░░░] 17% (2/7 phases complete, 4/4 plans in Phase 17)
 
 **v2.1 학부모 상담 관리 시스템**
 - Phase 16: Parent & Reservation Database Schema (✅ complete)
-- Phase 17: Reservation Server Actions (🔄 in progress - 1/4 complete)
+- Phase 17: Reservation Server Actions (✅ complete)
   - Plan 17-01: 예약 생성 Server Actions (✅)
-  - Plan 17-02: 예약 목록 조회 및 검색 (pending)
-  - Plan 17-03: 예약 수정/삭제 (pending)
-  - Plan 17-04: 예약 상태 변경 (pending)
+  - Plan 17-02: 예약 목록 조회 및 검색 (✅)
+  - Plan 17-03: 예약 수정/삭제 (✅)
+  - Plan 17-04: 예약 상태 변경 (✅)
 - Phase 18: Reservation Management UI (pending)
 - Phase 19: Calendar View (pending)
 - Phase 20: Student Page Integration (pending)
@@ -48,14 +48,14 @@ Progress: [███░░░░░░░░░░░░░░░░░░░░
 | 14 (v2.0) | 8 | 25 min | ~3.1 min |
 | 15 (v2.0) | 8 | 35 min | ~4.4 min |
 | 16 (v2.1) | 1 | 2 min | ~2 min |
-| 17 (v2.1) | 1 | 4 min | ~4 min |
+| 17 (v2.1) | 4 | 8 min | ~2 min |
 
 **Recent Trend:**
 - v2.0 complete: 40 plans in ~119 min (~3 min/plan average)
-- v2.1 started: Phase 16-17 (2 plans) in 6 min (~3 min/plan average)
+- v2.1 started: Phase 16-17 (5 plans) in 9 min (~2 min/plan average)
 - Velocity improved significantly from v1.0 (7 min) to v2.0-v2.1 (~2-3 min)
 
-*Updated after Phase 17-01 completion*
+*Updated after Phase 17-03 completion*
 
 ## Accumulated Context
 
@@ -75,6 +75,9 @@ Recent decisions affecting current work:
 - [17-01] 30분 단위 시간 슬롯 검증: Zod 커스텀 규칙으로 분이 0 또는 30인지 확인
 - [17-01] 트랜잭션 기반 중복 검증: 같은 선생님의 같은 시간대 예약을 CANCELLED 상태 제외하고 확인
 - [17-01] Prisma 타입 사용: ESLint 오류 방지를 위해 any 대신 Prisma.ParentCounselingReservationWhereInput 사용
+- [17-03] Hard delete for SCHEDULED reservations: Prisma cascade로 연관 데이터 자동 정리
+- [17-03] 상태 기반 수정/삭제 제어: SCHEDULED 상태만 수정/삭제 가능 (COMPLETED/CANCELLED/NO_SHOW 불가)
+- [17-03] 부분 수정 지원: 모든 필드 선택적 (scheduledAt, studentId, parentId, topic)
 
 **v2.0 결정 (영향 있음):**
 - [11-02] Prisma Client Extensions over deprecated Middleware - $allOperations pattern for automatic teamId filtering
@@ -107,9 +110,9 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-04 12:57 KST
-Stopped at: Completed Phase 17 Plan 01 (예약 생성 Server Actions)
+Last session: 2026-02-04 13:00 KST
+Stopped at: Completed Phase 17 Plan 03 (예약 수정/삭제 Server Actions)
 Resume file: None
 
 ---
-*Last updated: 2026-02-04 (Phase 17-01 완료)*
+*Last updated: 2026-02-04 (Phase 17-03 완료)*
