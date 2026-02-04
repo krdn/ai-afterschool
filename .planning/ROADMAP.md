@@ -331,8 +331,13 @@ Plans:
   1. 월간 캘린더 뷰에서 날짜별 예약 건수가 시각화된다
   2. 주간 캘린더 뷰에서 시간대별 예약 현황이 표시된다
   3. 캘린더에서 예약된 날짜가 시각적으로 구분된다
-**Plans**: TBD
-**Status**: Pending
+**Plans**: 3 plans in 2 waves
+**Status**: Ready for execution
+
+Plans:
+- [ ] 19-01-PLAN.md — 캘린더 유틸리티 함수 및 월간 캘린더 뷰 (Custom DayButton + Modifiers)
+- [ ] 19-02-PLAN.md — 주간 캘린더 뷰 (Time Slot Grid)
+- [ ] 19-03-PLAN.md — 페이지 통합 및 뷰 전환 (캘린더 뷰 탭 추가)
 
 **Key concerns to address:**
 - react-day-picker 한국어 로케일 설정
