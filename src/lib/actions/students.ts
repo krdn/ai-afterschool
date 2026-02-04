@@ -359,3 +359,73 @@ export async function deleteStudent(studentId: string): Promise<void> {
   revalidatePath("/students")
   redirect("/students")
 }
+
+export type StudentWithParents = {
+  id: string
+  name: string
+  school: string | null
+  grade: number | null
+  parents: Array<{
+    id: string
+    name: string
+    relation: string
+  }>
+}
+
+export type GetStudentsResult = {
+  success: boolean
+  data?: StudentWithParents[]
+  error?: string
+}
+
+/**
+ * 학생 목록 조회 액션
+ * - 인증 체크
+ * - TEACHER 역할 시 자신 팀 학생만 조회
+ * - 학부모 정보 포함 (include)
+ */
+export async function getStudentsAction(): Promise<GetStudentsResult> {
+  const session = await verifySession()
+
+  if (!session) {
+    return {
+      success: false,
+      error: "인증되지 않은 요청입니다.",
+    }
+  }
+
+  try {
+    const students = await db.student.findMany({
+      where: {
+        teacherId: session.userId,
+      },
+      select: {
+        id: true,
+        name: true,
+        school: true,
+        grade: true,
+        parents: {
+          select: {
+            id: true,
+            name: true,
+            relation: true,
+          },
+        },
+      },
+      orderBy: {
+        name: "asc",
+      },
+    })
+
+    return {
+      success: true,
+      data: students,
+    }
+  } catch (error) {
+    console.error("Failed to get students:", error)
+    return {
+      success: false,
+      error: "학생 목록 조회 중 오류가 발생했습니다.",
+    }
+  }
+}
