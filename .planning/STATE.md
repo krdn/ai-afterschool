@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 21 - Statistics & Dashboard
-Plan: 06 of 07
-Status: In Progress
-Last activity: 2026-02-04 — Completed Plan 21-06 (페이지 통합)
+Plan: 07 of 07
+Status: Phase Complete
+Last activity: 2026-02-04 — Completed Plan 21-07 (테스트 및 검증)
 
-Progress: [█████░░░░░░░░░░░░░░░░░░░░] 43% (4/7 phases complete)
+Progress: [██████░░░░░░░░░░░░░░░░░░] 47% (5/7 phases complete)
 
 **v2.1 학부모 상담 관리 시스템**
 - Phase 16: Parent & Reservation Database Schema (✅ complete)
@@ -37,14 +37,14 @@ Progress: [█████░░░░░░░░░░░░░░░░░░
   - Plan 20-01: shadcn/ui Alert & Dialog 설치 (✅)
   - Plan 20-02: 상담 섹션 컴포넌트 구현 (✅)
   - Plan 20-03: 테스트 및 검증 (✅)
-- Phase 21: Statistics & Dashboard (in progress)
+- Phase 21: Statistics & Dashboard (✅ complete)
   - Plan 21-01: 상담 통계 Server Actions (✅)
   - Plan 21-02: 후속 조치 Server Actions (✅)
   - Plan 21-03: 차트 컴포넌트 (✅)
   - Plan 21-04: 후속 조치 목록 (✅)
   - Plan 21-05: 필터 및 테이블 컴포넌트 (✅)
   - Plan 21-06: 페이지 통합 (✅)
-  - Plan 21-07: 테스트 및 검증 (pending)
+  - Plan 21-07: 테스트 및 검증 (✅)
 - Phase 22: AI Integration (pending)
 
 ## Performance Metrics
@@ -70,14 +70,14 @@ Progress: [█████░░░░░░░░░░░░░░░░░░
 | 18 (v2.1) | 5 | 14 min | ~3 min |
 | 19 (v2.1) | 3 | 22 min | ~7 min |
 | 20 (v2.1) | 3 | 7 min | ~2.3 min |
-| 21 (v2.1) | 6 | 27 min | ~4.5 min |
+| 21 (v2.1) | 7 | 109 min | ~15.6 min |
 
 **Recent Trend:**
 - v2.0 complete: 40 plans in ~119 min (~3 min/plan average)
-- v2.1 in progress: Phase 16-21 (21 plans) in 75 min (~3.6 min/plan average)
-- Velocity improved significantly from v1.0 (7 min) to v2.0-v2.1 (~3 min)
+- v2.1 Phase 16-21 complete: 22 plans in 157 min (~7.1 min/plan average)
+- Velocity: v1.0 (7 min) → v2.0 (~3 min) → v2.1 (~7 min, includes comprehensive testing)
 
-*Updated after Phase 21 Plan 04 completion*
+*Updated after Phase 21 Plan 07 completion*
 
 ## Accumulated Context
 
@@ -145,6 +145,8 @@ Recent decisions affecting current work:
 - [21-06] 간단한 wrapper 레이아웃: (dashboard) 레이아웃을 상속하므로 추가 레이아웃 불필요
 - [21-06] Server Component로 초기 데이터 fetch: SSR로 빠른 초기 렌더링, SEO 최적화
 - [21-06] getDateRangeFromPreset 유틸리티 분리: "use server" 파일에서 동기 함수 export 불가, 별도 파일로 분리
+- [21-07] ESLint 외부 스크립트 제외: .agent, scripts, prisma.config.ts를 globalIgnores에 추가하여 빌드 안정성 확보
+- [21-07] Playwright 자동 검증: E2E 테스트로 8개 주요 기능 체계적 검증
 
 **v2.0 결정 (영향 있음):**
 - [11-02] Prisma Client Extensions over deprecated Middleware - $allOperations pattern for automatic teamId filtering
@@ -177,9 +179,9 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-04 22:16 KST
-Stopped at: Completed Phase 21 Plan 06 (페이지 통합) - Phase 21 in progress
+Last session: 2026-02-04 23:49 KST
+Stopped at: Completed Phase 21 Plan 07 (테스트 및 검증) - Phase 21 complete
 Resume file: None
 
 ---
-*Last updated: 2026-02-04 (Phase 21 Plan 06 완료)*
+*Last updated: 2026-02-04 (Phase 21 완료)*
