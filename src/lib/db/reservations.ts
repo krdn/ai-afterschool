@@ -1,7 +1,7 @@
 import 'server-only'
 import { Prisma } from '@prisma/client'
 import { db } from '@/lib/db'
-import { ReservationStatus } from '@prisma/client'
+import { ReservationStatus, CounselingType } from '@prisma/client'
 
 /**
  * 예약 생성 파라미터
@@ -371,4 +371,115 @@ export async function deleteReservation(reservationId: string, teacherId: string
   })
 
   return { success: true }
+}
+
+/**
+ * 상태 전환 파라미터
+ */
+export interface TransitionReservationStatusParams {
+  reservationId: string
+  teacherId: string
+  newStatus: ReservationStatus
+  summary?: string
+}
+
+/**
+ * 예약 상태 전환
+ * - 현재 상태가 SCHEDULED인지 확인
+ * - COMPLETED 시 CounselingSession 생성
+ * - 트랜잭션으로 원자적 처리
+ * - counselingSessionId 연결
+ *
+ * @param params 상태 전환 파라미터
+ * @returns 업데이트된 예약
+ * @throws {Error} SCHEDULED 상태가 아닌 경우
+ * @throws {Error} 이미 COMPLETED 상태를 다시 변경하려는 경우
+ */
+export async function transitionReservationStatus(
+  params: TransitionReservationStatusParams
+) {
+  const { reservationId, teacherId, newStatus, summary } = params
+
+  return await db.$transaction(async (tx) => {
+    // 1. 현재 예약 상태 확인
+    const existingReservation = await tx.parentCounselingReservation.findUnique({
+      where: {
+        id: reservationId,
+        teacherId,
+      },
+      include: {
+        student: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    })
+
+    if (!existingReservation) {
+      throw new Error('예약을 찾을 수 없습니다')
+    }
+
+    // 2. 상태 전환 유효성 검사
+    if (existingReservation.status !== ReservationStatus.SCHEDULED) {
+      throw new Error('이미 완료된 예약은 상태를 변경할 수 없습니다')
+    }
+
+    // 3. COMPLETED 전환 시 CounselingSession 생성
+    let counselingSessionId: string | null = null
+
+    if (newStatus === ReservationStatus.COMPLETED) {
+      // CounselingSession 생성
+      const counselingSession = await tx.counselingSession.create({
+        data: {
+          studentId: existingReservation.studentId,
+          teacherId: existingReservation.teacherId,
+          sessionDate: existingReservation.scheduledAt,
+          duration: 30, // 기본 30분
+          type: CounselingType.ACADEMIC, // 기본값
+          summary: summary || '',
+          followUpRequired: false,
+        },
+      })
+
+      counselingSessionId = counselingSession.id
+    }
+
+    // 4. 예약 상태 업데이트
+    const updatedReservation = await tx.parentCounselingReservation.update({
+      where: {
+        id: reservationId,
+        teacherId,
+      },
+      data: {
+        status: newStatus,
+        ...(counselingSessionId && { counselingSessionId }),
+      },
+      include: {
+        student: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        parent: {
+          select: {
+            id: true,
+            name: true,
+            relation: true,
+          },
+        },
+        counselingSession: {
+          select: {
+            id: true,
+            type: true,
+            duration: true,
+          },
+        },
+      },
+    })
+
+    return updatedReservation
+  })
 }
