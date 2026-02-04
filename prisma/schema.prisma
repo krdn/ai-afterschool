@@ -6,55 +6,48 @@ datasource db {
   provider = "postgresql"
 }
 
-enum Role {
-  DIRECTOR
-  TEAM_LEADER
-  MANAGER
-  TEACHER
-}
-
 model Teacher {
-  id                    String                  @id @default(cuid())
-  email                 String                  @unique
-  password              String
-  name                  String
-  nameHanja             String?
-  birthDate             DateTime?
-  birthTimeHour         Int?
-  birthTimeMinute       Int?
-  role                  Role                    @default(TEACHER)
-  teamId                String?
-  team                  Team?                   @relation(fields: [teamId], references: [id])
-  phone                 String?
-  createdAt             DateTime                @default(now())
-  updatedAt             DateTime                @updatedAt
-  passwordResetTokens   PasswordResetToken[]
-  students              Student[]
-  teacherSajuAnalysis   TeacherSajuAnalysis?
-  teacherMbtiAnalysis   TeacherMbtiAnalysis?
-  teacherNameAnalysis   TeacherNameAnalysis?
-  teacherPalmAnalysis   TeacherPalmAnalysis?
-  teacherFaceAnalysis   TeacherFaceAnalysis?
-  compatibilityResults  CompatibilityResult[]
-  assignmentProposalsCreated AssignmentProposal[] @relation("ProposedBy")
-  gradeHistoryTaught    GradeHistory[]
-  counselingSessions    CounselingSession[]
-  studentSatisfactions  StudentSatisfaction[]
-  counselingReservations ParentCounselingReservation[]
+  id                         String                        @id @default(cuid())
+  email                      String                        @unique
+  password                   String
+  name                       String
+  createdAt                  DateTime                      @default(now())
+  updatedAt                  DateTime                      @updatedAt
+  phone                      String?
+  role                       Role                          @default(TEACHER)
+  teamId                     String?
+  nameHanja                  String?
+  birthDate                  DateTime?
+  birthTimeHour              Int?
+  birthTimeMinute            Int?
+  assignmentProposalsCreated AssignmentProposal[]          @relation("ProposedBy")
+  compatibilityResults       CompatibilityResult[]
+  counselingSessions         CounselingSession[]
+  gradeHistoryTaught         GradeHistory[]
+  counselingReservations     ParentCounselingReservation[]
+  passwordResetTokens        PasswordResetToken[]
+  students                   Student[]
+  studentSatisfactions       StudentSatisfaction[]
+  team                       Team?                         @relation(fields: [teamId], references: [id])
+  teacherFaceAnalysis        TeacherFaceAnalysis?
+  teacherMbtiAnalysis        TeacherMbtiAnalysis?
+  teacherNameAnalysis        TeacherNameAnalysis?
+  teacherPalmAnalysis        TeacherPalmAnalysis?
+  teacherSajuAnalysis        TeacherSajuAnalysis?
 }
 
 model Team {
-  id                String               @id @default(cuid())
-  name              String               @unique
-  createdAt         DateTime             @default(now())
-  updatedAt         DateTime             @updatedAt
-  teachers          Teacher[]
-  students          Student[]
+  id                  String               @id @default(cuid())
+  name                String               @unique
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
   assignmentProposals AssignmentProposal[]
+  students            Student[]
+  teachers            Teacher[]
 }
 
 model Student {
-  id                             String           @id @default(cuid())
+  id                             String                        @id @default(cuid())
   name                           String
   birthDate                      DateTime
   phone                          String?
@@ -64,51 +57,46 @@ model Student {
   targetMajor                    String?
   bloodType                      BloodType?
   teacherId                      String
-  teamId                         String?
-  primaryParentId                String?
-  team                           Team?            @relation(fields: [teamId], references: [id])
-  createdAt                      DateTime         @default(now())
-  updatedAt                      DateTime         @updatedAt
+  createdAt                      DateTime                      @default(now())
+  updatedAt                      DateTime                      @updatedAt
   expiresAt                      DateTime?
   calculationRecalculationAt     DateTime?
-  calculationRecalculationNeeded Boolean          @default(false)
+  calculationRecalculationNeeded Boolean                       @default(false)
   calculationRecalculationReason String?
   nameHanja                      Json?
   birthTimeHour                  Int?
   birthTimeMinute                Int?
-  
-  // 통제 변수 (성과 분석용)
-  initialGradeLevel              String?            // HIGH, MID, LOW
-  attendanceRate                 Float?             // 0-100
-  priorAcademicPerformance       Json?              // 이전 학기 성적 등
+  teamId                         String?
+  attendanceRate                 Float?
+  initialGradeLevel              String?
+  priorAcademicPerformance       Json?
+  primaryParentId                String?
+  compatibilityResults           CompatibilityResult[]
+  counselingSessions             CounselingSession[]
+  faceAnalysis                   FaceAnalysis?
+  gradeHistory                   GradeHistory[]
   mbtiAnalysis                   MbtiAnalysis?
   mbtiSurveyDraft                MbtiSurveyDraft?
   nameAnalysis                   NameAnalysis?
-  sajuAnalysis                   SajuAnalysis?
-  faceAnalysis                   FaceAnalysis?
   palmAnalysis                   PalmAnalysis?
-  personalitySummary             PersonalitySummary?
-  teacher                        Teacher          @relation(fields: [teacherId], references: [id])
-  primaryParent                  Parent?          @relation("StudentPrimaryParent", fields: [primaryParentId], references: [id], onDelete: SetNull)
-  parents                        Parent[]         @relation("StudentParents")
+  parents                        Parent[]                      @relation("StudentParents")
   counselingReservations         ParentCounselingReservation[]
+  personalitySummary             PersonalitySummary?
+  sajuAnalysis                   SajuAnalysis?
+  primaryParent                  Parent?                       @relation("StudentPrimaryParent", fields: [primaryParentId], references: [id])
+  teacher                        Teacher                       @relation(fields: [teacherId], references: [id])
+  team                           Team?                         @relation(fields: [teamId], references: [id])
   images                         StudentImage[]
-  compatibilityResults           CompatibilityResult[]
-  gradeHistory                   GradeHistory[]
-  counselingSessions             CounselingSession[]
   studentSatisfactions           StudentSatisfaction[]
 
-  // 기존 단일 인덱스 (유지)
   @@index([teacherId])
   @@index([name])
   @@index([school])
   @@index([primaryParentId])
-
-  // 복합 인덱스 추가 (성능 최적화)
-  @@index([teacherId, name])        // 학생 검색 (교사 내 이름 검색)
-  @@index([teacherId, school])      // 학교별 필터링
-  @@index([expiresAt])              // 만료된 학생 정리 (배치 작업)
-  @@index([calculationRecalculationNeeded]) // 재계산 필요 학생
+  @@index([teacherId, name])
+  @@index([teacherId, school])
+  @@index([expiresAt])
+  @@index([calculationRecalculationNeeded])
 }
 
 model SajuAnalysis {
@@ -244,48 +232,6 @@ model PasswordResetToken {
   teacher   Teacher  @relation(fields: [teacherId], references: [id])
 }
 
-enum BloodType {
-  A
-  B
-  AB
-  O
-}
-
-enum ParentRelation {
-  FATHER
-  MOTHER
-  GRANDFATHER
-  GRANDMOTHER
-  OTHER
-}
-
-enum GradeType {
-  MIDTERM
-  FINAL
-  QUIZ
-  ASSIGNMENT
-}
-
-enum CounselingType {
-  ACADEMIC
-  CAREER
-  PSYCHOLOGICAL
-  BEHAVIORAL
-}
-
-enum ReservationStatus {
-  SCHEDULED
-  COMPLETED
-  CANCELLED
-  NO_SHOW
-}
-
-enum StudentImageType {
-  profile
-  face
-  palm
-}
-
 model FaceAnalysis {
   id           String   @id @default(cuid())
   studentId    String   @unique
@@ -362,8 +308,8 @@ model CompatibilityResult {
   calculatedAt DateTime @default(now())
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  teacher      Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
   student      Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  teacher      Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
 
   @@unique([teacherId, studentId])
   @@index([teacherId])
@@ -372,111 +318,107 @@ model CompatibilityResult {
 }
 
 model PersonalitySummary {
-  id               String   @id @default(cuid())
-  studentId        String   @unique
+  id               String    @id @default(cuid())
+  studentId        String    @unique
   coreTraits       String?
   learningStrategy Json?
   careerGuidance   Json?
-  status           String   @default("none")
+  status           String    @default("none")
   errorMessage     String?
-  version          Int      @default(1)
+  version          Int       @default(1)
   generatedAt      DateTime?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  student          Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  student          Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@index([studentId])
 }
 
 model PersonalitySummaryHistory {
-  id               String   @id @default(cuid())
+  id               String    @id @default(cuid())
   studentId        String
   coreTraits       String?
   learningStrategy Json?
   careerGuidance   Json?
   version          Int
   generatedAt      DateTime?
-  createdAt        DateTime @default(now())
+  createdAt        DateTime  @default(now())
 
   @@index([studentId])
   @@index([createdAt(sort: Desc)])
 }
 
 model ReportPDF {
-  id           String   @id @default(cuid())
-  studentId    String   @unique
-  status       String   @default("none")  // none, generating, complete, failed
-  fileUrl      String?  // Relative path to PDF file
-  dataVersion  Int?     // PersonalitySummary.version for cache invalidation
+  id           String    @id @default(cuid())
+  studentId    String    @unique
+  status       String    @default("none")
+  fileUrl      String?
+  dataVersion  Int?
   errorMessage String?
   generatedAt  DateTime?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   @@index([studentId])
-  @@index([status])  // PDF 생성 상태 모니터링
+  @@index([status])
 }
 
-// 자동 배정 제안 모델
 model AssignmentProposal {
   id          String   @id @default(cuid())
-  name        String   // 제안 이름 (예: "2026년 1학기 자동 배정")
-  teamId      String?  // FK to Team (nullable for 전체 배정)
-  proposedBy  String   // FK to Teacher (제안 생성자)
-  assignments Json     // 배정 목록: [{ studentId, teacherId, score }]
-  summary     Json     // 요약: { totalStudents, assignedStudents, averageScore, teacherLoads }
-  status      String   @default("pending") // pending, approved, rejected
+  name        String
+  teamId      String?
+  proposedBy  String
+  assignments Json
+  summary     Json
+  status      String   @default("pending")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  team        Team?    @relation(fields: [teamId], references: [id])
   proposer    Teacher  @relation("ProposedBy", fields: [proposedBy], references: [id])
+  team        Team?    @relation(fields: [teamId], references: [id])
 
   @@index([teamId])
   @@index([proposedBy])
   @@index([status])
 }
 
-// 성과 분석 모델
 model GradeHistory {
-  id                String     @id @default(cuid())
-  studentId         String
-  teacherId         String?    // FK to Teacher (nullable for self-study cases)
-  subject           String     // 과목명
-  gradeType         GradeType  // MIDTERM, FINAL, QUIZ, ASSIGNMENT
-  score             Float      // 실제 점수
-  maxScore          Float      @default(100) // 만점
-  normalizedScore   Float      // 정규화 점수 (0-100)
-  testDate          DateTime   // 시험일
-  academicYear      Int        // 학년도 (예: 2026)
-  semester          Int        // 학기 (1 또는 2)
-  notes             String?    // 비고
-  createdAt         DateTime   @default(now())
-  updatedAt         DateTime   @updatedAt
-  
-  student           Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  teacher           Teacher?   @relation(fields: [teacherId], references: [id], onDelete: SetNull)
-  
+  id              String    @id @default(cuid())
+  studentId       String
+  teacherId       String?
+  subject         String
+  gradeType       GradeType
+  score           Float
+  maxScore        Float     @default(100)
+  normalizedScore Float
+  testDate        DateTime
+  academicYear    Int
+  semester        Int
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  student         Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  teacher         Teacher?  @relation(fields: [teacherId], references: [id])
+
   @@index([studentId, subject, testDate])
   @@index([studentId, academicYear, semester])
   @@index([teacherId])
 }
 
 model CounselingSession {
-  id                String          @id @default(cuid())
+  id                String                       @id @default(cuid())
   studentId         String
   teacherId         String
-  sessionDate       DateTime        // 상담일
-  duration          Int             // 상담 시간 (분)
-  type              CounselingType  // ACADEMIC, CAREER, PSYCHOLOGICAL, BEHAVIORAL
-  summary           String          // 상담 내용 요약
-  followUpRequired  Boolean         @default(false) // 후속 조치 필요 여부
-  followUpDate      DateTime?       // 후속 조치 예정일
-  satisfactionScore Int?            // 만족도 점수 (1-5)
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
-  
-  student           Student         @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  teacher           Teacher         @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  sessionDate       DateTime
+  duration          Int
+  type              CounselingType
+  summary           String
+  followUpRequired  Boolean                      @default(false)
+  followUpDate      DateTime?
+  satisfactionScore Int?
+  createdAt         DateTime                     @default(now())
+  updatedAt         DateTime                     @updatedAt
+  student           Student                      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  teacher           Teacher                      @relation(fields: [teacherId], references: [id], onDelete: Cascade)
   reservation       ParentCounselingReservation?
 
   @@index([studentId, sessionDate])
@@ -485,20 +427,19 @@ model CounselingSession {
 }
 
 model StudentSatisfaction {
-  id                    String    @id @default(cuid())
-  studentId             String
-  teacherId             String
-  surveyDate            DateTime  // 조사일
-  overallSatisfaction   Int       // 전체 만족도 (1-10)
-  teachingQuality       Int       // 수업 품질 (1-10)
-  communication         Int       // 의사소통 (1-10)
-  supportLevel          Int       // 지원 수준 (1-10)
-  feedback              String?   // 자유 의견
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
-
-  student               Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  teacher               Teacher   @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  id                  String   @id @default(cuid())
+  studentId           String
+  teacherId           String
+  surveyDate          DateTime
+  overallSatisfaction Int
+  teachingQuality     Int
+  communication       Int
+  supportLevel        Int
+  feedback            String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  student             Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  teacher             Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, teacherId, surveyDate])
   @@index([studentId, surveyDate])
@@ -506,42 +447,40 @@ model StudentSatisfaction {
 }
 
 model Parent {
-  id            String         @id @default(cuid())
-  studentId     String
-  name          String
-  phone         String
-  email         String?
-  relation      ParentRelation
-  relationOther String?
-  note          String?
-  isPrimary     Boolean        @default(false)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-
-  student                Student                      @relation("StudentParents", fields: [studentId], references: [id], onDelete: Cascade)
-  studentAsPrimary       Student[]                    @relation("StudentPrimaryParent")
+  id                     String                        @id @default(cuid())
+  studentId              String
+  name                   String
+  phone                  String
+  email                  String?
+  relation               ParentRelation
+  relationOther          String?
+  note                   String?
+  isPrimary              Boolean                       @default(false)
+  createdAt              DateTime                      @default(now())
+  updatedAt              DateTime                      @updatedAt
+  student                Student                       @relation("StudentParents", fields: [studentId], references: [id], onDelete: Cascade)
   counselingReservations ParentCounselingReservation[]
+  studentAsPrimary       Student[]                     @relation("StudentPrimaryParent")
 
   @@index([studentId])
   @@index([studentId, isPrimary])
 }
 
 model ParentCounselingReservation {
-  id                  String            @id @default(cuid())
+  id                  String             @id @default(cuid())
   scheduledAt         DateTime
   studentId           String
   teacherId           String
   parentId            String
   topic               String
-  status              ReservationStatus @default(SCHEDULED)
-  counselingSessionId String?           @unique
-  createdAt           DateTime          @default(now())
-  updatedAt           DateTime          @updatedAt
-
-  student           Student            @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  teacher           Teacher            @relation(fields: [teacherId], references: [id], onDelete: Cascade)
-  parent            Parent             @relation(fields: [parentId], references: [id], onDelete: Cascade)
-  counselingSession CounselingSession? @relation(fields: [counselingSessionId], references: [id], onDelete: SetNull)
+  status              ReservationStatus  @default(SCHEDULED)
+  counselingSessionId String?            @unique
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  counselingSession   CounselingSession? @relation(fields: [counselingSessionId], references: [id])
+  parent              Parent             @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  student             Student            @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  teacher             Teacher            @relation(fields: [teacherId], references: [id], onDelete: Cascade)
 
   @@index([studentId])
   @@index([teacherId])
@@ -550,48 +489,6 @@ model ParentCounselingReservation {
   @@index([studentId, scheduledAt])
   @@index([teacherId, scheduledAt])
 }
-
-// RLS (Row-Level Security) Policies
-// Execute in psql after migration:
-//
-// -- Enable RLS on Student and Teacher tables
-// ALTER TABLE "Student" ENABLE ROW LEVEL SECURITY;
-// ALTER TABLE "Teacher" ENABLE ROW LEVEL SECURITY;
-//
-// -- Student table policies
-// CREATE POLICY "Student_director_all_access"
-// ON "Student"
-// FOR ALL
-// USING (current_setting('rls.teacher_role', TRUE) = 'DIRECTOR');
-//
-// CREATE POLICY "Student_team_isolation"
-// ON "Student"
-// FOR ALL
-// USING (
-//   current_setting('rls.teacher_role', TRUE) = 'TEAM_LEADER' AND
-//   teamId = current_setting('rls.team_id', TRUE)
-// );
-//
-// -- Teacher table policies
-// CREATE POLICY "Teacher_director_all_access"
-// ON "Teacher"
-// FOR ALL
-// USING (current_setting('rls.teacher_role', TRUE) = 'DIRECTOR');
-//
-// CREATE POLICY "Teacher_team_isolation"
-// ON "Teacher"
-// FOR ALL
-// USING (
-//   current_setting('rls.teacher_role', TRUE) = 'TEAM_LEADER' AND
-//   teamId = current_setting('rls.team_id', TRUE)
-// );
-//
-// -- Verify policies
-// SELECT * FROM pg_policies WHERE tablename IN ('Student', 'Teacher');
-
-// ========================================
-// LLM Configuration & Usage Tracking
-// ========================================
 
 model LLMConfig {
   id              String    @id @default(cuid())
@@ -640,18 +537,18 @@ model LLMUsage {
 }
 
 model LLMUsageMonthly {
-  id                 String   @id @default(cuid())
-  year               Int
-  month              Int
-  provider           String
-  featureType        String
-  totalRequests      Int
-  totalInputTokens   BigInt
-  totalOutputTokens  BigInt
-  totalCostUsd       Float
-  avgResponseTimeMs  Float
-  successRate        Float
-  createdAt          DateTime @default(now())
+  id                String   @id @default(cuid())
+  year              Int
+  month             Int
+  provider          String
+  featureType       String
+  totalRequests     Int
+  totalInputTokens  BigInt
+  totalOutputTokens BigInt
+  totalCostUsd      Float
+  avgResponseTimeMs Float
+  successRate       Float
+  createdAt         DateTime @default(now())
 
   @@unique([year, month, provider, featureType])
   @@index([year, month])
@@ -667,4 +564,53 @@ model LLMBudget {
   lastAlertThreshold Int?
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
+}
+
+enum Role {
+  DIRECTOR
+  TEAM_LEADER
+  MANAGER
+  TEACHER
+}
+
+enum BloodType {
+  A
+  B
+  AB
+  O
+}
+
+enum ParentRelation {
+  FATHER
+  MOTHER
+  GRANDFATHER
+  GRANDMOTHER
+  OTHER
+}
+
+enum GradeType {
+  MIDTERM
+  FINAL
+  QUIZ
+  ASSIGNMENT
+}
+
+enum CounselingType {
+  ACADEMIC
+  CAREER
+  PSYCHOLOGICAL
+  BEHAVIORAL
+}
+
+enum ReservationStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum StudentImageType {
+  profile
+  face
+  palm
 }

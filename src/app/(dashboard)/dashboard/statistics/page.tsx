@@ -3,8 +3,8 @@ import {
   getTeacherMonthlyStatsAction,
   getCounselingTypeDistributionAction,
   getMonthlyTrendAction,
-  getDateRangeFromPreset,
 } from "@/lib/actions/counseling-stats"
+import { getDateRangeFromPreset } from "@/lib/utils/date-range"
 import { getFollowUpsAction, getOverdueCountAction } from "@/lib/actions/follow-up"
 import { getReservationStatsAction } from "@/lib/actions/reservations"
 import { startOfMonth, endOfMonth } from "date-fns"
@@ -59,13 +59,13 @@ export default async function StatisticsPage() {
   ])
 
   // 데이터 추출 (실패 시 기본값 사용)
-  const teacherStats = teacherStatsRes.success ? teacherStatsRes.data : []
-  const typeDistribution = typeDistributionRes.success ? typeDistributionRes.data : []
-  const monthlyTrend = monthlyTrendRes.success ? monthlyTrendRes.data : []
-  const followUps = followUpsRes.success ? followUpsRes.data : []
-  const overdueFollowUpCount = overdueCountRes.success ? overdueCountRes.data.count : 0
-  const reservationStats = reservationStatsRes.success ? reservationStatsRes.data : null
-  const thisMonthStats = thisMonthStatsRes.success ? thisMonthStatsRes.data : []
+  const teacherStats = (teacherStatsRes.success && teacherStatsRes.data) ? teacherStatsRes.data : []
+  const typeDistribution = (typeDistributionRes.success && typeDistributionRes.data) ? typeDistributionRes.data : []
+  const monthlyTrend = (monthlyTrendRes.success && monthlyTrendRes.data) ? monthlyTrendRes.data : []
+  const followUps = (followUpsRes.success && followUpsRes.data) ? followUpsRes.data : []
+  const overdueFollowUpCount = (overdueCountRes.success && overdueCountRes.data) ? overdueCountRes.data.count : 0
+  const reservationStats = (reservationStatsRes.success && reservationStatsRes.data) ? reservationStatsRes.data : null
+  const thisMonthStats = (thisMonthStatsRes.success && thisMonthStatsRes.data) ? thisMonthStatsRes.data : []
 
   // 이번 달 상담 횟수 계산
   const monthlySessionCount = thisMonthStats.reduce((sum, stat) => sum + stat.sessionCount, 0)
