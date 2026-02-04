@@ -2,21 +2,21 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-01-30)
+See: .planning/PROJECT.md (updated 2026-02-04)
 
 **Core value:** 학생 정보 통합 관리를 기반으로 AI 성향 분석 및 맞춤형 학습/진로 제안 제공
-**Current focus:** Phase 15 - Multi-LLM Integration & Smart Routing
+**Current focus:** v2.1 - Parent Counseling Management (Defining Requirements)
 
 ## Current Position
 
-Phase: 15 of 15 (Multi-LLM Integration & Smart Routing)
-Plan: 8 of 8 in current phase
-Status: ✅ Complete
-Last activity: 2026-02-02 — Phase 15 verified and complete
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements for v2.1
+Last activity: 2026-02-04 — Milestone v2.1 started
 
-Progress: [█████████████████████████] 100% (98/98 plans complete)
+Progress: [░░░░░░░░░░░░░░░░░░░░░░░░░] 0% (0/? plans complete)
 
-**🎉 v2.0 Milestone Shipped!**
+**📋 v2.1 학부모 상담 관리 시스템 준비 중**
 
 ## Performance Metrics
 
@@ -186,9 +186,9 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-02 12:35 KST
-Stopped at: Phase 15 verified and complete, v2.0 milestone shipped
+Last session: 2026-02-04 10:45 KST
+Stopped at: Milestone v2.1 initialization in progress
 Resume file: None
 
 ---
-*Last updated: 2026-02-02 (v2.0 milestone complete)*
+*Last updated: 2026-02-04 (v2.1 milestone started)*
