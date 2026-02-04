@@ -4,29 +4,7 @@ import { getTeachers } from '@/lib/actions/teachers'
 import { Button } from '@/components/ui/button'
 import { TeacherTable } from '@/components/teachers/teacher-table'
 import { EmptyState } from '@/components/students/empty-state'
-import { GraduationCap } from 'lucide-react'
-
-function TeacherEmptyState() {
-  return (
-    <div className="flex flex-col items-center justify-center py-12 text-center">
-      <div className="mb-6 flex h-32 w-32 items-center justify-center rounded-full bg-gray-100">
-        <GraduationCap className="h-16 w-16 text-gray-400" />
-      </div>
-
-      <h2 className="mb-2 text-xl font-semibold text-gray-900">
-        아직 등록된 선생님이 없어요
-      </h2>
-      <p className="mb-6 max-w-sm text-gray-500">
-        선생님을 등록하고 팀을 구성해보세요. 선생님 정보와 성향 분석 결과를
-        한눈에 확인할 수 있어요.
-      </p>
-
-      <Button asChild size="lg">
-        <Link href="/teachers/new">첫 선생님 등록하기</Link>
-      </Button>
-    </div>
-  )
-}
+import { Users } from 'lucide-react'
 
 export default async function TeachersPage() {
   const session = await verifySession()
@@ -64,7 +42,18 @@ export default async function TeachersPage() {
       </div>
 
       {teachers.length === 0 ? (
-        <TeacherEmptyState />
+        <EmptyState
+          icon={Users}
+          title="아직 등록된 선생님이 없어요"
+          description="선생님을 등록하고 팀을 구성해보세요. 선생님 정보와 성향 분석 결과를 한눈에 확인할 수 있어요."
+          actionLabel="첫 선생님 등록하기"
+          actionHref="/teachers/new"
+          tips={[
+            '이름, 이메일, 비밀번호로 계정을 생성해요',
+            '역할(선생님, 매니저, 팀장)을 지정할 수 있어요',
+            '팀을 배정하면 팀 단위로 학생을 관리할 수 있어요',
+          ]}
+        />
       ) : (
         <TeacherTable data={teachers} />
       )}

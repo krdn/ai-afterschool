@@ -1,9 +1,10 @@
 "use client"
 
-import { useActionState } from "react"
+import { useActionState, useEffect, useRef } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import Link from "next/link"
+import { toast } from "sonner"
 import { login, type AuthFormState } from "@/lib/actions/auth"
 import { LoginSchema, type LoginInput } from "@/lib/validations/auth"
 import { Button } from "@/components/ui/button"
@@ -23,6 +24,16 @@ export function LoginForm() {
     login,
     { errors: {} }
   )
+
+  // 로그인 에러 발생 시 토스트 표시
+  const prevErrorRef = useRef<string | undefined>(undefined)
+  useEffect(() => {
+    const errorMessage = state?.errors?._form?.[0]
+    if (errorMessage && errorMessage !== prevErrorRef.current) {
+      toast.error(errorMessage)
+      prevErrorRef.current = errorMessage
+    }
+  }, [state?.errors?._form])
 
   const form = useForm<LoginInput>({
     resolver: zodResolver(LoginSchema),

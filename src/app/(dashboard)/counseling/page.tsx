@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { verifySession } from "@/lib/dal"
 import { getRBACPrisma } from "@/lib/db/rbac"
 import { Button } from "@/components/ui/button"
@@ -14,6 +15,7 @@ import {
 import {
   CounselingSessionForm,
 } from "@/components/counseling/CounselingSessionForm"
+import { MessageSquare } from "lucide-react"
 import type { CounselingType, Prisma } from "@prisma/client"
 
 type PageProps = {
@@ -303,8 +305,24 @@ export default async function CounselingPage({
         </CardHeader>
         <CardContent>
           {sessions.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-gray-500">조건에 맞는 상담 기록이 없습니다</p>
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
+                <MessageSquare className="h-8 w-8 text-gray-400" />
+              </div>
+              <h3 className="mb-2 text-lg font-medium text-gray-900">
+                조건에 맞는 상담 기록이 없어요
+              </h3>
+              <p className="mb-4 max-w-sm text-sm text-gray-500">
+                검색 조건을 변경하거나, 새 상담 기록을 추가해보세요.
+              </p>
+              <div className="flex gap-3">
+                <Button variant="outline" asChild>
+                  <Link href="/counseling">필터 초기화</Link>
+                </Button>
+                <Button asChild>
+                  <Link href="/counseling/new">새 상담 기록</Link>
+                </Button>
+              </div>
             </div>
           ) : (
             <div className="space-y-3">
