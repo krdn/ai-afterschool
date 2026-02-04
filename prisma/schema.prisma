@@ -40,6 +40,7 @@ model Teacher {
   gradeHistoryTaught    GradeHistory[]
   counselingSessions    CounselingSession[]
   studentSatisfactions  StudentSatisfaction[]
+  counselingReservations ParentCounselingReservation[]
 }
 
 model Team {
@@ -64,6 +65,7 @@ model Student {
   bloodType                      BloodType?
   teacherId                      String
   teamId                         String?
+  primaryParentId                String?
   team                           Team?            @relation(fields: [teamId], references: [id])
   createdAt                      DateTime         @default(now())
   updatedAt                      DateTime         @updatedAt
@@ -87,6 +89,9 @@ model Student {
   palmAnalysis                   PalmAnalysis?
   personalitySummary             PersonalitySummary?
   teacher                        Teacher          @relation(fields: [teacherId], references: [id])
+  primaryParent                  Parent?          @relation("StudentPrimaryParent", fields: [primaryParentId], references: [id], onDelete: SetNull)
+  parents                        Parent[]         @relation("StudentParents")
+  counselingReservations         ParentCounselingReservation[]
   images                         StudentImage[]
   compatibilityResults           CompatibilityResult[]
   gradeHistory                   GradeHistory[]
@@ -97,6 +102,7 @@ model Student {
   @@index([teacherId])
   @@index([name])
   @@index([school])
+  @@index([primaryParentId])
 
   // 복합 인덱스 추가 (성능 최적화)
   @@index([teacherId, name])        // 학생 검색 (교사 내 이름 검색)
@@ -245,6 +251,14 @@ enum BloodType {
   O
 }
 
+enum ParentRelation {
+  FATHER
+  MOTHER
+  GRANDFATHER
+  GRANDMOTHER
+  OTHER
+}
+
 enum GradeType {
   MIDTERM
   FINAL
@@ -257,6 +271,13 @@ enum CounselingType {
   CAREER
   PSYCHOLOGICAL
   BEHAVIORAL
+}
+
+enum ReservationStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
 }
 
 enum StudentImageType {
@@ -456,7 +477,8 @@ model CounselingSession {
   
   student           Student         @relation(fields: [studentId], references: [id], onDelete: Cascade)
   teacher           Teacher         @relation(fields: [teacherId], references: [id], onDelete: Cascade)
-  
+  reservation       ParentCounselingReservation?
+
   @@index([studentId, sessionDate])
   @@index([teacherId, sessionDate])
   @@index([studentId, type])
@@ -474,13 +496,59 @@ model StudentSatisfaction {
   feedback              String?   // 자유 의견
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
-  
+
   student               Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
   teacher               Teacher   @relation(fields: [teacherId], references: [id], onDelete: Cascade)
-  
+
   @@unique([studentId, teacherId, surveyDate])
   @@index([studentId, surveyDate])
   @@index([teacherId, surveyDate])
+}
+
+model Parent {
+  id            String         @id @default(cuid())
+  studentId     String
+  name          String
+  phone         String
+  email         String?
+  relation      ParentRelation
+  relationOther String?
+  note          String?
+  isPrimary     Boolean        @default(false)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  student                Student                      @relation("StudentParents", fields: [studentId], references: [id], onDelete: Cascade)
+  studentAsPrimary       Student[]                    @relation("StudentPrimaryParent")
+  counselingReservations ParentCounselingReservation[]
+
+  @@index([studentId])
+  @@index([studentId, isPrimary])
+}
+
+model ParentCounselingReservation {
+  id                  String            @id @default(cuid())
+  scheduledAt         DateTime
+  studentId           String
+  teacherId           String
+  parentId            String
+  topic               String
+  status              ReservationStatus @default(SCHEDULED)
+  counselingSessionId String?           @unique
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+
+  student           Student            @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  teacher           Teacher            @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  parent            Parent             @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  counselingSession CounselingSession? @relation(fields: [counselingSessionId], references: [id], onDelete: SetNull)
+
+  @@index([studentId])
+  @@index([teacherId])
+  @@index([parentId])
+  @@index([scheduledAt])
+  @@index([studentId, scheduledAt])
+  @@index([teacherId, scheduledAt])
 }
 
 // RLS (Row-Level Security) Policies
