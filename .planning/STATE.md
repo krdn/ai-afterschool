@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 
 ## Current Position
 
-Phase: 17 - Reservation Server Actions
-Plan: 04 of 04 (Plan 17-04 완료)
-Status: Phase complete
-Last activity: 2026-02-04 — Completed 17-04-PLAN.md
+Phase: 18 - Reservation Management UI
+Plan: 01 of 04 (Plan 18-01 완료)
+Status: In progress
+Last activity: 2026-02-04 — Completed 18-01-PLAN.md
 
-Progress: [███░░░░░░░░░░░░░░░░░░░░░░] 17% (2/7 phases complete, 4/4 plans in Phase 17)
+Progress: [███░░░░░░░░░░░░░░░░░░░░░░] 18% (2/7 phases complete, 1/4 plans in Phase 18)
 
 **v2.1 학부모 상담 관리 시스템**
 - Phase 16: Parent & Reservation Database Schema (✅ complete)
@@ -23,7 +23,11 @@ Progress: [███░░░░░░░░░░░░░░░░░░░░
   - Plan 17-02: 예약 목록 조회 및 검색 (✅)
   - Plan 17-03: 예약 수정/삭제 (✅)
   - Plan 17-04: 예약 상태 변경 (✅)
-- Phase 18: Reservation Management UI (pending)
+- Phase 18: Reservation Management UI (in progress)
+  - Plan 18-01: Badge variants 추가 (✅)
+  - Plan 18-02: ReservationCard 컴포넌트 (pending)
+  - Plan 18-03: ReservationList 컴포넌트 (pending)
+  - Plan 18-04: 예약 관리 페이지 (pending)
 - Phase 19: Calendar View (pending)
 - Phase 20: Student Page Integration (pending)
 - Phase 21: Statistics & Dashboard (pending)
@@ -49,13 +53,14 @@ Progress: [███░░░░░░░░░░░░░░░░░░░░
 | 15 (v2.0) | 8 | 35 min | ~4.4 min |
 | 16 (v2.1) | 1 | 2 min | ~2 min |
 | 17 (v2.1) | 4 | 8 min | ~2 min |
+| 18 (v2.1) | 1 | 0 min | ~0 min |
 
 **Recent Trend:**
 - v2.0 complete: 40 plans in ~119 min (~3 min/plan average)
-- v2.1 started: Phase 16-17 (5 plans) in 10 min (~2 min/plan average)
+- v2.1 started: Phase 16-18 (6 plans) in 10 min (~2 min/plan average)
 - Velocity improved significantly from v1.0 (7 min) to v2.0-v2.1 (~2-3 min)
 
-*Updated after Phase 17-04 completion*
+*Updated after Phase 18-01 completion*
 
 ## Accumulated Context
 
@@ -81,6 +86,7 @@ Recent decisions affecting current work:
 - [17-04] COMPLETED 전환 시 CounselingSession 자동 생성: 트랜잭션으로 원자성 보장
 - [17-04] 상태 전환 제어: SCHEDULED 상태에서만 COMPLETED/CANCELLED/NO_SHOW로 전환 가능
 - [17-04] CounselingSession 기본값: duration 30분, type ACADEMIC (필요시 변경 가능)
+- [18-01] Badge 상태 variants: scheduled(blue), completed(green), cancelled(gray), noShow(orange) + dark mode 지원
 
 **v2.0 결정 (영향 있음):**
 - [11-02] Prisma Client Extensions over deprecated Middleware - $allOperations pattern for automatic teamId filtering
@@ -113,9 +119,9 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-04 13:00 KST
-Stopped at: Completed Phase 17 Plan 04 (상태 전환 및 CounselingSession 연결)
+Last session: 2026-02-04 13:49 KST
+Stopped at: Completed Phase 18 Plan 01 (예약 상태 Badge variants 추가)
 Resume file: None
 
 ---
-*Last updated: 2026-02-04 (Phase 17-04 완료, Phase 17 전체 완료)*
+*Last updated: 2026-02-04 (Phase 18-01 완료)*
