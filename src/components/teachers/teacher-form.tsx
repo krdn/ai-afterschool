@@ -187,7 +187,7 @@ export function TeacherForm({ teams = [] }: TeacherFormProps) {
                       </SelectItem>
                     ))
                   ) : (
-                    <SelectItem value="" disabled>
+                    <SelectItem value="no-team" disabled>
                       등록된 팀이 없습니다
                     </SelectItem>
                   )}
