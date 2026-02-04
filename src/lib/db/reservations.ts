@@ -1,4 +1,5 @@
 import 'server-only'
+import { Prisma } from '@prisma/client'
 import { db } from '@/lib/db'
 import { ReservationStatus } from '@prisma/client'
 
@@ -122,7 +123,7 @@ export async function createReservationWithConflictCheck(
 export async function getReservations(params: GetReservationsParams) {
   const { teacherId, studentId, dateFrom, dateTo, status } = params
 
-  const where: any = {
+  const where: Prisma.ParentCounselingReservationWhereInput = {
     teacherId,
   }
 
