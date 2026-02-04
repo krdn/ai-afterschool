@@ -282,6 +282,8 @@ export function CounselingSessionForm({
         studentName={studentName}
         teacherId={teacherId}
         sessionId={sessionId}
+        content={form.watch("summary")}
+        sessionType={form.watch("type")}
         isOpen={isPanelOpen}
         onOpenChange={setIsPanelOpen}
         onAISummaryApply={handleAISummaryApply}

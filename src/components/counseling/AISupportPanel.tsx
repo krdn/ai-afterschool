@@ -25,6 +25,8 @@ interface AISupportPanelProps {
   studentName: string
   teacherId: string // 현재 로그인한 선생님 ID
   sessionId?: string // 기존 상담 수정 시 전달
+  content?: string // 새 상담 작성 시 - 현재 입력된 상담 내용
+  sessionType?: string // 새 상담 작성 시 - 상담 유형
   isOpen: boolean
   onOpenChange: (open: boolean) => void
   onAISummaryApply?: (summary: string) => void
@@ -35,6 +37,8 @@ export function AISupportPanel({
   studentName,
   teacherId,
   sessionId,
+  content,
+  sessionType,
   isOpen,
   onOpenChange,
   onAISummaryApply,
@@ -148,13 +152,14 @@ export function AISupportPanel({
               isCalculating={isCalculating}
             />
 
-            {/* 3. AI 요약 생성 (sessionId가 있을 때만) */}
-            {sessionId && (
-              <AISummaryGenerator
-                sessionId={sessionId}
-                onSummaryGenerated={handleSummaryGenerated}
-              />
-            )}
+            {/* 3. AI 요약 생성 */}
+            <AISummaryGenerator
+              sessionId={sessionId}
+              studentId={studentId}
+              content={content}
+              sessionType={sessionType}
+              onSummaryGenerated={handleSummaryGenerated}
+            />
           </div>
         )}
       </SheetContent>

@@ -5,16 +5,25 @@ import { Loader2, Sparkles } from "lucide-react"
 import { toast } from "sonner"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { generateCounselingSummaryAction } from "@/lib/actions/counseling-ai"
+import {
+  generateCounselingSummaryAction,
+  generateCounselingSummaryFromContentAction,
+} from "@/lib/actions/counseling-ai"
 
 interface AISummaryGeneratorProps {
-  sessionId: string
+  sessionId?: string // 기존 상담 수정 시
+  studentId?: string // 새 상담 작성 시
+  content?: string // 새 상담 작성 시 - 현재 입력된 상담 내용
+  sessionType?: string // 새 상담 작성 시 - 상담 유형
   onSummaryGenerated: (summary: string) => void
   disabled?: boolean
 }
 
 export function AISummaryGenerator({
   sessionId,
+  studentId,
+  content,
+  sessionType,
   onSummaryGenerated,
   disabled = false,
 }: AISummaryGeneratorProps) {
@@ -25,7 +34,24 @@ export function AISummaryGenerator({
   const handleGenerate = async () => {
     setIsGenerating(true)
     try {
-      const result = await generateCounselingSummaryAction(sessionId)
+      let result: { success: boolean; data?: string; error?: string }
+
+      if (sessionId) {
+        // 기존 상담 수정: sessionId로 DB에서 내용 조회
+        result = await generateCounselingSummaryAction(sessionId)
+      } else if (studentId && content) {
+        // 새 상담 작성: content를 직접 전달
+        result = await generateCounselingSummaryFromContentAction(
+          studentId,
+          content,
+          sessionType || "ACADEMIC"
+        )
+      } else {
+        toast.error("상담 내용을 입력해주세요")
+        setIsGenerating(false)
+        return
+      }
+
       if (result.success && result.data) {
         setGeneratedSummary(result.data)
         setShowRegenerate(true)
@@ -106,7 +132,7 @@ export function AISummaryGenerator({
             <Button
               size="sm"
               onClick={handleGenerate}
-              disabled={disabled || isGenerating}
+              disabled={disabled || isGenerating || (!sessionId && (!studentId || !content || content.length < 10))}
             >
               {isGenerating ? (
                 <>
