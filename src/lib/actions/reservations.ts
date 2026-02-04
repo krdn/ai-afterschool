@@ -18,11 +18,13 @@ import {
   createReservationSchema,
   reservationUpdateSchema,
   reservationDeleteSchema,
+  completeReservationSchema,
 } from '@/lib/validations/reservations'
 import type {
   CreateReservationInput,
   UpdateReservationInput,
   DeleteReservationInput,
+  CompleteReservationInput,
 } from '@/lib/validations/reservations'
 
 /**
@@ -543,6 +545,292 @@ export async function deleteReservationAction(
     return {
       success: false,
       error: '예약 삭제 중 오류가 발생했습니다.',
+    }
+  }
+}
+
+/**
+ * 예약 완료 결과 타입
+ */
+export type CompleteReservationResult = {
+  success: boolean
+  data?: {
+    id: string
+    status: ReservationStatus
+    counselingSessionId?: string | null
+  }
+  error?: string
+}
+
+/**
+ * 예약 취소/불참 결과 타입
+ */
+export type CancelReservationResult = {
+  success: boolean
+  data?: {
+    id: string
+    status: ReservationStatus
+  }
+  error?: string
+}
+
+/**
+ * 예약 완료 액션
+ * - 인증 및 권한 체크
+ * - Zod 검증
+ * - COMPLETED로 상태 변경 + CounselingSession 생성
+ * - revalidatePath()
+ */
+export async function completeReservationAction(
+  input: CompleteReservationInput
+): Promise<CompleteReservationResult> {
+  // 1. 인증 체크
+  const session = await verifySession()
+
+  if (!session) {
+    return {
+      success: false,
+      error: '인증되지 않은 요청입니다.',
+    }
+  }
+
+  // 2. Zod 스키마 검증
+  const validationResult = completeReservationSchema.safeParse(input)
+
+  if (!validationResult.success) {
+    return {
+      success: false,
+      error: '잘못된 요청입니다.',
+    }
+  }
+
+  const { reservationId, summary } = validationResult.data
+
+  // 3. RBAC Prisma Client 생성
+  const rbacDb = getRBACPrisma(session)
+
+  try {
+    // 4. 예약 접근 권한 확인
+    const existingReservation = await rbacDb.parentCounselingReservation.findUnique({
+      where: {
+        id: reservationId,
+        teacherId: session.userId,
+      },
+      select: {
+        id: true,
+        studentId: true,
+        status: true,
+      },
+    })
+
+    if (!existingReservation) {
+      return {
+        success: false,
+        error: '예약을 찾을 수 없습니다.',
+      }
+    }
+
+    // 5. 상태 전환 (COMPLETED + CounselingSession 생성)
+    const updatedReservation = await transitionReservationStatus({
+      reservationId,
+      teacherId: session.userId,
+      newStatus: ReservationStatus.COMPLETED,
+      summary,
+    })
+
+    // 6. 캐시 무효화
+    revalidatePath('/reservations')
+    revalidatePath(`/reservations/${reservationId}`)
+    revalidatePath(`/students/${existingReservation.studentId}`)
+
+    return {
+      success: true,
+      data: {
+        id: updatedReservation.id,
+        status: updatedReservation.status,
+        counselingSessionId: updatedReservation.counselingSessionId,
+      },
+    }
+  } catch (error) {
+    console.error('Failed to complete reservation:', error)
+
+    // 에러 메시지 처리
+    if (error instanceof Error) {
+      if (error.message === '이미 완료된 예약은 상태를 변경할 수 없습니다') {
+        return {
+          success: false,
+          error: error.message,
+        }
+      }
+    }
+
+    return {
+      success: false,
+      error: '예약 완료 처리 중 오류가 발생했습니다.',
+    }
+  }
+}
+
+/**
+ * 예약 취소 액션
+ * - 인증 및 권한 체크
+ * - CANCELLED로 상태 변경 (세션 생성 없음)
+ * - revalidatePath()
+ */
+export async function cancelReservationAction(
+  reservationId: string
+): Promise<CancelReservationResult> {
+  // 1. 인증 체크
+  const session = await verifySession()
+
+  if (!session) {
+    return {
+      success: false,
+      error: '인증되지 않은 요청입니다.',
+    }
+  }
+
+  // 2. RBAC Prisma Client 생성
+  const rbacDb = getRBACPrisma(session)
+
+  try {
+    // 3. 예약 접근 권한 확인
+    const existingReservation = await rbacDb.parentCounselingReservation.findUnique({
+      where: {
+        id: reservationId,
+        teacherId: session.userId,
+      },
+      select: {
+        id: true,
+        studentId: true,
+        status: true,
+      },
+    })
+
+    if (!existingReservation) {
+      return {
+        success: false,
+        error: '예약을 찾을 수 없습니다.',
+      }
+    }
+
+    // 4. 상태 전환 (CANCELLED)
+    const updatedReservation = await transitionReservationStatus({
+      reservationId,
+      teacherId: session.userId,
+      newStatus: ReservationStatus.CANCELLED,
+    })
+
+    // 5. 캐시 무효화
+    revalidatePath('/reservations')
+    revalidatePath(`/reservations/${reservationId}`)
+    revalidatePath(`/students/${existingReservation.studentId}`)
+
+    return {
+      success: true,
+      data: {
+        id: updatedReservation.id,
+        status: updatedReservation.status,
+      },
+    }
+  } catch (error) {
+    console.error('Failed to cancel reservation:', error)
+
+    // 에러 메시지 처리
+    if (error instanceof Error) {
+      if (error.message === '이미 완료된 예약은 상태를 변경할 수 없습니다') {
+        return {
+          success: false,
+          error: error.message,
+        }
+      }
+    }
+
+    return {
+      success: false,
+      error: '예약 취소 처리 중 오류가 발생했습니다.',
+    }
+  }
+}
+
+/**
+ * 예약 불참 액션
+ * - 인증 및 권한 체크
+ * - NO_SHOW로 상태 변경 (세션 생성 없음)
+ * - revalidatePath()
+ */
+export async function markNoShowAction(
+  reservationId: string
+): Promise<CancelReservationResult> {
+  // 1. 인증 체크
+  const session = await verifySession()
+
+  if (!session) {
+    return {
+      success: false,
+      error: '인증되지 않은 요청입니다.',
+    }
+  }
+
+  // 2. RBAC Prisma Client 생성
+  const rbacDb = getRBACPrisma(session)
+
+  try {
+    // 3. 예약 접근 권한 확인
+    const existingReservation = await rbacDb.parentCounselingReservation.findUnique({
+      where: {
+        id: reservationId,
+        teacherId: session.userId,
+      },
+      select: {
+        id: true,
+        studentId: true,
+        status: true,
+      },
+    })
+
+    if (!existingReservation) {
+      return {
+        success: false,
+        error: '예약을 찾을 수 없습니다.',
+      }
+    }
+
+    // 4. 상태 전환 (NO_SHOW)
+    const updatedReservation = await transitionReservationStatus({
+      reservationId,
+      teacherId: session.userId,
+      newStatus: ReservationStatus.NO_SHOW,
+    })
+
+    // 5. 캐시 무효화
+    revalidatePath('/reservations')
+    revalidatePath(`/reservations/${reservationId}`)
+    revalidatePath(`/students/${existingReservation.studentId}`)
+
+    return {
+      success: true,
+      data: {
+        id: updatedReservation.id,
+        status: updatedReservation.status,
+      },
+    }
+  } catch (error) {
+    console.error('Failed to mark no-show:', error)
+
+    // 에러 메시지 처리
+    if (error instanceof Error) {
+      if (error.message === '이미 완료된 예약은 상태를 변경할 수 없습니다') {
+        return {
+          success: false,
+          error: error.message,
+        }
+      }
+    }
+
+    return {
+      success: false,
+      error: '예약 불참 처리 중 오류가 발생했습니다.',
     }
   }
 }
