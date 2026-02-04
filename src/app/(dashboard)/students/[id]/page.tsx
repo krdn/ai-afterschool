@@ -11,6 +11,7 @@ import { PersonalitySummaryCard } from "@/components/students/personality-summar
 import { LearningStrategyPanel } from "@/components/students/learning-strategy-panel"
 import { CareerGuidancePanel } from "@/components/students/career-guidance-panel"
 import { ReportButton } from "@/components/students/report-button"
+import { CounselingSection } from "@/components/counseling/CounselingSection"
 
 export default async function StudentPage({
   params,
@@ -61,6 +62,57 @@ export default async function StudentPage({
   // Extract face and palm image URLs from student images
   const faceImageUrl = student.images.find(img => img.type === 'face')?.resizedUrl || null
   const palmImageUrl = student.images.find(img => img.type === 'palm')?.resizedUrl || null
+
+  // Fetch counseling sessions for this student
+  const counselingSessions = await db.counselingSession.findMany({
+    where: {
+      studentId: student.id,
+      teacherId: session.userId,
+    },
+    include: {
+      student: true,
+      teacher: true,
+    },
+    orderBy: {
+      sessionDate: "desc",
+    },
+  })
+
+  // Fetch upcoming reservation (SCHEDULED, future, for this student and teacher)
+  const upcomingReservation = await db.parentCounselingReservation.findFirst({
+    where: {
+      studentId: student.id,
+      teacherId: session.userId,
+      status: "SCHEDULED",
+      scheduledAt: {
+        gte: new Date(),
+      },
+    },
+    include: {
+      student: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      parent: {
+        select: {
+          id: true,
+          name: true,
+          relation: true,
+        },
+      },
+      teacher: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+    orderBy: {
+      scheduledAt: "asc",
+    },
+  })
 
   return (
     <div className="space-y-6">
@@ -124,6 +176,12 @@ export default async function StudentPage({
           <ReportButton studentId={student.id} />
         </div>
       </div>
+
+      {/* Counseling Section */}
+      <CounselingSection
+        sessions={counselingSessions}
+        upcomingReservation={upcomingReservation}
+      />
     </div>
   )
 }
