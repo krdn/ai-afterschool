@@ -10,8 +10,9 @@ import { generateWithProvider, FailoverError } from "@/lib/ai/router"
 import { buildCounselingSummaryPrompt, buildPersonalitySummaryPrompt } from "@/lib/ai/counseling-prompts"
 
 // Validation schemas
-const studentIdSchema = z.string().cuid()
-const sessionIdSchema = z.string().cuid()
+// Note: studentId can be CUID or custom format like "student-001" from seed data
+const studentIdSchema = z.string().min(1)
+const sessionIdSchema = z.string().min(1)
 
 /**
  * 학생 AI 지원 데이터 반환 타입
@@ -202,6 +203,109 @@ export async function generateCounselingSummaryAction(sessionId: string): Promis
   })
 
   // 7. generateWithProvider로 요약 생성
+  try {
+    const response = await generateWithProvider({
+      featureType: "counseling_suggest",
+      teacherId: session.userId,
+      prompt,
+      maxOutputTokens: 500,
+      temperature: 0.3,
+    })
+
+    // 폴백 발생 시 로깅
+    if (response.wasFailover) {
+      console.info(
+        `[Counseling Summary] Failover occurred: ${response.failoverFrom} -> ${response.provider}`
+      )
+    }
+
+    return { success: true, data: response.text }
+  } catch (error) {
+    console.error("Failed to generate counseling summary:", error)
+
+    // FailoverError인 경우 상세 로깅
+    if (error instanceof FailoverError) {
+      console.error(
+        `[Counseling Summary] All providers failed (${error.totalAttempts} attempts):`,
+        error.errors.map((e) => `${e.provider}: ${e.error.message}`).join("; ")
+      )
+      return { success: false, error: error.userMessage }
+    }
+
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "AI 요약 생성에 실패했습니다.",
+    }
+  }
+}
+
+/**
+ * AI 상담 요약 생성 (새 상담용) Server Action
+ *
+ * 아직 저장되지 않은 새 상담에서 content를 직접 받아 요약을 생성합니다.
+ * - sessionId가 없는 경우 사용
+ * - 학생 성향 정보만 참조 (이전 상담 이력은 제외)
+ *
+ * @param studentId - 학생 ID
+ * @param content - 상담 내용
+ * @param sessionType - 상담 유형
+ * @returns 생성된 AI 요약 또는 에러
+ */
+export async function generateCounselingSummaryFromContentAction(
+  studentId: string,
+  content: string,
+  sessionType: string = "ACADEMIC"
+): Promise<{
+  success: boolean
+  data?: string
+  error?: string
+}> {
+  // 1. 인증 확인
+  const session = await verifySession()
+  if (!session?.userId) {
+    return { success: false, error: "인증되지 않았습니다." }
+  }
+
+  // 2. 입력 검증
+  const parseResult = studentIdSchema.safeParse(studentId)
+  if (!parseResult.success) {
+    return { success: false, error: "유효하지 않은 학생 ID입니다." }
+  }
+
+  if (!content || content.trim().length < 10) {
+    return { success: false, error: "상담 내용이 너무 짧습니다. (최소 10자)" }
+  }
+
+  // 3. 학생 조회 (teacherId로 권한 확인)
+  const student = await db.student.findFirst({
+    where: {
+      id: studentId,
+      teacherId: session.userId,
+    },
+    select: {
+      id: true,
+      name: true,
+    },
+  })
+
+  if (!student) {
+    return { success: false, error: "학생을 찾을 수 없거나 접근 권한이 없습니다." }
+  }
+
+  // 4. 학생 성향 정보 조회 (선택적)
+  const personalityData = await getUnifiedPersonalityData(studentId, session.userId)
+
+  // 5. 프롬프트 빌더로 프롬프트 생성
+  const prompt = buildCounselingSummaryPrompt({
+    currentSummary: content,
+    sessionDate: new Date(),
+    sessionType,
+    personality: personalityData,
+    previousSessions: [], // 새 상담이므로 이전 이력 없음
+    studentName: student.name,
+  })
+
+  // 6. generateWithProvider로 요약 생성
   try {
     const response = await generateWithProvider({
       featureType: "counseling_suggest",
