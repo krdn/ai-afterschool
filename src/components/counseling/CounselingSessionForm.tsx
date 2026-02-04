@@ -3,6 +3,7 @@
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useState } from "react"
+import { Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -17,18 +18,27 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { recordCounselingAction } from "@/lib/actions/performance"
 import { counselingSchema, type CounselingFormData } from "@/lib/validations/counseling"
 import { toast } from "sonner"
+import { AISupportPanel } from "./AISupportPanel"
 
 interface CounselingSessionFormProps {
   studentId: string
+  studentName: string
+  teacherId: string
+  sessionId?: string
   onSuccess?: () => void
 }
 
 export function CounselingSessionForm({
   studentId,
+  studentName,
+  teacherId,
+  sessionId,
   onSuccess,
 }: CounselingSessionFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [followUpRequired, setFollowUpRequired] = useState(false)
+  const [isPanelOpen, setIsPanelOpen] = useState(true)
+  const [appliedAISummary, setAppliedAISummary] = useState<string | null>(null)
 
   const form = useForm<CounselingFormData>({
     resolver: zodResolver(counselingSchema),
@@ -52,6 +62,15 @@ export function CounselingSessionForm({
     }
   }
 
+  const handleAISummaryApply = (aiSummary: string) => {
+    setAppliedAISummary(aiSummary)
+    const currentSummary = form.getValues("summary")
+    const newSummary = aiSummary + (currentSummary ? `\n\n---\n\n${currentSummary}` : "")
+    form.setValue("summary", newSummary, { shouldDirty: true })
+    toast.success("AI 요약이 적용되었습니다. 필요시 수정하세요.")
+    setIsPanelOpen(false)
+  }
+
   const onSubmit = async (data: CounselingFormData) => {
     setIsSubmitting(true)
 
@@ -68,6 +87,9 @@ export function CounselingSessionForm({
       }
       if (data.satisfactionScore !== undefined) {
         formData.append("satisfactionScore", data.satisfactionScore.toString())
+      }
+      if (appliedAISummary) {
+        formData.append("aiSummary", appliedAISummary)
       }
 
       const result = await recordCounselingAction(undefined, formData)
@@ -88,10 +110,21 @@ export function CounselingSessionForm({
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>상담 기록</CardTitle>
-      </CardHeader>
+    <>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>상담 기록</CardTitle>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setIsPanelOpen(true)}
+            className="gap-2"
+          >
+            <Sparkles className="h-4 w-4" />
+            AI 지원
+          </Button>
+        </CardHeader>
       <CardContent>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {form.formState.errors.root && (
@@ -243,5 +276,16 @@ export function CounselingSessionForm({
         </form>
       </CardContent>
     </Card>
+
+      <AISupportPanel
+        studentId={studentId}
+        studentName={studentName}
+        teacherId={teacherId}
+        sessionId={sessionId}
+        isOpen={isPanelOpen}
+        onOpenChange={setIsPanelOpen}
+        onAISummaryApply={handleAISummaryApply}
+      />
+    </>
   )
 }
