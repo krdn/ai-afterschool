@@ -17,9 +17,9 @@
 
 - [x] **RESERVE-01**: 상담 예약 등록 (날짜, 시간, 학부모, 주제)
 - [x] **RESERVE-02**: 예약 상태 관리 (예약됨/완료/취소/불참)
-- [ ] **RESERVE-03**: 예약 목록 조회 및 검색
-- [ ] **RESERVE-04**: 예약 수정 및 삭제
-- [ ] **RESERVE-05**: 예약 -> 완료 -> 기록 워크플로우
+- [x] **RESERVE-03**: 예약 목록 조회 및 검색
+- [x] **RESERVE-04**: 예약 수정 및 삭제
+- [x] **RESERVE-05**: 예약 -> 완료 -> 기록 워크플로우
 
 ### 캘린더 뷰
 
@@ -88,9 +88,9 @@
 | PARENT-03 | Phase 16 | Complete |
 | RESERVE-01 | Phase 16 | Complete |
 | RESERVE-02 | Phase 16 | Complete |
-| RESERVE-03 | Phase 17 | Pending |
-| RESERVE-04 | Phase 17 | Pending |
-| RESERVE-05 | Phase 17 | Pending |
+| RESERVE-03 | Phase 17 | Complete |
+| RESERVE-04 | Phase 17 | Complete |
+| RESERVE-05 | Phase 17 | Complete |
 | CALENDAR-01 | Phase 19 | Pending |
 | CALENDAR-02 | Phase 19 | Pending |
 | CALENDAR-03 | Phase 18 | Pending |
@@ -112,8 +112,9 @@
 **Coverage:**
 - v2.1 requirements: 25 total
 - Mapped to phases: 25
+- Complete: 8/25 (32%)
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-04*
-*Last updated: 2026-02-04 (Phase 16 complete)*
+*Last updated: 2026-02-04 (Phase 17 complete)*
