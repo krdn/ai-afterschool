@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 21 - Statistics & Dashboard
-Plan: 05 of 07
+Plan: 06 of 07
 Status: In Progress
-Last activity: 2026-02-04 — Completed Plan 21-05 (필터 및 테이블 컴포넌트)
+Last activity: 2026-02-04 — Completed Plan 21-06 (페이지 통합)
 
 Progress: [█████░░░░░░░░░░░░░░░░░░░░] 43% (4/7 phases complete)
 
@@ -43,7 +43,7 @@ Progress: [█████░░░░░░░░░░░░░░░░░░
   - Plan 21-03: 차트 컴포넌트 (✅)
   - Plan 21-04: 후속 조치 목록 (✅)
   - Plan 21-05: 필터 및 테이블 컴포넌트 (✅)
-  - Plan 21-06: 페이지 통합 (pending)
+  - Plan 21-06: 페이지 통합 (✅)
   - Plan 21-07: 테스트 및 검증 (pending)
 - Phase 22: AI Integration (pending)
 
@@ -70,7 +70,7 @@ Progress: [█████░░░░░░░░░░░░░░░░░░
 | 18 (v2.1) | 5 | 14 min | ~3 min |
 | 19 (v2.1) | 3 | 22 min | ~7 min |
 | 20 (v2.1) | 3 | 7 min | ~2.3 min |
-| 21 (v2.1) | 5 | 22 min | ~4.4 min |
+| 21 (v2.1) | 6 | 27 min | ~4.5 min |
 
 **Recent Trend:**
 - v2.0 complete: 40 plans in ~119 min (~3 min/plan average)
@@ -142,6 +142,9 @@ Recent decisions affecting current work:
 - [21-04] 완료 처리 흐름: Checkbox → AlertDialog 확인 → onComplete 콜백으로 실수 방지
 - [21-04] 정렬 우선순위: status === 'overdue' 우선, 그 다음 followUpDate ASC로 긴급한 항목 최상단 노출
 - [21-04] shadcn/ui Checkbox 설치: 완료 체크 UI 구현에 필요한 컴포넌트 추가
+- [21-06] 간단한 wrapper 레이아웃: (dashboard) 레이아웃을 상속하므로 추가 레이아웃 불필요
+- [21-06] Server Component로 초기 데이터 fetch: SSR로 빠른 초기 렌더링, SEO 최적화
+- [21-06] getDateRangeFromPreset 유틸리티 분리: "use server" 파일에서 동기 함수 export 불가, 별도 파일로 분리
 
 **v2.0 결정 (영향 있음):**
 - [11-02] Prisma Client Extensions over deprecated Middleware - $allOperations pattern for automatic teamId filtering
@@ -174,9 +177,9 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-04 22:11 KST
-Stopped at: Completed Phase 21 Plan 05 (필터 및 테이블 컴포넌트) - Phase 21 in progress
+Last session: 2026-02-04 22:16 KST
+Stopped at: Completed Phase 21 Plan 06 (페이지 통합) - Phase 21 in progress
 Resume file: None
 
 ---
-*Last updated: 2026-02-04 (Phase 21 Plan 05 완료)*
+*Last updated: 2026-02-04 (Phase 21 Plan 06 완료)*
