@@ -12,11 +12,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import {
-  CounselingSessionForm,
-} from "@/components/counseling/CounselingSessionForm"
 import { MessageSquare } from "lucide-react"
+import { CounselingPageTabs } from "@/components/counseling/CounselingPageTabs"
 import type { CounselingType, Prisma } from "@prisma/client"
+import type { CounselingSessionData } from "@/components/counseling/types"
 
 type PageProps = {
   searchParams: Promise<{
@@ -26,6 +25,7 @@ type PageProps = {
     startDate?: string
     endDate?: string
     followUpRequired?: string
+    tab?: string
   }>
 }
 
@@ -136,13 +136,6 @@ export default async function CounselingPage({
 
   const totalSessions = sessions.length
   const monthlyCount = monthlySessions.length
-  const typeDistribution = sessions.reduce(
-    (acc, s) => {
-      acc[s.type] = (acc[s.type] || 0) + 1
-      return acc
-    },
-    {} as Record<string, number>
-  )
   const avgDuration =
     sessions.length > 0
       ? sessions.reduce((sum, s) => sum + s.duration, 0) / sessions.length
@@ -154,10 +147,83 @@ export default async function CounselingPage({
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">상담 관리</h1>
-          <p className="text-gray-600">선생님-학생 상담 기록을 관리합니다</p>
+          <p className="text-gray-600">선생님-학생 상담 기록과 예약을 관리합니다</p>
         </div>
+      </div>
+
+      {/* 탭 UI */}
+      <CounselingPageTabs
+        initialTab={params.tab}
+        sessions={sessions as CounselingSessionData[]}
+        session={session}
+      >
+        <CounselingHistoryContent
+          sessions={sessions}
+          params={params}
+          monthlyCount={monthlyCount}
+          totalSessions={totalSessions}
+          avgDuration={avgDuration}
+          followUpCount={followUpCount}
+          canViewAll={canViewAll}
+          canViewTeam={canViewTeam}
+        />
+      </CounselingPageTabs>
+    </div>
+  )
+}
+
+interface CounselingHistoryContentProps {
+  sessions: Array<{
+    id: string
+    student: {
+      id: string
+      name: string
+      school: string | null
+      grade: number | null
+    }
+    teacher: {
+      id: string
+      name: string
+      role: string
+    }
+    sessionDate: Date
+    duration: number
+    type: string
+    summary: string
+    followUpRequired: boolean
+    followUpDate: Date | null
+  }>
+  params: {
+    studentName?: string
+    teacherName?: string
+    type?: string
+    startDate?: string
+    endDate?: string
+    followUpRequired?: string
+  }
+  monthlyCount: number
+  totalSessions: number
+  avgDuration: number
+  followUpCount: number
+  canViewAll: boolean
+  canViewTeam: boolean
+}
+
+function CounselingHistoryContent({
+  sessions,
+  params,
+  monthlyCount,
+  totalSessions,
+  avgDuration,
+  followUpCount,
+  canViewAll,
+  canViewTeam,
+}: CounselingHistoryContentProps) {
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-end">
         <Button variant="outline" asChild>
-          <a href="/counseling/new">새 상담 기록</a>
+          <Link href="/counseling/new">새 상담 기록</Link>
         </Button>
       </div>
 

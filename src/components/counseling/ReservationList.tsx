@@ -16,14 +16,20 @@ import type { ReservationStatus } from "@prisma/client"
 interface ReservationListProps {
   reservations: ReservationWithRelations[]
   onRefresh?: () => void
+  dateFilter?: Date  // 외부에서 전달받은 날짜 필터
 }
 
-export function ReservationList({ reservations, onRefresh }: ReservationListProps) {
+export function ReservationList({ reservations, onRefresh, dateFilter }: ReservationListProps) {
   // 필터 상태
   const [statusFilter, setStatusFilter] = useState<ReservationStatus | "ALL">("ALL")
   const [searchQuery, setSearchQuery] = useState("")
-  const [dateFilter, setDateFilter] = useState<Date | undefined>(undefined)
+  const [internalDateFilter, setInternalDateFilter] = useState<Date | undefined>(undefined)
   const [debouncedSearch, setDebouncedSearch] = useState("")
+
+  // 외부 dateFilter가 변경되면 내부 상태 업데이트
+  useEffect(() => {
+    setInternalDateFilter(dateFilter)
+  }, [dateFilter])
 
   // 검색 디바운스 (300ms)
   useEffect(() => {
@@ -52,11 +58,11 @@ export function ReservationList({ reservations, onRefresh }: ReservationListProp
         }
 
         // 날짜 필터
-        if (dateFilter) {
+        if (internalDateFilter) {
           const reservationDate = new Date(reservation.scheduledAt)
-          const filterDate = new Date(dateFilter)
+          const filterDate = new Date(internalDateFilter)
           filterDate.setHours(0, 0, 0, 0)
-          const filterDateEnd = new Date(dateFilter)
+          const filterDateEnd = new Date(internalDateFilter)
           filterDateEnd.setHours(23, 59, 59, 999)
 
           if (reservationDate < filterDate || reservationDate > filterDateEnd) {
@@ -70,13 +76,13 @@ export function ReservationList({ reservations, onRefresh }: ReservationListProp
         // scheduledAt 기준 내림차순 (최신 순)
         return new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime()
       })
-  }, [reservations, statusFilter, debouncedSearch, dateFilter])
+  }, [reservations, statusFilter, debouncedSearch, internalDateFilter])
 
   // 필터 리셋
   const handleResetFilters = useCallback(() => {
     setStatusFilter("ALL")
     setSearchQuery("")
-    setDateFilter(undefined)
+    setInternalDateFilter(undefined)
   }, [])
 
   // 상태 라벨
@@ -92,7 +98,7 @@ export function ReservationList({ reservations, onRefresh }: ReservationListProp
   }
 
   // 필터 중인지 확인
-  const isFiltering = statusFilter !== "ALL" || debouncedSearch.trim() || dateFilter
+  const isFiltering = statusFilter !== "ALL" || debouncedSearch.trim() || internalDateFilter
 
   // 빈 상태 렌더링
   if (filteredReservations.length === 0) {
