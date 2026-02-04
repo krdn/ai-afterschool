@@ -4,28 +4,25 @@
 
 학원에서 대학입시를 목표로 학생을 효율적으로 관리하기 위한 AI 기반 학생 관리 시스템. 학원 선생님/관리자가 학생 정보를 등록하고, AI가 다양한 성향 분석(MBTI, 사주, 성명학, 관상/손금)을 제공하며, 이를 바탕으로 맞춤형 학습 전략과 진로 가이드를 제안한다. 상담 시 활용할 수 있는 종합 보고서 출력 기능을 제공한다.
 
-**현재 상태:** v1.1 Production Readiness가 출시되었으며, v2.0 선생님 관리 시스템을 개발 중입니다.
+**현재 상태:** v2.0 Teacher Management가 출시되었으며, v2.1 학부모 상담 관리 시스템을 개발 중입니다.
 
 ## Core Value
 
 **학생 정보 통합 관리를 기반으로 AI 성향 분석 및 맞춤형 학습/진로 제안 제공** — 학생 데이터가 없으면 분석도 제안도 불가능하다. 학생 정보 관리가 모든 기능의 기반이다.
 
-## Current Milestone: v2.0 Teacher Management
+## Current Milestone: v2.1 Parent Counseling Management
 
-**Goal:** 다중 선생님 지원, 계층적 관리 구조, 선생님-학생 궁합 분석, AI 기반 최적 배정 시스템 구축
+**Goal:** 선생님 중심의 학부모 상담 예약/기록 시스템 구축으로 체계적인 상담 관리 및 통계 제공
 
 **Target features:**
-- 선생님 관리 (CRUD, 성향 분석, 계층 구조)
-- 팀 단위 데이터 분리 (원장/팀장/매니저)
-- 선생님-학생 궁합 분석
-- AI 자동 배정 제안
-- 성과 분석 및 선생님 추천
-- 다중 LLM 지원 (Ollama, Gemini, ChatGPT, Claude)
-- Admin 설정 기능
+- 학부모 상담 예약 등록/관리 (날짜, 시간, 상담 유형)
+- 상담 내용 기록 및 저장 (상담 요약, 논의 사항, 후속 조치)
+- 학생별 상담 이력 조회 (시간순 정렬, 검색/필터)
+- 선생님별/학생별 상담 통계 (월별 상담 횟수, 상담 유형 분포)
 
 ## Current State
 
-**Version:** v2.0 Teacher Management (In Development)
+**Version:** v2.1 Parent Counseling Management (In Development)
 
 **Delivered Features:**
 - **v1.0 MVP 모든 기능 포함:**
@@ -63,10 +60,33 @@
 - Sentry (오류 추적)
 - Pino (로깅)
 
+**v2.0 Teacher Management 기능:**
+  - 선생님 관리 (CRUD, 성향 분석, 계층 구조)
+  - 팀 단위 데이터 분리 (원장/팀장/매니저/선생님)
+  - 선생님-학생 궁합 분석
+  - AI 자동 배정 제안
+  - 성과 분석 및 선생님 추천
+  - 다중 LLM 지원 (Ollama, Gemini, ChatGPT, Claude)
+  - Admin 설정 기능
+
+**Tech Stack:**
+- Next.js 15 (App Router)
+- Prisma + PostgreSQL
+- MinIO (S3-compatible PDF storage)
+- Cloudinary (이미지 저장)
+- Vercel AI SDK (다중 LLM 지원)
+- @react-pdf/renderer (PDF 생성)
+- TanStack Table (테이블 UI)
+- Recharts (차트 시각화)
+- Docker + Docker Compose
+- Caddy (리버스 프록시)
+- Sentry (오류 추적)
+- Pino (로깅)
+
 **Codebase Stats:**
-- ~17,300 lines of TypeScript/JSX
-- 58 plans across 10 phases (v1.0: 36, v1.1: 22)
-- Integration health score: 92% (v1.1)
+- ~20,000+ lines of TypeScript/JSX
+- 98 plans across 15 phases (v1.0: 36, v1.1: 22, v2.0: 40)
+- Integration health score: 92%
 
 **Known Issues (Minor Technical Debt):**
 - 2개 `<img>` 태그가 Next.js Image를 사용하지 않음 (face-analysis-panel.tsx, student-image-tabs.tsx)
@@ -117,32 +137,42 @@
 - [x] fetchReportData() 함수 중복 해제 — v1.1
 - [x] Phase 1 VERIFICATION.md 생성 — v1.1
 
+**v2.0 선생님 관리 시스템:**
+- [x] 선생님 기본 정보 관리 (이름, 이메일, 연락처, 사진, 소속 팀) — v2.0
+- [x] 선생님 계층 구조 (원장 > 팀장 > 매니저 > 선생님) — v2.0
+- [x] 팀 단위 데이터 접근 제어 (원장: 전체, 팀장: 소속 팀만) — v2.0
+- [x] 선생님 성향 분석 (MBTI, 사주, 성명학, 관상, 손금) — v2.0
+- [x] 선생님-학생 궁합 분석 (AI 기반) — v2.0
+- [x] 학생 배정 기능 (선생님에게 학생 할당) — v2.0
+- [x] AI 자동 배정 제안 (궁합 + 부하 분산) — v2.0
+- [x] 선생님 성과 분석 (학생 성과 추적) — v2.0
+- [x] 팀 구성 분석 (성향 조합, 전분야 커버리지) — v2.0
+- [x] 학생별 선생님 추천 (맞춤 순위) — v2.0
+- [x] 다중 LLM 설정 (Ollama 로컬, Gemini, ChatGPT, Claude) — v2.0
+- [x] Admin 설정 기능 (원장 전용) — v2.0
+- [x] 선생님 목록 조회 및 검색 — v2.0
+- [x] 선생님 상세 정보 조회 — v2.0
+
 ### Active
 
-**v2.0 선생님 관리 시스템:**
-- [ ] 선생님 기본 정보 관리 (이름, 이메일, 연락처, 사진, 소속 팀)
-- [ ] 선생님 계층 구조 (원장 > 팀장 > 매니저 > 선생님)
-- [ ] 팀 단위 데이터 접근 제어 (원장: 전체, 팀장: 소속 팀만)
-- [ ] 선생님 성향 분석 (MBTI, 사주, 성명학, 관상, 손금)
-- [ ] 선생님-학생 궁합 분석 (AI 기반)
-- [ ] 학생 배정 기능 (선생님에게 학생 할당)
-- [ ] AI 자동 배정 제안 (궁합 + 부하 분산)
-- [ ] 선생님 성과 분석 (학생 성과 추적)
-- [ ] 팀 구성 분석 (성향 조합, 전분야 커버리지)
-- [ ] 학생별 선생님 추천 (맞춤 순위)
-- [ ] 다중 LLM 설정 (Ollama 로컬, Gemini, ChatGPT, Claude)
-- [ ] Admin 설정 기능 (원장 전용)
-- [ ] 선생님 목록 조회 및 검색
-- [ ] 선생님 상세 정보 조회
+**v2.1 학부모 상담 관리 시스템:**
+- [ ] 학부모 상담 예약 등록 (날짜, 시간, 상담 유형, 학부모 연락처)
+- [ ] 상담 예약 목록 조회 및 관리 (예정/완료/취소 상태)
+- [ ] 상담 내용 기록 (상담 요약, 논의 사항, 후속 조치)
+- [ ] 학생별 상담 이력 조회 (시간순 정렬, 검색/필터)
+- [ ] 선생님별 상담 통계 (월별 상담 횟수, 상담 유형 분포)
+- [ ] 학생별 상담 통계 (총 상담 횟수, 최근 상담일)
+- [ ] 다가오는 상담 예약 대시보드
 
 ### Out of Scope
 
-- 대학/학과 정보 자동 수집 — v2.0은 선생님 관리에 집중
-- 학생 본인 직접 입력 — v2.0은 선생님/관리자만 사용
-- 학부모 포털 — v2.0은 내부 관리 시스템에 집중
+- 대학/학과 정보 자동 수집 — 선생님/학생 관리에 집중
+- 학생 본인 직접 입력 — 선생님/관리자만 사용
+- 학부모 포털 — 선생님 중심 운영으로 결정
 - 모바일 앱 — 웹 우선, 모바일은 추후 검토
-- 출결/수강료 관리 — v2.1로 미룸
-- 학부모 소통 — v2.1로 미룸
+- 출결/수강료 관리 — v2.2로 미룸
+- 카카오톡 알림톡 — v2.1은 내부 기록에 집중
+- 이메일 자동 발송 — v2.1은 선생님이 직접 연락
 - 실시간 채팅 — 핵심 가치와 무관, 복잡도 증가
 - LMS/동영상 강의 — 기존 솔루션 활용 권장
 
@@ -229,9 +259,18 @@
 **v2.0 결정들:**
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| 팀 단위 데이터 분리 | 보안 및 프라이버시 보장 | — Pending — 구현 필요 |
-| 선생님 성향 분석 | 학생과 동일한 방식으로 궁합 계산 | — Pending — 구현 필요 |
-| LLM 전체 공통 설정 | 관리 용이성 및 비용 효율성 | — Pending — 구현 필요 |
+| 팀 단위 데이터 분리 | 보안 및 프라이버시 보장 | ✓ 성공 — Prisma Extensions + PostgreSQL RLS |
+| 선생님 성향 분석 | 학생과 동일한 방식으로 궁합 계산 | ✓ 성공 — 기존 분석 모듈 재사용 |
+| LLM 전체 공통 설정 | 관리 용이성 및 비용 효율성 | ✓ 성공 — Vercel AI SDK 통합 |
+| 가중 평균 궁합 알고리즘 | MBTI/학습스타일/사주/성명학/부하분산 조합 | ✓ 성공 — 투명한 점수 계산 |
+| Greedy 자동 배정 | 단순하지만 효과적인 배정 알고리즘 | ✓ 성공 — O(students × teachers) |
+| 공정성 메트릭 | Disparity Index, ABROCA, Distribution Balance | ✓ 성공 — 편향 탐지 가능 |
+
+**v2.1 결정들:**
+| Decision | Rationale | Outcome |
+|----------|-----------|---------|
+| 선생님 중심 운영 | 학부모 계정 없이 선생님이 모든 상담 관리 | — Pending — 구현 필요 |
+| 내부 기록 전용 | 외부 알림 없이 시스템에만 기록 | — Pending — 구현 필요 |
 
 ---
-*Last updated: 2026-01-30 after v2.0 milestone initialization*
+*Last updated: 2026-02-04 after v2.1 milestone initialization*
