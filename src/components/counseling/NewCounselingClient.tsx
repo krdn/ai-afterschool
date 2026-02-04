@@ -22,15 +22,18 @@ interface Student {
 
 interface NewCounselingClientProps {
   students: Student[]
+  teacherId: string
 }
 
-export function NewCounselingClient({ students }: NewCounselingClientProps) {
+export function NewCounselingClient({ students, teacherId }: NewCounselingClientProps) {
   const [selectedStudentId, setSelectedStudentId] = useState<string>("")
   const router = useRouter()
 
   const handleSuccess = () => {
     router.push("/counseling")
   }
+
+  const selectedStudent = students.find((s) => s.id === selectedStudentId)
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -72,9 +75,11 @@ export function NewCounselingClient({ students }: NewCounselingClientProps) {
         </Card>
 
         <div id="counseling-form-container">
-          {selectedStudentId ? (
+          {selectedStudentId && selectedStudent ? (
             <CounselingSessionForm
               studentId={selectedStudentId}
+              studentName={selectedStudent.name}
+              teacherId={teacherId}
               onSuccess={handleSuccess}
             />
           ) : (
