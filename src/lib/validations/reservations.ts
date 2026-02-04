@@ -42,6 +42,7 @@ export type CreateReservationInput = z.infer<typeof createReservationSchema>
  * - 시간 변경 시 30분 단위 검증
  */
 export const reservationUpdateSchema = z.object({
+  reservationId: z.string().min(1, "예약 ID가 필요합니다"),
   scheduledAt: z
     .string()
     .optional()
@@ -78,7 +79,7 @@ export type DeleteReservationInput = z.infer<typeof reservationDeleteSchema>
 export const statusTransitionSchema = z.object({
   reservationId: z.string().min(1, "예약 ID를 입력해주세요"),
   newStatus: z.enum(['COMPLETED', 'CANCELLED', 'NO_SHOW'], {
-    errorMap: () => ({ message: "유효하지 않은 상태입니다" }),
+    message: "유효하지 않은 상태입니다",
   }),
 })
 
