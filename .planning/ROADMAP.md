@@ -309,8 +309,15 @@ Plans:
   2. 예약 목록에서 상태별 필터링과 검색이 가능하다
   3. 예약 카드에서 상태 변경(완료/취소) 액션을 실행할 수 있다
   4. 날짜 클릭 시 해당 일의 상담 목록이 표시된다
-**Plans**: TBD
-**Status**: Pending
+**Plans**: 5 plans in 4 waves
+**Status**: Ready for execution
+
+Plans:
+- [ ] 18-01-PLAN.md — Badge 컴포넌트에 상태 variants 추가
+- [ ] 18-02-PLAN.md — ReservationCalendar 컴포넌트 생성 (react-day-picker)
+- [ ] 18-03-PLAN.md — 예약 등록 폼 + TimeSlotGrid 구현
+- [ ] 18-04-PLAN.md — 예약 카드 + 예약 목록 구현
+- [ ] 18-05-PLAN.md — 페이지 통합 및 전체 워크플로우 연결
 
 **Key concerns to address:**
 - shadcn/ui Calendar + react-day-picker 통합
@@ -404,13 +411,13 @@ Phases execute in numeric order: 16 → 17 → 18 → 19 → 20 → 21 → 22
 | 15. Multi-LLM Integration & Smart Routing | v2.0 | 8/8 | Complete | 2026-02-02 |
 | 16. Parent & Reservation Database Schema | v2.1 | 1/1 | Complete | 2026-02-04 |
 | 17. Reservation Server Actions | v2.1 | 4/4 | Complete | 2026-02-04 |
-| 18. Reservation Management UI | v2.1 | 0/? | Pending | — |
+| 18. Reservation Management UI | v2.1 | 0/5 | Ready | — |
 | 19. Calendar View | v2.1 | 0/? | Pending | — |
 | 20. Student Page Integration | v2.1 | 0/? | Pending | — |
 | 21. Statistics & Dashboard | v2.1 | 0/? | Pending | — |
 | 22. AI Integration | v2.1 | 0/? | Pending | — |
 
-**Overall Progress:** 103/110+ plans complete (v1.0-v2.0: 100%, v2.1: 3/7)
+**Overall Progress:** 103/115+ plans complete (v1.0-v2.0: 100%, v2.1: 3/7 phases, 5 plans ready)
 
 ---
-*Last updated: 2026-02-04 (Phase 17 complete)*
+*Last updated: 2026-02-04 (Phase 18 planned)*
