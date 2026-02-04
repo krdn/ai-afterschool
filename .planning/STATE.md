@@ -30,7 +30,7 @@ Progress: [███░░░░░░░░░░░░░░░░░░░░
   - Plan 18-04: 예약 카드와 목록 (✅)
   - Plan 18-05: 탭 기반 페이지 통합 (✅)
 - Phase 19: Calendar View (in progress)
-  - Plan 19-01: 캘린더 유틸리티 및 월간 뷰 (pending)
+  - Plan 19-01: 캘린더 유틸리티 및 월간 뷰 (✅)
   - Plan 19-02: 주간 캘린더 뷰 (✅)
   - Plan 19-03: 페이지 통합 및 뷰 전환 (pending)
 - Phase 20: Student Page Integration (pending)
@@ -101,6 +101,9 @@ Recent decisions affecting current work:
 - [18-05] Server Component + Client Component Tabs 패턴: 페이지는 Server Component로 유지, 탭 상태는 Client Component에서 관리
 - [18-05] FormView 상태 기반 전환: URL 변경 없이 useState로 목록/폼 뷰 전환 (SPA 경험)
 - [18-05] 외부 dateFilter prop: ReservationList가 부모로부터 날짜 필터를 받아서 캘린더 클릭 기반 필터링 구현
+- [19-01] Custom DayButton with useDayPicker: 접근성 유지를 위해 useDayPicker hook의 components.DayButton 래핑
+- [19-01] Modifier와 Custom Component 분리: modifiers는 배경색, Custom DayButton은 dot indicators만 담당
+- [19-01] 날짜 높이 h-14: dot indicators 공간 확보를 위해 DayButton 높이 증가
 - [19-02] 주간 캘린더 직접 구현: react-day-picker 대신 8열 그리드(시간 + 요일)로 시간 슬롯 표시
 - [19-02] isSameDay 패턴: 타임존 오프셋 문제 방지를 위해 isSameDay + 시간/분 비교 사용
 
@@ -135,9 +138,9 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-04 14:41 KST
-Stopped at: Completed Phase 19 Plan 02 (주간 캘린더 뷰 구현)
+Last session: 2026-02-04 14:42 KST
+Stopped at: Completed Phase 19 Plan 01 (캘린더 유틸리티 및 월간 뷰 구현)
 Resume file: None
 
 ---
-*Last updated: 2026-02-04 (Phase 19-02 완료)*
+*Last updated: 2026-02-04 (Phase 19-01 완료)*
