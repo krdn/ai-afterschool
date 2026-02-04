@@ -93,12 +93,16 @@ export default async function StudentPage({
         select: {
           id: true,
           name: true,
+          school: true,
+          grade: true,
         },
       },
       parent: {
         select: {
           id: true,
           name: true,
+          phone: true,
+          email: true,
           relation: true,
         },
       },

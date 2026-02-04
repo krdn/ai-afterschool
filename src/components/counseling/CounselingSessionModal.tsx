@@ -78,10 +78,10 @@ export function CounselingSessionModal({ session, open, onOpenChange }: Counseli
                 {[...Array(5)].map((_, i) => (
                   <svg
                     key={i}
-                    className={`w-4 h-4 ${i < session.satisfactionScore ? "text-yellow-500 fill-yellow-500" : "text-gray-300"}`}
+                    className={`w-4 h-4 ${i < (session.satisfactionScore ?? 0) ? "text-yellow-500 fill-yellow-500" : "text-gray-300"}`}
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
-                    fill={i < session.satisfactionScore ? "currentColor" : "none"}
+                    fill={i < (session.satisfactionScore ?? 0) ? "currentColor" : "none"}
                     stroke="currentColor"
                     strokeWidth="2"
                   >
