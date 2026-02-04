@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 18 - Reservation Management UI
-Plan: 02 of 04 (Plan 18-02 완료)
+Plan: 03 of 04 (Plan 18-03 완료)
 Status: In progress
-Last activity: 2026-02-04 — Completed 18-02-PLAN.md
+Last activity: 2026-02-04 — Completed 18-03-PLAN.md
 
-Progress: [██░░░░░░░░░░░░░░░░░░░░░░░] 19% (2/7 phases complete, 2/4 plans in Phase 18)
+Progress: [██░░░░░░░░░░░░░░░░░░░░░░░] 20% (2/7 phases complete, 3/4 plans in Phase 18)
 
 **v2.1 학부모 상담 관리 시스템**
 - Phase 16: Parent & Reservation Database Schema (✅ complete)
@@ -36,7 +36,7 @@ Progress: [██░░░░░░░░░░░░░░░░░░░░░
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 101 (v1.0-v2.1)
+- Total plans completed: 102 (v1.0-v2.1)
 - Average duration: ~4.3 min
 - Total execution time: ~7.5 hours
 
@@ -53,14 +53,14 @@ Progress: [██░░░░░░░░░░░░░░░░░░░░░
 | 15 (v2.0) | 8 | 35 min | ~4.4 min |
 | 16 (v2.1) | 1 | 2 min | ~2 min |
 | 17 (v2.1) | 4 | 8 min | ~2 min |
-| 18 (v2.1) | 2 | 1 min | ~0.5 min |
+| 18 (v2.1) | 3 | 2 min | ~0.7 min |
 
 **Recent Trend:**
 - v2.0 complete: 40 plans in ~119 min (~3 min/plan average)
-- v2.1 started: Phase 16-18 (7 plans) in 11 min (~1.5 min/plan average)
+- v2.1 started: Phase 16-18 (8 plans) in 12 min (~1.5 min/plan average)
 - Velocity improved significantly from v1.0 (7 min) to v2.0-v2.1 (~2-3 min)
 
-*Updated after Phase 18-02 completion*
+*Updated after Phase 18-03 completion*
 
 ## Accumulated Context
 
@@ -88,6 +88,9 @@ Recent decisions affecting current work:
 - [17-04] CounselingSession 기본값: duration 30분, type ACADEMIC (필요시 변경 가능)
 - [18-01] Badge 상태 variants: scheduled(blue), completed(green), cancelled(gray), noShow(orange) + dark mode 지원
 - [18-02] react-day-picker v9 DatePicker: 한국어 로케일, Tailwind 스타일링, 단일 날짜 선택 모드
+- [18-03] getStudentsAction 추가: StudentWithParents 타입으로 학부모 정보 포함 반환
+- [18-03] 예약된 슬롯 필터링: CANCELLED/NO_SHOW 상태 제외하여 실제 예약만 비활성화
+- [18-03] 학생/학부모 의존성: selectedStudentId 변경 시 selectedParentId 초기화
 
 **v2.0 결정 (영향 있음):**
 - [11-02] Prisma Client Extensions over deprecated Middleware - $allOperations pattern for automatic teamId filtering
@@ -120,9 +123,9 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-04 13:50 KST
-Stopped at: Completed Phase 18 Plan 02 (DatePicker 컴포넌트 생성)
+Last session: 2026-02-04 13:54 KST
+Stopped at: Completed Phase 18 Plan 03 (예약 등록 폼 UI 구현)
 Resume file: None
 
 ---
-*Last updated: 2026-02-04 (Phase 18-02 완료)*
+*Last updated: 2026-02-04 (Phase 18-03 완료)*

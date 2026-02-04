@@ -313,9 +313,9 @@ Plans:
 **Status**: Ready for execution
 
 Plans:
-- [ ] 18-01-PLAN.md — Badge 컴포넌트에 상태 variants 추가
-- [ ] 18-02-PLAN.md — ReservationCalendar 컴포넌트 생성 (react-day-picker)
-- [ ] 18-03-PLAN.md — 예약 등록 폼 + TimeSlotGrid 구현
+- [x] 18-01-PLAN.md — Badge 컴포넌트에 상태 variants 추가
+- [x] 18-02-PLAN.md — ReservationCalendar 컴포넌트 생성 (react-day-picker)
+- [x] 18-03-PLAN.md — 예약 등록 폼 + TimeSlotGrid 구현
 - [ ] 18-04-PLAN.md — 예약 카드 + 예약 목록 구현
 - [ ] 18-05-PLAN.md — 페이지 통합 및 전체 워크플로우 연결
 
