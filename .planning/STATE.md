@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-02-04)
 
 **Core value:** 학생 정보 통합 관리를 기반으로 AI 성향 분석 및 맞춤형 학습/진로 제안 제공
-**Current focus:** v2.1 - Parent Counseling Management (Phase 16-20)
+**Current focus:** v2.1 - Parent Counseling Management (Phase 16-22)
 
 ## Current Position
 
@@ -14,7 +14,7 @@ Plan: 07 of 07
 Status: Phase Complete
 Last activity: 2026-02-04 — Completed Plan 21-07 (테스트 및 검증)
 
-Progress: [██████░░░░░░░░░░░░░░░░░░] 47% (5/7 phases complete)
+Progress: [████████████████████░░░░] 86% (6/7 phases complete)
 
 **v2.1 학부모 상담 관리 시스템**
 - Phase 16: Parent & Reservation Database Schema (✅ complete)

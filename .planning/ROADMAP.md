@@ -372,16 +372,16 @@ Plans:
   6. 지연된 후속 조치가 하이라이트로 강조된다
   7. 후속 조치 완료 체크가 가능하다
 **Plans**: 7 plans in 4 waves
-**Status**: Planned
+**Status**: Complete (2026-02-04)
 
 Plans:
-- [ ] 21-01-PLAN.md — 상담 통계 Server Actions 및 타입 정의
-- [ ] 21-02-PLAN.md — 후속 조치 Server Actions 및 타입 정의
-- [ ] 21-03-PLAN.md — 요약 카드, 추이 차트, 유형 차트 컴포넌트
-- [ ] 21-04-PLAN.md — 후속 조치 목록 및 카드 컴포넌트
-- [ ] 21-05-PLAN.md — 선생님별 테이블, 기간 필터, CSV 내보내기
-- [ ] 21-06-PLAN.md — 통계 대시보드 페이지 통합
-- [ ] 21-07-PLAN.md — 통합 검증
+- [x] 21-01-PLAN.md — 상담 통계 Server Actions 및 타입 정의
+- [x] 21-02-PLAN.md — 후속 조치 Server Actions 및 타입 정의
+- [x] 21-03-PLAN.md — 요약 카드, 추이 차트, 유형 차트 컴포넌트
+- [x] 21-04-PLAN.md — 후속 조치 목록 및 카드 컴포넌트
+- [x] 21-05-PLAN.md — 선생님별 테이블, 기간 필터, CSV 내보내기
+- [x] 21-06-PLAN.md — 통계 대시보드 페이지 통합
+- [x] 21-07-PLAN.md — 통합 검증
 
 **Key concerns to address:**
 - 기존 Recharts 패턴 재사용 (Phase 14)
@@ -429,10 +429,10 @@ Phases execute in numeric order: 16 → 17 → 18 → 19 → 20 → 21 → 22
 | 18. Reservation Management UI | v2.1 | 5/5 | Complete | 2026-02-04 |
 | 19. Calendar View | v2.1 | 3/3 | Complete | 2026-02-04 |
 | 20. Student Page Integration | v2.1 | 3/3 | Complete | 2026-02-04 |
-| 21. Statistics & Dashboard | v2.1 | 0/7 | Planned | — |
+| 21. Statistics & Dashboard | v2.1 | 7/7 | Complete | 2026-02-04 |
 | 22. AI Integration | v2.1 | 0/? | Pending | — |
 
-**Overall Progress:** 114/121+ plans complete (v1.0-v2.0: 100%, v2.1: 5/7 phases complete, 2 phases pending)
+**Overall Progress:** 121/121+ plans complete (v1.0-v2.0: 100%, v2.1: 6/7 phases complete, 1 phase pending)
 
 ---
-*Last updated: 2026-02-04 (Phase 21 planned)*
+*Last updated: 2026-02-04 (Phase 21 complete)*

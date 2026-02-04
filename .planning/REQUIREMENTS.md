@@ -36,10 +36,10 @@
 
 ### 상담 통계
 
-- [ ] **STATS-01**: 선생님별 월간 상담 횟수
-- [ ] **STATS-02**: 학생별 누적 상담 횟수
-- [ ] **STATS-03**: 상담 유형별 분포 차트
-- [ ] **STATS-04**: 월별 상담 추이 차트
+- [x] **STATS-01**: 선생님별 월간 상담 횟수
+- [x] **STATS-02**: 학생별 누적 상담 횟수
+- [x] **STATS-03**: 상담 유형별 분포 차트
+- [x] **STATS-04**: 월별 상담 추이 차트
 
 ### AI 기능
 
@@ -49,9 +49,9 @@
 
 ### 후속 조치 관리
 
-- [ ] **FOLLOWUP-01**: 오늘/이번 주 후속 조치 대시보드
-- [ ] **FOLLOWUP-02**: 지연된 후속 조치 하이라이트
-- [ ] **FOLLOWUP-03**: 후속 조치 완료 체크
+- [x] **FOLLOWUP-01**: 오늘/이번 주 후속 조치 대시보드
+- [x] **FOLLOWUP-02**: 지연된 후속 조치 하이라이트
+- [x] **FOLLOWUP-03**: 후속 조치 완료 체크
 
 ## Future Requirements (v2.2+)
 
@@ -98,16 +98,16 @@
 | HISTORY-02 | Phase 20 | Pending |
 | HISTORY-03 | Phase 20 | Pending |
 | HISTORY-04 | Phase 18 | Pending |
-| STATS-01 | Phase 21 | Pending |
-| STATS-02 | Phase 21 | Pending |
-| STATS-03 | Phase 21 | Pending |
-| STATS-04 | Phase 21 | Pending |
+| STATS-01 | Phase 21 | Complete |
+| STATS-02 | Phase 21 | Complete |
+| STATS-03 | Phase 21 | Complete |
+| STATS-04 | Phase 21 | Complete |
 | AI-01 | Phase 22 | Pending |
 | AI-02 | Phase 22 | Pending |
 | AI-03 | Phase 22 | Pending |
-| FOLLOWUP-01 | Phase 21 | Pending |
-| FOLLOWUP-02 | Phase 21 | Pending |
-| FOLLOWUP-03 | Phase 21 | Pending |
+| FOLLOWUP-01 | Phase 21 | Complete |
+| FOLLOWUP-02 | Phase 21 | Complete |
+| FOLLOWUP-03 | Phase 21 | Complete |
 
 **Coverage:**
 - v2.1 requirements: 25 total
