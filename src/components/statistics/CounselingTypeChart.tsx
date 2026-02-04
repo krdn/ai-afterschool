@@ -80,9 +80,11 @@ export function CounselingTypeChart({
               cy="50%"
               outerRadius={100}
               innerRadius={60}
-              label={({ name, percentage }) =>
-                `${name}: ${percentage.toFixed(1)}%`
-              }
+              label={({ name, value }) => {
+                const total = chartData.reduce((sum, item) => sum + item.value, 0)
+                const percentage = total > 0 ? (value / total) * 100 : 0
+                return `${name}: ${percentage.toFixed(1)}%`
+              }}
             >
               {chartData.map((entry, index) => (
                 <Cell
