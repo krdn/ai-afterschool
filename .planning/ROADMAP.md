@@ -291,12 +291,14 @@ Plans:
   2. 예약 정보를 수정하고 삭제할 수 있다
   3. 예약 완료 시 CounselingSession으로 자동 연결되어 상담 기록이 생성된다
   4. 예약 시간 중복이 서버에서 검증되어 더블 부킹이 방지된다
-**Plans**: TBD
-**Status**: Pending
+**Plans**: 4 plans in 2 waves
+**Status**: Complete (2026-02-04)
 
-**Key concerns to address:**
-- RBAC 패턴 기존 performance.ts에서 재사용
-- 트랜잭션 기반 중복 체크 쿼리 구현
+Plans:
+- [x] 17-01-PLAN.md — 예약 생성 Server Actions (Zod 스키마, 중복 검증, RBAC)
+- [x] 17-02-PLAN.md — 예약 목록 조회 및 검색 (teacherId 필터링, 날짜/상태 필터)
+- [x] 17-03-PLAN.md — 예약 수정 및 삭제 (SCHEDULED 상태 확인)
+- [x] 17-04-PLAN.md — 상태 전환 및 CounselingSession 연결 (COMPLETED 시 세션 자동 생성)
 
 #### Phase 18: Reservation Management UI
 **Goal**: 예약 등록 및 목록 관리 화면 구현
@@ -401,14 +403,14 @@ Phases execute in numeric order: 16 → 17 → 18 → 19 → 20 → 21 → 22
 | 14. Performance Analytics & Team Insights | v2.0 | 8/8 | Complete | 2026-01-31 |
 | 15. Multi-LLM Integration & Smart Routing | v2.0 | 8/8 | Complete | 2026-02-02 |
 | 16. Parent & Reservation Database Schema | v2.1 | 1/1 | Complete | 2026-02-04 |
-| 17. Reservation Server Actions | v2.1 | 0/? | Pending | — |
+| 17. Reservation Server Actions | v2.1 | 4/4 | Complete | 2026-02-04 |
 | 18. Reservation Management UI | v2.1 | 0/? | Pending | — |
 | 19. Calendar View | v2.1 | 0/? | Pending | — |
 | 20. Student Page Integration | v2.1 | 0/? | Pending | — |
 | 21. Statistics & Dashboard | v2.1 | 0/? | Pending | — |
 | 22. AI Integration | v2.1 | 0/? | Pending | — |
 
-**Overall Progress:** 99/100+ plans complete (v1.0-v2.0: 100%, v2.1: 1/7)
+**Overall Progress:** 103/110+ plans complete (v1.0-v2.0: 100%, v2.1: 3/7)
 
 ---
-*Last updated: 2026-02-04 (Phase 16 complete)*
+*Last updated: 2026-02-04 (Phase 17 complete)*
