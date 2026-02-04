@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 21 - Statistics & Dashboard
-Plan: 03 of 07
+Plan: 04 of 07
 Status: In Progress
-Last activity: 2026-02-04 — Completed Plan 21-03 (통계 시각화 UI 컴포넌트)
+Last activity: 2026-02-04 — Completed Plan 21-04 (후속 조치 UI 컴포넌트)
 
 Progress: [█████░░░░░░░░░░░░░░░░░░░░] 43% (4/7 phases complete)
 
@@ -39,9 +39,9 @@ Progress: [█████░░░░░░░░░░░░░░░░░░
   - Plan 20-03: 테스트 및 검증 (✅)
 - Phase 21: Statistics & Dashboard (in progress)
   - Plan 21-01: 상담 통계 Server Actions (✅)
-  - Plan 21-02: 대시보드 카드 (pending)
+  - Plan 21-02: 후속 조치 Server Actions (✅)
   - Plan 21-03: 차트 컴포넌트 (✅)
-  - Plan 21-04: 후속 조치 목록 (pending)
+  - Plan 21-04: 후속 조치 목록 (✅)
   - Plan 21-05: 필터 컴포넌트 (pending)
   - Plan 21-06: 페이지 통합 (pending)
   - Plan 21-07: 테스트 및 검증 (pending)
@@ -70,14 +70,14 @@ Progress: [█████░░░░░░░░░░░░░░░░░░
 | 18 (v2.1) | 5 | 14 min | ~3 min |
 | 19 (v2.1) | 3 | 22 min | ~7 min |
 | 20 (v2.1) | 3 | 7 min | ~2.3 min |
-| 21 (v2.1) | 2 | 6 min | ~3 min |
+| 21 (v2.1) | 4 | 15 min | ~3.8 min |
 
 **Recent Trend:**
 - v2.0 complete: 40 plans in ~119 min (~3 min/plan average)
-- v2.1 in progress: Phase 16-21 (18 plans) in 59 min (~3.3 min/plan average)
+- v2.1 in progress: Phase 16-21 (20 plans) in 68 min (~3.4 min/plan average)
 - Velocity improved significantly from v1.0 (7 min) to v2.0-v2.1 (~3 min)
 
-*Updated after Phase 21 Plan 03 completion*
+*Updated after Phase 21 Plan 04 completion*
 
 ## Accumulated Context
 
@@ -134,6 +134,10 @@ Recent decisions affecting current work:
 - [21-01] 빈 월 데이터 초기화: getMonthlyTrendAction에서 요청한 months만큼 빈 월 구조를 미리 생성하여 차트 연속성 확보
 - [21-01] Server-side percentage 계산: getCounselingTypeDistributionAction에서 비율을 서버에서 계산하여 일관된 반올림 규칙 적용
 - [21-01] Prisma.CounselingSessionWhereInput 타입: ESLint no-explicit-any 규칙 준수, 타입 안전성 확보
+- [21-04] 지연 표시 스타일: overdue 상태 시 bg-red-50 border-red-200 + AlertCircle 아이콘으로 긴급성 시각화
+- [21-04] 완료 처리 흐름: Checkbox → AlertDialog 확인 → onComplete 콜백으로 실수 방지
+- [21-04] 정렬 우선순위: status === 'overdue' 우선, 그 다음 followUpDate ASC로 긴급한 항목 최상단 노출
+- [21-04] shadcn/ui Checkbox 설치: 완료 체크 UI 구현에 필요한 컴포넌트 추가
 
 **v2.0 결정 (영향 있음):**
 - [11-02] Prisma Client Extensions over deprecated Middleware - $allOperations pattern for automatic teamId filtering
@@ -166,9 +170,9 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-04 22:02 KST
-Stopped at: Completed Phase 21 Plan 03 (통계 시각화 UI 컴포넌트) - Phase 21 in progress
+Last session: 2026-02-04 22:06 KST
+Stopped at: Completed Phase 21 Plan 04 (후속 조치 UI 컴포넌트) - Phase 21 in progress
 Resume file: None
 
 ---
-*Last updated: 2026-02-04 (Phase 21 Plan 03 완료)*
+*Last updated: 2026-02-04 (Phase 21 Plan 04 완료)*
