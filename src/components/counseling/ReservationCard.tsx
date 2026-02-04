@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { format } from "date-fns"
 import { ko } from "date-fns/locale"
-import type { ParentCounselingReservation, Student, Parent, Teacher, ReservationStatus } from "@prisma/client"
+import type { ParentCounselingReservation, ReservationStatus } from "@prisma/client"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -26,9 +26,23 @@ import {
 import { toast } from "sonner"
 
 export type ReservationWithRelations = ParentCounselingReservation & {
-  student: Student
-  parent: Parent
-  teacher: Teacher
+  student: {
+    id: string
+    name: string
+    school: string | null
+    grade: number | null
+  }
+  parent: {
+    id: string
+    name: string
+    phone: string
+    email: string | null
+    relation: string
+  }
+  teacher: {
+    id: string
+    name: string
+  }
 }
 
 interface ReservationCardProps {

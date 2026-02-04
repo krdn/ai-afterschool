@@ -168,6 +168,12 @@ export async function getReservations(params: GetReservationsParams) {
           relation: true,
         },
       },
+      teacher: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
     },
     orderBy: {
       scheduledAt: 'desc',

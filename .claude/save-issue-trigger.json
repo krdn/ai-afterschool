@@ -1,0 +1,9 @@
+{
+  "triggered_by": "git-post-commit-hook",
+  "commit_hash": "a082300b01eb319d532e05a3e25cde78e9adf2c9",
+  "commit_message": "docs(18-04): complete reservation card and list components plan\n\nTasks completed: 3/3\n- AlertDialog component installed (shadcn/ui)\n- ReservationCard component with status change buttons and confirmation\n- ReservationList component with filtering, search, and empty state handling\n\nSUMMARY: .planning/phases/18-reservation-management-ui/18-04-SUMMARY.md\n\nCo-Authored-By: Claude <noreply@anthropic.com>\n",
+  "commit_author": "gon",
+  "commit_date": "2026-02-04 14:01:47 +0900",
+  "timestamp": 1770181307,
+  "branch": "main"
+}
