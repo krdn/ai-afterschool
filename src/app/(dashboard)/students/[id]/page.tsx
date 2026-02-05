@@ -1,5 +1,6 @@
 import { getStudentById } from "@/lib/actions/student";
 import AnalysisTab from "@/components/students/tabs/analysis-tab";
+import LearningTab from "@/components/students/tabs/learning-tab";
 import { notFound } from "next/navigation";
 import StudentDetailActions from "@/components/students/student-detail-actions";
 import Link from "next/link";
@@ -96,10 +97,7 @@ export default async function StudentDetailPage(props: {
 
             <div className="bg-white border rounded-lg p-6 min-h-[300px]">
                 {currentTab === 'learning' && (
-                    <div>
-                        <h3 className="text-lg font-bold mb-4">학습 현황</h3>
-                        <p className="text-gray-500">최근 성적 및 학습 진도 내용을 표시합니다.</p>
-                    </div>
+                    <LearningTab studentId={student.id} />
                 )}
                 {currentTab === 'analysis' && (
                     <AnalysisTab studentId={student.id} />

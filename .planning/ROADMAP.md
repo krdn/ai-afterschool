@@ -221,8 +221,9 @@ Plans:
   2. 다차원 성과 분석(성적 향상률, 상담 횟수, 학생 만족도)이 가능하다
   3. 팀 구성 분석(성향 다양성, 전문성 커버리지) 결과가 시각화된다
   4. 통제 변수(학생 초기 성적, 출석률)가 고려된 공정한 평가가 제공된다
-**Plans**: 8 plans
-**Status**: Complete (2026-01-31)
+  5. 학생 상세 페이지에서 성적 추이 차트와 성적 관리 UI가 제공된다
+**Plans**: 9 plans
+**Status**: Complete (2026-02-06)
 
 Plans:
 - [x] 14-01-PLAN.md — Performance database schema (GradeHistory, CounselingSession, StudentSatisfaction 모델)
@@ -233,6 +234,7 @@ Plans:
 - [x] 14-06-PLAN.md — Team composition analysis (성향 다양성, 전문성 커버리지 분석)
 - [x] 14-07-PLAN.md — Analytics page data fetching (Analytics 페이지 데이터 연결)
 - [x] 14-08-PLAN.md — PerformanceDashboard real data integration (성과 대시보드 실제 데이터 연동)
+- [x] 14-09-PLAN.md — Student learning tab UI (학생 성적 관리 탭, 추이 차트, CRUD)
 
 ### Phase 15: Multi-LLM Integration & Smart Routing
 **Goal**: 다중 LLM 지원 및 비용 최적화 라우팅
@@ -300,7 +302,7 @@ Phases execute in numeric order: 16 → 17 → 18 → 19 → 20 → 21 → 22
 | 11. Teacher Infrastructure & Access Control | v2.0 | 7/7 | Complete | 2026-01-30 |
 | 12. Teacher Analysis & Team Data Access | v2.0 | 8/8 | Complete | 2026-01-30 |
 | 13. Compatibility Analysis & Matching | v2.0 | 8/8 | Complete | 2026-01-31 |
-| 14. Performance Analytics & Team Insights | v2.0 | 8/8 | Complete | 2026-01-31 |
+| 14. Performance Analytics & Team Insights | v2.0 | 9/9 | Complete | 2026-02-06 |
 | 15. Multi-LLM Integration & Smart Routing | v2.0 | 8/8 | Complete | 2026-02-02 |
 | 16. Parent & Reservation Database Schema | v2.1 | 1/1 | Complete | 2026-02-04 |
 | 17. Reservation Server Actions | v2.1 | 4/4 | Complete | 2026-02-04 |
@@ -310,7 +312,7 @@ Phases execute in numeric order: 16 → 17 → 18 → 19 → 20 → 21 → 22
 | 21. Statistics & Dashboard | v2.1 | 7/7 | Complete | 2026-02-04 |
 | 22. AI Integration | v2.1 | 7/7 | Complete | 2026-02-05 |
 
-**Overall Progress:** 128/128 plans complete (v1.0-v2.1: 100%) ✅
+**Overall Progress:** 129/129 plans complete (v1.0-v2.1: 100%) ✅
 
 ---
-*Last updated: 2026-02-05 (v2.1 milestone shipped)*
+*Last updated: 2026-02-06 (Phase 14-09 추가: 학생 성적 관리 탭)*
