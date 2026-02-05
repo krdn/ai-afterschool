@@ -4,25 +4,38 @@
 
 학원에서 대학입시를 목표로 학생을 효율적으로 관리하기 위한 AI 기반 학생 관리 시스템. 학원 선생님/관리자가 학생 정보를 등록하고, AI가 다양한 성향 분석(MBTI, 사주, 성명학, 관상/손금)을 제공하며, 이를 바탕으로 맞춤형 학습 전략과 진로 가이드를 제안한다. 상담 시 활용할 수 있는 종합 보고서 출력 기능을 제공한다.
 
-**현재 상태:** v2.0 Teacher Management가 출시되었으며, v2.1 학부모 상담 관리 시스템을 개발 중입니다.
+**현재 상태:** v2.1 Parent Counseling Management가 출시되었습니다 (2026-02-05).
 
 ## Core Value
 
 **학생 정보 통합 관리를 기반으로 AI 성향 분석 및 맞춤형 학습/진로 제안 제공** — 학생 데이터가 없으면 분석도 제안도 불가능하다. 학생 정보 관리가 모든 기능의 기반이다.
 
-## Current Milestone: v2.1 Parent Counseling Management
+## Latest Milestone: v2.1 Parent Counseling Management (SHIPPED)
 
-**Goal:** 선생님 중심의 학부모 상담 예약/기록 시스템 구축으로 체계적인 상담 관리 및 통계 제공
+**Delivered:** 선생님 중심의 학부모 상담 예약/기록 시스템 구축으로 체계적인 상담 관리 및 통계 제공
 
-**Target features:**
-- 학부모 상담 예약 등록/관리 (날짜, 시간, 상담 유형)
-- 상담 내용 기록 및 저장 (상담 요약, 논의 사항, 후속 조치)
-- 학생별 상담 이력 조회 (시간순 정렬, 검색/필터)
-- 선생님별/학생별 상담 통계 (월별 상담 횟수, 상담 유형 분포)
+**Shipped features:**
+- 학부모 정보 관리 (복수 학부모 등록, 주 연락처 지정)
+- 상담 예약 시스템 (등록/수정/삭제, 상태 관리, 자동 세션 연결)
+- 캘린더 시각화 (월간/주간 뷰, 예약 현황 표시)
+- 학생 페이지 상담 통합 (상담 이력, 다음 예약 표시)
+- 상담 통계 대시보드 (선생님별/학생별 통계, 차트, CSV 내보내기)
+- 후속 조치 관리 (대시보드, 지연 하이라이트, 완료 체크)
+- AI 상담 지원 (성향 분석 표시, 궁합 점수, AI 요약 생성)
+
+## Next Milestone: v2.2 Attendance & Tuition (Planned)
+
+**Goal:** 출결 관리 및 수강료 관리 시스템
+
+**Target features (TBD with /gsd:new-milestone):**
+- 출석 체크 기능
+- 보강 수업 관리
+- 수강료 청구서 발행
+- 수납 및 미납 관리
 
 ## Current State
 
-**Version:** v2.1 Parent Counseling Management (In Development)
+**Version:** v2.1 Parent Counseling Management (SHIPPED 2026-02-05)
 
 **Delivered Features:**
 - **v1.0 MVP 모든 기능 포함:**
@@ -84,9 +97,18 @@
 - Pino (로깅)
 
 **Codebase Stats:**
-- ~20,000+ lines of TypeScript/JSX
-- 98 plans across 15 phases (v1.0: 36, v1.1: 22, v2.0: 40)
+- ~40,000 lines of TypeScript/JSX
+- 128 plans across 22 phases (v1.0: 36, v1.1: 22, v2.0: 40, v2.1: 30)
 - Integration health score: 92%
+
+**v2.1 Parent Counseling Management 기능:**
+  - 학부모 정보 관리 (복수 학부모, 주 연락처)
+  - 상담 예약 시스템 (CRUD, 상태 관리, 자동 세션 연결)
+  - 캘린더 시각화 (월간/주간 뷰)
+  - 학생 페이지 상담 통합
+  - 상담 통계 대시보드
+  - 후속 조치 관리
+  - AI 상담 지원 (성향 표시, 궁합 점수, AI 요약)
 
 **Known Issues (Minor Technical Debt):**
 - 2개 `<img>` 태그가 Next.js Image를 사용하지 않음 (face-analysis-panel.tsx, student-image-tabs.tsx)
@@ -153,16 +175,23 @@
 - [x] 선생님 목록 조회 및 검색 — v2.0
 - [x] 선생님 상세 정보 조회 — v2.0
 
+**v2.1 학부모 상담 관리 시스템:**
+- [x] 학부모 상담 예약 등록 (날짜, 시간, 상담 유형, 학부모 연락처) — v2.1
+- [x] 상담 예약 목록 조회 및 관리 (예정/완료/취소 상태) — v2.1
+- [x] 상담 내용 기록 (상담 요약, 논의 사항, 후속 조치) — v2.1
+- [x] 학생별 상담 이력 조회 (시간순 정렬, 검색/필터) — v2.1
+- [x] 선생님별 상담 통계 (월별 상담 횟수, 상담 유형 분포) — v2.1
+- [x] 학생별 상담 통계 (총 상담 횟수, 최근 상담일) — v2.1
+- [x] 다가오는 상담 예약 대시보드 — v2.1
+- [x] AI 상담 지원 (성향 표시, 궁합 점수, AI 요약 생성) — v2.1
+
 ### Active
 
-**v2.1 학부모 상담 관리 시스템:**
-- [ ] 학부모 상담 예약 등록 (날짜, 시간, 상담 유형, 학부모 연락처)
-- [ ] 상담 예약 목록 조회 및 관리 (예정/완료/취소 상태)
-- [ ] 상담 내용 기록 (상담 요약, 논의 사항, 후속 조치)
-- [ ] 학생별 상담 이력 조회 (시간순 정렬, 검색/필터)
-- [ ] 선생님별 상담 통계 (월별 상담 횟수, 상담 유형 분포)
-- [ ] 학생별 상담 통계 (총 상담 횟수, 최근 상담일)
-- [ ] 다가오는 상담 예약 대시보드
+**v2.2 출결/수강료 관리 시스템 (TBD):**
+- [ ] 출석 체크 기능
+- [ ] 보강 수업 관리
+- [ ] 수강료 청구서 발행
+- [ ] 수납 및 미납 관리
 
 ### Out of Scope
 
@@ -269,8 +298,12 @@
 **v2.1 결정들:**
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| 선생님 중심 운영 | 학부모 계정 없이 선생님이 모든 상담 관리 | — Pending — 구현 필요 |
-| 내부 기록 전용 | 외부 알림 없이 시스템에만 기록 | — Pending — 구현 필요 |
+| 선생님 중심 운영 | 학부모 계정 없이 선생님이 모든 상담 관리 | ✓ 성공 — 학부모 계정 없이 완전한 상담 관리 시스템 구현 |
+| 내부 기록 전용 | 외부 알림 없이 시스템에만 기록 | ✓ 성공 — 외부 연동 없이 내부 기록 시스템으로 완성 |
+| Student FK 간접 격리 | 기존 RBAC Extension 재사용 | ✓ 성공 — Parent/Reservation에 teamId 중복 없음 |
+| 주 연락처 이중 저장 | 빠른 조회와 관리 모두 지원 | ✓ 성공 — Student.primaryParentId + Parent.isPrimary |
+| react-day-picker v9 | 한국어 로케일, Tailwind 스타일링 | ✓ 성공 — 월간/주간 캘린더 모두 구현 |
+| 기존 LLM 라우터 활용 | Phase 15 인프라 재사용 | ✓ 성공 — generateWithProvider로 AI 요약 생성 |
 
 ---
-*Last updated: 2026-02-04 after v2.1 milestone initialization*
+*Last updated: 2026-02-05 after v2.1 milestone shipped*
