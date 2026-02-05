@@ -1,5 +1,65 @@
 # Project Milestones: AI AfterSchool
 
+## v2.1 Parent Counseling Management (Shipped: 2026-02-05)
+
+**Delivered:** 선생님 중심의 학부모 상담 예약/기록 시스템으로 체계적인 상담 관리 및 통계 제공. 학부모 정보 관리, 예약 시스템, 캘린더 시각화, 상담 통계 대시보드, AI 상담 지원 기능을 포함.
+
+**Phases completed:** 16-22 (30 plans total)
+
+**Key accomplishments:**
+
+- 학부모 정보 관리 시스템 (복수 학부모 등록, 주 연락처 지정, 관계 유형 지원)
+- 상담 예약 시스템 (등록/수정/삭제, 상태 관리, CounselingSession 자동 연결)
+- 캘린더 시각화 (월간/주간 뷰, 예약 현황 dot indicators, 날짜 클릭 필터링)
+- 학생 페이지 상담 통합 (상담 이력 목록, 다음 예약 Alert, 상담 상세 모달)
+- 상담 통계 대시보드 (선생님별/학생별 통계, 유형별 분포 차트, 월별 추이 차트, CSV 내보내기)
+- 후속 조치 관리 (대시보드, 지연 하이라이트, 완료 체크)
+- AI 상담 지원 (성향 분석 표시, 궁합 점수 참조, AI 요약 생성 Sheet 패널)
+
+**Stats:**
+
+- 142 files created/modified
+- ~25,588 lines added (total codebase: ~40,000 lines TypeScript)
+- 7 phases, 30 plans
+- 14 hours from milestone start to ship (2026-02-04 12:09 → 2026-02-05 02:05)
+
+**Git range:** `feat(16-01)` → `feat(22-06)`
+
+**What's next:** v2.2 will focus on attendance tracking and tuition management features.
+
+---
+
+## v2.0 Teacher Management (Shipped: 2026-02-02)
+
+**Delivered:** 다중 선생님 지원, 팀 기반 접근 제어(RBAC), 선생님-학생 궁합 분석, AI 기반 최적 배정 시스템, 성과 분석 대시보드, 다중 LLM 통합을 통해 단일 선생님이 아닌 학원 조직 전체를 관리할 수 있는 시스템으로 확장.
+
+**Phases completed:** 11-15 (40 plans total)
+
+**Key accomplishments:**
+
+- 선생님 관리 기반 구축 (CRUD, 역할 계층: 원장/팀장/매니저/선생님)
+- 팀 기반 RBAC (Prisma Client Extensions + PostgreSQL RLS)
+- 선생님 성향 분석 (MBTI, 사주, 성명학, 관상, 손금)
+- 선생님-학생 궁합 분석 (가중 평균 알고리즘)
+- AI 자동 배정 제안 (Greedy 알고리즘, 부하 분산)
+- 공정성 메트릭 (Disparity Index, ABROCA, Distribution Balance)
+- 성과 분석 대시보드 (Recharts 시각화)
+- 다중 LLM 통합 (Vercel AI SDK: Ollama, Gemini, ChatGPT, Claude)
+- Admin 설정 UI (LLM 제공자 관리, 비용 대시보드)
+
+**Stats:**
+
+- 98+ files created/modified
+- ~8,000 lines added
+- 5 phases, 40 plans
+- 3 days from milestone start to ship (2026-01-30 → 2026-02-02)
+
+**Git range:** `feat(11-01)` → `feat(15-08)`
+
+**What's next:** v2.1 will focus on parent counseling management system.
+
+---
+
 ## v1.1 Production Readiness (Shipped: 2026-01-30)
 
 **Delivered:** Docker 기반 프로덕션 배포 환경, 데이터베이스 및 렌더링 성능 최적화, 기술 부채 해결(PDF 저장소 S3 마이그레이션, 코드 중복 제거), 프로덕션 모니터링(Sentry 오류 추적, 구조화된 로깅, 데이터베이스 백업 자동화)을 통해 단일 서버에서 안정적인 홈 서버 운영이 가능한 프로덕션 준비 시스템.
