@@ -321,6 +321,7 @@ model PersonalitySummary {
   id               String    @id @default(cuid())
   studentId        String    @unique
   coreTraits       String?
+  scores           Json?
   learningStrategy Json?
   careerGuidance   Json?
   status           String    @default("none")
