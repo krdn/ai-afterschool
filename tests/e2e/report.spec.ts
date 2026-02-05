@@ -77,7 +77,7 @@ async function loginAsTeacher(page: Page) {
   await page.fill('input[name="email"]', 'teacher@test.com');
   await page.fill('input[name="password"]', 'Password123!');
   await page.click('button[type="submit"]');
-  await page.waitForURL(/\/dashboard|\/students/, { timeout: 10000 });
+  await page.waitForURL(/\/students|\/students/, { timeout: 10000 });
 }
 
 test.describe('Report & Utility Tests', () => {

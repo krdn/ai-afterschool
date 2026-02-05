@@ -12,11 +12,11 @@ import { test, expect } from '@playwright/test';
  */
 
 test.describe('Admin & System Settings', () => {
-  
+
   // Test data
   const adminUser = {
-    email: 'director@aiafterschool.com',
-    password: 'Admin123!@#',
+    email: 'admin@afterschool.com',
+    password: 'admin1234',
     role: 'DIRECTOR'
   };
 
@@ -32,7 +32,7 @@ test.describe('Admin & System Settings', () => {
     await page.fill('input[name="email"]', adminUser.email);
     await page.fill('input[name="password"]', adminUser.password);
     await page.click('button[type="submit"]');
-    await page.waitForURL('/dashboard');
+    await page.waitForURL('/students');
   });
 
   /**
@@ -75,7 +75,7 @@ test.describe('Admin & System Settings', () => {
     await page.goto('/students/1');
     await page.click('text=AI 요약 생성');
     await expect(page.locator('[data-testid="ai-summary"]')).toBeVisible({ timeout: 15000 });
-    
+
     // Verify no error and summary is generated
     await expect(page.locator('.error-message')).not.toBeVisible();
   });
@@ -107,7 +107,7 @@ test.describe('Admin & System Settings', () => {
     // Check summary statistics
     const totalTokens = page.locator('[data-testid="total-tokens"]');
     const estimatedCost = page.locator('[data-testid="estimated-cost"]');
-    
+
     await expect(totalTokens).toBeVisible();
     await expect(estimatedCost).toBeVisible();
 
@@ -137,12 +137,12 @@ test.describe('Admin & System Settings', () => {
 
     // Export functionality
     await page.click('button:has-text("CSV 내보내기")');
-    
+
     // Wait for download (this may trigger a download event)
     const downloadPromise = page.waitForEvent('download');
     await page.click('button:has-text("다운로드 확인")');
     const download = await downloadPromise;
-    
+
     expect(download.suggestedFilename()).toContain('llm-usage');
   });
 
@@ -153,14 +153,14 @@ test.describe('Admin & System Settings', () => {
   test('SYS-03: 헬스 체크 및 인프라', async ({ page, request }) => {
     // Test API health endpoint
     const healthResponse = await request.get('/api/health');
-    
+
     // Verify 200 OK response
     expect(healthResponse.ok()).toBeTruthy();
     expect(healthResponse.status()).toBe(200);
 
     // Parse JSON response
     const healthData = await healthResponse.json();
-    
+
     // Verify response structure
     expect(healthData).toHaveProperty('status');
     expect(healthData.status).toBe('healthy');
@@ -181,7 +181,7 @@ test.describe('Admin & System Settings', () => {
 
     // Navigate to admin dashboard to verify UI health
     await page.goto('/admin/system-status');
-    
+
     // Verify system status cards
     await expect(page.locator('[data-testid="db-status"]')).toContainText('연결됨');
     await expect(page.locator('[data-testid="cache-status"]')).toBeVisible();
@@ -211,11 +211,11 @@ test.describe('Admin & System Settings', () => {
     await page.fill('input[name="email"]', regularTeacher.email);
     await page.fill('input[name="password"]', regularTeacher.password);
     await page.click('button[type="submit"]');
-    await page.waitForURL('/dashboard');
+    await page.waitForURL('/students');
 
     // Attempt to access admin LLM settings
     const llmSettingsResponse = await page.goto('/admin/llm-settings');
-    
+
     // Should either get 403 or redirect to main dashboard
     if (llmSettingsResponse) {
       const status = llmSettingsResponse.status();
@@ -224,16 +224,16 @@ test.describe('Admin & System Settings', () => {
 
     // Verify user is redirected or sees access denied
     const currentUrl = page.url();
-    const isAccessDenied = 
-      currentUrl.includes('/dashboard') || 
+    const isAccessDenied =
+      currentUrl.includes('/students') ||
       currentUrl.includes('/unauthorized') ||
       await page.locator('text=접근 권한이 없습니다').isVisible();
-    
+
     expect(isAccessDenied).toBeTruthy();
 
     // Attempt to access usage monitoring
     await page.goto('/admin/llm-usage');
-    
+
     // Verify similar protection
     await expect(page.locator('text=관리자 권한')).toBeVisible()
       .catch(async () => {
@@ -243,18 +243,18 @@ test.describe('Admin & System Settings', () => {
 
     // Attempt to access system status
     await page.goto('/admin/system-status');
-    
+
     // Should be blocked
     const hasAccess = await page.locator('[data-testid="db-status"]').isVisible()
       .catch(() => false);
-    
+
     expect(hasAccess).toBeFalsy();
   });
 
   /**
    * Additional Admin Tests
    */
-  
+
   test('관리자: API 키 업데이트 및 유효성 검증', async ({ page }) => {
     await page.goto('/admin/llm-settings');
 
@@ -268,10 +268,10 @@ test.describe('Admin & System Settings', () => {
 
     // Wait for validation result
     await page.waitForSelector('[data-testid="validation-result"]', { timeout: 10000 });
-    
+
     const validationResult = page.locator('[data-testid="validation-result"]');
     const resultText = await validationResult.textContent();
-    
+
     // Should show either success or specific error
     expect(resultText).toMatch(/(성공|연결됨|인증 오류|할당량 초과)/);
   });
@@ -297,7 +297,7 @@ test.describe('Admin & System Settings', () => {
     // Verify settings persist
     await page.reload();
     await page.click('[data-testid="usage-settings"]');
-    
+
     const limitValue = await page.inputValue('input[name="monthlyTokenLimit"]');
     expect(limitValue).toBe('1000000');
   });
@@ -339,10 +339,10 @@ test.describe('Admin & System Settings', () => {
     // Trigger manual backup (if allowed in test environment)
     if (await page.locator('button:has-text("수동 백업 생성")').isVisible()) {
       await page.click('button:has-text("수동 백업 생성")');
-      
+
       // Confirm action
       await page.click('button:has-text("확인")');
-      
+
       // Wait for backup process
       await expect(page.locator('text=백업이 생성되었습니다')).toBeVisible({ timeout: 30000 });
     }
@@ -368,7 +368,7 @@ test.describe('Admin & System Settings', () => {
 
     // Verify service status indicators
     await expect(page.locator('[data-testid="service-database"] .status-indicator.success')).toBeVisible();
-    
+
     // Check Redis cache status
     const cacheStatus = page.locator('[data-testid="service-redis"]');
     await expect(cacheStatus).toBeVisible();
@@ -383,14 +383,14 @@ test.describe('Admin & System Settings', () => {
  * Admin Permissions & Security Tests
  */
 test.describe('Admin Security & Permissions', () => {
-  
+
   test('RBAC: 팀장은 제한된 관리 기능만 접근 가능', async ({ page }) => {
     // Login as team leader
     await page.goto('/auth/login');
     await page.fill('input[name="email"]', 'teamleader@aiafterschool.com');
     await page.fill('input[name="password"]', 'Leader123!@#');
     await page.click('button[type="submit"]');
-    await page.waitForURL('/dashboard');
+    await page.waitForURL('/students');
 
     // Can access team management
     await page.goto('/admin/teams');
@@ -413,7 +413,7 @@ test.describe('Admin Security & Permissions', () => {
   test('감사 로그: 관리자 설정 변경 기록', async ({ page }) => {
     // Login as admin
     await page.goto('/auth/login');
-    await page.fill('input[name="email"]', 'director@aiafterschool.com');
+    await page.fill('input[name="email"]', 'admin@afterschool.com');
     await page.fill('input[name="password"]', 'Admin123!@#');
     await page.click('button[type="submit"]');
 
@@ -424,11 +424,11 @@ test.describe('Admin Security & Permissions', () => {
 
     // Check audit log
     await page.goto('/admin/audit-logs');
-    
+
     const latestLog = page.locator('[data-testid="audit-log-row"]').first();
     await expect(latestLog).toContainText('LLM 설정 변경');
-    await expect(latestLog).toContainText('director@aiafterschool.com');
-    
+    await expect(latestLog).toContainText('admin@afterschool.com');
+
     // Verify timestamp is recent (within last minute)
     const timestamp = await latestLog.locator('[data-testid="log-timestamp"]').textContent();
     expect(timestamp).toBeTruthy();

@@ -13,7 +13,7 @@ test.describe('Analysis - 성향 분석 시스템', () => {
     await page.fill('input[name="email"]', 'teacher@test.com');
     await page.fill('input[name="password"]', 'password123');
     await page.click('button[type="submit"]');
-    await page.waitForURL('/dashboard');
+    await page.waitForURL('/students');
   });
 
   // ANL-01: 사주/성명학 계산 정확성

@@ -23,7 +23,7 @@ test.describe('학생 데이터 관리 (Student)', () => {
     await page.fill('input[name="email"]', 'teacher@test.com');
     await page.fill('input[name="password"]', 'password123');
     await page.click('button[type="submit"]');
-    await expect(page).toHaveURL(/.*dashboard/);
+    await expect(page).toHaveURL(/.*students/);
   });
 
   test('STU-01: 신규 학생 등록 및 사진 업로드', async ({ page }) => {
@@ -173,7 +173,7 @@ test.describe('학생 데이터 관리 (Student)', () => {
     await page.fill('input[name="email"]', 'admin@test.com');
     await page.fill('input[name="password"]', 'admin123');
     await page.click('button[type="submit"]');
-    await expect(page).toHaveURL(/.*dashboard/);
+    await expect(page).toHaveURL(/.*students/);
 
     // 테스트용 학생 생성 (삭제 대상)
     await page.goto('/students/new');

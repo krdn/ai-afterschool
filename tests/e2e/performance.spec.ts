@@ -13,7 +13,7 @@ test.describe('Performance Analysis & Statistics', () => {
     await page.fill('input[name="email"]', 'teacher@aiafterschool.com');
     await page.fill('input[name="password"]', 'Test1234!');
     await page.click('button[type="submit"]');
-    await page.waitForURL('/dashboard');
+    await page.waitForURL('/students');
   });
 
   test('PRF-01: Track academic improvement trends', async ({ page }) => {
@@ -109,7 +109,7 @@ test.describe('Performance Analysis & Statistics', () => {
     await expect(page.locator('text=/성공|완료|Success|Submitted/i')).toBeVisible({ timeout: 5000 });
 
     // Verify data saved in StudentSatisfaction table (check redirect or message)
-    await page.waitForURL(/\/satisfaction|\/analytics|\/dashboard/);
+    await page.waitForURL(/\/satisfaction|\/analytics|\/students/);
 
     // Navigate back to analytics to verify immediate reflection
     await page.goto('/analytics');

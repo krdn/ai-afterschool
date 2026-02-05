@@ -13,7 +13,7 @@ test.describe('매칭 및 배정 시스템 (Matching)', () => {
     await page.fill('input[name="email"]', 'teacher@test.com');
     await page.fill('input[name="password"]', 'Test1234!');
     await page.click('button[type="submit"]');
-    await page.waitForURL('/dashboard');
+    await page.waitForURL('/students');
   });
 
   test('MAT-01: 선생님-학생 궁합 점수 산출', async ({ page }) => {

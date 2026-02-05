@@ -32,7 +32,7 @@ async function loginAsTeacher(page: Page) {
   await page.fill('input[name="email"]', TEST_TEACHER.email);
   await page.fill('input[name="password"]', TEST_TEACHER.password);
   await page.click('button[type="submit"]');
-  await page.waitForURL('/dashboard');
+  await page.waitForURL('/students');
 }
 
 async function loginAsAdmin(page: Page) {
@@ -40,7 +40,7 @@ async function loginAsAdmin(page: Page) {
   await page.fill('input[name="email"]', TEST_ADMIN.email);
   await page.fill('input[name="password"]', TEST_ADMIN.password);
   await page.click('button[type="submit"]');
-  await page.waitForURL('/dashboard');
+  await page.waitForURL('/students');
 }
 
 async function createTestTeacher(page: Page) {
@@ -278,7 +278,7 @@ test.describe('선생님 데이터 관리 (Teacher)', () => {
     await page.goto(`/teachers/${otherTeacherData.id}`);
 
     // Assert: 403 또는 리다이렉트
-    await expect(page).toHaveURL('/dashboard');
+    await expect(page).toHaveURL('/students');
     await expect(page.locator('.toast-error')).toContainText('권한이 없습니다');
   });
 
@@ -408,7 +408,7 @@ test.describe('선생님 관리 - 예외 및 에러 처리', () => {
     await loginAsTeacher(page);
     await page.goto('/teachers');
 
-    await expect(page).toHaveURL('/dashboard');
+    await expect(page).toHaveURL('/students');
     await expect(page.locator('.toast-error')).toContainText('권한이 없습니다');
   });
 

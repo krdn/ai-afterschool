@@ -1,9 +1,9 @@
 {
   "triggered_by": "git-post-commit-hook",
-  "commit_hash": "5f815858eabb8c8f3d08064f80325f268f3c83a2",
-  "commit_message": "fix(qa): auto-fix based on test failure\n",
+  "commit_hash": "a8bf311b8ff96f2a9647b385d0377b31c69faa99",
+  "commit_message": "fix: Auth 테스트 수정 완료 (75% 통과율 달성)\n\n- /dashboard → /students 리다이렉트 통일\n- 미들웨어 관리자 접근 제어 추가\n- httpOnly 쿠키 세션 검증\n- 관리자 계정 시딩 (admin@afterschool.com)\n- Playwright 테스트 안정성 개선\n- 12/16 테스트 통과 (75%)\n",
   "commit_author": "gon",
-  "commit_date": "2026-02-05 12:14:44 +0900",
-  "timestamp": 1770261284,
+  "commit_date": "2026-02-05 13:45:21 +0900",
+  "timestamp": 1770266721,
   "branch": "fix/qa-auto-1770261284502"
 }

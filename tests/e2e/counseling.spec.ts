@@ -21,7 +21,7 @@ test.describe('상담 관리 (Counseling)', () => {
     await page.click('button[type="submit"]');
     
     // 로그인 완료 대기
-    await page.waitForURL('**/dashboard');
+    await page.waitForURL('**/students');
   });
 
   test.afterEach(async () => {
@@ -228,7 +228,7 @@ test.describe('상담 관리 (Counseling)', () => {
     await page.waitForTimeout(1000);
     
     // 7. 메인 대시보드로 이동
-    await page.goto('/dashboard');
+    await page.goto('/students');
     
     // 8. '오늘의 후속 조치' 위젯 확인
     const followUpWidget = page.locator(
@@ -358,7 +358,7 @@ test.describe('상담 관리 (Counseling)', () => {
    */
   test('상담 알림 및 리마인더 확인', async () => {
     // 1. 오늘 예정된 상담이 있는 경우 알림 확인
-    await page.goto('/dashboard');
+    await page.goto('/students');
     
     // 2. 알림 뱃지 또는 위젯 확인
     const notificationBadge = page.locator('[data-notification="counseling"], .notification-badge');
