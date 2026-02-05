@@ -1,0 +1,335 @@
+nohup: 입력 무시
+
+> nextjs-tmp@0.1.0 dev
+> next dev -p 3002
+
+   ▲ Next.js 15.5.10
+   - Local:        http://localhost:3002
+   - Network:      http://192.168.0.8:3002
+   - Environments: .env.local, .env.development, .env
+   - Experiments (use with caution):
+     · clientTraceMetadata
+
+ ✓ Starting...
+[@sentry/nextjs] DEPRECATION WARNING: It is recommended renaming your `sentry.client.config.ts` file, or moving its content to `instrumentation-client.ts`. When using Turbopack `sentry.client.config.ts` will no longer work. Read more about the `instrumentation-client.ts` file: https://nextjs.org/docs/app/api-reference/file-conventions/instrumentation-client
+ ✓ Ready in 1423ms
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 935ms (519 modules)
+ ○ Compiling /students ...
+ ✓ Compiled /students in 7s (3230 modules)
+prisma:query SELECT "public"."Teacher"."id", "public"."Teacher"."email", "public"."Teacher"."name", "public"."Teacher"."role"::text, "public"."Teacher"."teamId" FROM "public"."Teacher" WHERE ("public"."Teacher"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Student"."id", "public"."Student"."name", "public"."Student"."birthDate", "public"."Student"."phone", "public"."Student"."school", "public"."Student"."grade", "public"."Student"."targetUniversity", "public"."Student"."targetMajor", "public"."Student"."bloodType"::text, "public"."Student"."teacherId", "public"."Student"."createdAt", "public"."Student"."updatedAt", "public"."Student"."expiresAt", "public"."Student"."calculationRecalculationAt", "public"."Student"."calculationRecalculationNeeded", "public"."Student"."calculationRecalculationReason", "public"."Student"."nameHanja", "public"."Student"."birthTimeHour", "public"."Student"."birthTimeMinute", "public"."Student"."teamId", "public"."Student"."attendanceRate", "public"."Student"."initialGradeLevel", "public"."Student"."priorAcademicPerformance", "public"."Student"."primaryParentId" FROM "public"."Student" WHERE 1=1 ORDER BY "public"."Student"."createdAt" DESC OFFSET $1
+prisma:query SELECT "public"."Team"."id", "public"."Team"."name" FROM "public"."Team" WHERE "public"."Team"."id" = $1 OFFSET $2
+prisma:query SELECT "public"."Teacher"."id", "public"."Teacher"."email", "public"."Teacher"."password", "public"."Teacher"."name", "public"."Teacher"."createdAt", "public"."Teacher"."updatedAt", "public"."Teacher"."phone", "public"."Teacher"."role"::text, "public"."Teacher"."teamId", "public"."Teacher"."nameHanja", "public"."Teacher"."birthDate", "public"."Teacher"."birthTimeHour", "public"."Teacher"."birthTimeMinute" FROM "public"."Teacher" WHERE "public"."Teacher"."id" IN ($1,$2,$3,$4) OFFSET $5
+prisma:query SELECT "public"."StudentImage"."id", "public"."StudentImage"."studentId", "public"."StudentImage"."type"::text, "public"."StudentImage"."originalUrl", "public"."StudentImage"."resizedUrl", "public"."StudentImage"."publicId", "public"."StudentImage"."format", "public"."StudentImage"."bytes", "public"."StudentImage"."width", "public"."StudentImage"."height", "public"."StudentImage"."createdAt", "public"."StudentImage"."updatedAt" FROM "public"."StudentImage" WHERE "public"."StudentImage"."studentId" IN ($1,$2,$3,$4) OFFSET $5
+ GET /students 200 in 8237ms
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (189kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (139kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+ ○ Compiling /favicon.ico ...
+ ✓ Compiled /favicon.ico in 2.9s (2578 modules)
+ GET /favicon.ico 200 in 3329ms
+ GET /favicon.ico 200 in 144ms
+prisma:query SELECT "public"."LLMBudget"."id", "public"."LLMBudget"."period", "public"."LLMBudget"."budgetUsd", "public"."LLMBudget"."alertAt80", "public"."LLMBudget"."alertAt100", "public"."LLMBudget"."lastAlertAt", "public"."LLMBudget"."lastAlertThreshold", "public"."LLMBudget"."createdAt", "public"."LLMBudget"."updatedAt" FROM "public"."LLMBudget" WHERE ("public"."LLMBudget"."period" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."LLMBudget"."id", "public"."LLMBudget"."period", "public"."LLMBudget"."budgetUsd", "public"."LLMBudget"."alertAt80", "public"."LLMBudget"."alertAt100", "public"."LLMBudget"."lastAlertAt", "public"."LLMBudget"."lastAlertThreshold", "public"."LLMBudget"."createdAt", "public"."LLMBudget"."updatedAt" FROM "public"."LLMBudget" WHERE ("public"."LLMBudget"."period" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."LLMBudget"."id", "public"."LLMBudget"."period", "public"."LLMBudget"."budgetUsd", "public"."LLMBudget"."alertAt80", "public"."LLMBudget"."alertAt100", "public"."LLMBudget"."lastAlertAt", "public"."LLMBudget"."lastAlertThreshold", "public"."LLMBudget"."createdAt", "public"."LLMBudget"."updatedAt" FROM "public"."LLMBudget" WHERE ("public"."LLMBudget"."period" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."LLMBudget"."id", "public"."LLMBudget"."period", "public"."LLMBudget"."budgetUsd", "public"."LLMBudget"."alertAt80", "public"."LLMBudget"."alertAt100", "public"."LLMBudget"."lastAlertAt", "public"."LLMBudget"."lastAlertThreshold", "public"."LLMBudget"."createdAt", "public"."LLMBudget"."updatedAt" FROM "public"."LLMBudget" WHERE 1=1 OFFSET $1
+prisma:query SELECT SUM("costUsd") AS "_sum$costUsd" FROM (SELECT "public"."LLMUsage"."costUsd" FROM "public"."LLMUsage" WHERE "public"."LLMUsage"."createdAt" >= $1 OFFSET $2) AS "sub"
+prisma:query SELECT SUM("costUsd") AS "_sum$costUsd" FROM (SELECT "public"."LLMUsage"."costUsd" FROM "public"."LLMUsage" WHERE "public"."LLMUsage"."createdAt" >= $1 OFFSET $2) AS "sub"
+prisma:query SELECT SUM("costUsd") AS "_sum$costUsd" FROM (SELECT "public"."LLMUsage"."costUsd" FROM "public"."LLMUsage" WHERE "public"."LLMUsage"."createdAt" >= $1 OFFSET $2) AS "sub"
+ POST /students 200 in 3613ms
+ ○ Compiling /students/[id] ...
+ ✓ Compiled /students/[id] in 4.1s (4749 modules)
+prisma:query SELECT "public"."Student"."id", "public"."Student"."name", "public"."Student"."birthDate", "public"."Student"."phone", "public"."Student"."school", "public"."Student"."grade", "public"."Student"."targetUniversity", "public"."Student"."targetMajor", "public"."Student"."bloodType"::text, "public"."Student"."teacherId", "public"."Student"."createdAt", "public"."Student"."updatedAt", "public"."Student"."expiresAt", "public"."Student"."calculationRecalculationAt", "public"."Student"."calculationRecalculationNeeded", "public"."Student"."calculationRecalculationReason", "public"."Student"."nameHanja", "public"."Student"."birthTimeHour", "public"."Student"."birthTimeMinute", "public"."Student"."teamId", "public"."Student"."attendanceRate", "public"."Student"."initialGradeLevel", "public"."Student"."priorAcademicPerformance", "public"."Student"."primaryParentId" FROM "public"."Student" WHERE ("public"."Student"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."StudentImage"."id", "public"."StudentImage"."studentId", "public"."StudentImage"."type"::text, "public"."StudentImage"."originalUrl", "public"."StudentImage"."resizedUrl", "public"."StudentImage"."publicId", "public"."StudentImage"."format", "public"."StudentImage"."bytes", "public"."StudentImage"."width", "public"."StudentImage"."height", "public"."StudentImage"."createdAt", "public"."StudentImage"."updatedAt" FROM "public"."StudentImage" WHERE "public"."StudentImage"."studentId" = $1 OFFSET $2
+prisma:query SELECT "public"."Teacher"."id", "public"."Teacher"."email", "public"."Teacher"."password", "public"."Teacher"."name", "public"."Teacher"."createdAt", "public"."Teacher"."updatedAt", "public"."Teacher"."phone", "public"."Teacher"."role"::text, "public"."Teacher"."teamId", "public"."Teacher"."nameHanja", "public"."Teacher"."birthDate", "public"."Teacher"."birthTimeHour", "public"."Teacher"."birthTimeMinute" FROM "public"."Teacher" WHERE "public"."Teacher"."id" = $1 OFFSET $2
+prisma:query SELECT "public"."Parent"."id", "public"."Parent"."studentId", "public"."Parent"."name", "public"."Parent"."phone", "public"."Parent"."email", "public"."Parent"."relation"::text, "public"."Parent"."relationOther", "public"."Parent"."note", "public"."Parent"."isPrimary", "public"."Parent"."createdAt", "public"."Parent"."updatedAt" FROM "public"."Parent" WHERE "public"."Parent"."studentId" = $1 OFFSET $2
+ GET /students/cml9m5vw20000fewu3f3otrrf 200 in 5400ms
+prisma:query SELECT "public"."Student"."id", "public"."Student"."name", "public"."Student"."birthDate", "public"."Student"."phone", "public"."Student"."school", "public"."Student"."grade", "public"."Student"."targetUniversity", "public"."Student"."targetMajor", "public"."Student"."bloodType"::text, "public"."Student"."teacherId", "public"."Student"."createdAt", "public"."Student"."updatedAt", "public"."Student"."expiresAt", "public"."Student"."calculationRecalculationAt", "public"."Student"."calculationRecalculationNeeded", "public"."Student"."calculationRecalculationReason", "public"."Student"."nameHanja", "public"."Student"."birthTimeHour", "public"."Student"."birthTimeMinute", "public"."Student"."teamId", "public"."Student"."attendanceRate", "public"."Student"."initialGradeLevel", "public"."Student"."priorAcademicPerformance", "public"."Student"."primaryParentId" FROM "public"."Student" WHERE ("public"."Student"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Parent"."id", "public"."Parent"."studentId", "public"."Parent"."name", "public"."Parent"."phone", "public"."Parent"."email", "public"."Parent"."relation"::text, "public"."Parent"."relationOther", "public"."Parent"."note", "public"."Parent"."isPrimary", "public"."Parent"."createdAt", "public"."Parent"."updatedAt" FROM "public"."Parent" WHERE "public"."Parent"."studentId" = $1 OFFSET $2
+prisma:query SELECT "public"."Teacher"."id", "public"."Teacher"."email", "public"."Teacher"."name", "public"."Teacher"."role"::text, "public"."Teacher"."teamId" FROM "public"."Teacher" WHERE ("public"."Teacher"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Teacher"."id", "public"."Teacher"."email", "public"."Teacher"."password", "public"."Teacher"."name", "public"."Teacher"."createdAt", "public"."Teacher"."updatedAt", "public"."Teacher"."phone", "public"."Teacher"."role"::text, "public"."Teacher"."teamId", "public"."Teacher"."nameHanja", "public"."Teacher"."birthDate", "public"."Teacher"."birthTimeHour", "public"."Teacher"."birthTimeMinute" FROM "public"."Teacher" WHERE "public"."Teacher"."id" = $1 OFFSET $2
+prisma:query SELECT "public"."Team"."id", "public"."Team"."name" FROM "public"."Team" WHERE "public"."Team"."id" = $1 OFFSET $2
+prisma:query SELECT "public"."StudentImage"."id", "public"."StudentImage"."studentId", "public"."StudentImage"."type"::text, "public"."StudentImage"."originalUrl", "public"."StudentImage"."resizedUrl", "public"."StudentImage"."publicId", "public"."StudentImage"."format", "public"."StudentImage"."bytes", "public"."StudentImage"."width", "public"."StudentImage"."height", "public"."StudentImage"."createdAt", "public"."StudentImage"."updatedAt" FROM "public"."StudentImage" WHERE "public"."StudentImage"."studentId" = $1 OFFSET $2
+ GET /students/cml9m5vw20000fewu3f3otrrf 200 in 99ms
+prisma:query SELECT "public"."GradeHistory"."id", "public"."GradeHistory"."studentId", "public"."GradeHistory"."teacherId", "public"."GradeHistory"."subject", "public"."GradeHistory"."gradeType"::text, "public"."GradeHistory"."score", "public"."GradeHistory"."maxScore", "public"."GradeHistory"."normalizedScore", "public"."GradeHistory"."testDate", "public"."GradeHistory"."academicYear", "public"."GradeHistory"."semester", "public"."GradeHistory"."notes", "public"."GradeHistory"."createdAt", "public"."GradeHistory"."updatedAt" FROM "public"."GradeHistory" WHERE "public"."GradeHistory"."studentId" = $1 ORDER BY "public"."GradeHistory"."testDate" DESC OFFSET $2
+ POST /students/cml9m5vw20000fewu3f3otrrf 200 in 258ms
+prisma:query SELECT "public"."GradeHistory"."id", "public"."GradeHistory"."studentId", "public"."GradeHistory"."teacherId", "public"."GradeHistory"."subject", "public"."GradeHistory"."gradeType"::text, "public"."GradeHistory"."score", "public"."GradeHistory"."maxScore", "public"."GradeHistory"."normalizedScore", "public"."GradeHistory"."testDate", "public"."GradeHistory"."academicYear", "public"."GradeHistory"."semester", "public"."GradeHistory"."notes", "public"."GradeHistory"."createdAt", "public"."GradeHistory"."updatedAt" FROM "public"."GradeHistory" WHERE "public"."GradeHistory"."studentId" = $1 ORDER BY "public"."GradeHistory"."testDate" DESC OFFSET $2
+ POST /students/cml9m5vw20000fewu3f3otrrf 200 in 26ms
+prisma:query SELECT "public"."Teacher"."id", "public"."Teacher"."email", "public"."Teacher"."name", "public"."Teacher"."role"::text, "public"."Teacher"."teamId" FROM "public"."Teacher" WHERE ("public"."Teacher"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Team"."id", "public"."Team"."name" FROM "public"."Team" WHERE "public"."Team"."id" = $1 OFFSET $2
+Error [ZodError]: [
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "notes"
+    ],
+    "message": "Invalid input: expected string, received null"
+  }
+]
+    at addGrade (src/lib/actions/grade.ts:39:43)
+  37 |         };
+  38 |
+> 39 |         const validatedData = GradeSchema.parse(rawData);
+     |                                           ^
+  40 |
+  41 |         await prisma.gradeHistory.create({
+  42 |             data: {
+ POST /students/cml9m5vw20000fewu3f3otrrf 200 in 374ms
+prisma:query SELECT "public"."Teacher"."id", "public"."Teacher"."email", "public"."Teacher"."name", "public"."Teacher"."role"::text, "public"."Teacher"."teamId" FROM "public"."Teacher" WHERE ("public"."Teacher"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Team"."id", "public"."Team"."name" FROM "public"."Team" WHERE "public"."Team"."id" = $1 OFFSET $2
+Error [ZodError]: [
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "notes"
+    ],
+    "message": "Invalid input: expected string, received null"
+  }
+]
+    at addGrade (src/lib/actions/grade.ts:39:43)
+  37 |         };
+  38 |
+> 39 |         const validatedData = GradeSchema.parse(rawData);
+     |                                           ^
+  40 |
+  41 |         await prisma.gradeHistory.create({
+  42 |             data: {
+ POST /students/cml9m5vw20000fewu3f3otrrf 200 in 272ms
+prisma:query SELECT "public"."Student"."id", "public"."Student"."name", "public"."Student"."birthDate", "public"."Student"."phone", "public"."Student"."school", "public"."Student"."grade", "public"."Student"."targetUniversity", "public"."Student"."targetMajor", "public"."Student"."bloodType"::text, "public"."Student"."teacherId", "public"."Student"."createdAt", "public"."Student"."updatedAt", "public"."Student"."expiresAt", "public"."Student"."calculationRecalculationAt", "public"."Student"."calculationRecalculationNeeded", "public"."Student"."calculationRecalculationReason", "public"."Student"."nameHanja", "public"."Student"."birthTimeHour", "public"."Student"."birthTimeMinute", "public"."Student"."teamId", "public"."Student"."attendanceRate", "public"."Student"."initialGradeLevel", "public"."Student"."priorAcademicPerformance", "public"."Student"."primaryParentId" FROM "public"."Student" WHERE ("public"."Student"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Parent"."id", "public"."Parent"."studentId", "public"."Parent"."name", "public"."Parent"."phone", "public"."Parent"."email", "public"."Parent"."relation"::text, "public"."Parent"."relationOther", "public"."Parent"."note", "public"."Parent"."isPrimary", "public"."Parent"."createdAt", "public"."Parent"."updatedAt" FROM "public"."Parent" WHERE "public"."Parent"."studentId" = $1 OFFSET $2
+prisma:query SELECT "public"."Teacher"."id", "public"."Teacher"."email", "public"."Teacher"."password", "public"."Teacher"."name", "public"."Teacher"."createdAt", "public"."Teacher"."updatedAt", "public"."Teacher"."phone", "public"."Teacher"."role"::text, "public"."Teacher"."teamId", "public"."Teacher"."nameHanja", "public"."Teacher"."birthDate", "public"."Teacher"."birthTimeHour", "public"."Teacher"."birthTimeMinute" FROM "public"."Teacher" WHERE "public"."Teacher"."id" = $1 OFFSET $2
+prisma:query SELECT "public"."StudentImage"."id", "public"."StudentImage"."studentId", "public"."StudentImage"."type"::text, "public"."StudentImage"."originalUrl", "public"."StudentImage"."resizedUrl", "public"."StudentImage"."publicId", "public"."StudentImage"."format", "public"."StudentImage"."bytes", "public"."StudentImage"."width", "public"."StudentImage"."height", "public"."StudentImage"."createdAt", "public"."StudentImage"."updatedAt" FROM "public"."StudentImage" WHERE "public"."StudentImage"."studentId" = $1 OFFSET $2
+prisma:query SELECT "public"."Teacher"."id", "public"."Teacher"."email", "public"."Teacher"."name", "public"."Teacher"."role"::text, "public"."Teacher"."teamId" FROM "public"."Teacher" WHERE ("public"."Teacher"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Team"."id", "public"."Team"."name" FROM "public"."Team" WHERE "public"."Team"."id" = $1 OFFSET $2
+ GET /students/cml9m5vw20000fewu3f3otrrf 200 in 652ms
+prisma:query SELECT "public"."LLMBudget"."id", "public"."LLMBudget"."period", "public"."LLMBudget"."budgetUsd", "public"."LLMBudget"."alertAt80", "public"."LLMBudget"."alertAt100", "public"."LLMBudget"."lastAlertAt", "public"."LLMBudget"."lastAlertThreshold", "public"."LLMBudget"."createdAt", "public"."LLMBudget"."updatedAt" FROM "public"."LLMBudget" WHERE ("public"."LLMBudget"."period" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."LLMBudget"."id", "public"."LLMBudget"."period", "public"."LLMBudget"."budgetUsd", "public"."LLMBudget"."alertAt80", "public"."LLMBudget"."alertAt100", "public"."LLMBudget"."lastAlertAt", "public"."LLMBudget"."lastAlertThreshold", "public"."LLMBudget"."createdAt", "public"."LLMBudget"."updatedAt" FROM "public"."LLMBudget" WHERE ("public"."LLMBudget"."period" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."LLMBudget"."id", "public"."LLMBudget"."period", "public"."LLMBudget"."budgetUsd", "public"."LLMBudget"."alertAt80", "public"."LLMBudget"."alertAt100", "public"."LLMBudget"."lastAlertAt", "public"."LLMBudget"."lastAlertThreshold", "public"."LLMBudget"."createdAt", "public"."LLMBudget"."updatedAt" FROM "public"."LLMBudget" WHERE ("public"."LLMBudget"."period" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."LLMBudget"."id", "public"."LLMBudget"."period", "public"."LLMBudget"."budgetUsd", "public"."LLMBudget"."alertAt80", "public"."LLMBudget"."alertAt100", "public"."LLMBudget"."lastAlertAt", "public"."LLMBudget"."lastAlertThreshold", "public"."LLMBudget"."createdAt", "public"."LLMBudget"."updatedAt" FROM "public"."LLMBudget" WHERE 1=1 OFFSET $1
+prisma:query SELECT SUM("costUsd") AS "_sum$costUsd" FROM (SELECT "public"."LLMUsage"."costUsd" FROM "public"."LLMUsage" WHERE "public"."LLMUsage"."createdAt" >= $1 OFFSET $2) AS "sub"
+prisma:query SELECT SUM("costUsd") AS "_sum$costUsd" FROM (SELECT "public"."LLMUsage"."costUsd" FROM "public"."LLMUsage" WHERE "public"."LLMUsage"."createdAt" >= $1 OFFSET $2) AS "sub"
+prisma:query SELECT SUM("costUsd") AS "_sum$costUsd" FROM (SELECT "public"."LLMUsage"."costUsd" FROM "public"."LLMUsage" WHERE "public"."LLMUsage"."createdAt" >= $1 OFFSET $2) AS "sub"
+ POST /students/cml9m5vw20000fewu3f3otrrf 200 in 79ms
+prisma:query SELECT "public"."GradeHistory"."id", "public"."GradeHistory"."studentId", "public"."GradeHistory"."teacherId", "public"."GradeHistory"."subject", "public"."GradeHistory"."gradeType"::text, "public"."GradeHistory"."score", "public"."GradeHistory"."maxScore", "public"."GradeHistory"."normalizedScore", "public"."GradeHistory"."testDate", "public"."GradeHistory"."academicYear", "public"."GradeHistory"."semester", "public"."GradeHistory"."notes", "public"."GradeHistory"."createdAt", "public"."GradeHistory"."updatedAt" FROM "public"."GradeHistory" WHERE "public"."GradeHistory"."studentId" = $1 ORDER BY "public"."GradeHistory"."testDate" DESC OFFSET $2
+ POST /students/cml9m5vw20000fewu3f3otrrf 200 in 17ms
+prisma:query SELECT "public"."Teacher"."id", "public"."Teacher"."email", "public"."Teacher"."name", "public"."Teacher"."role"::text, "public"."Teacher"."teamId" FROM "public"."Teacher" WHERE ("public"."Teacher"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Team"."id", "public"."Team"."name" FROM "public"."Team" WHERE "public"."Team"."id" = $1 OFFSET $2
+Error [ZodError]: [
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "notes"
+    ],
+    "message": "Invalid input: expected string, received null"
+  }
+]
+    at addGrade (src/lib/actions/grade.ts:39:43)
+  37 |         };
+  38 |
+> 39 |         const validatedData = GradeSchema.parse(rawData);
+     |                                           ^
+  40 |
+  41 |         await prisma.gradeHistory.create({
+  42 |             data: {
+ POST /students/cml9m5vw20000fewu3f3otrrf 200 in 278ms
+prisma:query SELECT "public"."Teacher"."id", "public"."Teacher"."email", "public"."Teacher"."name", "public"."Teacher"."role"::text, "public"."Teacher"."teamId" FROM "public"."Teacher" WHERE ("public"."Teacher"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Team"."id", "public"."Team"."name" FROM "public"."Team" WHERE "public"."Team"."id" = $1 OFFSET $2
+Error [ZodError]: [
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "notes"
+    ],
+    "message": "Invalid input: expected string, received null"
+  }
+]
+    at addGrade (src/lib/actions/grade.ts:39:43)
+  37 |         };
+  38 |
+> 39 |         const validatedData = GradeSchema.parse(rawData);
+     |                                           ^
+  40 |
+  41 |         await prisma.gradeHistory.create({
+  42 |             data: {
+ POST /students/cml9m5vw20000fewu3f3otrrf 200 in 265ms
+prisma:query SELECT "public"."Student"."id", "public"."Student"."name", "public"."Student"."birthDate", "public"."Student"."phone", "public"."Student"."school", "public"."Student"."grade", "public"."Student"."targetUniversity", "public"."Student"."targetMajor", "public"."Student"."bloodType"::text, "public"."Student"."teacherId", "public"."Student"."createdAt", "public"."Student"."updatedAt", "public"."Student"."expiresAt", "public"."Student"."calculationRecalculationAt", "public"."Student"."calculationRecalculationNeeded", "public"."Student"."calculationRecalculationReason", "public"."Student"."nameHanja", "public"."Student"."birthTimeHour", "public"."Student"."birthTimeMinute", "public"."Student"."teamId", "public"."Student"."attendanceRate", "public"."Student"."initialGradeLevel", "public"."Student"."priorAcademicPerformance", "public"."Student"."primaryParentId" FROM "public"."Student" WHERE ("public"."Student"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Parent"."id", "public"."Parent"."studentId", "public"."Parent"."name", "public"."Parent"."phone", "public"."Parent"."email", "public"."Parent"."relation"::text, "public"."Parent"."relationOther", "public"."Parent"."note", "public"."Parent"."isPrimary", "public"."Parent"."createdAt", "public"."Parent"."updatedAt" FROM "public"."Parent" WHERE "public"."Parent"."studentId" = $1 OFFSET $2
+prisma:query SELECT "public"."StudentImage"."id", "public"."StudentImage"."studentId", "public"."StudentImage"."type"::text, "public"."StudentImage"."originalUrl", "public"."StudentImage"."resizedUrl", "public"."StudentImage"."publicId", "public"."StudentImage"."format", "public"."StudentImage"."bytes", "public"."StudentImage"."width", "public"."StudentImage"."height", "public"."StudentImage"."createdAt", "public"."StudentImage"."updatedAt" FROM "public"."StudentImage" WHERE "public"."StudentImage"."studentId" = $1 OFFSET $2
+prisma:query SELECT "public"."Teacher"."id", "public"."Teacher"."email", "public"."Teacher"."password", "public"."Teacher"."name", "public"."Teacher"."createdAt", "public"."Teacher"."updatedAt", "public"."Teacher"."phone", "public"."Teacher"."role"::text, "public"."Teacher"."teamId", "public"."Teacher"."nameHanja", "public"."Teacher"."birthDate", "public"."Teacher"."birthTimeHour", "public"."Teacher"."birthTimeMinute" FROM "public"."Teacher" WHERE "public"."Teacher"."id" = $1 OFFSET $2
+prisma:query SELECT "public"."Teacher"."id", "public"."Teacher"."email", "public"."Teacher"."name", "public"."Teacher"."role"::text, "public"."Teacher"."teamId" FROM "public"."Teacher" WHERE ("public"."Teacher"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Team"."id", "public"."Team"."name" FROM "public"."Team" WHERE "public"."Team"."id" = $1 OFFSET $2
+ GET /students/cml9m5vw20000fewu3f3otrrf 200 in 152ms
+prisma:query SELECT "public"."LLMBudget"."id", "public"."LLMBudget"."period", "public"."LLMBudget"."budgetUsd", "public"."LLMBudget"."alertAt80", "public"."LLMBudget"."alertAt100", "public"."LLMBudget"."lastAlertAt", "public"."LLMBudget"."lastAlertThreshold", "public"."LLMBudget"."createdAt", "public"."LLMBudget"."updatedAt" FROM "public"."LLMBudget" WHERE ("public"."LLMBudget"."period" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."LLMBudget"."id", "public"."LLMBudget"."period", "public"."LLMBudget"."budgetUsd", "public"."LLMBudget"."alertAt80", "public"."LLMBudget"."alertAt100", "public"."LLMBudget"."lastAlertAt", "public"."LLMBudget"."lastAlertThreshold", "public"."LLMBudget"."createdAt", "public"."LLMBudget"."updatedAt" FROM "public"."LLMBudget" WHERE ("public"."LLMBudget"."period" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."LLMBudget"."id", "public"."LLMBudget"."period", "public"."LLMBudget"."budgetUsd", "public"."LLMBudget"."alertAt80", "public"."LLMBudget"."alertAt100", "public"."LLMBudget"."lastAlertAt", "public"."LLMBudget"."lastAlertThreshold", "public"."LLMBudget"."createdAt", "public"."LLMBudget"."updatedAt" FROM "public"."LLMBudget" WHERE ("public"."LLMBudget"."period" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."LLMBudget"."id", "public"."LLMBudget"."period", "public"."LLMBudget"."budgetUsd", "public"."LLMBudget"."alertAt80", "public"."LLMBudget"."alertAt100", "public"."LLMBudget"."lastAlertAt", "public"."LLMBudget"."lastAlertThreshold", "public"."LLMBudget"."createdAt", "public"."LLMBudget"."updatedAt" FROM "public"."LLMBudget" WHERE 1=1 OFFSET $1
+prisma:query SELECT SUM("costUsd") AS "_sum$costUsd" FROM (SELECT "public"."LLMUsage"."costUsd" FROM "public"."LLMUsage" WHERE "public"."LLMUsage"."createdAt" >= $1 OFFSET $2) AS "sub"
+prisma:query SELECT SUM("costUsd") AS "_sum$costUsd" FROM (SELECT "public"."LLMUsage"."costUsd" FROM "public"."LLMUsage" WHERE "public"."LLMUsage"."createdAt" >= $1 OFFSET $2) AS "sub"
+prisma:query SELECT SUM("costUsd") AS "_sum$costUsd" FROM (SELECT "public"."LLMUsage"."costUsd" FROM "public"."LLMUsage" WHERE "public"."LLMUsage"."createdAt" >= $1 OFFSET $2) AS "sub"
+ POST /students/cml9m5vw20000fewu3f3otrrf 200 in 22ms
+prisma:query SELECT "public"."GradeHistory"."id", "public"."GradeHistory"."studentId", "public"."GradeHistory"."teacherId", "public"."GradeHistory"."subject", "public"."GradeHistory"."gradeType"::text, "public"."GradeHistory"."score", "public"."GradeHistory"."maxScore", "public"."GradeHistory"."normalizedScore", "public"."GradeHistory"."testDate", "public"."GradeHistory"."academicYear", "public"."GradeHistory"."semester", "public"."GradeHistory"."notes", "public"."GradeHistory"."createdAt", "public"."GradeHistory"."updatedAt" FROM "public"."GradeHistory" WHERE "public"."GradeHistory"."studentId" = $1 ORDER BY "public"."GradeHistory"."testDate" DESC OFFSET $2
+ POST /students/cml9m5vw20000fewu3f3otrrf 200 in 15ms
+prisma:query SELECT "public"."Teacher"."id", "public"."Teacher"."email", "public"."Teacher"."name", "public"."Teacher"."role"::text, "public"."Teacher"."teamId" FROM "public"."Teacher" WHERE ("public"."Teacher"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Team"."id", "public"."Team"."name" FROM "public"."Team" WHERE "public"."Team"."id" = $1 OFFSET $2
+Error [ZodError]: [
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "notes"
+    ],
+    "message": "Invalid input: expected string, received null"
+  }
+]
+    at addGrade (src/lib/actions/grade.ts:39:43)
+  37 |         };
+  38 |
+> 39 |         const validatedData = GradeSchema.parse(rawData);
+     |                                           ^
+  40 |
+  41 |         await prisma.gradeHistory.create({
+  42 |             data: {
+ POST /students/cml9m5vw20000fewu3f3otrrf 200 in 236ms
+prisma:query SELECT "public"."Teacher"."id", "public"."Teacher"."email", "public"."Teacher"."name", "public"."Teacher"."role"::text, "public"."Teacher"."teamId" FROM "public"."Teacher" WHERE ("public"."Teacher"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Team"."id", "public"."Team"."name" FROM "public"."Team" WHERE "public"."Team"."id" = $1 OFFSET $2
+Error [ZodError]: [
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "notes"
+    ],
+    "message": "Invalid input: expected string, received null"
+  }
+]
+    at addGrade (src/lib/actions/grade.ts:39:43)
+  37 |         };
+  38 |
+> 39 |         const validatedData = GradeSchema.parse(rawData);
+     |                                           ^
+  40 |
+  41 |         await prisma.gradeHistory.create({
+  42 |             data: {
+ POST /students/cml9m5vw20000fewu3f3otrrf 200 in 257ms
+prisma:query SELECT "public"."Teacher"."id", "public"."Teacher"."email", "public"."Teacher"."name", "public"."Teacher"."role"::text, "public"."Teacher"."teamId" FROM "public"."Teacher" WHERE ("public"."Teacher"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Team"."id", "public"."Team"."name" FROM "public"."Team" WHERE "public"."Team"."id" = $1 OFFSET $2
+Error [ZodError]: [
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "notes"
+    ],
+    "message": "Invalid input: expected string, received null"
+  }
+]
+    at addGrade (src/lib/actions/grade.ts:39:43)
+  37 |         };
+  38 |
+> 39 |         const validatedData = GradeSchema.parse(rawData);
+     |                                           ^
+  40 |
+  41 |         await prisma.gradeHistory.create({
+  42 |             data: {
+ POST /students/cml9m5vw20000fewu3f3otrrf 200 in 230ms
+prisma:query SELECT "public"."Student"."id", "public"."Student"."name", "public"."Student"."birthDate", "public"."Student"."phone", "public"."Student"."school", "public"."Student"."grade", "public"."Student"."targetUniversity", "public"."Student"."targetMajor", "public"."Student"."bloodType"::text, "public"."Student"."teacherId", "public"."Student"."createdAt", "public"."Student"."updatedAt", "public"."Student"."expiresAt", "public"."Student"."calculationRecalculationAt", "public"."Student"."calculationRecalculationNeeded", "public"."Student"."calculationRecalculationReason", "public"."Student"."nameHanja", "public"."Student"."birthTimeHour", "public"."Student"."birthTimeMinute", "public"."Student"."teamId", "public"."Student"."attendanceRate", "public"."Student"."initialGradeLevel", "public"."Student"."priorAcademicPerformance", "public"."Student"."primaryParentId" FROM "public"."Student" WHERE ("public"."Student"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Parent"."id", "public"."Parent"."studentId", "public"."Parent"."name", "public"."Parent"."phone", "public"."Parent"."email", "public"."Parent"."relation"::text, "public"."Parent"."relationOther", "public"."Parent"."note", "public"."Parent"."isPrimary", "public"."Parent"."createdAt", "public"."Parent"."updatedAt" FROM "public"."Parent" WHERE "public"."Parent"."studentId" = $1 OFFSET $2
+prisma:query SELECT "public"."Teacher"."id", "public"."Teacher"."email", "public"."Teacher"."password", "public"."Teacher"."name", "public"."Teacher"."createdAt", "public"."Teacher"."updatedAt", "public"."Teacher"."phone", "public"."Teacher"."role"::text, "public"."Teacher"."teamId", "public"."Teacher"."nameHanja", "public"."Teacher"."birthDate", "public"."Teacher"."birthTimeHour", "public"."Teacher"."birthTimeMinute" FROM "public"."Teacher" WHERE "public"."Teacher"."id" = $1 OFFSET $2
+prisma:query SELECT "public"."Teacher"."id", "public"."Teacher"."email", "public"."Teacher"."name", "public"."Teacher"."role"::text, "public"."Teacher"."teamId" FROM "public"."Teacher" WHERE ("public"."Teacher"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Team"."id", "public"."Team"."name" FROM "public"."Team" WHERE "public"."Team"."id" = $1 OFFSET $2
+prisma:query SELECT "public"."StudentImage"."id", "public"."StudentImage"."studentId", "public"."StudentImage"."type"::text, "public"."StudentImage"."originalUrl", "public"."StudentImage"."resizedUrl", "public"."StudentImage"."publicId", "public"."StudentImage"."format", "public"."StudentImage"."bytes", "public"."StudentImage"."width", "public"."StudentImage"."height", "public"."StudentImage"."createdAt", "public"."StudentImage"."updatedAt" FROM "public"."StudentImage" WHERE "public"."StudentImage"."studentId" = $1 OFFSET $2
+ GET /students/cml95prdn0000r2wuymfrjlaq 200 in 144ms
+prisma:query SELECT "public"."LLMBudget"."id", "public"."LLMBudget"."period", "public"."LLMBudget"."budgetUsd", "public"."LLMBudget"."alertAt80", "public"."LLMBudget"."alertAt100", "public"."LLMBudget"."lastAlertAt", "public"."LLMBudget"."lastAlertThreshold", "public"."LLMBudget"."createdAt", "public"."LLMBudget"."updatedAt" FROM "public"."LLMBudget" WHERE ("public"."LLMBudget"."period" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."LLMBudget"."id", "public"."LLMBudget"."period", "public"."LLMBudget"."budgetUsd", "public"."LLMBudget"."alertAt80", "public"."LLMBudget"."alertAt100", "public"."LLMBudget"."lastAlertAt", "public"."LLMBudget"."lastAlertThreshold", "public"."LLMBudget"."createdAt", "public"."LLMBudget"."updatedAt" FROM "public"."LLMBudget" WHERE ("public"."LLMBudget"."period" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."LLMBudget"."id", "public"."LLMBudget"."period", "public"."LLMBudget"."budgetUsd", "public"."LLMBudget"."alertAt80", "public"."LLMBudget"."alertAt100", "public"."LLMBudget"."lastAlertAt", "public"."LLMBudget"."lastAlertThreshold", "public"."LLMBudget"."createdAt", "public"."LLMBudget"."updatedAt" FROM "public"."LLMBudget" WHERE ("public"."LLMBudget"."period" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."LLMBudget"."id", "public"."LLMBudget"."period", "public"."LLMBudget"."budgetUsd", "public"."LLMBudget"."alertAt80", "public"."LLMBudget"."alertAt100", "public"."LLMBudget"."lastAlertAt", "public"."LLMBudget"."lastAlertThreshold", "public"."LLMBudget"."createdAt", "public"."LLMBudget"."updatedAt" FROM "public"."LLMBudget" WHERE 1=1 OFFSET $1
+prisma:query SELECT SUM("costUsd") AS "_sum$costUsd" FROM (SELECT "public"."LLMUsage"."costUsd" FROM "public"."LLMUsage" WHERE "public"."LLMUsage"."createdAt" >= $1 OFFSET $2) AS "sub"
+prisma:query SELECT SUM("costUsd") AS "_sum$costUsd" FROM (SELECT "public"."LLMUsage"."costUsd" FROM "public"."LLMUsage" WHERE "public"."LLMUsage"."createdAt" >= $1 OFFSET $2) AS "sub"
+prisma:query SELECT SUM("costUsd") AS "_sum$costUsd" FROM (SELECT "public"."LLMUsage"."costUsd" FROM "public"."LLMUsage" WHERE "public"."LLMUsage"."createdAt" >= $1 OFFSET $2) AS "sub"
+ POST /students/cml95prdn0000r2wuymfrjlaq 200 in 25ms
+prisma:query SELECT "public"."GradeHistory"."id", "public"."GradeHistory"."studentId", "public"."GradeHistory"."teacherId", "public"."GradeHistory"."subject", "public"."GradeHistory"."gradeType"::text, "public"."GradeHistory"."score", "public"."GradeHistory"."maxScore", "public"."GradeHistory"."normalizedScore", "public"."GradeHistory"."testDate", "public"."GradeHistory"."academicYear", "public"."GradeHistory"."semester", "public"."GradeHistory"."notes", "public"."GradeHistory"."createdAt", "public"."GradeHistory"."updatedAt" FROM "public"."GradeHistory" WHERE "public"."GradeHistory"."studentId" = $1 ORDER BY "public"."GradeHistory"."testDate" DESC OFFSET $2
+ POST /students/cml95prdn0000r2wuymfrjlaq 200 in 50ms
+prisma:query SELECT "public"."Teacher"."id", "public"."Teacher"."email", "public"."Teacher"."name", "public"."Teacher"."role"::text, "public"."Teacher"."teamId" FROM "public"."Teacher" WHERE ("public"."Teacher"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Team"."id", "public"."Team"."name" FROM "public"."Team" WHERE "public"."Team"."id" = $1 OFFSET $2
+Error [ZodError]: [
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "notes"
+    ],
+    "message": "Invalid input: expected string, received null"
+  }
+]
+    at addGrade (src/lib/actions/grade.ts:39:43)
+  37 |         };
+  38 |
+> 39 |         const validatedData = GradeSchema.parse(rawData);
+     |                                           ^
+  40 |
+  41 |         await prisma.gradeHistory.create({
+  42 |             data: {
+ POST /students/cml95prdn0000r2wuymfrjlaq 200 in 253ms
+prisma:query SELECT "public"."Teacher"."id", "public"."Teacher"."email", "public"."Teacher"."name", "public"."Teacher"."role"::text, "public"."Teacher"."teamId" FROM "public"."Teacher" WHERE ("public"."Teacher"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Team"."id", "public"."Team"."name" FROM "public"."Team" WHERE "public"."Team"."id" = $1 OFFSET $2
+Error [ZodError]: [
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "notes"
+    ],
+    "message": "Invalid input: expected string, received null"
+  }
+]
+    at addGrade (src/lib/actions/grade.ts:39:43)
+  37 |         };
+  38 |
+> 39 |         const validatedData = GradeSchema.parse(rawData);
+     |                                           ^
+  40 |
+  41 |         await prisma.gradeHistory.create({
+  42 |             data: {
+ POST /students/cml95prdn0000r2wuymfrjlaq 200 in 229ms
+prisma:query SELECT "public"."Teacher"."id", "public"."Teacher"."email", "public"."Teacher"."name", "public"."Teacher"."role"::text, "public"."Teacher"."teamId" FROM "public"."Teacher" WHERE ("public"."Teacher"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Team"."id", "public"."Team"."name" FROM "public"."Team" WHERE "public"."Team"."id" = $1 OFFSET $2
+Error [ZodError]: [
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "notes"
+    ],
+    "message": "Invalid input: expected string, received null"
+  }
+]
+    at addGrade (src/lib/actions/grade.ts:39:43)
+  37 |         };
+  38 |
+> 39 |         const validatedData = GradeSchema.parse(rawData);
+     |                                           ^
+  40 |
+  41 |         await prisma.gradeHistory.create({
+  42 |             data: {
+ POST /students/cml95prdn0000r2wuymfrjlaq 200 in 270ms
+prisma:query SELECT "public"."Student"."id", "public"."Student"."name", "public"."Student"."birthDate", "public"."Student"."phone", "public"."Student"."school", "public"."Student"."grade", "public"."Student"."targetUniversity", "public"."Student"."targetMajor", "public"."Student"."bloodType"::text, "public"."Student"."teacherId", "public"."Student"."createdAt", "public"."Student"."updatedAt", "public"."Student"."expiresAt", "public"."Student"."calculationRecalculationAt", "public"."Student"."calculationRecalculationNeeded", "public"."Student"."calculationRecalculationReason", "public"."Student"."nameHanja", "public"."Student"."birthTimeHour", "public"."Student"."birthTimeMinute", "public"."Student"."teamId", "public"."Student"."attendanceRate", "public"."Student"."initialGradeLevel", "public"."Student"."priorAcademicPerformance", "public"."Student"."primaryParentId" FROM "public"."Student" WHERE ("public"."Student"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Parent"."id", "public"."Parent"."studentId", "public"."Parent"."name", "public"."Parent"."phone", "public"."Parent"."email", "public"."Parent"."relation"::text, "public"."Parent"."relationOther", "public"."Parent"."note", "public"."Parent"."isPrimary", "public"."Parent"."createdAt", "public"."Parent"."updatedAt" FROM "public"."Parent" WHERE "public"."Parent"."studentId" = $1 OFFSET $2
+prisma:query SELECT "public"."Teacher"."id", "public"."Teacher"."email", "public"."Teacher"."name", "public"."Teacher"."role"::text, "public"."Teacher"."teamId" FROM "public"."Teacher" WHERE ("public"."Teacher"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."StudentImage"."id", "public"."StudentImage"."studentId", "public"."StudentImage"."type"::text, "public"."StudentImage"."originalUrl", "public"."StudentImage"."resizedUrl", "public"."StudentImage"."publicId", "public"."StudentImage"."format", "public"."StudentImage"."bytes", "public"."StudentImage"."width", "public"."StudentImage"."height", "public"."StudentImage"."createdAt", "public"."StudentImage"."updatedAt" FROM "public"."StudentImage" WHERE "public"."StudentImage"."studentId" = $1 OFFSET $2
+prisma:query SELECT "public"."Teacher"."id", "public"."Teacher"."email", "public"."Teacher"."password", "public"."Teacher"."name", "public"."Teacher"."createdAt", "public"."Teacher"."updatedAt", "public"."Teacher"."phone", "public"."Teacher"."role"::text, "public"."Teacher"."teamId", "public"."Teacher"."nameHanja", "public"."Teacher"."birthDate", "public"."Teacher"."birthTimeHour", "public"."Teacher"."birthTimeMinute" FROM "public"."Teacher" WHERE "public"."Teacher"."id" = $1 OFFSET $2
+prisma:query SELECT "public"."Team"."id", "public"."Team"."name" FROM "public"."Team" WHERE "public"."Team"."id" = $1 OFFSET $2
+ GET /students/cml95prdn0000r2wuymfrjlaq 200 in 164ms
+prisma:query SELECT "public"."LLMBudget"."id", "public"."LLMBudget"."period", "public"."LLMBudget"."budgetUsd", "public"."LLMBudget"."alertAt80", "public"."LLMBudget"."alertAt100", "public"."LLMBudget"."lastAlertAt", "public"."LLMBudget"."lastAlertThreshold", "public"."LLMBudget"."createdAt", "public"."LLMBudget"."updatedAt" FROM "public"."LLMBudget" WHERE ("public"."LLMBudget"."period" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."LLMBudget"."id", "public"."LLMBudget"."period", "public"."LLMBudget"."budgetUsd", "public"."LLMBudget"."alertAt80", "public"."LLMBudget"."alertAt100", "public"."LLMBudget"."lastAlertAt", "public"."LLMBudget"."lastAlertThreshold", "public"."LLMBudget"."createdAt", "public"."LLMBudget"."updatedAt" FROM "public"."LLMBudget" WHERE ("public"."LLMBudget"."period" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."LLMBudget"."id", "public"."LLMBudget"."period", "public"."LLMBudget"."budgetUsd", "public"."LLMBudget"."alertAt80", "public"."LLMBudget"."alertAt100", "public"."LLMBudget"."lastAlertAt", "public"."LLMBudget"."lastAlertThreshold", "public"."LLMBudget"."createdAt", "public"."LLMBudget"."updatedAt" FROM "public"."LLMBudget" WHERE ("public"."LLMBudget"."period" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."LLMBudget"."id", "public"."LLMBudget"."period", "public"."LLMBudget"."budgetUsd", "public"."LLMBudget"."alertAt80", "public"."LLMBudget"."alertAt100", "public"."LLMBudget"."lastAlertAt", "public"."LLMBudget"."lastAlertThreshold", "public"."LLMBudget"."createdAt", "public"."LLMBudget"."updatedAt" FROM "public"."LLMBudget" WHERE 1=1 OFFSET $1
+prisma:query SELECT SUM("costUsd") AS "_sum$costUsd" FROM (SELECT "public"."LLMUsage"."costUsd" FROM "public"."LLMUsage" WHERE "public"."LLMUsage"."createdAt" >= $1 OFFSET $2) AS "sub"
+prisma:query SELECT SUM("costUsd") AS "_sum$costUsd" FROM (SELECT "public"."LLMUsage"."costUsd" FROM "public"."LLMUsage" WHERE "public"."LLMUsage"."createdAt" >= $1 OFFSET $2) AS "sub"
+prisma:query SELECT SUM("costUsd") AS "_sum$costUsd" FROM (SELECT "public"."LLMUsage"."costUsd" FROM "public"."LLMUsage" WHERE "public"."LLMUsage"."createdAt" >= $1 OFFSET $2) AS "sub"
+ POST /students/cml95prdn0000r2wuymfrjlaq 200 in 25ms
+prisma:query SELECT "public"."GradeHistory"."id", "public"."GradeHistory"."studentId", "public"."GradeHistory"."teacherId", "public"."GradeHistory"."subject", "public"."GradeHistory"."gradeType"::text, "public"."GradeHistory"."score", "public"."GradeHistory"."maxScore", "public"."GradeHistory"."normalizedScore", "public"."GradeHistory"."testDate", "public"."GradeHistory"."academicYear", "public"."GradeHistory"."semester", "public"."GradeHistory"."notes", "public"."GradeHistory"."createdAt", "public"."GradeHistory"."updatedAt" FROM "public"."GradeHistory" WHERE "public"."GradeHistory"."studentId" = $1 ORDER BY "public"."GradeHistory"."testDate" DESC OFFSET $2
+ POST /students/cml95prdn0000r2wuymfrjlaq 200 in 54ms
