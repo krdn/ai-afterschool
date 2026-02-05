@@ -1,9 +1,9 @@
 {
   "triggered_by": "git-post-commit-hook",
-  "commit_hash": "01da57683f691c0a0ce4f40e2a1124d6c7a0db99",
-  "commit_message": "feat(21-06): 통계 대시보드 페이지 구현\n\n- Server Component로 초기 데이터 fetch\n- 병렬 데이터 로딩 (Promise.all)\n- 요약 카드용 메트릭 계산:\n  - 이번 달 상담 횟수\n  - 대기 예약 수 (SCHEDULED)\n  - 지연 후속조치 수\n  - 완료율 (상담 / (상담 + 대기) * 100)\n- StatisticsDashboard로 초기 데이터 전달\n- 에러 처리 (실패 시 기본값 사용)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\n",
+  "commit_hash": "5f815858eabb8c8f3d08064f80325f268f3c83a2",
+  "commit_message": "fix(qa): auto-fix based on test failure\n",
   "commit_author": "gon",
-  "commit_date": "2026-02-04 22:13:36 +0900",
-  "timestamp": 1770210816,
-  "branch": "main"
+  "commit_date": "2026-02-05 12:14:44 +0900",
+  "timestamp": 1770261284,
+  "branch": "fix/qa-auto-1770261284502"
 }

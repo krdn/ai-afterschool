@@ -3,7 +3,8 @@ import type { NextRequest } from 'next/server'
 import { decrypt } from '@/lib/session'
 
 const protectedRoutes = ['/students', '/dashboard']
-const authRoutes = ['/login', '/reset-password']
+const authRoutes = ['/auth/login', '/auth/register', '/auth/reset-password']
+const adminRoutes = ['/admin']
 
 export async function middleware(req: NextRequest) {
   const currentPath = req.nextUrl.pathname
@@ -18,9 +19,20 @@ export async function middleware(req: NextRequest) {
     currentPath.startsWith(route)
   )
   const isAuthRoute = authRoutes.some((route) => currentPath.startsWith(route))
+  const isAdminRoute = adminRoutes.some((route) => currentPath.startsWith(route))
+
+  // Redirect /dashboard to /students
+  if (currentPath === '/dashboard') {
+    return NextResponse.redirect(new URL('/students', req.nextUrl))
+  }
+
+  // Check admin access
+  if (isAdminRoute && session?.role !== 'DIRECTOR') {
+    return NextResponse.redirect(new URL('/students', req.nextUrl))
+  }
 
   if (isProtectedRoute && !session?.userId) {
-    const loginUrl = new URL('/login', req.nextUrl)
+    const loginUrl = new URL('/auth/login', req.nextUrl)
     loginUrl.searchParams.set('callbackUrl', currentPath)
     return NextResponse.redirect(loginUrl)
   }
