@@ -60,3 +60,4 @@ supabase/
 # Playwright MCP screenshots
 .playwright-mcp/
 obsidian/
+.claude/CLAUDE.md
