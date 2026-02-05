@@ -1,498 +1,83 @@
-"use client"
+"use client";
 
-import { startTransition, useActionState, useEffect, useId, useState, useRef } from "react"
-import { z } from "zod"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { toast } from "sonner"
-import {
-  createStudent,
-  updateStudent,
-  type StudentFormState,
-} from "@/lib/actions/students"
-import { CreateStudentSchema } from "@/lib/validations/students"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  StudentImageUploader,
-  type StudentImagePayload,
-} from "@/components/students/student-image-uploader"
-import { HanjaPicker } from "@/components/students/hanja-picker"
-import {
-  coerceHanjaSelections,
-  normalizeHanjaSelections,
-  type HanjaSelection,
-} from "@/lib/analysis/hanja-strokes"
+import { createStudent } from "@/lib/actions/student";
+import { useState } from "react";
 
-type StudentFormProps = {
-  student?: {
-    id: string
-    name: string
-    nameHanja?: unknown
-    birthDate: Date | string
-    birthTimeHour: number | null
-    birthTimeMinute: number | null
-    phone: string | null
-    school: string
-    grade: number
-    targetUniversity: string | null
-    targetMajor: string | null
-    bloodType: "A" | "B" | "AB" | "O" | null
-    images?: StudentImageRecord[]
-  }
-}
+export default function StudentForm() {
+  const [preview, setPreview] = useState<string | null>(null);
 
-type StudentImageRecord = {
-  type: StudentImagePayload["type"]
-  originalUrl: string
-  resizedUrl: string
-  publicId: string
-  format: string | null
-  bytes: number | null
-  width: number | null
-  height: number | null
-}
-
-type ImageState = StudentImagePayload & {
-  resizedUrl?: string | null
-}
-
-function toDateInputValue(value: Date | string) {
-  const date = value instanceof Date ? value : new Date(value)
-  return Number.isNaN(date.getTime()) ? "" : date.toISOString().split("T")[0]
-}
-
-export function StudentForm({ student }: StudentFormProps) {
-  const isEditing = Boolean(student)
-  const draftId = useId().replace(/:/g, "")
-  const draftFolderId = `draft-${draftId}`
-
-  const boundUpdateStudent = student
-    ? updateStudent.bind(null, student.id)
-    : null
-
-  const [state, formAction, pending] = useActionState<StudentFormState, FormData>(
-    isEditing ? boundUpdateStudent! : createStudent,
-    { errors: {} }
-  )
-
-  // 폼 에러 발생 시 토스트 표시
-  const prevErrorRef = useRef<string | undefined>(undefined)
-  useEffect(() => {
-    const errorMessage = state?.errors?._form?.[0]
-    if (errorMessage && errorMessage !== prevErrorRef.current) {
-      toast.error(errorMessage, { id: "student-form-submit" })
-      prevErrorRef.current = errorMessage
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
-  }, [state?.errors?._form])
-
-  // pending이 끝났지만 에러가 없으면 로딩 토스트 닫기 (성공 시 redirect되므로 보통 이 경우는 발생하지 않음)
-  useEffect(() => {
-    if (!pending && !state?.errors?._form) {
-      toast.dismiss("student-form-submit")
-    }
-  }, [pending, state?.errors?._form])
-
-  type StudentFormValues = z.input<typeof CreateStudentSchema>
-
-  const form = useForm<StudentFormValues>({
-    resolver: zodResolver(CreateStudentSchema),
-    defaultValues: student
-      ? {
-          name: student.name,
-          birthDate: toDateInputValue(student.birthDate),
-          birthTimeHour: student.birthTimeHour ?? "",
-          birthTimeMinute: student.birthTimeMinute ?? "",
-          phone: student.phone || "",
-          school: student.school,
-          grade: student.grade,
-          targetUniversity: student.targetUniversity || "",
-          targetMajor: student.targetMajor || "",
-          bloodType: student.bloodType,
-        }
-      : {
-          name: "",
-          birthDate: "",
-          birthTimeHour: "",
-          birthTimeMinute: "",
-          phone: "",
-          school: "",
-          grade: 1,
-          targetUniversity: "",
-          targetMajor: "",
-          bloodType: null,
-        },
-    mode: "onChange",
-  })
-
-  const getInitialImage = (
-    type: StudentImagePayload["type"]
-  ): ImageState | null => {
-    const match = student?.images?.find((image) => image.type === type)
-    if (!match) return null
-
-    return {
-      type: match.type,
-      originalUrl: match.originalUrl,
-      resizedUrl: match.resizedUrl,
-      publicId: match.publicId,
-      format: match.format || undefined,
-      bytes: match.bytes || undefined,
-      width: match.width || undefined,
-      height: match.height || undefined,
-    }
-  }
-
-  const [profileImage, setProfileImage] = useState<ImageState | null>(() =>
-    getInitialImage("profile")
-  )
-  const [faceImage, setFaceImage] = useState<ImageState | null>(() =>
-    getInitialImage("face")
-  )
-  const [palmImage, setPalmImage] = useState<ImageState | null>(() =>
-    getInitialImage("palm")
-  )
-  const [nameHanjaSelections, setNameHanjaSelections] = useState<
-    HanjaSelection[]
-  >(() =>
-    normalizeHanjaSelections(
-      student?.name ?? "",
-      coerceHanjaSelections(student?.nameHanja)
-    )
-  )
-
-  const serializeImage = (image: ImageState) =>
-    JSON.stringify({
-      type: image.type,
-      originalUrl: image.originalUrl,
-      publicId: image.publicId,
-      format: image.format,
-      bytes: image.bytes,
-      width: image.width,
-      height: image.height,
-    })
-
-  const handleSubmit = form.handleSubmit((_values, event) => {
-    event?.preventDefault()
-
-    const formElement = event?.currentTarget
-
-    if (!formElement) {
-      return
-    }
-
-    const formData = new FormData(formElement)
-
-    // 제출 시작 토스트 표시
-    toast.loading(isEditing ? "학생 정보 수정 중..." : "학생 등록 중...", {
-      id: "student-form-submit",
-    })
-
-    startTransition(() => {
-      formAction(formData)
-    })
-  })
-
-  const nameValue = form.watch("name")
-
-  useEffect(() => {
-    setNameHanjaSelections((prev) =>
-      normalizeHanjaSelections(nameValue ?? "", prev)
-    )
-  }, [nameValue])
+  };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{isEditing ? "학생 정보 수정" : "학생 등록"}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {state?.errors?._form && (
-            <div className="p-3 rounded-md bg-red-50 text-red-600 text-sm">
-              {state.errors._form[0]}
-            </div>
-          )}
+    <form action={createStudent} className="space-y-4 max-w-md mx-auto p-4 border rounded-lg bg-white">
+      <div>
+        <label htmlFor="name" className="block text-sm font-medium">이름</label>
+        <input type="text" name="name" id="name" required className="border p-2 w-full rounded" />
+      </div>
 
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium">기본 정보</h3>
+      <div>
+        <label htmlFor="birthDate" className="block text-sm font-medium">생년월일</label>
+        <input type="date" name="birthDate" id="birthDate" required className="border p-2 w-full rounded" />
+      </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="name">이름 *</Label>
-              <Input
-                id="name"
-                placeholder="홍길동"
-                {...form.register("name")}
-              />
-              {(state?.errors?.name || form.formState.errors.name) && (
-                <p className="text-sm text-red-600">
-                  {state?.errors?.name?.[0] ||
-                    form.formState.errors.name?.message}
-                </p>
-              )}
-            </div>
+      <div>
+        <label htmlFor="grade" className="block text-sm font-medium">학년</label>
+        <select name="grade" id="grade" required className="border p-2 w-full rounded">
+          <option value="">선택하세요</option>
+          {[1, 2, 3, 4, 5, 6].map((g) => (
+            <option key={g} value={g}>{g}학년</option>
+          ))}
+        </select>
+      </div>
 
-            <HanjaPicker
-              name={nameValue ?? ""}
-              value={nameHanjaSelections}
-              onChange={setNameHanjaSelections}
-            />
+      <div>
+        <label htmlFor="school" className="block text-sm font-medium">학교</label>
+        <input type="text" name="school" id="school" required className="border p-2 w-full rounded" />
+      </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="birthDate">생년월일 *</Label>
-              <Input
-                id="birthDate"
-                type="date"
-                {...form.register("birthDate")}
-              />
-              {(state?.errors?.birthDate || form.formState.errors.birthDate) && (
-                <p className="text-sm text-red-600">
-                  {state?.errors?.birthDate?.[0] ||
-                    form.formState.errors.birthDate?.message}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label>출생 시간 (선택)</Label>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="birthTimeHour" className="text-xs text-gray-500">
-                    시 (0-23)
-                  </Label>
-                  <Input
-                    id="birthTimeHour"
-                    type="number"
-                    min={0}
-                    max={23}
-                    placeholder="예: 13"
-                    {...form.register("birthTimeHour")}
-                  />
-                  {(state?.errors?.birthTimeHour ||
-                    form.formState.errors.birthTimeHour) && (
-                    <p className="text-sm text-red-600">
-                      {state?.errors?.birthTimeHour?.[0] ||
-                        form.formState.errors.birthTimeHour?.message}
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="birthTimeMinute" className="text-xs text-gray-500">
-                    분 (0-59)
-                  </Label>
-                  <Input
-                    id="birthTimeMinute"
-                    type="number"
-                    min={0}
-                    max={59}
-                    placeholder="예: 30"
-                    {...form.register("birthTimeMinute")}
-                  />
-                  {(state?.errors?.birthTimeMinute ||
-                    form.formState.errors.birthTimeMinute) && (
-                    <p className="text-sm text-red-600">
-                      {state?.errors?.birthTimeMinute?.[0] ||
-                        form.formState.errors.birthTimeMinute?.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-              <p className="text-xs text-gray-500">모르면 비워두세요.</p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="phone">연락처</Label>
-              <Input
-                id="phone"
-                placeholder="010-0000-0000"
-                {...form.register("phone")}
-              />
-              {(state?.errors?.phone || form.formState.errors.phone) && (
-                <p className="text-sm text-red-600">
-                  {state?.errors?.phone?.[0] ||
-                    form.formState.errors.phone?.message}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="bloodType">혈액형</Label>
-              <Select name="bloodType" defaultValue={student?.bloodType || ""}>
-                <SelectTrigger id="bloodType">
-                  <SelectValue placeholder="선택하세요" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="A">A형</SelectItem>
-                  <SelectItem value="B">B형</SelectItem>
-                  <SelectItem value="AB">AB형</SelectItem>
-                  <SelectItem value="O">O형</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+      <div className="border-t pt-4 mt-4">
+        <h3 className="font-semibold mb-2">학부모 정보</h3>
+        <div className="space-y-2">
+          <div>
+            <label htmlFor="parentName" className="block text-sm font-medium">부모님 성함</label>
+            <input type="text" name="parentName" id="parentName" className="border p-2 w-full rounded" />
           </div>
-
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium">이미지 업로드</h3>
-
-            <div className="grid gap-4">
-              <StudentImageUploader
-                type="profile"
-                label="프로필 사진"
-                description="학생 프로필에 표시됩니다."
-                studentId={student?.id}
-                draftId={draftFolderId}
-                previewUrl={
-                  profileImage?.resizedUrl || profileImage?.originalUrl || null
-                }
-                value={profileImage}
-                onChange={(payload) =>
-                  setProfileImage({
-                    ...payload,
-                    resizedUrl: null,
-                  })
-                }
-              />
-
-              <StudentImageUploader
-                type="face"
-                label="관상 사진"
-                description="얼굴 분석을 위한 사진입니다."
-                studentId={student?.id}
-                draftId={draftFolderId}
-                previewUrl={
-                  faceImage?.resizedUrl || faceImage?.originalUrl || null
-                }
-                value={faceImage}
-                onChange={(payload) =>
-                  setFaceImage({
-                    ...payload,
-                    resizedUrl: null,
-                  })
-                }
-              />
-
-              <StudentImageUploader
-                type="palm"
-                label="손금 사진"
-                description="손바닥 분석을 위한 사진입니다."
-                studentId={student?.id}
-                draftId={draftFolderId}
-                previewUrl={
-                  palmImage?.resizedUrl || palmImage?.originalUrl || null
-                }
-                value={palmImage}
-                onChange={(payload) =>
-                  setPalmImage({
-                    ...payload,
-                    resizedUrl: null,
-                  })
-                }
-              />
-            </div>
+          <div>
+            <label htmlFor="parentPhone" className="block text-sm font-medium">부모님 연락처</label>
+            <input type="text" name="parentPhone" id="parentPhone" className="border p-2 w-full rounded" placeholder="010-0000-0000" />
           </div>
+        </div>
+      </div>
 
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium">학업 정보</h3>
-
-            <div className="space-y-2">
-              <Label htmlFor="school">학교 *</Label>
-              <Input
-                id="school"
-                placeholder="서울고등학교"
-                {...form.register("school")}
-              />
-              {(state?.errors?.school || form.formState.errors.school) && (
-                <p className="text-sm text-red-600">
-                  {state?.errors?.school?.[0] ||
-                    form.formState.errors.school?.message}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="grade">학년 *</Label>
-              <Input
-                id="grade"
-                type="number"
-                min={1}
-                max={12}
-                {...form.register("grade")}
-              />
-              {(state?.errors?.grade || form.formState.errors.grade) && (
-                <p className="text-sm text-red-600">
-                  {state?.errors?.grade?.[0] ||
-                    form.formState.errors.grade?.message}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="targetUniversity">목표 대학</Label>
-              <Input
-                id="targetUniversity"
-                placeholder="서울대학교"
-                {...form.register("targetUniversity")}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="targetMajor">목표 학과</Label>
-              <Input
-                id="targetMajor"
-                placeholder="컴퓨터공학과"
-                {...form.register("targetMajor")}
-              />
-            </div>
+      <div className="border-t pt-4 mt-4">
+        <label htmlFor="image" className="block text-sm font-medium">프로필 사진</label>
+        <input
+          type="file"
+          name="image"
+          id="image"
+          accept="image/*"
+          onChange={handleImageChange}
+          className="border p-2 w-full rounded"
+        />
+        {preview && (
+          <div className="mt-2">
+            <img src={preview} alt="미리보기" className="w-32 h-32 object-cover rounded border" />
           </div>
+        )}
+      </div>
 
-          <div className="flex justify-end space-x-4">
-            {profileImage ? (
-              <input
-                type="hidden"
-                name="profileImage"
-                value={serializeImage(profileImage)}
-              />
-            ) : null}
-            {faceImage ? (
-              <input
-                type="hidden"
-                name="faceImage"
-                value={serializeImage(faceImage)}
-              />
-            ) : null}
-            {palmImage ? (
-              <input
-                type="hidden"
-                name="palmImage"
-                value={serializeImage(palmImage)}
-              />
-            ) : null}
-            <input
-              type="hidden"
-              name="nameHanja"
-              value={JSON.stringify(nameHanjaSelections)}
-            />
-            <Button type="submit" disabled={pending}>
-              {pending
-                ? isEditing
-                  ? "수정 중..."
-                  : "등록 중..."
-                : isEditing
-                  ? "수정하기"
-                  : "등록하기"}
-            </Button>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
-  )
+      <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full font-bold">
+        등록
+      </button>
+    </form>
+  );
 }

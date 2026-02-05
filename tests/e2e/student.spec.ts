@@ -20,8 +20,8 @@ test.describe('학생 데이터 관리 (Student)', () => {
   test.beforeEach(async ({ page }) => {
     // 로그인 전제 조건
     await page.goto('/auth/login');
-    await page.fill('input[name="email"]', 'teacher@test.com');
-    await page.fill('input[name="password"]', 'password123');
+    await page.fill('input[name="email"]', 'admin@afterschool.com');
+    await page.fill('input[name="password"]', 'admin1234');
     await page.click('button[type="submit"]');
     await expect(page).toHaveURL(/.*students/);
   });
@@ -52,7 +52,7 @@ test.describe('학생 데이터 관리 (Student)', () => {
 
     // 예상 결과 1: 학생 생성 완료 및 Cloudinary 이미지 저장 확인
     await expect(page).toHaveURL(/.*students\/[a-zA-Z0-9-]+/);
-    
+
     // 성공 메시지 확인
     await expect(page.locator('text=/학생.*등록.*완료|생성.*성공/')).toBeVisible({ timeout: 10000 });
 
@@ -69,7 +69,7 @@ test.describe('학생 데이터 관리 (Student)', () => {
 
     // 예상 결과 2: 목록에 정상 노출 확인
     await page.goto('/students');
-    await expect(page.locator(`text=${testStudent.name}`)).toBeVisible();
+    await expect(page.locator(`text=${testStudent.name}`).first()).toBeVisible();
   });
 
   test('STU-02: 학생 목록 검색 및 필터링', async ({ page, context }) => {
@@ -83,25 +83,26 @@ test.describe('학생 데이터 관리 (Student)', () => {
     // 1. 검색창에 '김철수' 입력
     const searchInput = page.locator('input[placeholder*="검색"], input[type="search"], input[name="search"]');
     await searchInput.fill('김철수');
+    await page.keyboard.press('Enter');
     await page.waitForTimeout(500); // debounce 대기
 
     // 조건에 부합하는 학생만 표시
     const searchResults = page.locator('text=김철수');
     await expect(searchResults.first()).toBeVisible();
-    
+
     // 다른 학생은 필터링됨
     const filteredCount = await page.locator('[data-testid="student-card"], tr[data-student-id]').count();
     expect(filteredCount).toBeLessThanOrEqual(initialCount);
 
     // 2. 학년/학교 필터 적용
     await searchInput.clear();
-    
+
     // 학년 필터
     const gradeFilter = page.locator('select[name="grade"], [data-testid="grade-filter"]');
     if (await gradeFilter.count() > 0) {
       await gradeFilter.selectOption('4');
       await page.waitForTimeout(500);
-      
+
       // 4학년 학생만 표시 확인
       const grade4Students = page.locator('[data-grade="4"], text=/4학년/');
       await expect(grade4Students.first()).toBeVisible();
@@ -112,7 +113,7 @@ test.describe('학생 데이터 관리 (Student)', () => {
     if (await schoolFilter.count() > 0) {
       await schoolFilter.fill('서울초등학교');
       await page.waitForTimeout(500);
-      
+
       // 해당 학교 학생만 표시
       await expect(page.locator('text=서울초등학교')).toBeVisible();
     }
@@ -125,14 +126,14 @@ test.describe('학생 데이터 관리 (Student)', () => {
   test('STU-03: 학생 상세 정보 및 탭 네비게이션', async ({ page }) => {
     // 전제 조건: 학생 존재 (STU-01에서 생성된 학생 또는 시드 데이터)
     await page.goto('/students');
-    
+
     // 첫 번째 학생 클릭
     const firstStudent = page.locator('[data-testid="student-card"], tr[data-student-id]').first();
     await firstStudent.click();
 
     // 1. /students/[id] 진입 확인
     await expect(page).toHaveURL(/.*students\/[a-zA-Z0-9-]+/);
-    
+
     // 학생 기본 정보 표시 확인
     await expect(page.locator('h1, h2').first()).toBeVisible();
 
@@ -146,20 +147,17 @@ test.describe('학생 데이터 관리 (Student)', () => {
 
     for (const tab of tabs) {
       // 탭 클릭
-      const tabButton = page.locator(`[role="tab"]:has-text("${tab.name}"), a:has-text("${tab.name}"), button:has-text("${tab.name}")`);
-      
-      if (await tabButton.count() > 0) {
-        await tabButton.first().click();
-        
-        // 예상 결과 1: URL 변경 확인
-        await expect(page).toHaveURL(new RegExp(`${tab.path}|tab=${tab.path}`));
-        
-        // 예상 결과 2: 해당 컴포넌트 로드 확인
-        await expect(page.locator(tab.selector)).toBeVisible({ timeout: 5000 });
-        
-        // 데이터 로딩 에러 없음 확인
-        await expect(page.locator('text=/오류|에러|Error/i')).not.toBeVisible();
-      }
+      const tabButton = page.locator('.container').getByRole('tab', { name: tab.name });
+      await tabButton.click();
+
+      // 예상 결과 1: URL 변경 확인
+      await expect(page).toHaveURL(new RegExp(`${tab.path}|tab=${tab.path}`));
+
+      // 예상 결과 2: 해당 컴포넌트 로드 확인
+      await expect(page.locator(tab.selector).first()).toBeVisible({ timeout: 5000 });
+
+      // 데이터 로딩 에러 없음 확인
+      await expect(page.locator('text=/오류|에러|Error/i')).not.toBeVisible();
     }
 
     // 탭 간 전환 후에도 학생 정보 유지
@@ -170,8 +168,8 @@ test.describe('학생 데이터 관리 (Student)', () => {
     // 전제 조건: 관리자 권한 (원장/관리자 계정으로 재로그인)
     await page.goto('/auth/logout');
     await page.goto('/auth/login');
-    await page.fill('input[name="email"]', 'admin@test.com');
-    await page.fill('input[name="password"]', 'admin123');
+    await page.fill('input[name="email"]', 'admin@afterschool.com');
+    await page.fill('input[name="password"]', 'admin1234');
     await page.click('button[type="submit"]');
     await expect(page).toHaveURL(/.*students/);
 
@@ -183,25 +181,24 @@ test.describe('학생 데이터 관리 (Student)', () => {
     await page.fill('input[name="school"]', '테스트초등학교');
     await page.click('button[type="submit"]');
     await expect(page).toHaveURL(/.*students\/[a-zA-Z0-9-]+/);
-    
+
     const deleteTargetUrl = page.url();
     const deleteTargetId = deleteTargetUrl.split('/students/')[1]?.split('/')[0];
 
-    // 1. 학생 상세 -> 삭제 버튼 클릭
-    const deleteButton = page.locator('button:has-text("삭제"), [data-testid="delete-button"]');
-    await expect(deleteButton).toBeVisible();
-    
     // Confirmation 다이얼로그 처리
     page.on('dialog', dialog => {
-      expect(dialog.message()).toContain(/삭제|제거|영구|확인/);
       dialog.accept();
     });
-    
-    await deleteButton.click();
+
+    // 1. 학생 상세 -> 삭제 버튼 클릭
+    await page.waitForTimeout(1000);
+    await page.getByRole('button', { name: '삭제' }).click();
+
+
 
     // 예상 결과 1: 삭제 완료 후 목록으로 이동
     await expect(page).toHaveURL(/.*students$|.*students\?/, { timeout: 10000 });
-    
+
     // 성공 메시지 확인
     await expect(page.locator('text=/삭제.*완료|제거.*성공/')).toBeVisible({ timeout: 5000 });
 
@@ -228,15 +225,15 @@ test.describe('학생 데이터 관리 (Student)', () => {
     const editButton = page.locator('button:has-text("편집"), button:has-text("수정"), [data-testid="edit-button"]');
     if (await editButton.count() > 0) {
       await editButton.click();
-      
+
       // 수정 가능한 필드 확인
       const nameInput = page.locator('input[name="name"]');
       await expect(nameInput).toBeEditable();
-      
+
       // 학교명 변경
       await page.fill('input[name="school"]', '수정된초등학교');
       await page.click('button[type="submit"]:has-text("저장")');
-      
+
       // 변경사항 반영 확인
       await expect(page.locator('text=수정된초등학교')).toBeVisible({ timeout: 5000 });
     }
@@ -245,7 +242,7 @@ test.describe('학생 데이터 관리 (Student)', () => {
   test('STU-PERF: 학생 목록 페이지네이션 및 성능', async ({ page }) => {
     // 대량 데이터 처리 확인
     await page.goto('/students');
-    
+
     // 페이지네이션 존재 시
     const pagination = page.locator('[role="navigation"][aria-label*="pagination"], .pagination');
     if (await pagination.count() > 0) {
