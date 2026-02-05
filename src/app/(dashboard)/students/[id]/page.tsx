@@ -1,4 +1,5 @@
 import { getStudentById } from "@/lib/actions/student";
+import AnalysisTab from "@/components/students/tabs/analysis-tab";
 import { notFound } from "next/navigation";
 import StudentDetailActions from "@/components/students/student-detail-actions";
 import Link from "next/link";
@@ -101,10 +102,7 @@ export default async function StudentDetailPage(props: {
                     </div>
                 )}
                 {currentTab === 'analysis' && (
-                    <div>
-                        <h3 className="text-lg font-bold mb-4">성향 분석</h3>
-                        <p className="text-gray-500">AI 기반 학생 성향 분석 결과를 표시합니다.</p>
-                    </div>
+                    <AnalysisTab studentId={student.id} />
                 )}
                 {currentTab === 'matching' && (
                     <div>
