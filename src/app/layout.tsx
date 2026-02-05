@@ -27,6 +27,7 @@ export default function RootLayout({
     <html lang="ko">
       <body
         className={`${notoSansKr.variable} ${geistMono.variable} antialiased`}
+        suppressHydrationWarning
       >
         {children}
         <Toaster position="top-center" richColors />

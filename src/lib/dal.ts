@@ -25,7 +25,7 @@ export const verifySession = cache(async (): Promise<VerifiedSession> => {
   const payload = await decrypt(session)
 
   if (!payload?.userId) {
-    redirect('/login')
+    redirect('/auth/login')
   }
 
   await updateSession(payload.userId, payload.role, payload.teamId)
@@ -83,7 +83,7 @@ export const getCurrentTeacher = cache(async () => {
   })
 
   if (!teacher) {
-    redirect('/login')
+    redirect('/auth/login')
   }
 
   return teacher

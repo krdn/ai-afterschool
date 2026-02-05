@@ -1,191 +1,124 @@
-import { notFound } from "next/navigation"
-import { verifySession } from "@/lib/dal"
-import { db } from "@/lib/db"
-import { StudentDetail } from "@/components/students/student-detail"
-import { SajuAnalysisPanel } from "@/components/students/saju-analysis-panel"
-import { NameAnalysisPanel } from "@/components/students/name-analysis-panel"
-import { MbtiAnalysisPanel } from "@/components/students/mbti-analysis-panel"
-import { FaceAnalysisPanel } from "@/components/students/face-analysis-panel"
-import { PalmAnalysisPanel } from "@/components/students/palm-analysis-panel"
-import { PersonalitySummaryCard } from "@/components/students/personality-summary-card"
-import { LearningStrategyPanel } from "@/components/students/learning-strategy-panel"
-import { CareerGuidancePanel } from "@/components/students/career-guidance-panel"
-import { ReportButton } from "@/components/students/report-button"
-import { CounselingSection } from "@/components/counseling/CounselingSection"
+import { getStudentById } from "@/lib/actions/student";
+import { notFound } from "next/navigation";
+import StudentDetailActions from "@/components/students/student-detail-actions";
+import Link from "next/link";
+import { StudentImageType } from "@prisma/client";
 
-export default async function StudentPage({
-  params,
-}: {
-  params: Promise<{ id: string }>
+export default async function StudentDetailPage(props: {
+    params: Promise<{ id: string }>,
+    searchParams: Promise<{ tab?: string; created?: string }>
 }) {
-  const { id } = await params
-  const session = await verifySession()
+    const params = await props.params;
+    const searchParams = await props.searchParams;
+    const student = await getStudentById(params.id);
+    const currentTab = searchParams.tab || 'learning';
 
-  // 단일 쿼리로 모든 관계 로드 (N+1 최적화)
-  const student = await db.student.findFirst({
-    where: {
-      id,
-      teacherId: session.userId,
-    },
-    include: {
-      images: true,
-      sajuAnalysis: true,
-      nameAnalysis: true,
-      mbtiAnalysis: true,
-      faceAnalysis: true,
-      palmAnalysis: true,
-      personalitySummary: true,
-    },
-  })
+    if (!student) {
+        notFound();
+    }
 
-  if (!student) {
-    notFound()
-  }
+    const profileImage = student.images?.find(img => img.type === StudentImageType.profile);
 
-  // getCalculationStatus에서 필요한 데이터를 student에서 직접 계산
-  const analysisStatus = {
-    studentId: student.id,
-    sajuCalculatedAt: student.sajuAnalysis?.calculatedAt ?? null,
-    nameCalculatedAt: student.nameAnalysis?.calculatedAt ?? null,
-    latestCalculatedAt: (() => {
-      const sajuAt = student.sajuAnalysis?.calculatedAt ?? null
-      const nameAt = student.nameAnalysis?.calculatedAt ?? null
-      if (!sajuAt && !nameAt) return null
-      if (sajuAt && nameAt) return sajuAt > nameAt ? sajuAt : nameAt
-      return sajuAt ?? nameAt
-    })(),
-    needsRecalculation: student.calculationRecalculationNeeded,
-    recalculationReason: student.calculationRecalculationReason,
-    recalculationAt: student.calculationRecalculationAt,
-  }
+    const isCreated = searchParams.created === 'true';
+    const tabs = [
+        { id: 'learning', label: '학습' },
+        { id: 'analysis', label: '분석' },
+        { id: 'matching', label: '매칭' },
+        { id: 'counseling', label: '상담' },
+    ];
 
-  // Extract face and palm image URLs from student images
-  const faceImageUrl = student.images.find(img => img.type === 'face')?.resizedUrl || null
-  const palmImageUrl = student.images.find(img => img.type === 'palm')?.resizedUrl || null
+    return (
+        <div className="container mx-auto py-8">
+            {isCreated && (
+                <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                    학생 등록이 완료되었습니다.
+                </div>
+            )}
+            <div className="flex justify-between items-start mb-6">
+                <div className="flex gap-6 items-center">
+                    {profileImage ? (
+                        <img
+                            src={profileImage.resizedUrl}
+                            alt="프로필 이미지"
+                            className="w-24 h-24 rounded-full object-cover border profile"
+                        />
+                    ) : (
+                        <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
+                            <span className="text-gray-400 text-sm">No Image</span>
+                        </div>
+                    )}
+                    <div>
+                        <h1 className="text-3xl font-bold mb-2">{student.name}</h1>
+                        <p className="text-xl text-gray-600">{student.school} {student.grade}학년</p>
+                    </div>
+                </div>
+                <StudentDetailActions id={student.id} />
+            </div>
 
-  // Fetch counseling sessions for this student
-  const counselingSessions = await db.counselingSession.findMany({
-    where: {
-      studentId: student.id,
-      teacherId: session.userId,
-    },
-    include: {
-      student: true,
-      teacher: true,
-    },
-    orderBy: {
-      sessionDate: "desc",
-    },
-  })
+            <div className="bg-white border rounded-lg p-6 mb-6">
+                <h2 className="text-xl font-semibold mb-4">기본 정보</h2>
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <span className="text-gray-500">생년월일:</span> {new Date(student.birthDate).toLocaleDateString()}
+                    </div>
+                    <div>
+                        <span className="text-gray-500">담당 선생님:</span> {student.teacher?.name}
+                    </div>
+                </div>
+            </div>
 
-  // Fetch upcoming reservation (SCHEDULED, future, for this student and teacher)
-  const upcomingReservation = await db.parentCounselingReservation.findFirst({
-    where: {
-      studentId: student.id,
-      teacherId: session.userId,
-      status: "SCHEDULED",
-      scheduledAt: {
-        gte: new Date(),
-      },
-    },
-    include: {
-      student: {
-        select: {
-          id: true,
-          name: true,
-          school: true,
-          grade: true,
-        },
-      },
-      parent: {
-        select: {
-          id: true,
-          name: true,
-          phone: true,
-          email: true,
-          relation: true,
-        },
-      },
-      teacher: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
-    },
-    orderBy: {
-      scheduledAt: "asc",
-    },
-  })
+            {student.parents && student.parents.length > 0 && (
+                <div className="bg-white border rounded-lg p-6 mb-6">
+                    <h2 className="text-xl font-semibold mb-4">보호자 정보</h2>
+                    {student.parents.map(parent => (
+                        <div key={parent.id} className="mb-2">
+                            <p>{parent.name} ({parent.relation}) - {parent.phone}</p>
+                        </div>
+                    ))}
+                </div>
+            )}
 
-  return (
-    <div className="space-y-6">
-      <StudentDetail student={student} analysisStatus={analysisStatus} />
-      <SajuAnalysisPanel student={student} analysis={student.sajuAnalysis} />
-      <NameAnalysisPanel student={student} analysis={student.nameAnalysis} />
-      <MbtiAnalysisPanel
-        studentId={student.id}
-        studentName={student.name}
-        analysis={student.mbtiAnalysis as { mbtiType: string; percentages: Record<string, number>; calculatedAt: Date } | null}
-      />
-      {faceImageUrl && (
-        <FaceAnalysisPanel
-          studentId={student.id}
-          analysis={student.faceAnalysis}
-          faceImageUrl={faceImageUrl}
-        />
-      )}
-      {palmImageUrl && (
-        <PalmAnalysisPanel
-          studentId={student.id}
-          analysis={student.palmAnalysis}
-          palmImageUrl={palmImageUrl}
-        />
-      )}
+            <div className="border-b mb-6">
+                <div className="flex gap-4">
+                    {tabs.map(tab => (
+                        <Link
+                            key={tab.id}
+                            href={`/students/${student.id}?tab=${tab.id}`}
+                            role="tab"
+                            className={`px-4 py-2 border-b-2 transition ${currentTab === tab.id ? 'border-blue-600 text-blue-600 font-medium' : 'border-transparent hover:border-gray-300'}`}
+                        >
+                            {tab.label}
+                        </Link>
+                    ))}
+                </div>
+            </div>
 
-      <section>
-        <h2 className="text-2xl font-bold mb-4">통합 성향 분석</h2>
-        <PersonalitySummaryCard
-          studentId={student.id}
-          teacherId={session.userId}
-          summary={student.personalitySummary}
-        />
-      </section>
-
-      <section>
-        <h2 className="text-2xl font-bold mb-4">AI 맞춤형 제안</h2>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <LearningStrategyPanel
-            studentId={student.id}
-            teacherId={session.userId}
-            summary={student.personalitySummary}
-          />
-          <CareerGuidancePanel
-            studentId={student.id}
-            teacherId={session.userId}
-            summary={student.personalitySummary}
-          />
+            <div className="bg-white border rounded-lg p-6 min-h-[300px]">
+                {currentTab === 'learning' && (
+                    <div>
+                        <h3 className="text-lg font-bold mb-4">학습 현황</h3>
+                        <p className="text-gray-500">최근 성적 및 학습 진도 내용을 표시합니다.</p>
+                    </div>
+                )}
+                {currentTab === 'analysis' && (
+                    <div>
+                        <h3 className="text-lg font-bold mb-4">성향 분석</h3>
+                        <p className="text-gray-500">AI 기반 학생 성향 분석 결과를 표시합니다.</p>
+                    </div>
+                )}
+                {currentTab === 'matching' && (
+                    <div>
+                        <h3 className="text-lg font-bold mb-4">선생님 매칭 궁합</h3>
+                        <p className="text-gray-500">담당 선생님과의 매칭 점수 및 상세 분석을 표시합니다.</p>
+                    </div>
+                )}
+                {currentTab === 'counseling' && (
+                    <div>
+                        <h3 className="text-lg font-bold mb-4">상담 기록</h3>
+                        <p className="text-gray-500">학부모 및 학생 상담 내역을 표시합니다.</p>
+                    </div>
+                )}
+            </div>
         </div>
-      </section>
-
-      {/* PDF Report Section */}
-      <div className="rounded-lg border bg-white p-6 shadow-sm">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-semibold">상담 보고서</h3>
-            <p className="text-sm text-gray-600">
-              학생의 모든 분석 결과와 AI 제안을 포함한 종합 PDF 보고서를 생성합니다.
-            </p>
-          </div>
-          <ReportButton studentId={student.id} />
-        </div>
-      </div>
-
-      {/* Counseling Section */}
-      <CounselingSection
-        sessions={counselingSessions}
-        upcomingReservation={upcomingReservation}
-      />
-    </div>
-  )
+    );
 }
