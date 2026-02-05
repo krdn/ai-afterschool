@@ -55,7 +55,7 @@ export function LoginForm() {
       <CardContent>
         <form action={formAction} className="space-y-4">
           {state?.errors?._form && (
-            <div className="p-3 rounded-md bg-red-50 text-red-600 text-sm">
+            <div className="p-3 rounded-md bg-red-50 text-red-600 text-sm" data-testid="form-error">
               {state.errors._form[0]}
             </div>
           )}
@@ -64,13 +64,15 @@ export function LoginForm() {
             <Label htmlFor="email">이메일</Label>
             <Input
               id="email"
+              name="email"
               type="email"
               placeholder="teacher@school.com"
               autoComplete="email"
+              data-testid="email-input"
               {...form.register("email")}
             />
             {(state?.errors?.email || form.formState.errors.email) && (
-              <p className="text-sm text-red-600">
+              <p className="text-sm text-red-600" data-testid="email-error">
                 {state?.errors?.email?.[0] ||
                   form.formState.errors.email?.message}
               </p>
@@ -81,20 +83,22 @@ export function LoginForm() {
             <Label htmlFor="password">비밀번호</Label>
             <Input
               id="password"
+              name="password"
               type="password"
               placeholder="••••••••"
               autoComplete="current-password"
+              data-testid="password-input"
               {...form.register("password")}
             />
             {(state?.errors?.password || form.formState.errors.password) && (
-              <p className="text-sm text-red-600">
+              <p className="text-sm text-red-600" data-testid="password-error">
                 {state?.errors?.password?.[0] ||
                   form.formState.errors.password?.message}
               </p>
             )}
           </div>
 
-          <Button type="submit" className="w-full" disabled={pending}>
+          <Button type="submit" className="w-full" disabled={pending} data-testid="login-button">
             {pending ? "로그인 중..." : "로그인"}
           </Button>
         </form>
@@ -103,6 +107,7 @@ export function LoginForm() {
         <Link
           href="/reset-password"
           className="text-sm text-gray-600 hover:text-gray-900 hover:underline"
+          data-testid="reset-password-link"
         >
           비밀번호를 잊으셨나요?
         </Link>

@@ -13,6 +13,7 @@ const adapter = new PrismaPg(pool)
 const prisma = new PrismaClient({ adapter })
 
 async function main() {
+  // Create test teacher
   const existingTeacher = await prisma.teacher.findUnique({
     where: { email: "test@afterschool.com" },
   })
@@ -31,6 +32,28 @@ async function main() {
     console.log("Test teacher created: test@afterschool.com / test1234")
   } else {
     console.log("Test teacher already exists")
+  }
+
+  // Create admin user
+  const existingAdmin = await prisma.teacher.findUnique({
+    where: { email: "admin@afterschool.com" },
+  })
+
+  if (!existingAdmin) {
+    const hashedPassword = await argon2.hash("admin1234")
+
+    await prisma.teacher.create({
+      data: {
+        name: "관리자",
+        email: "admin@afterschool.com",
+        password: hashedPassword,
+        role: "DIRECTOR",
+      },
+    })
+
+    console.log("Admin user created: admin@afterschool.com / admin1234")
+  } else {
+    console.log("Admin user already exists")
   }
 }
 

@@ -143,29 +143,40 @@ export async function signup(
 
   const hashedPassword = await argon2.hash(password)
 
-  const teacher = await db.teacher.create({
-    data: {
-      name,
-      email,
-      password: hashedPassword,
-    },
-    select: {
-      id: true,
-      email: true,
-      name: true,
-      role: true,
-      teamId: true,
-    },
-  })
+  try {
+    const teacher = await db.teacher.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        teamId: true,
+      },
+    })
 
-  await createSession(teacher.id, teacher.role, teacher.teamId)
+    await createSession(teacher.id, teacher.role, teacher.teamId)
+  } catch (error: any) {
+    if (error.code === "P2002") {
+      return {
+        errors: {
+          email: ["이미 사용 중인 이메일이에요"],
+        },
+      }
+    }
+    throw error
+  }
 
   redirect("/students")
 }
 
 export async function logout(): Promise<void> {
   await deleteSession()
-  redirect("/login")
+  redirect("/auth/login")
 }
 
 export async function requestPasswordReset(
