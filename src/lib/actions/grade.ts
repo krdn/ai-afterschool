@@ -49,7 +49,10 @@ export async function addGrade(prevState: unknown, formData: FormData) {
 
         revalidatePath(`/students/${validatedData.studentId}`);
         return { success: true, message: "성적이 등록되었습니다." };
-    } catch (error) {
+    } catch (error: any) {
+        if (error.digest?.startsWith('NEXT_REDIRECT')) {
+            throw error;
+        }
         console.error(error);
         return { success: false, message: "성적 등록 중 오류가 발생했습니다." };
     }
