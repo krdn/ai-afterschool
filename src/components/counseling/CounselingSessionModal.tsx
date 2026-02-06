@@ -23,7 +23,7 @@ export function CounselingSessionModal({ session, open, onOpenChange }: Counseli
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl" data-testid="counseling-detail-modal">
         <DialogHeader>
           <DialogTitle>상담 상세</DialogTitle>
           <DialogDescription>

@@ -71,9 +71,9 @@ export function CounselingPageTabs({ initialTab, sessions, session, children }: 
   return (
     <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as TabType)}>
       <TabsList>
-        <TabsTrigger value="history">상담 기록</TabsTrigger>
-        <TabsTrigger value="reservations">예약 관리</TabsTrigger>
-        <TabsTrigger value="calendar">캘린더</TabsTrigger>
+        <TabsTrigger value="history" data-tab="history">상담 기록</TabsTrigger>
+        <TabsTrigger value="reservations" data-tab="reservations">예약 관리</TabsTrigger>
+        <TabsTrigger value="calendar" data-tab="calendar">캘린더</TabsTrigger>
       </TabsList>
 
       {/* 상담 기록 탭 */}
