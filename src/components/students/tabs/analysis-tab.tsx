@@ -1,12 +1,18 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
+import { History } from "lucide-react"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { Button } from "@/components/ui/button"
 import { SajuAnalysisPanel } from "@/components/students/saju-analysis-panel"
 import { FaceAnalysisPanel } from "@/components/students/face-analysis-panel"
 import { PalmAnalysisPanel } from "@/components/students/palm-analysis-panel"
 import { MbtiAnalysisPanel } from "@/components/students/mbti-analysis-panel"
+import { AnalysisHistoryDialog } from "@/components/students/analysis-history-dialog"
+import { AnalysisHistoryDetailDialog } from "@/components/students/analysis-history-detail-dialog"
 import { getStudentAnalysisData } from "@/lib/actions/student-analysis-tab"
+import { getAnalysisHistory } from "@/lib/actions/analysis"
+import type { AnalysisHistoryItem } from "@/components/students/analysis-history-dialog"
 
 export default function AnalysisTab({ studentId }: { studentId: string }) {
   const [subTab, setSubTab] = useState("saju")
@@ -33,6 +39,60 @@ export default function AnalysisTab({ studentId }: { studentId: string }) {
     mbtiAnalysis: any
   }>({ student: null, faceAnalysis: null, palmAnalysis: null, mbtiAnalysis: null })
   const [loading, setLoading] = useState(true)
+
+  // History dialog states
+  const [showHistory, setShowHistory] = useState(false)
+  const [showHistoryDetail, setShowHistoryDetail] = useState(false)
+  const [historyLoading, setHistoryLoading] = useState(false)
+  const [historyItems, setHistoryItems] = useState<AnalysisHistoryItem[]>([])
+  const [historyNote, setHistoryNote] = useState<string>()
+  const [selectedHistoryItem, setSelectedHistoryItem] = useState<AnalysisHistoryItem | null>(null)
+
+  // Tab titles for history
+  const tabTitles: Record<string, string> = {
+    saju: "사주",
+    face: "관상",
+    palm: "손금",
+    mbti: "MBTI",
+  }
+
+  // Fetch history when dialog opens
+  useEffect(() => {
+    if (showHistory) {
+      const loadHistory = async () => {
+        setHistoryLoading(true)
+        try {
+          const result = await getAnalysisHistory(
+            studentId,
+            subTab as 'saju' | 'face' | 'palm' | 'mbti'
+          )
+          if (result.success) {
+            setHistoryItems(result.history)
+            setHistoryNote(result.note)
+          }
+        } catch (error) {
+          console.error("Failed to load history:", error)
+        } finally {
+          setHistoryLoading(false)
+        }
+      }
+
+      loadHistory()
+    }
+  }, [showHistory, studentId, subTab])
+
+  // Handle view detail
+  const handleViewDetail = useCallback((item: AnalysisHistoryItem) => {
+    setSelectedHistoryItem(item)
+    setShowHistory(false)
+    setShowHistoryDetail(true)
+  }, [])
+
+  // Handle close detail
+  const handleCloseDetail = useCallback(() => {
+    setShowHistoryDetail(false)
+    setSelectedHistoryItem(null)
+  }, [])
 
   // Fetch student and analysis data
   useEffect(() => {
@@ -71,50 +131,85 @@ export default function AnalysisTab({ studentId }: { studentId: string }) {
   const palmImageUrl = data.student.images?.find(img => img.type === "palm")?.originalUrl || null
 
   return (
-    <Tabs value={subTab} onValueChange={setSubTab} data-testid="analysis-sub-tabs">
-      <TabsList className="grid w-full grid-cols-4">
-        <TabsTrigger value="saju">사주</TabsTrigger>
-        <TabsTrigger value="face">관상</TabsTrigger>
-        <TabsTrigger value="palm">손금</TabsTrigger>
-        <TabsTrigger value="mbti">MBTI</TabsTrigger>
-      </TabsList>
+    <>
+      <Tabs value={subTab} onValueChange={setSubTab} data-testid="analysis-sub-tabs">
+        <div className="flex items-center justify-between mb-4">
+          <TabsList className="grid w-full max-w-md grid-cols-4">
+            <TabsTrigger value="saju">사주</TabsTrigger>
+            <TabsTrigger value="face">관상</TabsTrigger>
+            <TabsTrigger value="palm">손금</TabsTrigger>
+            <TabsTrigger value="mbti">MBTI</TabsTrigger>
+          </TabsList>
 
-      <TabsContent value="saju" className="mt-6">
-        <SajuAnalysisPanel
-          student={{
-            id: data.student.id,
-            name: data.student.name,
-            birthDate: data.student.birthDate,
-            birthTimeHour: data.student.birthTimeHour,
-            birthTimeMinute: data.student.birthTimeMinute
-          }}
-          analysis={data.student.sajuAnalysis}
-        />
-      </TabsContent>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowHistory(true)}
+            className="flex items-center gap-2"
+            data-testid="history-button"
+          >
+            <History className="w-4 h-4" />
+            이력 보기
+          </Button>
+        </div>
 
-      <TabsContent value="face" className="mt-6">
-        <FaceAnalysisPanel
-          studentId={studentId}
-          analysis={data.faceAnalysis}
-          faceImageUrl={faceImageUrl}
-        />
-      </TabsContent>
+        <TabsContent value="saju" className="mt-6">
+          <SajuAnalysisPanel
+            student={{
+              id: data.student.id,
+              name: data.student.name,
+              birthDate: data.student.birthDate,
+              birthTimeHour: data.student.birthTimeHour,
+              birthTimeMinute: data.student.birthTimeMinute
+            }}
+            analysis={data.student.sajuAnalysis}
+          />
+        </TabsContent>
 
-      <TabsContent value="palm" className="mt-6">
-        <PalmAnalysisPanel
-          studentId={studentId}
-          analysis={data.palmAnalysis}
-          palmImageUrl={palmImageUrl}
-        />
-      </TabsContent>
+        <TabsContent value="face" className="mt-6">
+          <FaceAnalysisPanel
+            studentId={studentId}
+            analysis={data.faceAnalysis}
+            faceImageUrl={faceImageUrl}
+          />
+        </TabsContent>
 
-      <TabsContent value="mbti" className="mt-6">
-        <MbtiAnalysisPanel
-          studentId={studentId}
-          studentName={data.student.name}
-          analysis={data.mbtiAnalysis}
-        />
-      </TabsContent>
-    </Tabs>
+        <TabsContent value="palm" className="mt-6">
+          <PalmAnalysisPanel
+            studentId={studentId}
+            analysis={data.palmAnalysis}
+            palmImageUrl={palmImageUrl}
+          />
+        </TabsContent>
+
+        <TabsContent value="mbti" className="mt-6">
+          <MbtiAnalysisPanel
+            studentId={studentId}
+            studentName={data.student.name}
+            analysis={data.mbtiAnalysis}
+          />
+        </TabsContent>
+      </Tabs>
+
+      {/* History List Dialog */}
+      <AnalysisHistoryDialog
+        open={showHistory}
+        onOpenChange={setShowHistory}
+        title={`${tabTitles[subTab]} 분석 이력`}
+        history={historyItems}
+        note={historyNote}
+        loading={historyLoading}
+        onViewDetail={handleViewDetail}
+      />
+
+      {/* History Detail Dialog */}
+      <AnalysisHistoryDetailDialog
+        open={showHistoryDetail}
+        onOpenChange={handleCloseDetail}
+        title={`${tabTitles[subTab]} 분석 상세`}
+        item={selectedHistoryItem}
+        type={subTab as 'saju' | 'face' | 'palm' | 'mbti'}
+      />
+    </>
   )
 }
