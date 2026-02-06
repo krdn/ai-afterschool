@@ -298,7 +298,7 @@ export function ProviderDistributionChart({
   };
 
   return (
-    <Card>
+    <Card data-testid="model-breakdown">
       <CardHeader>
         <CardTitle>제공자별 사용 비율</CardTitle>
         <CardDescription>LLM 제공자별 요청 분포</CardDescription>
@@ -390,7 +390,7 @@ export function FeatureUsageChart({
   }
 
   return (
-    <Card>
+    <Card data-testid="feature-breakdown">
       <CardHeader>
         <CardTitle>기능별 사용량</CardTitle>
         <CardDescription>AI 기능별 요청 및 비용</CardDescription>
@@ -558,7 +558,7 @@ export function UsageCharts({
   loading = false,
 }: UsageChartsProps) {
   return (
-    <div className="space-y-6">
+    <div data-testid="usage-chart" className="space-y-6">
       <div className="grid gap-6 md:grid-cols-2">
         <DailyCostChart data={dailyData} loading={loading} />
         <DailyRequestsChart data={dailyData} loading={loading} />

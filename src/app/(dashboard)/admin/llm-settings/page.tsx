@@ -6,6 +6,7 @@ import { PROVIDER_CONFIGS, type ProviderName } from '@/lib/ai/providers';
 import { ProviderCard } from './provider-card';
 import { FeatureMapping } from './feature-mapping';
 import { BudgetSettings } from './budget-settings';
+import { ProviderSelect } from './provider-select';
 
 export const metadata = {
   title: 'LLM 설정 | AI AfterSchool',
@@ -49,6 +50,19 @@ export default async function LLMSettingsPage() {
           AI 분석에 사용할 LLM 제공자를 설정합니다.
         </p>
       </div>
+
+      {/* 기본 제공자 선택 섹션 */}
+      <section className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">기본 제공자</h2>
+          {enabledProviders.length > 0 && (
+            <div data-testid="current-provider" className="text-sm text-muted-foreground">
+              현재 활성: {enabledProviders.length}개 제공자
+            </div>
+          )}
+        </div>
+        <ProviderSelect enabledProviders={enabledProviders} />
+      </section>
 
       <section className="space-y-4">
         <h2 className="text-lg font-semibold">제공자 설정</h2>

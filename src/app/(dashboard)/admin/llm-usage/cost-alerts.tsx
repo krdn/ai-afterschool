@@ -42,6 +42,7 @@ export function CostAlerts({ initialData }: CostAlertsProps) {
   );
   const [isLoading, setIsLoading] = useState(!initialData);
   const [error, setError] = useState<string | null>(null);
+  const [dateRange, setDateRange] = useState<string>("30d");
 
   useEffect(() => {
     if (!initialData) {
@@ -132,11 +133,48 @@ export function CostAlerts({ initialData }: CostAlertsProps) {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>예산 현황</CardTitle>
-        <CardDescription>
-          기간별 LLM 사용 비용 및 예산 대비 현황
-        </CardDescription>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+          <CardTitle>예산 현황</CardTitle>
+          <CardDescription>
+            기간별 LLM 사용 비용 및 예산 대비 현황
+          </CardDescription>
+        </div>
+        <div data-testid="date-range-selector" className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setDateRange("7d")}
+            className={`px-3 py-1 text-sm rounded ${
+              dateRange === "7d"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            }`}
+          >
+            7일
+          </button>
+          <button
+            type="button"
+            onClick={() => setDateRange("30d")}
+            className={`px-3 py-1 text-sm rounded ${
+              dateRange === "30d"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            }`}
+          >
+            30일
+          </button>
+          <button
+            type="button"
+            onClick={() => setDateRange("90d")}
+            className={`px-3 py-1 text-sm rounded ${
+              dateRange === "90d"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            }`}
+          >
+            90일
+          </button>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">

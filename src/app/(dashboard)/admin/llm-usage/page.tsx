@@ -250,7 +250,7 @@ export default async function LLMUsagePage() {
             <Zap className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div data-testid="total-tokens" className="text-2xl font-bold">
               {formatTokenCount(overallStats.totalTokens)}
             </div>
             <p className="text-xs text-muted-foreground">최근 30일</p>
@@ -263,7 +263,7 @@ export default async function LLMUsagePage() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div data-testid="estimated-cost" className="text-2xl font-bold">
               ${overallStats.totalCost.toFixed(2)}
             </div>
             <p className="text-xs text-muted-foreground">최근 30일</p>
