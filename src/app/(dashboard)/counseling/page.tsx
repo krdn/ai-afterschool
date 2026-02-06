@@ -3,28 +3,23 @@ import { verifySession } from "@/lib/dal"
 import { getRBACPrisma } from "@/lib/db/rbac"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { MessageSquare } from "lucide-react"
 import { CounselingPageTabs } from "@/components/counseling/CounselingPageTabs"
+import { CounselingSearchBar } from "@/components/counseling/CounselingSearchBar"
+import { CounselingFilters } from "@/components/counseling/CounselingFilters"
 import type { CounselingType, Prisma } from "@prisma/client"
 import type { CounselingSessionData } from "@/components/counseling/types"
 
 type PageProps = {
   searchParams: Promise<{
+    query?: string
     studentName?: string
     teacherName?: string
     type?: string
     startDate?: string
     endDate?: string
     followUpRequired?: string
+    teacherId?: string
     tab?: string
   }>
 }
@@ -53,6 +48,26 @@ export default async function CounselingPage({
 
   const rbacDb = getRBACPrisma(session)
 
+  // 선생님 목록 조회 (필터용)
+  let teachers: Array<{ id: string; name: string }> = []
+  if (canViewTeam) {
+    const teacherQuery: Prisma.TeacherWhereInput = {}
+    if (session.role === "TEAM_LEADER" && session.teamId) {
+      teacherQuery.teamId = session.teamId
+    }
+
+    teachers = await rbacDb.teacher.findMany({
+      where: teacherQuery,
+      select: {
+        id: true,
+        name: true,
+      },
+      orderBy: {
+        name: "asc",
+      },
+    })
+  }
+
   // Build teacher filter conditions
   const teacherConditions: Prisma.TeacherWhereInput = {}
   if (params.teacherName && canViewTeam) {
@@ -67,7 +82,29 @@ export default async function CounselingPage({
 
   const where: Prisma.CounselingSessionWhereInput = {}
 
-  if (params.studentName) {
+  // 통합 검색 지원 (query 파라미터)
+  if (params.query && params.query.trim()) {
+    const query = params.query.trim()
+    where.OR = [
+      {
+        student: {
+          name: {
+            contains: query,
+            mode: "insensitive",
+          },
+        },
+      },
+      {
+        summary: {
+          contains: query,
+          mode: "insensitive",
+        },
+      },
+    ]
+  }
+
+  // 기존 studentName 파라미터 호환성 유지
+  if (params.studentName && !params.query) {
     where.student = {
       name: {
         contains: params.studentName,
@@ -78,6 +115,11 @@ export default async function CounselingPage({
 
   if (Object.keys(teacherConditions).length > 0) {
     where.teacher = teacherConditions
+  }
+
+  // teacherId 필터 지원 (새 필터 컴포넌트)
+  if (params.teacherId && canViewTeam) {
+    where.teacherId = params.teacherId
   }
 
   if (params.type && params.type !== "all") {
@@ -166,6 +208,7 @@ export default async function CounselingPage({
           followUpCount={followUpCount}
           canViewAll={canViewAll}
           canViewTeam={canViewTeam}
+          teachers={teachers}
         />
       </CounselingPageTabs>
     </div>
@@ -194,6 +237,7 @@ interface CounselingHistoryContentProps {
     followUpDate: Date | null
   }>
   params: {
+    query?: string
     studentName?: string
     teacherName?: string
     type?: string
@@ -207,6 +251,7 @@ interface CounselingHistoryContentProps {
   followUpCount: number
   canViewAll: boolean
   canViewTeam: boolean
+  teachers: Array<{ id: string; name: string }>
 }
 
 function CounselingHistoryContent({
@@ -218,6 +263,7 @@ function CounselingHistoryContent({
   followUpCount,
   canViewAll,
   canViewTeam,
+  teachers,
 }: CounselingHistoryContentProps) {
   return (
     <div className="space-y-6">
@@ -275,93 +321,25 @@ function CounselingHistoryContent({
         </Card>
       </div>
 
+      {/* 통합 검색 */}
+      <Card>
+        <CardHeader>
+          <CardTitle>통합 검색</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <CounselingSearchBar initialQuery={params.query || params.studentName || ""} />
+        </CardContent>
+      </Card>
+
+      {/* 다중 필터 */}
       <Card>
         <CardHeader>
           <CardTitle>필터</CardTitle>
         </CardHeader>
         <CardContent>
-          <form className="grid grid-cols-1 md:grid-cols-6 gap-4" data-testid="counseling-form">
-            <div className="space-y-2">
-              <Label htmlFor="studentName">학생 이름</Label>
-              <Input
-                id="studentName"
-                name="studentName"
-                defaultValue={params.studentName || ""}
-                placeholder="이름 검색"
-              />
-            </div>
-
-            {(canViewTeam || canViewAll) && (
-              <div className="space-y-2">
-                <Label htmlFor="teacherName">선생님 이름</Label>
-                <Input
-                  id="teacherName"
-                  name="teacherName"
-                  defaultValue={params.teacherName || ""}
-                  placeholder="이름 검색"
-                />
-              </div>
-            )}
-
-            <div className="space-y-2">
-              <Label htmlFor="type">상담 유형</Label>
-              <Select name="type" defaultValue={params.type || "all"}>
-                <SelectTrigger id="type">
-                  <SelectValue placeholder="전체" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">전체</SelectItem>
-                  <SelectItem value="ACADEMIC">학업</SelectItem>
-                  <SelectItem value="CAREER">진로</SelectItem>
-                  <SelectItem value="PSYCHOLOGICAL">심리</SelectItem>
-                  <SelectItem value="BEHAVIORAL">행동</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="startDate">시작일</Label>
-              <Input
-                id="startDate"
-                name="startDate"
-                type="date"
-                defaultValue={params.startDate || ""}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="endDate">종료일</Label>
-              <Input
-                id="endDate"
-                name="endDate"
-                type="date"
-                defaultValue={params.endDate || ""}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="followUpRequired">후속 조치</Label>
-              <Select
-                name="followUpRequired"
-                defaultValue={params.followUpRequired || "all"}
-              >
-                <SelectTrigger id="followUpRequired">
-                  <SelectValue placeholder="전체" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">전체</SelectItem>
-                  <SelectItem value="true">필요함</SelectItem>
-                  <SelectItem value="false">필요하지 않음</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="md:col-span-6 flex justify-end">
-              <Button type="submit" variant="outline">
-                필터 적용
-              </Button>
-            </div>
-          </form>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <CounselingFilters canViewTeam={canViewTeam} teachers={teachers} />
+          </div>
         </CardContent>
       </Card>
 
@@ -389,6 +367,8 @@ function CounselingHistoryContent({
                   <Link href="/counseling/new">새 상담 기록</Link>
                 </Button>
               </div>
+            </div>
+          ) : (
             </div>
           ) : (
             <div className="space-y-3">
