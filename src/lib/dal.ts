@@ -1,5 +1,6 @@
 import 'server-only'
 import { cookies } from 'next/headers'
+import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { cache } from 'react'
 import { decrypt, updateSession } from '@/lib/session'
@@ -88,3 +89,53 @@ export const getCurrentTeacher = cache(async () => {
 
   return teacher
 })
+
+/**
+ * 감사 로그 기록 함수
+ * 주요 설정 변경 시 호출하여 이력을 남깁니다
+ */
+export async function logAuditAction(params: {
+  action: string
+  entityType: string
+  entityId?: string
+  changes?: Record<string, unknown>
+}) {
+  const session = await verifySession()
+  if (!session?.userId) return
+
+  const headersList = await headers()
+  const ipAddress = headersList.get('x-forwarded-for') ||
+                   headersList.get('x-real-ip') ||
+                   null
+  const userAgent = headersList.get('user-agent') || null
+
+  await db.auditLog.create({
+    data: {
+      teacherId: session.userId,
+      action: params.action,
+      entityType: params.entityType,
+      entityId: params.entityId,
+      changes: params.changes,
+      ipAddress,
+      userAgent,
+    },
+  })
+}
+
+/**
+ * 시스템 로그 기록 함수
+ * 애플리케이션 이벤트를 로그에 남깁니다
+ */
+export async function logSystemAction(params: {
+  level: 'ERROR' | 'WARN' | 'INFO' | 'DEBUG'
+  message: string
+  context?: Record<string, unknown>
+}) {
+  await db.systemLog.create({
+    data: {
+      level: params.level,
+      message: params.message,
+      context: params.context,
+    },
+  })
+}
