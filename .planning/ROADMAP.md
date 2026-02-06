@@ -341,6 +341,14 @@ Plans:
   7. PDF 다운로드 버튼이 이벤트 처리와 연동되어 다운로드가 실행된다
   8. 학생 목록 이미지에 lazy loading 속성이 추가되어 성능이 개선된다
   9. Next/Image 컴포넌트의 srcset/width/height 속성이 정합성 있게 설정된다
+**Plans**: 4 plans in 2 waves
+**Status**: Complete (2026-02-07)
+
+Plans:
+- [x] 25-01-PLAN.md — Student Page UI Enhancement (alt 속성, lazy loading, 검색 data-testid, 삭제 리다이렉트)
+- [x] 25-02-PLAN.md — Analysis Tab 서브탭 분리 및 에러 처리 개선 (4개 서브탭, 통일 에러 메시지)
+- [x] 25-03-PLAN.md — 분석 이력 조회 UI (이력 Dialog, 상세 보기 모달)
+- [x] 25-04-PLAN.md — PDF 다운로드 확인 (다운로드 플로우 검증, toast ID 추가)
 
 ### Phase 26: Counseling & Matching UI Enhancement
 **Goal**: 상담/매칭/성과 UI 보강 (검색, 필터, 이력 추적)
@@ -413,12 +421,12 @@ Phases execute in numeric order: 23 → 24 → 25 → 26 → 27 → 28
 | 22. AI Integration | v2.1 | 7/7 | Complete | 2026-02-05 |
 | 23. data-testid Infrastructure | v2.1.1 | 2/2 | Complete | 2026-02-06 |
 | 24. Missing Routes Creation | v2.1.1 | 4/4 | Complete | 2026-02-07 |
-| 25. Student, Analysis & Report UI Enhancement | v2.1.1 | 0/? | Pending | — |
+| 25. Student, Analysis & Report UI Enhancement | v2.1.1 | 4/4 | Complete | 2026-02-07 |
 | 26. Counseling & Matching UI Enhancement | v2.1.1 | 0/? | Pending | — |
 | 27. RBAC, Auth & Error Handling | v2.1.1 | 0/? | Pending | — |
 | 28. Integration Verification & Test Alignment | v2.1.1 | 0/? | Pending | — |
 
-**Overall Progress:** 133/133 plans complete (v1.0-v2.1: 100%) | v2.1.1: 2/6 planned
+**Overall Progress:** 137/141 plans complete (v1.0-v2.1: 100%) | v2.1.1: 3/6 complete (50%)
 
 ---
-*Last updated: 2026-02-07 (Phase 24 complete: 4 plans executed)*
+*Last updated: 2026-02-07 (Phase 25 complete: 4 plans executed)*
