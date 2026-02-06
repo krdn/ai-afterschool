@@ -14,7 +14,7 @@
 
 ### Teacher Management
 
-- [ ] **TCH-01**: `/teachers/me` 본인 프로필 조회 페이지 생성 (세션 기반 자동 리다이렉트)
+- [x] **TCH-01**: `/teachers/me` 본인 프로필 조회 페이지 생성 (세션 기반 자동 리다이렉트)
 - [ ] **TCH-02**: 일반 선생님이 `/teachers` 관리 페이지 접근 시 적절한 리다이렉트 또는 차단
 - [ ] **TCH-03**: 존재하지 않는 선생님 ID 접근 시 404 에러 페이지 표시
 - [ ] **TCH-04**: 프로필 사진 업로드 시 용량 초과 에러 메시지 UI
@@ -23,10 +23,10 @@
 
 - [x] **ADM-01**: LLM 설정 페이지(`/admin/llm-settings`)에 data-testid 추가 (current-provider, provider-select 등)
 - [x] **ADM-02**: 토큰 사용량 페이지(`/admin/llm-usage`)에 data-testid 추가 (usage-chart, total-tokens, estimated-cost)
-- [ ] **ADM-03**: 시스템 상태 모니터링 페이지 생성 (`/admin/system-status`) — DB, 캐시, 스토리지 상태 표시
-- [ ] **ADM-04**: 시스템 로그 조회 페이지 생성 (`/admin/system-logs`)
-- [ ] **ADM-05**: 데이터베이스 백업 관리 페이지 생성 (`/admin/database`)
-- [ ] **ADM-06**: 감사 로그 페이지 생성 (`/admin/audit-logs`) — 설정 변경 이력 표시
+- [x] **ADM-03**: 시스템 상태 모니터링 페이지 생성 (`/admin`) — DB, 캐시, 스토리지 상태 표시
+- [x] **ADM-04**: 시스템 로그 조회 페이지 생성 (`/admin`)
+- [x] **ADM-05**: 데이터베이스 백업 관리 페이지 생성 (`/admin`)
+- [x] **ADM-06**: 감사 로그 페이지 생성 (`/admin`) — 설정 변경 이력 표시
 - [ ] **ADM-07**: 팀장 역할의 제한된 관리 기능 접근 제어 (RBAC 강화)
 
 ### Analysis
@@ -54,12 +54,12 @@
 
 - [x] **PRF-01**: 성과 대시보드 metric 카드에 data-testid 추가 (metric-card)
 - [ ] **PRF-02**: 향상률 차트 및 기간 선택 UI 개선
-- [ ] **PRF-03**: 팀 목록 페이지(`/teams`) 및 팀 상세 페이지(`/teams/[id]`) 생성
+- [x] **PRF-03**: 팀 목록 페이지(`/teams`) 및 팀 상세 페이지(`/teams/[id]`) 생성
 
 ### Report & Utility
 
-- [ ] **RPT-01**: 학생 리포트 페이지 생성 (`/students/[id]/report`) — 리포트 프리뷰 및 PDF 다운로드
-- [ ] **RPT-02**: PDF 다운로드 버튼 UI 연동 (다운로드 이벤트 처리)
+- [x] **RPT-01**: 학생 리포트 탭 생성 (`/students/[id]?tab=report`) — 리포트 프리뷰 및 PDF 다운로드
+- [x] **RPT-02**: PDF 다운로드 버튼 UI 연동 (다운로드 이벤트 처리)
 - [ ] **UTL-01**: 학생 목록 이미지에 lazy loading 속성 (loading="lazy") 추가
 - [ ] **UTL-02**: Next/Image 컴포넌트의 srcset/width/height 속성 정합성 확보
 
@@ -84,16 +84,16 @@
 | STU-02 | Phase 25 | Pending |
 | STU-03 | Phase 25 | Pending |
 | STU-04 | Phase 25 | Pending |
-| TCH-01 | Phase 24 | Pending |
+| TCH-01 | Phase 24 | Complete |
 | TCH-02 | Phase 27 | Pending |
 | TCH-03 | Phase 27 | Pending |
 | TCH-04 | Phase 27 | Pending |
 | ADM-01 | Phase 23 | Complete |
 | ADM-02 | Phase 23 | Complete |
-| ADM-03 | Phase 24 | Pending |
-| ADM-04 | Phase 24 | Pending |
-| ADM-05 | Phase 24 | Pending |
-| ADM-06 | Phase 24 | Pending |
+| ADM-03 | Phase 24 | Complete |
+| ADM-04 | Phase 24 | Complete |
+| ADM-05 | Phase 24 | Complete |
+| ADM-06 | Phase 24 | Complete |
 | ADM-07 | Phase 27 | Pending |
 | ANL-01 | Phase 23 | Complete |
 | ANL-02 | Phase 25 | Pending |
@@ -109,15 +109,17 @@
 | MAT-04 | Phase 26 | Pending |
 | PRF-01 | Phase 23 | Complete |
 | PRF-02 | Phase 26 | Pending |
-| PRF-03 | Phase 24 | Pending |
-| RPT-01 | Phase 24 | Pending |
-| RPT-02 | Phase 25 | Pending |
+| PRF-03 | Phase 24 | Complete |
+| RPT-01 | Phase 24 | Complete |
+| RPT-02 | Phase 24 | Complete |
 | UTL-01 | Phase 25 | Pending |
 | UTL-02 | Phase 25 | Pending |
 | AUTH-01 | Phase 27 | Pending |
 
 **Coverage:**
 - v2.1.1 requirements: 34 total
+- Complete: 17 (50%)
+- Pending: 17 (50%)
 - Mapped to phases: 34 (100%)
 - Unmapped: 0
 
@@ -131,4 +133,4 @@
 
 ---
 *Requirements defined: 2026-02-06*
-*Last updated: 2026-02-06 after roadmap creation (100% coverage)*
+*Last updated: 2026-02-07 after Phase 24 completion*
