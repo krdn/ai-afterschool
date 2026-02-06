@@ -1,0 +1,47 @@
+# GonsAutoPilot Pipeline Configuration
+# ai-afterschool - Next.js 15 + Prisma + PostgreSQL
+
+project:
+  name: ai-afterschool
+  type: fullstack
+
+test:
+  unit:
+    command: "npm run test"
+    coverage_threshold: 70
+    enabled: true
+  e2e:
+    command: "npx playwright test"
+    browser: chromium
+    enabled: false  # E2E requires running server
+  lint:
+    command: "npm run lint"
+    enabled: true
+  performance:
+    tool: lighthouse
+    min_score: 60
+    enabled: false
+  security:
+    enabled: true
+    audit: true
+
+build:
+  docker:
+    frontend: "./Dockerfile.prod"
+  tag_strategy: git-sha
+
+deploy:
+  target: "192.168.0.5"
+  method: docker-compose
+  compose_file: docker-compose.prod.yml
+  health_check:
+    url: "http://localhost:3001/api/health"
+    timeout: 120
+    retries: 5
+
+safety:
+  auto_rollback: true
+  max_consecutive_failures: 3
+  notify:
+    email: true
+    method: "/notify-important"
