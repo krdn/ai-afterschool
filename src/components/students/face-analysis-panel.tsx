@@ -1,9 +1,10 @@
 "use client"
 
 import { useState, useTransition } from "react"
-import { Camera, Sparkles, AlertCircle } from "lucide-react"
+import { Camera, Sparkles, AlertCircle, RefreshCw, Loader2 } from "lucide-react"
 import { analyzeFaceImage } from "@/lib/actions/ai-image-analysis"
 import { DISCLAIMER_TEXT } from "@/lib/ai/prompts"
+import { Button } from "@/components/ui/button"
 
 type FaceAnalysis = {
   id: string
@@ -26,6 +27,7 @@ export function FaceAnalysisPanel({
 }: Props) {
   const [, startTransition] = useTransition()
   const [localStatus, setLocalStatus] = useState<'idle' | 'analyzing'>('idle')
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const handleAnalyze = () => {
     if (!faceImageUrl) {
@@ -34,13 +36,14 @@ export function FaceAnalysisPanel({
     }
 
     setLocalStatus('analyzing')
+    setErrorMessage(null)
     startTransition(async () => {
       const result = await analyzeFaceImage(studentId, faceImageUrl)
       if (result.success) {
         // revalidatePath로 페이지 새로고침
         window.location.reload()
       } else {
-        alert(result.error || "분석에 실패했습니다.")
+        setErrorMessage(`이미지 분석에 실패했습니다. (원인: ${result.error || '알 수 없는 오류'}) 다시 시도해주세요.`)
         setLocalStatus('idle')
       }
     })
@@ -65,10 +68,11 @@ export function FaceAnalysisPanel({
       <div className="p-6">
         {analysis?.status === 'complete' && analysis.result ? (
           <AnalysisResult result={analysis.result} imageUrl={analysis.imageUrl} />
-        ) : analysis?.status === 'failed' ? (
+        ) : analysis?.status === 'failed' || errorMessage ? (
           <ErrorState
-            message={analysis.errorMessage || "분석에 실패했습니다."}
+            message={errorMessage || analysis.errorMessage || "이미지 분석에 실패했습니다. 다시 시도해주세요."}
             onRetry={handleAnalyze}
+            isRetrying={isAnalyzing}
           />
         ) : isAnalyzing ? (
           <LoadingState />
@@ -216,10 +220,10 @@ function EmptyState({ hasImage, onAnalyze }: { hasImage: boolean; onAnalyze: () 
   )
 }
 
-function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
+function ErrorState({ message, onRetry, isRetrying }: { message: string; onRetry: () => void; isRetrying: boolean }) {
   return (
     <div className="text-center py-8">
-      <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-4 text-left">
+      <div data-testid="analysis-error" className="bg-red-50 border-l-4 border-red-400 p-4 mb-4 text-left">
         <div className="flex">
           <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0" />
           <div className="ml-3">
@@ -227,12 +231,24 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
           </div>
         </div>
       </div>
-      <button
+      <Button
         onClick={onRetry}
-        className="inline-flex items-center gap-2 px-4 py-2 border border-red-600 text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+        disabled={isRetrying}
+        variant="outline"
+        data-testid="retry-button"
       >
-        다시 시도
-      </button>
+        {isRetrying ? (
+          <>
+            <Loader2 className="w-4 h-4 animate-spin mr-2" />
+            재시도 중...
+          </>
+        ) : (
+          <>
+            <RefreshCw className="w-4 h-4 mr-2" />
+            다시 시도
+          </>
+        )}
+      </Button>
     </div>
   )
 }

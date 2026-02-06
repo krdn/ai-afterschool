@@ -2,11 +2,12 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Brain, Pencil, Edit3 } from "lucide-react"
+import { Brain, Pencil, Edit3, RefreshCw, Loader2, AlertCircle } from "lucide-react"
 import { MbtiResultsDisplay } from "@/components/mbti/results-display"
 import { MbtiDirectInputModal } from "@/components/students/mbti-direct-input-modal"
 import { saveMbtiDirectInput } from "@/lib/actions/mbti-survey"
 import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
 
 type MbtiAnalysis = {
   mbtiType: string
@@ -22,6 +23,8 @@ type Props = {
 
 export function MbtiAnalysisPanel({ studentId, studentName, analysis }: Props) {
   const [showDirectInput, setShowDirectInput] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const router = useRouter()
 
   const handleDirectInputSave = async (data: {
@@ -33,10 +36,20 @@ export function MbtiAnalysisPanel({ studentId, studentName, analysis }: Props) {
       J: number; P: number
     }
   }) => {
-    const result = await saveMbtiDirectInput(studentId, data)
-    if (result.success) {
-      setShowDirectInput(false)
-      router.refresh() // 페이지 새로고침
+    setIsSaving(true)
+    setErrorMessage(null)
+    try {
+      const result = await saveMbtiDirectInput(studentId, data)
+      if (result.success) {
+        setShowDirectInput(false)
+        router.refresh() // 페이지 새로고침
+      } else {
+        setErrorMessage(`MBTI 분석에 실패했습니다. (원인: ${result.error || '알 수 없는 오류'}) 다시 시도해주세요.`)
+      }
+    } catch (error) {
+      setErrorMessage(`MBTI 분석에 실패했습니다. (원인: ${error instanceof Error ? error.message : '알 수 없는 오류'}) 다시 시도해주세요.`)
+    } finally {
+      setIsSaving(false)
     }
   }
 
@@ -74,6 +87,25 @@ export function MbtiAnalysisPanel({ studentId, studentName, analysis }: Props) {
       </div>
 
       <div className="p-6">
+        {errorMessage && (
+          <div data-testid="analysis-error" className="mb-4 bg-red-50 border-l-4 border-red-400 p-4">
+            <div className="flex">
+              <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0" />
+              <div className="ml-3">
+                <p className="text-sm text-red-800">{errorMessage}</p>
+                <Button
+                  onClick={() => setErrorMessage(null)}
+                  variant="outline"
+                  size="sm"
+                  className="mt-2"
+                  data-testid="retry-button"
+                >
+                  닫기
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
         {analysis ? (
           <MbtiResultsDisplay
             analysis={{
@@ -130,7 +162,11 @@ export function MbtiAnalysisPanel({ studentId, studentName, analysis }: Props) {
             }
           } : undefined}
           onSave={handleDirectInputSave}
-          onCancel={() => setShowDirectInput(false)}
+          onCancel={() => {
+            setShowDirectInput(false)
+            setErrorMessage(null)
+          }}
+          isSaving={isSaving}
         />
       )}
     </div>
