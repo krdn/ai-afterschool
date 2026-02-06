@@ -1,6 +1,7 @@
 import { getStudentById } from "@/lib/actions/student";
 import AnalysisTab from "@/components/students/tabs/analysis-tab";
 import LearningTab from "@/components/students/tabs/learning-tab";
+import ReportTab from "@/components/students/tabs/report-tab";
 import { notFound } from "next/navigation";
 import StudentDetailActions from "@/components/students/student-detail-actions";
 import Link from "next/link";
@@ -27,6 +28,7 @@ export default async function StudentDetailPage(props: {
         { id: 'analysis', label: '분석' },
         { id: 'matching', label: '매칭' },
         { id: 'counseling', label: '상담' },
+        { id: 'report', label: '리포트' },
     ];
 
     return (
@@ -114,6 +116,9 @@ export default async function StudentDetailPage(props: {
                         <h3 className="text-lg font-bold mb-4">상담 기록</h3>
                         <p className="text-gray-500">학부모 및 학생 상담 내역을 표시합니다.</p>
                     </div>
+                )}
+                {currentTab === 'report' && (
+                    <ReportTab studentId={student.id} studentName={student.name} />
                 )}
             </div>
         </div>
