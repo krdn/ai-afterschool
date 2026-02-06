@@ -317,6 +317,16 @@ Plans:
   5. `/admin/audit-logs` 페이지가 생성되어 설정 변경 이력을 추적 가능하다
   6. `/teams` 목록 페이지와 `/teams/[id]` 상세 페이지가 생성되어 팀 정보를 표시한다
   7. `/students/[id]/report` 페이지가 생성되어 리포트 프리뷰 및 PDF 다운로드를 제공한다
+**Plans**: 7 plans in 4 waves
+
+Plans:
+- [ ] 24-01-PLAN.md — Prisma 스키마에 로그 모델 추가 및 /teachers/me 리다이렉트 페이지 생성
+- [ ] 24-02-PLAN.md — 팀 목록 페이지와 팀 상세 페이지 생성
+- [ ] 24-03-PLAN.md — 시스템 상태 모니터링 페이지 생성 (StatusCard, MetricCard 컴포넌트)
+- [ ] 24-04-PLAN.md — 학생 상세 페이지에 리포트 탭 추가 및 ReportTab 컴포넌트 생성
+- [ ] 24-05-PLAN.md — 시스템 로그 조회 페이지 생성
+- [ ] 24-06-PLAN.md — 데이터베이스 백업 관리 페이지 생성
+- [ ] 24-07-PLAN.md — 감사 로그 조회 페이지 생성
 
 ### Phase 25: Student, Analysis & Report UI Enhancement
 **Goal**: 학생/분석/리포트 UI 보강 (셀렉터 정합성, 탭 분리, 이미지 최적화)
@@ -403,7 +413,7 @@ Phases execute in numeric order: 23 → 24 → 25 → 26 → 27 → 28
 | 21. Statistics & Dashboard | v2.1 | 7/7 | Complete | 2026-02-04 |
 | 22. AI Integration | v2.1 | 7/7 | Complete | 2026-02-05 |
 | 23. data-testid Infrastructure | v2.1.1 | 2/2 | Complete | 2026-02-06 |
-| 24. Missing Routes Creation | v2.1.1 | 0/? | Pending | — |
+| 24. Missing Routes Creation | v2.1.1 | 0/7 | Pending | — |
 | 25. Student, Analysis & Report UI Enhancement | v2.1.1 | 0/? | Pending | — |
 | 26. Counseling & Matching UI Enhancement | v2.1.1 | 0/? | Pending | — |
 | 27. RBAC, Auth & Error Handling | v2.1.1 | 0/? | Pending | — |
