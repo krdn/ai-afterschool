@@ -311,22 +311,20 @@ Plans:
 **Requirements**: TCH-01, ADM-03, ADM-04, ADM-05, ADM-06, PRF-03, RPT-01
 **Success Criteria** (what must be TRUE):
   1. `/teachers/me` 본인 프로필 조회 페이지가 생성되어 세션 기반 자동 리다이렉트로 현재 로그인한 선생님 정보를 표시한다
-  2. `/admin/system-status` 페이지가 생성되어 DB, 캐시, 스토리지 상태를 실시간으로 표시한다
-  3. `/admin/system-logs` 페이지가 생성되어 시스템 로그를 시간순으로 조회 가능하다
-  4. `/admin/database` 페이지가 생성되어 백업 관리 UI를 제공한다
-  5. `/admin/audit-logs` 페이지가 생성되어 설정 변경 이력을 추적 가능하다
-  6. `/teams` 목록 페이지와 `/teams/[id]` 상세 페이지가 생성되어 팀 정보를 표시한다
-  7. `/students/[id]/report` 페이지가 생성되어 리포트 프리뷰 및 PDF 다운로드를 제공한다
-**Plans**: 7 plans in 4 waves
+  2. `/admin` 통합 관리 페이지가 생성되어 6개 탭(LLM 설정, 토큰 사용량, 시스템 상태, 시스템 로그, 데이터베이스, 감사 로그)이 표시된다
+  3. Admin 페이지 시스템 상태 탭에서 DB, 캐시, 스토리지 상태를 실시간으로 확인할 수 있다
+  4. Admin 페이지 시스템 로그 탭에서 시스템 로그를 시간순으로 조회 가능하다
+  5. Admin 페이지 데이터베이스 탭에서 백업 관리 UI를 제공한다
+  6. Admin 페이지 감사 로그 탭에서 설정 변경 이력을 추적 가능하다
+  7. `/teams` 목록 페이지와 `/teams/[id]` 상세 페이지가 생성되어 팀 정보를 표시한다
+  8. `/students/[id]/report` 리포트 탭이 생성되어 리포트 프리뷰 및 PDF 다운로드를 제공한다
+**Plans**: 4 plans in 2 waves
 
 Plans:
 - [ ] 24-01-PLAN.md — Prisma 스키마에 로그 모델 추가 및 /teachers/me 리다이렉트 페이지 생성
 - [ ] 24-02-PLAN.md — 팀 목록 페이지와 팀 상세 페이지 생성
-- [ ] 24-03-PLAN.md — 시스템 상태 모니터링 페이지 생성 (StatusCard, MetricCard 컴포넌트)
+- [ ] 24-03-PLAN.md — 통합 Admin 페이지 생성 (6개 탭: LLM 설정, 토큰 사용량, 시스템 상태, 시스템 로그, 데이터베이스, 감사 로그)
 - [ ] 24-04-PLAN.md — 학생 상세 페이지에 리포트 탭 추가 및 ReportTab 컴포넌트 생성
-- [ ] 24-05-PLAN.md — 시스템 로그 조회 페이지 생성
-- [ ] 24-06-PLAN.md — 데이터베이스 백업 관리 페이지 생성
-- [ ] 24-07-PLAN.md — 감사 로그 조회 페이지 생성
 
 ### Phase 25: Student, Analysis & Report UI Enhancement
 **Goal**: 학생/분석/리포트 UI 보강 (셀렉터 정합성, 탭 분리, 이미지 최적화)
@@ -413,13 +411,13 @@ Phases execute in numeric order: 23 → 24 → 25 → 26 → 27 → 28
 | 21. Statistics & Dashboard | v2.1 | 7/7 | Complete | 2026-02-04 |
 | 22. AI Integration | v2.1 | 7/7 | Complete | 2026-02-05 |
 | 23. data-testid Infrastructure | v2.1.1 | 2/2 | Complete | 2026-02-06 |
-| 24. Missing Routes Creation | v2.1.1 | 0/7 | Pending | — |
+| 24. Missing Routes Creation | v2.1.1 | 0/4 | Pending | — |
 | 25. Student, Analysis & Report UI Enhancement | v2.1.1 | 0/? | Pending | — |
 | 26. Counseling & Matching UI Enhancement | v2.1.1 | 0/? | Pending | — |
 | 27. RBAC, Auth & Error Handling | v2.1.1 | 0/? | Pending | — |
 | 28. Integration Verification & Test Alignment | v2.1.1 | 0/? | Pending | — |
 
-**Overall Progress:** 129/129 plans complete (v1.0-v2.1: 100%) | v2.1.1: 0/2 planned
+**Overall Progress:** 129/129 plans complete (v1.0-v2.1: 100%) | v2.1.1: 2/4 planned
 
 ---
-*Last updated: 2026-02-06 (Phase 23 planned: 2 plans in 1 wave)*
+*Last updated: 2026-02-07 (Phase 24 planned: 4 plans in 2 waves)*
