@@ -228,7 +228,7 @@ function CounselingHistoryContent({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
+        <Card data-testid="monthly-sessions">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
               이번 달 상담 횟수
@@ -239,7 +239,7 @@ function CounselingHistoryContent({
           </CardContent>
         </Card>
 
-        <Card>
+        <Card data-testid="total-sessions">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
               전체 상담 횟수
@@ -250,7 +250,7 @@ function CounselingHistoryContent({
           </CardContent>
         </Card>
 
-        <Card>
+        <Card data-testid="avg-duration">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
               평균 상담 시간
@@ -263,7 +263,7 @@ function CounselingHistoryContent({
           </CardContent>
         </Card>
 
-        <Card>
+        <Card data-testid="followup-count">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
               후속 조치 예정
@@ -280,7 +280,7 @@ function CounselingHistoryContent({
           <CardTitle>필터</CardTitle>
         </CardHeader>
         <CardContent>
-          <form className="grid grid-cols-1 md:grid-cols-6 gap-4">
+          <form className="grid grid-cols-1 md:grid-cols-6 gap-4" data-testid="counseling-form">
             <div className="space-y-2">
               <Label htmlFor="studentName">학생 이름</Label>
               <Input
@@ -396,6 +396,7 @@ function CounselingHistoryContent({
                 <div
                   key={session.id}
                   className="border rounded-lg p-4 space-y-2"
+                  data-testid="counseling-session"
                 >
                   <div className="flex items-center justify-between">
                     <div>

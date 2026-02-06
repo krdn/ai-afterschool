@@ -66,14 +66,14 @@ export function ReservationCalendarView({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
+      <div className="flex items-center justify-center py-12" data-testid="calendar-loading">
         <div className="text-muted-foreground">로딩 중...</div>
       </div>
     )
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" data-testid="calendar-view">
       {/* 뷰 전환 버튼 */}
       <div className="flex items-center justify-center">
         <div className="inline-flex items-center rounded-lg bg-muted p-1">
