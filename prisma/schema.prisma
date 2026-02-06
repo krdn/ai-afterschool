@@ -21,6 +21,7 @@ model Teacher {
   birthTimeHour              Int?
   birthTimeMinute            Int?
   assignmentProposalsCreated AssignmentProposal[]          @relation("ProposedBy")
+  auditLogs                  AuditLog[]
   compatibilityResults       CompatibilityResult[]
   counselingSessions         CounselingSession[]
   gradeHistoryTaught         GradeHistory[]
@@ -615,4 +616,37 @@ enum StudentImageType {
   profile
   face
   palm
+}
+
+// 감사 로그: 설정 변경 이력 추적
+model AuditLog {
+  id         String   @id @default(cuid())
+  teacherId  String
+  action     String   // CREATE, UPDATE, DELETE 등
+  entityType String   // Team, Teacher, Student, LLMConfig 등
+  entityId   String?
+  changes    Json?    // 변경 전후 데이터
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  teacher    Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@index([teacherId])
+  @@index([entityType, entityId])
+  @@index([createdAt(sort: Desc)])
+  @@map("audit_logs")
+}
+
+// 시스템 로그: 애플리케이션 로그 기록
+model SystemLog {
+  id        String   @id @default(cuid())
+  level     String   // ERROR, WARN, INFO, DEBUG
+  message   String
+  context   Json?    // 추가 컨텍스트 데이터
+  timestamp DateTime @default(now())
+
+  @@index([level])
+  @@index([timestamp(sort: Desc)])
+  @@map("system_logs")
 }
