@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react"
 import { format } from "date-fns"
 import { ko } from "date-fns/locale"
+import { Loader2, RefreshCw } from "lucide-react"
 import { runSajuAnalysisAction } from "../../app/(dashboard)/students/[id]/saju/actions"
 import type { SajuResult } from "@/lib/analysis/saju"
 import { Button } from "@/components/ui/button"
@@ -74,6 +75,7 @@ export function SajuAnalysisPanel({ student, analysis }: SajuAnalysisPanelProps)
           <Button
             type="button"
             disabled={isPending}
+            data-testid="saju-analyze-button"
             onClick={() => {
               startTransition(async () => {
                 setErrorMessage(null)
@@ -81,7 +83,7 @@ export function SajuAnalysisPanel({ student, analysis }: SajuAnalysisPanelProps)
                   await runSajuAnalysisAction(student.id)
                 } catch (error) {
                   console.error("Failed to run saju analysis", error)
-                  setErrorMessage("사주 분석 실행에 실패했어요. 다시 시도해주세요.")
+                  setErrorMessage(`사주 분석에 실패했습니다. (원인: ${error instanceof Error ? error.message : '알 수 없는 오류'}) 다시 시도해주세요.`)
                 }
               })
             }}
@@ -89,7 +91,38 @@ export function SajuAnalysisPanel({ student, analysis }: SajuAnalysisPanelProps)
             {isPending ? "분석 중..." : "사주 분석 실행"}
           </Button>
           {errorMessage ? (
-            <p className="text-sm text-red-600">{errorMessage}</p>
+            <div data-testid="analysis-error" className="flex items-center justify-between gap-4 mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-700">{errorMessage}</p>
+              <Button
+                onClick={() => {
+                  startTransition(async () => {
+                    setErrorMessage(null)
+                    try {
+                      await runSajuAnalysisAction(student.id)
+                    } catch (error) {
+                      console.error("Failed to run saju analysis", error)
+                      setErrorMessage(`사주 분석에 실패했습니다. (원인: ${error instanceof Error ? error.message : '알 수 없는 오류'}) 다시 시도해주세요.`)
+                    }
+                  })
+                }}
+                disabled={isPending}
+                variant="outline"
+                size="sm"
+                data-testid="retry-button"
+              >
+                {isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin mr-1" />
+                    재시도 중...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-1" />
+                    다시 시도
+                  </>
+                )}
+              </Button>
+            </div>
           ) : null}
         </div>
 

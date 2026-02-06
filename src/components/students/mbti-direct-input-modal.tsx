@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { X } from "lucide-react"
+import { X, Loader2 } from "lucide-react"
 
 type MbtiDirectInputProps = {
   studentId: string
@@ -25,6 +25,7 @@ type MbtiDirectInputProps = {
     }
   }) => Promise<void>
   onCancel: () => void
+  isSaving?: boolean
 }
 
 const MBTI_TYPES = [
@@ -39,7 +40,8 @@ export function MbtiDirectInputModal({
   studentName,
   existingData,
   onSave,
-  onCancel
+  onCancel,
+  isSaving: isSavingProp = false
 }: MbtiDirectInputProps) {
   const [selectedType, setSelectedType] = useState(existingData?.mbtiType || "")
   const [percentages, setPercentages] = useState(existingData?.percentages || {
@@ -260,17 +262,24 @@ export function MbtiDirectInputModal({
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            disabled={isSaving || isSavingProp}
+            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             취소
           </button>
           <button
             type="button"
             onClick={handleSave}
-            disabled={!selectedType || isSaving}
+            disabled={!selectedType || isSaving || isSavingProp}
             className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            data-testid="mbti-save-button"
           >
-            {isSaving ? "저장 중..." : "저장"}
+            {isSaving || isSavingProp ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin inline mr-2" />
+                저장 중...
+              </>
+            ) : "저장"}
           </button>
         </div>
       </div>
