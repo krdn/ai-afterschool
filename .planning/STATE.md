@@ -2,62 +2,32 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-04)
+See: .planning/PROJECT.md (updated 2026-02-06)
 
 **Core value:** 학생 정보 통합 관리를 기반으로 AI 성향 분석 및 맞춤형 학습/진로 제안 제공
-**Current focus:** v2.1 - Parent Counseling Management (Phase 16-22)
+**Current focus:** v2.1.1 - E2E Test Compliance (Phase 23-28)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 23 - data-testid Infrastructure
 Plan: —
-Status: Defining requirements
-Last activity: 2026-02-06 — Milestone v2.1.1 started
+Status: Ready to plan
+Last activity: 2026-02-06 — v2.1.1 roadmap created
 
 Progress: [░░░░░░░░░░░░░░░░░░░░░░░░] 0%
 
-**v2.1.1 E2E Test Compliance** ○ DEFINING
-- Phase 16: Parent & Reservation Database Schema (✅ complete)
-- Phase 17: Reservation Server Actions (✅ complete)
-  - Plan 17-01: 예약 생성 Server Actions (✅)
-  - Plan 17-02: 예약 목록 조회 및 검색 (✅)
-  - Plan 17-03: 예약 수정/삭제 (✅)
-  - Plan 17-04: 예약 상태 변경 (✅)
-- Phase 18: Reservation Management UI (✅ complete)
-  - Plan 18-01: Badge variants 추가 (✅)
-  - Plan 18-02: DatePicker 컴포넌트 생성 (✅)
-  - Plan 18-03: 예약 등록 폼 (✅)
-  - Plan 18-04: 예약 카드와 목록 (✅)
-  - Plan 18-05: 탭 기반 페이지 통합 (✅)
-- Phase 19: Calendar View (✅ complete)
-  - Plan 19-01: 캘린더 유틸리티 및 월간 뷰 (✅)
-  - Plan 19-02: 주간 캘린더 뷰 (✅)
-  - Plan 19-03: 페이지 통합 및 뷰 전환 (✅)
-- Phase 20: Student Page Integration (✅ complete)
-  - Plan 20-01: shadcn/ui Alert & Dialog 설치 (✅)
-  - Plan 20-02: 상담 섹션 컴포넌트 구현 (✅)
-  - Plan 20-03: 테스트 및 검증 (✅)
-- Phase 21: Statistics & Dashboard (✅ complete)
-  - Plan 21-01: 상담 통계 Server Actions (✅)
-  - Plan 21-02: 후속 조치 Server Actions (✅)
-  - Plan 21-03: 차트 컴포넌트 (✅)
-  - Plan 21-04: 후속 조치 목록 (✅)
-  - Plan 21-05: 필터 및 테이블 컴포넌트 (✅)
-  - Plan 21-06: 페이지 통합 (✅)
-  - Plan 21-07: 테스트 및 검증 (✅)
-- Phase 22: AI Integration (✅ complete)
-  - Plan 22-01: Schema 확장 및 프롬프트 빌더 (✅)
-  - Plan 22-02: shadcn/ui 컴포넌트 설치 (✅)
-  - Plan 22-03: AI Server Actions (✅)
-  - Plan 22-04: AI 지원 패널 컴포넌트 (✅)
-  - Plan 22-05: AI 지원 패널 통합 (✅)
-  - Plan 22-06: AI 요약 저장 처리 (✅)
-  - Plan 22-07: 통합 테스트 및 검증 (✅)
+**v2.1.1 E2E Test Compliance** ○ ACTIVE
+- Phase 23: data-testid Infrastructure (○ pending)
+- Phase 24: Missing Routes Creation (○ pending)
+- Phase 25: Student, Analysis & Report UI Enhancement (○ pending)
+- Phase 26: Counseling & Matching UI Enhancement (○ pending)
+- Phase 27: RBAC, Auth & Error Handling (○ pending)
+- Phase 28: Integration Verification & Test Alignment (○ pending)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 128 (v1.0-v2.1)
+- Total plans completed: 129 (v1.0-v2.1)
 - Average duration: ~4.1 min
 - Total execution time: ~8.7 hours
 
@@ -70,7 +40,7 @@ Progress: [░░░░░░░░░░░░░░░░░░░░░░░
 | 11 (v2.0) | 7 | 26 min | ~4 min |
 | 12 (v2.0) | 8 | 20 min | ~2.5 min |
 | 13 (v2.0) | 8 | 13 min | ~1.6 min |
-| 14 (v2.0) | 8 | 25 min | ~3.1 min |
+| 14 (v2.0) | 9 | 25 min | ~2.8 min |
 | 15 (v2.0) | 8 | 35 min | ~4.4 min |
 | 16 (v2.1) | 1 | 2 min | ~2 min |
 | 17 (v2.1) | 4 | 8 min | ~2 min |
@@ -93,6 +63,11 @@ Progress: [░░░░░░░░░░░░░░░░░░░░░░░
 
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
+
+**v2.1.1 결정:**
+- [v2.1.1] E2E 테스트 호환성 우선: 새 기능 추가 없이 기존 구현의 테스트 안정성 확보
+- [v2.1.1] data-testid 일괄 적용: 모든 주요 컴포넌트에 테스트 가능한 셀렉터 추가
+- [v2.1.1] 누락 라우트 생성: 테스트에서 참조하는 모든 페이지 구현
 
 **v2.1 결정:**
 - [v2.1] 선생님 중심 운영: 학부모 계정 없이 선생님이 모든 상담 관리
@@ -196,9 +171,10 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-06 23:10 KST
-Stopped at: v2.1.1 마일스톤 요구사항 정의 중
+Last session: 2026-02-06 23:20 KST
+Stopped at: v2.1.1 로드맵 작성 완료
 Resume file: None
+Next action: `/gsd:plan-phase 23` 실행으로 Phase 23 계획 시작
 
 ---
-*Last updated: 2026-02-06 (v2.1.1 마일스톤 시작)*
+*Last updated: 2026-02-06 (v2.1.1 로드맵 생성)*
