@@ -1,5 +1,6 @@
 
 import { test, expect } from '@playwright/test';
+import { loginAsTeacher } from '../utils/auth';
 
 /**
  * Performance Analysis Test Suite
@@ -9,11 +10,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Performance Analysis & Statistics', () => {
   test.beforeEach(async ({ page }) => {
     // Login as teacher/admin with access to analytics
-    await page.goto('/auth/login');
-    await page.fill('input[name="email"]', 'teacher@aiafterschool.com');
-    await page.fill('input[name="password"]', 'Test1234!');
-    await page.click('button[type="submit"]');
-    await page.waitForURL('/students');
+    await loginAsTeacher(page);
   });
 
   test('PRF-01: Track academic improvement trends', async ({ page }) => {

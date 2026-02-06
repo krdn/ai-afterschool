@@ -4,44 +4,17 @@
 // 테스트 범위: TCH-01, TCH-02, TCH-03
 
 import { test, expect, Page } from '@playwright/test';
+import { loginAsTeacher, loginAsAdmin, TEST_ACCOUNTS } from '../utils/auth';
 
 // 테스트 데이터
-const TEST_TEACHER = {
-  email: 'teacher@test.com',
-  password: 'Test1234!',
-  name: '김선생',
-  role: 'TEACHER',
-  teamId: null
-};
+const TEST_TEACHER = TEST_ACCOUNTS.teacher1;
 
-const TEST_ADMIN = {
-  email: 'director@test.com',
-  password: 'Admin1234!',
-  name: '박원장',
-  role: 'DIRECTOR'
-};
+const TEST_ADMIN = TEST_ACCOUNTS.admin;
 
 const TEST_TEAM = {
   name: '초등팀',
   description: '초등학생 전담 팀'
 };
-
-// Helper Functions
-async function loginAsTeacher(page: Page) {
-  await page.goto('/auth/login');
-  await page.fill('input[name="email"]', TEST_TEACHER.email);
-  await page.fill('input[name="password"]', TEST_TEACHER.password);
-  await page.click('button[type="submit"]');
-  await page.waitForURL('/students');
-}
-
-async function loginAsAdmin(page: Page) {
-  await page.goto('/auth/login');
-  await page.fill('input[name="email"]', TEST_ADMIN.email);
-  await page.fill('input[name="password"]', TEST_ADMIN.password);
-  await page.click('button[type="submit"]');
-  await page.waitForURL('/students');
-}
 
 async function createTestTeacher(page: Page) {
   await page.goto('/auth/register');

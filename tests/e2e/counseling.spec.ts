@@ -1,10 +1,11 @@
 
 import { test, expect, Page } from '@playwright/test';
+import { loginAsTeacher } from '../utils/auth';
 
 /**
  * AI AfterSchool 통합 테스트
  * 7. 상담 관리 (Counseling) - v2.1
- * 
+ *
  * 학부모 상담의 예약부터 완료, 기록까지의 전체 흐름을 검증합니다.
  */
 
@@ -13,15 +14,9 @@ test.describe('상담 관리 (Counseling)', () => {
 
   test.beforeEach(async ({ browser }) => {
     page = await browser.newPage();
-    
+
     // 선생님 계정으로 로그인
-    await page.goto('/auth/login');
-    await page.fill('input[name="email"]', 'teacher@afterschool.test');
-    await page.fill('input[name="password"]', 'SecurePass123!');
-    await page.click('button[type="submit"]');
-    
-    // 로그인 완료 대기
-    await page.waitForURL('**/students');
+    await loginAsTeacher(page);
   });
 
   test.afterEach(async () => {

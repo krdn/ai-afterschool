@@ -5,6 +5,7 @@
 
 import { test, expect } from '@playwright/test';
 import path from 'path';
+import { loginAsAdmin } from '../utils/auth';
 
 test.describe('학생 데이터 관리 (Student)', () => {
   let studentId: string;
@@ -19,11 +20,7 @@ test.describe('학생 데이터 관리 (Student)', () => {
 
   test.beforeEach(async ({ page }) => {
     // 로그인 전제 조건
-    await page.goto('/auth/login');
-    await page.fill('input[name="email"]', 'admin@afterschool.com');
-    await page.fill('input[name="password"]', 'admin1234');
-    await page.click('button[type="submit"]');
-    await expect(page).toHaveURL(/.*students/);
+    await loginAsAdmin(page);
   });
 
   test('STU-01: 신규 학생 등록 및 사진 업로드', async ({ page }) => {
@@ -167,11 +164,7 @@ test.describe('학생 데이터 관리 (Student)', () => {
   test('STU-04: 위험: 학생 정보 삭제', async ({ page, context }) => {
     // 전제 조건: 관리자 권한 (원장/관리자 계정으로 재로그인)
     await page.goto('/auth/logout');
-    await page.goto('/auth/login');
-    await page.fill('input[name="email"]', 'admin@afterschool.com');
-    await page.fill('input[name="password"]', 'admin1234');
-    await page.click('button[type="submit"]');
-    await expect(page).toHaveURL(/.*students/);
+    await loginAsAdmin(page);
 
     // 테스트용 학생 생성 (삭제 대상)
     await page.goto('/students/new');

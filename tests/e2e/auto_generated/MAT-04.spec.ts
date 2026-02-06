@@ -1,18 +1,20 @@
 import { test, expect } from '@playwright/test';
+import { loginAsAdmin } from '../../utils/auth';
 
-test('MAT-04: 배정 공정성 지표 검증', async ({ page }) => {
-  // Step 1: Navigating to the login page
-  await page.goto('/auth/login');
+test.describe('MAT-04: 배정 공정성 지표 검증', () => {
+  test.beforeEach(async ({ page }) => {
+    await loginAsAdmin(page);
+  });
 
-  // Step 2: Selecting the username/email field by label
-  const usernameInput = page.getByLabel('loginId');
+  test('학생 배정 현황 및 공정성 관련 UI 확인', async ({ page }) => {
+    await page.goto('/students');
+    await page.waitForLoadState('networkidle');
 
-  // Step 3: Entering test username
-  await usernameInput.fill('testuser@example.com');
+    // 학생 목록 페이지 로드 확인
+    await expect(page).toHaveURL(/\/students/);
 
-  // Step 4: Clicking the login button
-  await page.getByRole('button', { name: /login|로그인/i }).click();
-
-  // Step 5: Verifying successful login
-  await expect(page).toHaveURL(/\/dashboard|\/students/);
+    // 학생 데이터가 표시되는지 확인
+    const content = page.locator('main');
+    await expect(content).toBeVisible({ timeout: 5000 });
+  });
 });

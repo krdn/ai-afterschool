@@ -1,5 +1,6 @@
 
 import { test, expect } from '@playwright/test';
+import { loginAsAdmin, loginAsTeacher } from '../utils/auth';
 
 /**
  * Admin & System Settings Test Suite
@@ -15,24 +16,20 @@ test.describe('Admin & System Settings', () => {
 
   // Test data
   const adminUser = {
-    email: 'admin@afterschool.com',
-    password: 'admin1234',
+    email: 'admin@test.com',
+    password: 'test1234',
     role: 'DIRECTOR'
   };
 
   const regularTeacher = {
-    email: 'teacher@aiafterschool.com',
-    password: 'Teacher123!@#',
+    email: 'teacher1@test.com',
+    password: 'test1234',
     role: 'TEACHER'
   };
 
   test.beforeEach(async ({ page }) => {
     // Login as admin for most tests
-    await page.goto('/auth/login');
-    await page.fill('input[name="email"]', adminUser.email);
-    await page.fill('input[name="password"]', adminUser.password);
-    await page.click('button[type="submit"]');
-    await page.waitForURL('/students');
+    await loginAsAdmin(page);
   });
 
   /**
@@ -308,10 +305,7 @@ test.describe('Admin & System Settings', () => {
     await page.waitForURL('/auth/login');
 
     // Login as regular teacher
-    await page.fill('input[name="email"]', regularTeacher.email);
-    await page.fill('input[name="password"]', regularTeacher.password);
-    await page.click('button[type="submit"]');
-    await page.waitForURL('/students');
+    await loginAsTeacher(page);
 
     // Attempt to access admin LLM settings
     const llmSettingsResponse = await page.goto('/admin/llm-settings');
@@ -484,11 +478,7 @@ test.afterAll(async ({ browser }) => {
   // New context for cleanup to ensure it runs even if previous pages are closed
   const page = await browser.newPage();
   try {
-    await page.goto('/auth/login');
-    await page.fill('input[name="email"]', 'admin@afterschool.com');
-    await page.fill('input[name="password"]', 'admin1234');
-    await page.click('button[type="submit"]');
-    await page.waitForURL('/students');
+    await loginAsAdmin(page);
 
     // Reset to Ollama Primary
     await page.goto('/admin/llm-settings');
@@ -529,12 +519,8 @@ test.afterAll(async ({ browser }) => {
 test.describe('Admin Security & Permissions', () => {
 
   test('RBAC: 팀장은 제한된 관리 기능만 접근 가능', async ({ page }) => {
-    // Login as team leader
-    await page.goto('/auth/login');
-    await page.fill('input[name="email"]', 'teamleader@aiafterschool.com');
-    await page.fill('input[name="password"]', 'Leader123!@#');
-    await page.click('button[type="submit"]');
-    await page.waitForURL('/students');
+    // Login as team leader (seed-test.ts의 teacher2를 팀장으로 가정)
+    await loginAsTeacher(page, 'teacher2@test.com', 'test1234');
 
     // Can access team management
     await page.goto('/admin/teams');
@@ -556,10 +542,7 @@ test.describe('Admin Security & Permissions', () => {
 
   test('감사 로그: 관리자 설정 변경 기록', async ({ page }) => {
     // Login as admin
-    await page.goto('/auth/login');
-    await page.fill('input[name="email"]', 'admin@afterschool.com');
-    await page.fill('input[name="password"]', 'Admin123!@#');
-    await page.click('button[type="submit"]');
+    await loginAsAdmin(page);
 
     // Make a settings change
     await page.goto('/admin/llm-settings');

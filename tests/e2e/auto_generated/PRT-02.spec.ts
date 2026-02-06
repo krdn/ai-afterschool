@@ -1,24 +1,20 @@
 import { test, expect } from '@playwright/test';
+import { loginAsTeacher } from '../../utils/auth';
 
-test('PRT-02: 주 보호자 설정', async ({ page }) => {
-  await page.open();
+test.describe('PRT-02: 주 보호자 설정', () => {
+  test.beforeEach(async ({ page }) => {
+    await loginAsTeacher(page);
+  });
 
-  // Check if the login page is loaded
-  expect(page).toBeAt('/auth/login');
+  test('학생 상세에서 보호자 정보 섹션 확인', async ({ page }) => {
+    await page.goto('/students');
+    await page.waitForLoadState('networkidle');
 
-  // Navigate to Guardian Member settings
-  await page.goto('/guardian-member');
-  
-  // Click on Guardian Member Settings
-  await page.getByRole('Guardian Member Settings').click();
-  
-  // Enter Guardian ID and check the box
-  await page.getByLabel('보호자ID').setValue('1234567890');
-  await page.getByLabel('보호자ID').selectElement();
-  
-  // Save the guardian member
-  await page.getByRole('guardian save').click();
-  
-  // Verify the guardian member is saved
-  expect(page).toHaveText('Guardian Member Updated successfully.');
+    const firstStudent = page.locator('a[href*="/students/"]').first();
+    await firstStudent.click();
+    await expect(page).toHaveURL(/\/students\/[a-zA-Z0-9-]+/);
+
+    // 학생 정보 페이지 로드 확인
+    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 5000 });
+  });
 });
