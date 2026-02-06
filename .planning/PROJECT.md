@@ -4,24 +4,29 @@
 
 학원에서 대학입시를 목표로 학생을 효율적으로 관리하기 위한 AI 기반 학생 관리 시스템. 학원 선생님/관리자가 학생 정보를 등록하고, AI가 다양한 성향 분석(MBTI, 사주, 성명학, 관상/손금)을 제공하며, 이를 바탕으로 맞춤형 학습 전략과 진로 가이드를 제안한다. 상담 시 활용할 수 있는 종합 보고서 출력 기능을 제공한다.
 
-**현재 상태:** v2.1 Parent Counseling Management가 출시되었습니다 (2026-02-05).
+**현재 상태:** v2.1.1 E2E Test Compliance 진행 중 (2026-02-06).
 
 ## Core Value
 
 **학생 정보 통합 관리를 기반으로 AI 성향 분석 및 맞춤형 학습/진로 제안 제공** — 학생 데이터가 없으면 분석도 제안도 불가능하다. 학생 정보 관리가 모든 기능의 기반이다.
 
-## Latest Milestone: v2.1 Parent Counseling Management (SHIPPED)
+## Current Milestone: v2.1.1 E2E Test Compliance
+
+**Goal:** E2E 테스트 74건 실패를 0건으로 해소 — 미구현 라우트 추가, data-testid 적용, UI 셀렉터 정합성 확보
+
+**Target features:**
+- 누락된 라우트 페이지 생성 (`/teachers/me`, `/teams`, `/teams/[id]`, `/students/[id]/report`, `/admin/system-status` 등)
+- 기존 컴포넌트에 data-testid 속성 추가 (E2E 테스트 안정성)
+- 학생 상세 분석 탭 구조 보강 (사주/관상/MBTI 탭 분리)
+- Admin 페이지 UI 보강 (시스템 로그, 감사 로그, 백업 관리)
+- 상담 페이지 보강 (캘린더 뷰 data-testid, 통계 대시보드)
+- 매칭 페이지 UI 보강 (궁합점수, 공정성, 감사로그)
+- RBAC 접근 제한 강화 (선생님→관리자 페이지 차단)
+- Auth 엣지 케이스 (만료 토큰 UI)
+
+## Latest Shipped: v2.1 Parent Counseling Management (SHIPPED 2026-02-05)
 
 **Delivered:** 선생님 중심의 학부모 상담 예약/기록 시스템 구축으로 체계적인 상담 관리 및 통계 제공
-
-**Shipped features:**
-- 학부모 정보 관리 (복수 학부모 등록, 주 연락처 지정)
-- 상담 예약 시스템 (등록/수정/삭제, 상태 관리, 자동 세션 연결)
-- 캘린더 시각화 (월간/주간 뷰, 예약 현황 표시)
-- 학생 페이지 상담 통합 (상담 이력, 다음 예약 표시)
-- 상담 통계 대시보드 (선생님별/학생별 통계, 차트, CSV 내보내기)
-- 후속 조치 관리 (대시보드, 지연 하이라이트, 완료 체크)
-- AI 상담 지원 (성향 분석 표시, 궁합 점수, AI 요약 생성)
 
 ## Next Milestone: v2.2 Attendance & Tuition (Planned)
 
@@ -306,4 +311,4 @@
 | 기존 LLM 라우터 활용 | Phase 15 인프라 재사용 | ✓ 성공 — generateWithProvider로 AI 요약 생성 |
 
 ---
-*Last updated: 2026-02-05 after v2.1 milestone shipped*
+*Last updated: 2026-02-06 after v2.1.1 milestone started*
