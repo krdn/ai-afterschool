@@ -369,8 +369,6 @@ function CounselingHistoryContent({
               </div>
             </div>
           ) : (
-            </div>
-          ) : (
             <div className="space-y-3">
               {sessions.map((session) => (
                 <div
