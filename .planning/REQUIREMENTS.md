@@ -40,20 +40,20 @@
 
 - [x] **CNS-01**: 상담 캘린더 뷰에 data-testid 추가 (calendar-view, counseling-detail-modal 등)
 - [x] **CNS-02**: 상담 통계 대시보드의 data-testid 및 셀렉터 정합성 확보
-- [ ] **CNS-03**: 상담 기록 검색/필터 UI 개선 (검색 입력, 필터 드롭다운)
-- [ ] **CNS-04**: 상담 알림/리마인더 위젯 (다가오는 상담 표시)
+- [x] **CNS-03**: 상담 기록 검색/필터 UI 개선 (검색 입력, 필터 드롭다운)
+- [x] **CNS-04**: 상담 알림/리마인더 위젯 (다가오는 상담 표시)
 
 ### Matching
 
 - [x] **MAT-01**: 궁합 점수 표시 UI에 data-testid 추가 (compatibility-score)
 - [x] **MAT-02**: 공정성 지표 페이지 heading 및 data-testid 추가
-- [ ] **MAT-03**: 매칭 이력/감사 로그 UI (변경 이력 테이블)
-- [ ] **MAT-04**: 자동 배정 결과 카운트 표시 (배정된 학생 수)
+- [x] **MAT-03**: 매칭 이력/감사 로그 UI (변경 이력 테이블)
+- [x] **MAT-04**: 자동 배정 결과 카운트 표시 (배정된 학생 수)
 
 ### Performance & Analytics
 
 - [x] **PRF-01**: 성과 대시보드 metric 카드에 data-testid 추가 (metric-card)
-- [ ] **PRF-02**: 향상률 차트 및 기간 선택 UI 개선
+- [x] **PRF-02**: 향상률 차트 및 기간 선택 UI 개선
 - [x] **PRF-03**: 팀 목록 페이지(`/teams`) 및 팀 상세 페이지(`/teams/[id]`) 생성
 
 ### Report & Utility
