@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 Phase: 24 - Missing Routes Creation
 Plan: 04 of 4
 Status: Phase complete
-Last activity: 2026-02-07 — Completed Phase 24 Plan 04 (리포트 탭 생성)
+Last activity: 2026-02-07 — Completed Phase 24 Plan 03 (Admin 페이지 통합)
 
 Progress: [████████████████████████] 100%
 
@@ -80,6 +80,9 @@ Recent decisions affecting current work:
 - [24-01] 감사 로그와 시스템 로그 분리: 사용자별 추적(teacherId, IP, User-Agent)이 필요한 감사 로그와 애플리케이션 전체 이벤트 기록이 목적인 시스템 로그를 별도 모델로 분리
 - [24-01] @@map을 사용한 snake_case 테이블명: 데이터베이스 관리 일관성을 위해 audit_logs, system_logs로 지정
 - [24-01] Server-side redirect 패턴: Server Component에서 Next.js redirect 함수 사용하여 SEO 친화적이고 클라이언트 사이드 리다이렉트보다 빠름
+- [24-03] 탭 기반 Admin 통합: 단일 /admin 페이지에서 6개 탭(LLM 설정, 토큰 사용량, 시스템 상태, 시스템 로그, 데이터베이스, 감사 로그)을 제공하는 통합 UI로 변경
+- [24-03] AdminTabsWrapper Client Component 분리: 기존 Tabs 컴포넌트는 value와 onValueChange prop이 필요하여 Server Component에서 사용 불가, AdminTabsWrapper Client Component를 생성하여 탭 상태를 관리
+- [24-03] Health API 통합: 시스템 상태 탭에서 DB, Storage, Backup 상태를 표시하기 위해 기존 /api/health 엔드포인트를 호출하여 상태 데이터 가져오기
 
 **v2.1 결정:**
 - [v2.1] 선생님 중심 운영: 학부모 계정 없이 선생님이 모든 상담 관리
@@ -183,10 +186,10 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-07 01:10 KST
-Stopped at: Completed Phase 24 Plan 04 (리포트 탭 생성)
+Last session: 2026-02-07 01:14 KST
+Stopped at: Completed Phase 24 Plan 03 (Admin 페이지 통합)
 Resume file: None
-Next action: Execute Phase 25 Plan 01
+Next action: Phase 24 is complete, proceed to Phase 25
 
 ---
-*Last updated: 2026-02-07 (Phase 24 Plan 04 완료)*
+*Last updated: 2026-02-07 (Phase 24 Plan 03 완료)*
