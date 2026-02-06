@@ -10,17 +10,17 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 ## Current Position
 
 Phase: 26 - Counseling & Matching UI Enhancement
-Plan: 04 of 4
+Plan: 03 of 4
 Status: In progress
-Last activity: 2026-02-07 — Plan 26-04 자동 배정 결과 카드 및 성과 향상률 차트 완료
+Last activity: 2026-02-07 — Plan 26-03 매칭 이력/감사 로그 UI 완료
 
-Progress: [████████░░░░░░░░░░░░░] 75%
+Progress: [████████░░░░░░░░░░░░] 75%
 
 **v2.1.1 E2E Test Compliance** ○ ACTIVE
 - Phase 23: data-testid Infrastructure (✓ complete)
 - Phase 24: Missing Routes Creation (✓ complete)
 - Phase 25: Student, Analysis & Report UI Enhancement (✓ complete)
-- Phase 26: Counseling & Matching UI Enhancement (○ in progress - 26-04 complete)
+- Phase 26: Counseling & Matching UI Enhancement (○ in progress - 26-03 complete)
 - Phase 27: RBAC, Auth & Error Handling (○ pending)
 - Phase 28: Integration Verification & Test Alignment (○ pending)
 
@@ -180,6 +180,10 @@ Recent decisions affecting current work:
 - [26-04] ExtendedDatePreset 타입 호환성: 기존 DatePreset(1M, 3M, 6M, 1Y) 유지하며 TODAY, 7D, 30D, ALL 추가
 - [26-04] DateRangeFilter 커스텀 프리셋: presets, labels props로 각 사용처마다 다른 프리셋 조합 지원
 - [26-04] PerformanceTrendChart 데이터 위임: onDataRequest prop으로 데이터 페칭 로직을 부모에 위임
+- [26-03] change-formatter.ts 유틸리티 분리: 변경 내용 포맷팅 로직을 별도 파일로 분리하여 재사용성 확보 (formatChangesForDiff, formatChangesSummary)
+- [26-03] Server/Client Component 분리: 페이지는 Server Component로 데이터 페칭, 탭 상태는 Client Component에서 관리
+- [26-03] AuditLog entityType='Student' 필터링: 학생 배정 변경만 추적하도록 Prisma 쿼리에 entityType 조건 추가
+- [26-03] 날짜 범위 필터 종료일 처리: endDate에 23:59:59 설정하여 하루 끝까지 포함
 
 **v2.0 결정 (영향 있음):**
 - [11-02] Prisma Client Extensions over deprecated Middleware - $allOperations pattern for automatic teamId filtering
@@ -212,10 +216,10 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-07 08:36 KST
-Stopped at: Phase 26-04 Complete (자동 배정 결과 카드 및 성과 향상률 차트)
+Last session: 2026-02-07 08:45 KST
+Stopped at: Phase 26-03 Complete (매칭 이력/감사 로그 UI)
 Resume file: None
-Next action: Continue Phase 26 or execute next plan
+Next action: Continue Phase 26-04 or execute next plan
 
 ---
-*Last updated: 2026-02-07 (Phase 26-04 완료)*
+*Last updated: 2026-02-07 (Phase 26-03 완료)*
