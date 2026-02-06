@@ -1,7 +1,9 @@
 import { verifySession } from "@/lib/dal"
 import { db } from "@/lib/db"
 import { listAssignmentProposals } from "@/lib/db/assignment"
+import { getAssignmentResults } from "@/lib/actions/assignment-results"
 import { AutoAssignmentSuggestion } from "@/components/assignment/auto-assignment-suggestion"
+import { AssignmentResultCard } from "@/components/matching/AssignmentResultCard"
 import {
   Card,
   CardContent,
@@ -51,6 +53,18 @@ export default async function AutoAssignPage() {
 
   // 대기 중인 제안 목록 조회
   const pendingProposals = await listAssignmentProposals({ status: "pending" })
+
+  // 적용 완료된 제안 목록 조회 (최근 1개)
+  const appliedProposals = await listAssignmentProposals({ status: "applied", limit: 1 })
+
+  // 적용 완료된 제안의 결과 데이터 조회
+  let latestResults = null
+  if (appliedProposals.length > 0) {
+    const result = await getAssignmentResults(appliedProposals[0].id)
+    if (result.success && result.data) {
+      latestResults = result.data
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -111,6 +125,20 @@ export default async function AutoAssignPage() {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* 최근 배정 결과 */}
+      {latestResults && (
+        <AssignmentResultCard
+          totalStudents={latestResults.totalStudents}
+          assignedCount={latestResults.assignedCount}
+          excludedCount={latestResults.excludedCount}
+          successCount={latestResults.successCount}
+          failureCount={latestResults.failureCount}
+          averageScore={latestResults.averageScore}
+          createdAt={latestResults.createdAt}
+          status={latestResults.status}
+        />
       )}
     </div>
   )
