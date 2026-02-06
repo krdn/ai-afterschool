@@ -42,15 +42,15 @@ function DisparityIndexCard({ value }: { value: number }) {
   const status = getDisparityStatus(value)
 
   return (
-    <Card>
+    <Card data-testid="fairness-metric">
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium text-gray-600">
+        <CardTitle className="text-sm font-medium text-gray-600" data-testid="metric-label">
           집단 간 궁합 점수 차이
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex items-baseline justify-between">
-          <span className={`text-2xl font-bold ${status.colorClass}`}>
+          <span className={`text-2xl font-bold ${status.colorClass}`} data-testid="metric-value">
             {value.toFixed(3)}
           </span>
           <StatusBadge status={status} />
@@ -80,15 +80,15 @@ function ABROCACard({ value }: { value: number }) {
   const status = getABROCAStatus(value)
 
   return (
-    <Card>
+    <Card data-testid="fairness-metric">
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium text-gray-600">
+        <CardTitle className="text-sm font-medium text-gray-600" data-testid="metric-label">
           궁합 점수 분포 편향
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex items-baseline justify-between">
-          <span className={`text-2xl font-bold ${status.colorClass}`}>
+          <span className={`text-2xl font-bold ${status.colorClass}`} data-testid="metric-value">
             {value.toFixed(3)}
           </span>
           <StatusBadge status={status} />
@@ -117,15 +117,15 @@ function DistributionBalanceCard({ value }: { value: number }) {
   const status = getDistributionBalanceStatus(value)
 
   return (
-    <Card>
+    <Card data-testid="fairness-metric">
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium text-gray-600">
+        <CardTitle className="text-sm font-medium text-gray-600" data-testid="metric-label">
           선생님별 배정 균형
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex items-baseline justify-between">
-          <span className={`text-2xl font-bold ${status.colorClass}`}>
+          <span className={`text-2xl font-bold ${status.colorClass}`} data-testid="metric-value">
             {value.toFixed(3)}
           </span>
           <StatusBadge status={status} />
@@ -173,7 +173,7 @@ function RecommendationsSection({
   recommendations: string[]
 }) {
   return (
-    <Card>
+    <Card data-testid="fairness-suggestions">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
           <Info className="h-5 w-5 text-blue-500" />

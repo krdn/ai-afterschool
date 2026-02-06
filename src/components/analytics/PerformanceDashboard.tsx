@@ -50,7 +50,7 @@ export function PerformanceDashboard({
   ]
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="performance-dashboard">
       <div className="flex flex-col sm:flex-row justify-between gap-4 items-start">
         <div className="flex flex-wrap gap-4">
           <Select value={selectedDateRange} onValueChange={(v) => setSelectedDateRange(v as "1M" | "3M" | "6M" | "1Y")}>
@@ -112,7 +112,9 @@ export function PerformanceDashboard({
               </CardContent>
             </Card>
           </div>
-          <GradeTrendChart data={gradeTrendData} title="팀 성적 추이" />
+          <div data-testid="improvement-chart">
+            <GradeTrendChart data={gradeTrendData} title="팀 성적 추이" />
+          </div>
         </TabsContent>
 
         <TabsContent value="comparison" className="space-y-4">

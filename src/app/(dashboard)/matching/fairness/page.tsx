@@ -52,7 +52,7 @@ export default async function FairnessMetricsPage() {
     <div className="space-y-6">
       {/* 헤더 */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">공정성 메트릭</h1>
+        <h1 className="text-3xl font-bold text-gray-900" data-testid="fairness-heading">공정성 메트릭</h1>
         <p className="mt-2 text-gray-600">
           알고리즘적 편향을 검증하기 위한 공정성 지표를 확인합니다.
         </p>

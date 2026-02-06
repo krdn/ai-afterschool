@@ -17,7 +17,9 @@ function CompatibilityBar({ label, value, max, color }: CompatibilityBarProps) {
     <div className="space-y-1">
       <div className="flex items-center justify-between text-sm">
         <span className="text-gray-600">{label}</span>
-        <span className="font-medium">{value.toFixed(1)} / {max}</span>
+        <span className="font-medium" data-testid={label === "MBTI" ? "mbti-compatibility" : label === "학습 스타일" ? "learning-style-compatibility" : undefined}>
+          {value.toFixed(1)} / {max}
+        </span>
       </div>
       <div className="h-2 w-full rounded-full bg-gray-100">
         <div
@@ -41,7 +43,7 @@ export function CompatibilityScoreCard({
   reasons,
 }: CompatibilityScoreCardProps) {
   return (
-    <Card className="h-full">
+    <Card className="h-full" data-testid="compatibility-score">
       <CardHeader className="pb-2">
         <CardTitle className="text-base">궁합 상세 점수</CardTitle>
       </CardHeader>
