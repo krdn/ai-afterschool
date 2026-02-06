@@ -360,6 +360,14 @@ Plans:
   3. 매칭 이력/감사 로그 UI가 제공되어 변경 이력 테이블이 표시된다
   4. 자동 배정 결과 카운트가 표시되어 배정된 학생 수를 확인 가능하다
   5. 향상률 차트 및 기간 선택 UI가 제공되어 성과 추이를 시각화한다
+**Plans**: 4 plans in 1 wave
+**Status**: Ready for execution
+
+Plans:
+- [ ] 26-01-PLAN.md — 상담 기록 통합 검색/필터 UI (CounselingSearchBar, CounselingFilters, searchCounselingSessions)
+- [ ] 26-02-PLAN.md — 상담 알림/리마인더 위젯 (UpcomingCounselingWidget, getUpcomingCounseling)
+- [ ] 26-03-PLAN.md — 매칭 이력/감사 로그 UI (MatchingHistoryTab, MatchingAuditTable, getMatchingHistory)
+- [ ] 26-04-PLAN.md — 배정 결과 카드 및 성과 차트 기간 선택 (AssignmentResultCard, PerformanceTrendChart, DateRangeFilter 확장)
 
 ### Phase 27: RBAC, Auth & Error Handling
 **Goal**: RBAC 접근 제한 강화 및 엣지 케이스 처리
@@ -422,11 +430,11 @@ Phases execute in numeric order: 23 → 24 → 25 → 26 → 27 → 28
 | 23. data-testid Infrastructure | v2.1.1 | 2/2 | Complete | 2026-02-06 |
 | 24. Missing Routes Creation | v2.1.1 | 4/4 | Complete | 2026-02-07 |
 | 25. Student, Analysis & Report UI Enhancement | v2.1.1 | 4/4 | Complete | 2026-02-07 |
-| 26. Counseling & Matching UI Enhancement | v2.1.1 | 0/? | Pending | — |
+| 26. Counseling & Matching UI Enhancement | v2.1.1 | 4/4 | Ready | — |
 | 27. RBAC, Auth & Error Handling | v2.1.1 | 0/? | Pending | — |
 | 28. Integration Verification & Test Alignment | v2.1.1 | 0/? | Pending | — |
 
-**Overall Progress:** 137/141 plans complete (v1.0-v2.1: 100%) | v2.1.1: 3/6 complete (50%)
+**Overall Progress:** 141/145 plans complete (v1.0-v2.1: 100%) | v2.1.1: 4/6 complete (67%)
 
 ---
-*Last updated: 2026-02-07 (Phase 25 complete: 4 plans executed)*
+*Last updated: 2026-02-07 (Phase 26 planned: 4 plans in 1 wave)*
