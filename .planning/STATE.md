@@ -10,14 +10,14 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 ## Current Position
 
 Phase: 23 - data-testid Infrastructure
-Plan: 02 of 2
-Status: In progress
-Last activity: 2026-02-06 — Completed Phase 23 Plan 02 (data-testid for counseling, matching, performance)
+Plan: 01 of 2
+Status: Complete
+Last activity: 2026-02-06 23:58 KST — Completed Phase 23 Plan 01 (data-testid for student, analysis, admin pages)
 
-Progress: [████████░░░░░░░░░░░░░░░] 40%
+Progress: [████████░░░░░░░░░░░░░░] 40%
 
 **v2.1.1 E2E Test Compliance** ○ ACTIVE
-- Phase 23: data-testid Infrastructure (● 1/2 complete - Plan 02 done)
+- Phase 23: data-testid Infrastructure (● 1/2 complete - Plan 01 done)
 - Phase 24: Missing Routes Creation (○ pending)
 - Phase 25: Student, Analysis & Report UI Enhancement (○ pending)
 - Phase 26: Counseling & Matching UI Enhancement (○ pending)
@@ -67,9 +67,13 @@ Recent decisions affecting current work:
 **v2.1.1 결정:**
 - [v2.1.1] E2E 테스트 호환성 우선: 새 기능 추가 없이 기존 구현의 테스트 안정성 확보
 - [v2.1.1] data-testid 일괄 적용: 모든 주요 컴포넌트에 테스트 가능한 셀렉터 추가
+- [v2.1.1] data-testid 네이밍 컨벤션: kebab-case 사용 (예: student-name, analysis-loading)
 - [v2.1.1] data-testid 네이밍 패턴: [component]-[element] 형식 (예: calendar-view, counseling-detail-modal)
 - [v2.1.1] 조건부 data-testid 사용: 동적 컨텐츠(MBTI/학습 스타일)에 조건부 testid 적용
 - [v2.1.1] 누락 라우트 생성: 테스트에서 참조하는 모든 페이지 구현
+- [23-01] 최소 변경 원칙: 기존 UI/스타일 변경 없이 data-testid 속성만 추가
+- [23-01] ProviderSelect 컴포넌트 UI only: 기본 제공자 선택 드롭다운 UI만 구현, 실제 동작은 추후 Phase에서 구현
+- [23-01] DateRangeSelector UI only: 날짜 범위 선택기 UI만 구현, 실제 필터링은 추후 Phase에서 구현
 
 **v2.1 결정:**
 - [v2.1] 선생님 중심 운영: 학부모 계정 없이 선생님이 모든 상담 관리
@@ -173,10 +177,10 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-07 00:02 KST
-Stopped at: Completed Phase 23 Plan 02 (data-testid for counseling, matching, performance)
+Last session: 2026-02-06 23:58 KST
+Stopped at: Completed Phase 23 Plan 01 (data-testid for student, analysis, admin pages)
 Resume file: None
-Next action: Continue Phase 23 with remaining plans or move to Phase 24
+Next action: Execute Phase 23 Plan 02 or move to Phase 24
 
 ---
-*Last updated: 2026-02-06 (Phase 23 Plan 02 완료)*
+*Last updated: 2026-02-06 (Phase 23 Plan 01 완료)*
