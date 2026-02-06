@@ -1,11 +1,17 @@
 "use client";
 
 import { deleteStudent } from "@/lib/actions/student";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function StudentDetailActions({ id }: { id: string }) {
+    const router = useRouter();
+
     const handleDelete = async () => {
         if (confirm("정말로 정보를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) {
             await deleteStudent(id);
+            toast.success("학생이 삭제되었습니다.");
+            router.push("/students");
         }
     };
 
