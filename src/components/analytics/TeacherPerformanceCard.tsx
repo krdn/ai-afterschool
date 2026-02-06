@@ -38,6 +38,7 @@ export function TeacherPerformanceCard({
 
   return (
     <Card
+      data-testid="metric-card"
       className={`transition-all hover:shadow-lg ${
         isTopPerformer
           ? "border-2 border-yellow-500 shadow-md"
