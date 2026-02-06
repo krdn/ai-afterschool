@@ -10,16 +10,16 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 ## Current Position
 
 Phase: 25 - Student, Analysis & Report UI Enhancement
-Plan: 02
+Plan: 04
 Status: In progress
-Last activity: 2026-02-07 — Plan 25-02 완료 (Analysis Tab 서브탭 분리 및 에러 처리 개선)
+Last activity: 2026-02-07 — Plan 25-04 완료 (PDF 다운로드 확인)
 
-Progress: [████░░░░░░░░░░░░░░░░] 30%
+Progress: [██████████░░░░░░░░░░░] 60%
 
 **v2.1.1 E2E Test Compliance** ○ ACTIVE
 - Phase 23: data-testid Infrastructure (✓ complete)
 - Phase 24: Missing Routes Creation (✓ complete)
-- Phase 25: Student, Analysis & Report UI Enhancement (● 2/4 complete)
+- Phase 25: Student, Analysis & Report UI Enhancement (● 4/4 complete)
 - Phase 26: Counseling & Matching UI Enhancement (○ pending)
 - Phase 27: RBAC, Auth & Error Handling (○ pending)
 - Phase 28: Integration Verification & Test Alignment (○ pending)
@@ -51,15 +51,15 @@ Progress: [████░░░░░░░░░░░░░░░░] 30%
 | 22 (v2.1) | 7 | 27 min | ~4 min |
 | 23 (v2.1.1) | 1 | 5 min | ~5 min |
 | 24 (v2.1.1) | 4 | ~9 min | ~2.3 min |
-| 25 (v2.1.1) | 2 | ~7 min | ~3.5 min |
+| 25 (v2.1.1) | 4 | ~10 min | ~2.5 min |
 
 **Recent Trend:**
 - v2.0 complete: 40 plans in ~119 min (~3 min/plan average)
 - v2.1 complete: 30 plans in ~189 min (~6.3 min/plan average)
-- v2.1.1 active: 7 plans in ~20 min (~2.9 min/plan average)
-- Velocity: v1.0 (7 min) → v2.0 (~3 min) → v2.1 (~6 min) → v2.1.1 (~2.9 min)
+- v2.1.1 active: 9 plans in ~24 min (~2.7 min/plan average)
+- Velocity: v1.0 (7 min) → v2.0 (~3 min) → v2.1 (~6 min) → v2.1.1 (~2.7 min)
 
-*Updated after Phase 25 Plan 02 completion*
+*Updated after Phase 25 Plan 04 completion*
 
 ## Accumulated Context
 
@@ -83,6 +83,7 @@ Recent decisions affecting current work:
 - [25-02] 통일된 에러 메시지: '{분석 유형} 분석에 실패했습니다. (원인: {error}) 다시 시도해주세요.'
 - [25-02] 재시도 버튼 스타일: Button 컴포넌트 + variant='outline' + RefreshCw/Loader2 아이콘
 - [25-02] 서버 액션 데이터 페칭: 클라이언트 컴포넌트에서 useEffect로 서버 액션 호출하여 데이터 조회
+- [25-04] Toast ID 패턴: toast.success/error에 id 옵션 추가로 E2E 테스트에서 노출 검증 가능
 - [23-01] ProviderSelect 컴포넌트 UI only: 기본 제공자 선택 드롭다운 UI만 구현, 실제 동작은 추후 Phase에서 구현
 - [23-01] DateRangeSelector UI only: 날짜 범위 선택기 UI만 구현, 실제 필터링은 추후 Phase에서 구현
 - [24-01] 감사 로그와 시스템 로그 분리: 사용자별 추적(teacherId, IP, User-Agent)이 필요한 감사 로그와 애플리케이션 전체 이벤트 기록이 목적인 시스템 로그를 별도 모델로 분리
@@ -194,10 +195,10 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-07 02:00 KST
-Stopped at: Completed Phase 25 Plan 02 (Analysis Tab 서브탭 분리 및 에러 처리 개선)
+Last session: 2026-02-07 02:20 KST
+Stopped at: Completed Phase 25 Plan 04 (PDF 다운로드 확인)
 Resume file: None
-Next action: Execute Phase 25 Plan 03 or move to next plan
+Next action: Execute Phase 26 or next plan
 
 ---
-*Last updated: 2026-02-07 (Phase 25 Plan 02 완료)*
+*Last updated: 2026-02-07 (Phase 25 Plan 04 완료)*
