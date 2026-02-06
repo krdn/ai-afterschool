@@ -257,6 +257,29 @@ npm run dev
 ```
 → http://localhost:3000
 
+### 5. 테스트 실행
+#### E2E 테스트 (Playwright)
+```bash
+# 테스트 데이터 시딩 (필수)
+npm run db:seed:test
+
+# 전체 테스트 실행
+npm run test:e2e
+
+# UI 모드로 실행 (디버깅용)
+npx playwright test --ui
+```
+
+#### 유닛 테스트 (Vitest)
+```bash
+npm run test
+```
+
+### 6. 유틸리티 스크립트
+- `npm run setup:minio`: MinIO 버킷 초기화 및 정책 설정
+- `npm run validate:env`: 환경 변수 유효성 검사
+
+
 ## 🗄 데이터베이스
 
 ### 주요 모델
@@ -312,6 +335,8 @@ chore: 빌드, 설정 등 기타 작업
 | 04. MBTI 분석 | ✅ 완료 | 설문, 자동 저장, 분석 |
 | 05. AI 이미지 분석 | ✅ 완료 | 관상, 손금 분석 |
 | 06. 통합 성향 분석 | 🚧 진행 중 | 모든 분석 통합, 맞춤형 학습 전략 |
+| 07. 테스트 자동화 | ✅ 완료 | Playwright E2E 테스트 구축 (학생 관리 100% 커버리지) |
+| 08. 배포 자동화 | 🚧 진행 중 | Docker Compose 기반 배포 환경 구성 |
 
 ## 🤝 기여 방법
 

@@ -11,7 +11,7 @@
 
 ## 🎯 Objective (목표)
 
-`docs/test_scenarios.md` 문서를 생성하거나 최신화하여, 프로젝트의 **Single Source of Truth (유일한 진실 공급원)**가 되도록 만드십시오.
+`SCENARIOS.md` 문서를 생성하거나 최신화하여, 프로젝트의 **Single Source of Truth (유일한 진실 공급원)**가 되도록 만드십시오.
 
 ## 💎 Core Principles (핵심 원칙)
 
@@ -31,7 +31,7 @@
     *   **Security**: IDOR(부적절한 객체 참조), XSS, SQLi 등의 보안 취약점을 체크할 수 있는 시나리오를 포함하십시오.
 
 4.  **Living Document Strategy (살아있는 문서 전략)**
-    *   문서는 단 하나(`test_scenarios.md`)만 유지합니다.
+    *   문서는 단 하나(`SCENARIOS.md`)만 유지합니다.
     *   버전 관리는 Git에게 맡기십시오. 파일명을 `v1.0_...`, `v1.1_...`로 분리하지 마십시오.
     *   단, 메이저 배포(Release) 시점에만 `.planning/milestones/` 폴더에 스냅샷을 아카이빙합니다.
 

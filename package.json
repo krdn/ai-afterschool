@@ -14,7 +14,10 @@
     "setup:minio": "tsx scripts/setup-minio.ts",
     "migrate:pdfs": "tsx scripts/migrate-pdfs-to-s3.ts",
     "migrate:pdfs:execute": "tsx scripts/migrate-pdfs-to-s3.ts --execute",
-    "migrate:pdfs:rollback": "tsx scripts/migrate-pdfs-to-s3.ts --rollback"
+    "migrate:pdfs:rollback": "tsx scripts/migrate-pdfs-to-s3.ts --rollback",
+    "test:e2e": "playwright test",
+    "test:generate": "tsx scripts/generate-tests.ts",
+    "db:seed:test": "tsx prisma/seed-test.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -35,13 +38,16 @@
     "@react-pdf/renderer": "^4.3.2",
     "@sentry/nextjs": "^10.38.0",
     "@tanstack/react-table": "^8.21.3",
+    "@types/bcryptjs": "^2.4.6",
     "ai": "^6.0.64",
     "argon2": "^0.44.0",
+    "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "cloudinary": "^2.9.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "jose": "^6.1.3",
+    "jsonwebtoken": "^9.0.3",
     "lucide-react": "^0.563.0",
     "next": "^15.5.10",
     "next-cloudinary": "^6.17.5",
