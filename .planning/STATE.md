@@ -10,16 +10,16 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 ## Current Position
 
 Phase: 25 - Student, Analysis & Report UI Enhancement
-Plan: 04
-Status: In progress
-Last activity: 2026-02-07 — Plan 25-04 완료 (PDF 다운로드 확인)
+Plan: 03
+Status: Complete
+Last activity: 2026-02-07 — Plan 25-03 완료 (분석 이력 조회 UI)
 
-Progress: [██████████░░░░░░░░░░░] 60%
+Progress: [██████████░░░░░░░░░░░] 75%
 
 **v2.1.1 E2E Test Compliance** ○ ACTIVE
 - Phase 23: data-testid Infrastructure (✓ complete)
 - Phase 24: Missing Routes Creation (✓ complete)
-- Phase 25: Student, Analysis & Report UI Enhancement (● 4/4 complete)
+- Phase 25: Student, Analysis & Report UI Enhancement (● 3/4 complete)
 - Phase 26: Counseling & Matching UI Enhancement (○ pending)
 - Phase 27: RBAC, Auth & Error Handling (○ pending)
 - Phase 28: Integration Verification & Test Alignment (○ pending)
@@ -84,6 +84,9 @@ Recent decisions affecting current work:
 - [25-02] 재시도 버튼 스타일: Button 컴포넌트 + variant='outline' + RefreshCw/Loader2 아이콘
 - [25-02] 서버 액션 데이터 페칭: 클라이언트 컴포넌트에서 useEffect로 서버 액션 호출하여 데이터 조회
 - [25-04] Toast ID 패턴: toast.success/error에 id 옵션 추가로 E2E 테스트에서 노출 검증 가능
+- [25-03] 현재 스키마 제약사항으로 최신 분석 1개만 표시: 각 분석 모델이 @unique 제약조건으로 인해 학생당 1개 레코드만 존재. 진정한 이력 기능은 별도 이력 테이블이 필요 (향후 개선)
+- [25-03] History Dialog 패턴: 목록 → 상세 보기 2단계 모달 구조로 이력 조회
+- [25-03] Async Dialog Loading: 모달 열릴 때 데이터 lazy loading
 - [23-01] ProviderSelect 컴포넌트 UI only: 기본 제공자 선택 드롭다운 UI만 구현, 실제 동작은 추후 Phase에서 구현
 - [23-01] DateRangeSelector UI only: 날짜 범위 선택기 UI만 구현, 실제 필터링은 추후 Phase에서 구현
 - [24-01] 감사 로그와 시스템 로그 분리: 사용자별 추적(teacherId, IP, User-Agent)이 필요한 감사 로그와 애플리케이션 전체 이벤트 기록이 목적인 시스템 로그를 별도 모델로 분리
@@ -195,10 +198,10 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-07 02:20 KST
-Stopped at: Completed Phase 25 Plan 04 (PDF 다운로드 확인)
+Last session: 2026-02-07 02:26 KST
+Stopped at: Completed Phase 25 Plan 03 (분석 이력 조회 UI)
 Resume file: None
-Next action: Execute Phase 26 or next plan
+Next action: Execute Phase 25 Plan 04 or move to Phase 26
 
 ---
-*Last updated: 2026-02-07 (Phase 25 Plan 04 완료)*
+*Last updated: 2026-02-07 (Phase 25 Plan 03 완료)*
