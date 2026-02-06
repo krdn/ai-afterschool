@@ -2,6 +2,7 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
+import { formatChangesSummary } from '@/lib/utils/change-formatter'
 import type { AuditLogEntry } from '@/lib/actions/audit'
 
 interface MatchingAuditTableProps {
@@ -33,27 +34,6 @@ export function MatchingAuditTable({ logs, onRowClick }: MatchingAuditTableProps
         return 'bg-red-100 text-red-800 hover:bg-red-100 dark:bg-red-900 dark:text-red-100'
       default:
         return 'bg-gray-100 text-gray-800 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-100'
-    }
-  }
-
-  const formatChanges = (changes: Record<string, unknown> | null): string => {
-    if (!changes) return '-'
-
-    try {
-      return Object.entries(changes)
-        .map(([key, value]) => {
-          if (typeof value === 'object' && value !== null) {
-            const { before, after } = value as { before?: unknown; after?: unknown }
-            if (before !== undefined && after !== undefined) {
-              return `${key}: ${JSON.stringify(before)} → ${JSON.stringify(after)}`
-            }
-          }
-          return `${key}: ${JSON.stringify(value)}`
-        })
-        .join(', ')
-        .slice(0, 100) // 최대 100자로 제한
-    } catch {
-      return JSON.stringify(changes).slice(0, 100)
     }
   }
 
@@ -100,8 +80,8 @@ export function MatchingAuditTable({ logs, onRowClick }: MatchingAuditTableProps
                   {log.action}
                 </Badge>
               </TableCell>
-              <TableCell className="max-w-md truncate" title={formatChanges(log.changes)}>
-                {formatChanges(log.changes)}
+              <TableCell className="max-w-md truncate" title={formatChangesSummary(log.changes, 500)}>
+                {formatChangesSummary(log.changes)}
               </TableCell>
             </TableRow>
           ))}
