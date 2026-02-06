@@ -287,7 +287,14 @@ Plans:
 ### Phase 23: data-testid Infrastructure
 **Goal**: 모든 기존 컴포넌트에 data-testid 속성 추가 (E2E 테스트 안정성)
 **Depends on**: Phase 22
-**Requirements**: STU-01, ADM-01, ADM-02, ANL-01, CNS-01, CNS-02, MAT-01, PRF-01
+**Requirements**: STU-01, ADM-01, ADM-02, ANL-01, CNS-01, CNS-02, MAT-01, MAT-02, PRF-01
+**Plans**: 2 plans in 1 wave
+**Status**: Planned
+
+Plans:
+- [ ] 23-01-PLAN.md — 학생/분석/Admin 페이지 data-testid 추가 (STU-01, ANL-01, ADM-01, ADM-02)
+- [ ] 23-02-PLAN.md — 상담/매칭/성과 페이지 data-testid 추가 (CNS-01, CNS-02, MAT-01, MAT-02, PRF-01)
+
 **Success Criteria** (what must be TRUE):
   1. 학생 관련 주요 컴포넌트(card, 폼 필드, 탭)에 data-testid가 추가되어 E2E 테스트에서 안정적으로 셀렉트 가능하다
   2. Admin LLM 설정 페이지의 주요 요소(current-provider, provider-select)에 data-testid가 추가되어 테스트 가능하다
@@ -395,14 +402,14 @@ Phases execute in numeric order: 23 → 24 → 25 → 26 → 27 → 28
 | 20. Student Page Integration | v2.1 | 3/3 | Complete | 2026-02-04 |
 | 21. Statistics & Dashboard | v2.1 | 7/7 | Complete | 2026-02-04 |
 | 22. AI Integration | v2.1 | 7/7 | Complete | 2026-02-05 |
-| 23. data-testid Infrastructure | v2.1.1 | 0/? | Pending | — |
+| 23. data-testid Infrastructure | v2.1.1 | 0/2 | Planned | — |
 | 24. Missing Routes Creation | v2.1.1 | 0/? | Pending | — |
 | 25. Student, Analysis & Report UI Enhancement | v2.1.1 | 0/? | Pending | — |
 | 26. Counseling & Matching UI Enhancement | v2.1.1 | 0/? | Pending | — |
 | 27. RBAC, Auth & Error Handling | v2.1.1 | 0/? | Pending | — |
 | 28. Integration Verification & Test Alignment | v2.1.1 | 0/? | Pending | — |
 
-**Overall Progress:** 129/129 plans complete (v1.0-v2.1: 100%) ✅ | v2.1.1: 0% 🔧
+**Overall Progress:** 129/129 plans complete (v1.0-v2.1: 100%) | v2.1.1: 0/2 planned
 
 ---
-*Last updated: 2026-02-06 (v2.1.1 phases 23-28 defined)*
+*Last updated: 2026-02-06 (Phase 23 planned: 2 plans in 1 wave)*
