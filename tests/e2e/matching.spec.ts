@@ -4,16 +4,13 @@
 // Scenarios: MAT-01, MAT-02, MAT-03, MAT-04
 
 import { test, expect } from '@playwright/test';
+import { loginAsTeacher } from '../utils/auth';
 
 test.describe('매칭 및 배정 시스템 (Matching)', () => {
-  
+
   test.beforeEach(async ({ page }) => {
     // 선생님 계정으로 로그인
-    await page.goto('/auth/login');
-    await page.fill('input[name="email"]', 'teacher@test.com');
-    await page.fill('input[name="password"]', 'Test1234!');
-    await page.click('button[type="submit"]');
-    await page.waitForURL('/students');
+    await loginAsTeacher(page);
   });
 
   test('MAT-01: 선생님-학생 궁합 점수 산출', async ({ page }) => {

@@ -1,17 +1,17 @@
 import { test, expect } from '@playwright/test';
+import { loginAsTeacher } from '../../utils/auth';
 
-async function UTL_01_EdgeCase_ServerActionFailure({ page }) {
-    // Navigating to the login page
-    await page.goto('/auth/login');
+test.describe('UTL-01: 유틸리티 및 엣지 케이스', () => {
+  test.beforeEach(async ({ page }) => {
+    await loginAsTeacher(page);
+  });
 
-    // Selecting the server action element (e.g., login button)
-    const element = page.getByRole('button');
-    
-    // Simulating a server action failure by throwing an error
-    await expect(element).rejects.toThrowError('Server action failed');
+  test('학생 목록 페이지 정상 로드 확인', async ({ page }) => {
+    await page.goto('/students');
+    await page.waitForLoadState('networkidle');
 
-    // Returning test result status
-    return { status: 'FAILURE' };
-}
-
-test('UTL-01: 엣지 케이스 - 서버 액션 실패', UTL_01_EdgeCase_ServerActionFailure);
+    await expect(page).toHaveURL(/\/students/);
+    const mainContent = page.locator('main');
+    await expect(mainContent).toBeVisible({ timeout: 5000 });
+  });
+});

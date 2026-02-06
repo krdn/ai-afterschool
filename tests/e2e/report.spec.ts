@@ -71,14 +71,8 @@ async function ensureStudentWithCompleteAnalysis(page: Page): Promise<string> {
   return studentId;
 }
 
-// Helper to login as teacher
-async function loginAsTeacher(page: Page) {
-  await page.goto('/auth/login');
-  await page.fill('input[name="email"]', 'teacher@test.com');
-  await page.fill('input[name="password"]', 'Password123!');
-  await page.click('button[type="submit"]');
-  await page.waitForURL(/\/students|\/students/, { timeout: 10000 });
-}
+// 공통 auth 헬퍼에서 import
+import { loginAsTeacher } from '../utils/auth';
 
 test.describe('Report & Utility Tests', () => {
   test.beforeEach(async ({ page }) => {

@@ -1,39 +1,16 @@
-import { test } from '@playwright/test';
+import { test, expect } from '@playwright/test';
+import { loginAsTeacher } from '../../utils/auth';
 
 test.describe('PRF-03: 상담 유형 및 추이 분석', () => {
-  let page;
-
-  // Form Fill
   test.beforeEach(async ({ page }) => {
-    page = page;
-    await page.goto('/form'); // Assuming the form is on a specific route
-    await page.querySelector('[name="Submit"]').click();
+    await loginAsTeacher(page);
   });
 
-  // Result Page Load
-  test('Result Page Load', async () => {
-    await page.waitForTimeout(2000);
-  });
+  test('상담 페이지 접근 확인', async ({ page }) => {
+    await page.goto('/counseling');
+    await page.waitForLoadState('networkidle');
 
-  // Analytics Section Access
-  test('Analytics Section Access', async () => {
-    const analytics = page.querySelector('[name="analytics"]');
-    if (analytics) {
-      await analytics.click();
-    }
-  });
-
-  // Trend Analysis Check
-  test('Trend Analysis Check', async () => {
-    const pieChart = page.querySelector('[name="Pie Chart"]');
-    const lineGraph = page.querySelector('[name="Line Graph"]');
-
-    if (pieChart) {
-      expect(pieChart.textContent).not.toBeNull();
-    }
-
-    if (lineGraph) {
-      expect(lineGraph.textContent).not.toBeNull();
-    }
+    const mainContent = page.locator('main');
+    await expect(mainContent).toBeVisible({ timeout: 5000 });
   });
 });

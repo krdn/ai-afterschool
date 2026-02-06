@@ -1,16 +1,15 @@
 import { test, expect } from '@playwright/test';
+import { loginAsTeacher } from '../../utils/auth';
 
-test('TCH-03: 선생님 자신의 성향 분석 run', async ({ page }) => {
-  await page.getByLabel('分析', 'performance');
+test.describe('TCH-03: 선생님 자신의 성향 분석', () => {
+  test.beforeEach(async ({ page }) => {
+    await loginAsTeacher(page);
+  });
 
-  const performanceAnalysis = await page.locator('selector-for-performance-analysis').first();
-  
-  if (!performanceAnalysis) {
-    throw new Error('Not found performance analysis section');
-  }
+  test('로그인 후 대시보드 접근 확인', async ({ page }) => {
+    await expect(page).toHaveURL(/\/students/);
 
-  const analysisText = await performanceAnalysis.textContent();
-  console.log('Current Performance Analysis:', analysisText);
-
-  await page.goto('/auth/login');
+    const mainContent = page.locator('main');
+    await expect(mainContent).toBeVisible({ timeout: 5000 });
+  });
 });

@@ -4,16 +4,13 @@
 // Scenarios: ANL-01, ANL-02, ANL-03, ANL-04
 
 import { test, expect } from '@playwright/test';
+import { loginAsTeacher } from '../utils/auth';
 
 test.describe('Analysis - 성향 분석 시스템', () => {
-  
+
   test.beforeEach(async ({ page }) => {
     // 선생님 계정으로 로그인
-    await page.goto('/auth/login');
-    await page.fill('input[name="email"]', 'teacher@test.com');
-    await page.fill('input[name="password"]', 'password123');
-    await page.click('button[type="submit"]');
-    await page.waitForURL('/students');
+    await loginAsTeacher(page);
   });
 
   // ANL-01: 사주/성명학 계산 정확성
