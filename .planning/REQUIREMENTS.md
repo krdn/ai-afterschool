@@ -80,22 +80,55 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| STU-01 ~ STU-04 | TBD | Pending |
-| TCH-01 ~ TCH-04 | TBD | Pending |
-| ADM-01 ~ ADM-07 | TBD | Pending |
-| ANL-01 ~ ANL-04 | TBD | Pending |
-| CNS-01 ~ CNS-04 | TBD | Pending |
-| MAT-01 ~ MAT-04 | TBD | Pending |
-| PRF-01 ~ PRF-03 | TBD | Pending |
-| RPT-01 ~ RPT-02 | TBD | Pending |
-| UTL-01 ~ UTL-02 | TBD | Pending |
-| AUTH-01 | TBD | Pending |
+| STU-01 | Phase 23 | Pending |
+| STU-02 | Phase 25 | Pending |
+| STU-03 | Phase 25 | Pending |
+| STU-04 | Phase 25 | Pending |
+| TCH-01 | Phase 24 | Pending |
+| TCH-02 | Phase 27 | Pending |
+| TCH-03 | Phase 27 | Pending |
+| TCH-04 | Phase 27 | Pending |
+| ADM-01 | Phase 23 | Pending |
+| ADM-02 | Phase 23 | Pending |
+| ADM-03 | Phase 24 | Pending |
+| ADM-04 | Phase 24 | Pending |
+| ADM-05 | Phase 24 | Pending |
+| ADM-06 | Phase 24 | Pending |
+| ADM-07 | Phase 27 | Pending |
+| ANL-01 | Phase 23 | Pending |
+| ANL-02 | Phase 25 | Pending |
+| ANL-03 | Phase 25 | Pending |
+| ANL-04 | Phase 25 | Pending |
+| CNS-01 | Phase 23 | Pending |
+| CNS-02 | Phase 23 | Pending |
+| CNS-03 | Phase 26 | Pending |
+| CNS-04 | Phase 26 | Pending |
+| MAT-01 | Phase 23 | Pending |
+| MAT-02 | Phase 23 | Pending |
+| MAT-03 | Phase 26 | Pending |
+| MAT-04 | Phase 26 | Pending |
+| PRF-01 | Phase 23 | Pending |
+| PRF-02 | Phase 26 | Pending |
+| PRF-03 | Phase 24 | Pending |
+| RPT-01 | Phase 24 | Pending |
+| RPT-02 | Phase 25 | Pending |
+| UTL-01 | Phase 25 | Pending |
+| UTL-02 | Phase 25 | Pending |
+| AUTH-01 | Phase 27 | Pending |
 
 **Coverage:**
 - v2.1.1 requirements: 34 total
-- Mapped to phases: 0
-- Unmapped: 34
+- Mapped to phases: 34 (100%)
+- Unmapped: 0
+
+**Phase Breakdown:**
+- Phase 23 (data-testid Infrastructure): 8 requirements
+- Phase 24 (Missing Routes Creation): 7 requirements
+- Phase 25 (Student, Analysis & Report UI Enhancement): 9 requirements
+- Phase 26 (Counseling & Matching UI Enhancement): 5 requirements
+- Phase 27 (RBAC, Auth & Error Handling): 5 requirements
+- Phase 28 (Integration Verification): All 34 requirements (verification phase)
 
 ---
 *Requirements defined: 2026-02-06*
-*Last updated: 2026-02-06 after initial definition*
+*Last updated: 2026-02-06 after roadmap creation (100% coverage)*
