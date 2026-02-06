@@ -9,46 +9,47 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { DatePreset } from "@/types/statistics"
+import { ExtendedDatePreset, PRESET_LABELS, DEFAULT_PRESETS } from "@/lib/utils/date-range"
 
 interface DateRangeFilterProps {
-  value: DatePreset
-  onChange: (preset: DatePreset) => void
+  value: string
+  onChange: (preset: string) => void
   variant?: 'buttons' | 'dropdown'
   showCustom?: boolean
-}
-
-const PRESET_LABELS: Record<DatePreset, string> = {
-  '1M': '최근 1개월',
-  '3M': '최근 3개월',
-  '6M': '최근 6개월',
-  '1Y': '최근 1년'
+  presets?: string[]
+  labels?: Record<string, string>
 }
 
 /**
  * 기간 필터 컴포넌트
  *
  * 두 가지 UI 스타일 제공:
- * - buttons: 4개 버튼 나란히 배치 (기본값)
+ * - buttons: 프리셋 버튼 그룹 (기본값)
  * - dropdown: Select 드롭다운
+ *
+ * 커스텀 프리셋과 라벨을 지원합니다.
  */
 export function DateRangeFilter({
   value,
   onChange,
   variant = 'buttons',
-  showCustom = false
+  showCustom = false,
+  presets = DEFAULT_PRESETS,
+  labels
 }: DateRangeFilterProps) {
-  const presets: DatePreset[] = ['1M', '3M', '6M', '1Y']
+  // 커스텀 라벨 병합 (기본 라벨 우선, 커스텀 라벨로 덮어쓰기)
+  const mergedLabels = { ...PRESET_LABELS, ...labels }
 
   if (variant === 'dropdown') {
     return (
-      <Select value={value} onValueChange={(v) => onChange(v as DatePreset)}>
+      <Select value={value} onValueChange={onChange}>
         <SelectTrigger className="w-[150px]">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
           {presets.map((preset) => (
             <SelectItem key={preset} value={preset}>
-              {PRESET_LABELS[preset]}
+              {mergedLabels[preset as ExtendedDatePreset] || preset}
             </SelectItem>
           ))}
           {showCustom && <SelectItem value="custom">사용자 지정</SelectItem>}
@@ -67,15 +68,16 @@ export function DateRangeFilter({
           size="sm"
           onClick={() => onChange(preset)}
           className="whitespace-nowrap"
+          data-testid={`date-preset-${preset.toLowerCase()}`}
         >
-          {PRESET_LABELS[preset]}
+          {mergedLabels[preset as ExtendedDatePreset] || preset}
         </Button>
       ))}
       {showCustom && (
         <Button
-          variant={value === 'custom' as DatePreset ? 'default' : 'secondary'}
+          variant={value === 'custom' ? 'default' : 'secondary'}
           size="sm"
-          onClick={() => onChange('custom' as DatePreset)}
+          onClick={() => onChange('custom')}
         >
           사용자 지정
         </Button>
@@ -83,3 +85,6 @@ export function DateRangeFilter({
     </div>
   )
 }
+
+// 타입 재내보내기
+export type { ExtendedDatePreset } from '@/lib/utils/date-range'
