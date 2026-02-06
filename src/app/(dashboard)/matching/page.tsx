@@ -12,6 +12,7 @@ import {
 import { ManualAssignmentForm } from "@/components/assignment/manual-assignment-form"
 import { BatchAssignment } from "@/components/assignment/batch-assignment"
 import { TeacherAssignmentTable } from "@/components/assignment/teacher-assignment-table"
+import { MatchingHistoryTab } from "@/components/matching/MatchingHistoryTab"
 import { Users, Brain, ArrowRight } from "lucide-react"
 
 export default async function MatchingPage() {
@@ -98,35 +99,15 @@ export default async function MatchingPage() {
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>배정 작업</CardTitle>
-          <CardDescription>학생-선생님 배정을 관리합니다</CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-wrap gap-3">
-          <ManualAssignmentForm students={allStudents} teachers={teachersList} />
-          <BatchAssignment students={allStudents} teachers={teachersList} />
-          <Button asChild variant="secondary">
-            <Link href="/matching/auto-assign">
-              <Brain className="mr-2 h-4 w-4" />
-              AI 자동 배정 제안
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>선생님별 배정 현황</CardTitle>
-          <CardDescription>
-            각 선생님의 담당 학생 수와 목록을 확인합니다
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <TeacherAssignmentTable teachers={teachers} />
-        </CardContent>
-      </Card>
+      {/* Tabs UI - 기존 컨텐츠를 배정 현황 탭으로 이동 */}
+      <MatchingPageTabs
+        teachers={teachers}
+        allStudents={allStudents}
+        teachersList={teachersList}
+      />
     </div>
   )
 }
+
+// 별도의 Client Component로 탭 상태 관리
+import { MatchingPageTabs } from "./matching-tabs"
