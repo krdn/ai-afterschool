@@ -45,7 +45,7 @@ export function SajuAnalysisPanel({ student, analysis }: SajuAnalysisPanelProps)
     : null
 
   return (
-    <Card>
+    <Card data-testid="saju-tab">
       <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <CardTitle>사주 분석</CardTitle>
         <div className="text-xs text-gray-500">
@@ -96,32 +96,32 @@ export function SajuAnalysisPanel({ student, analysis }: SajuAnalysisPanelProps)
         <div className="space-y-2">
           <h3 className="text-sm font-semibold text-gray-600">2. 사주 구조</h3>
           {result ? (
-            <div className="grid gap-3 rounded-md border border-gray-200 bg-white p-4 text-sm">
+            <div data-testid="saju-result" className="grid gap-3 rounded-md border border-gray-200 bg-white p-4 text-sm">
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 <div>
                   <p className="text-xs text-gray-500">연주</p>
-                  <p className="font-medium">
+                  <p data-testid="year-pillar" className="font-medium">
                     {result.pillars.year.stem}
                     {result.pillars.year.branch}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500">월주</p>
-                  <p className="font-medium">
+                  <p data-testid="month-pillar" className="font-medium">
                     {result.pillars.month.stem}
                     {result.pillars.month.branch}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500">일주</p>
-                  <p className="font-medium">
+                  <p data-testid="day-pillar" className="font-medium">
                     {result.pillars.day.stem}
                     {result.pillars.day.branch}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500">시주</p>
-                  <p className="font-medium">
+                  <p data-testid="hour-pillar" className="font-medium">
                     {result.pillars.hour
                       ? `${result.pillars.hour.stem}${result.pillars.hour.branch}`
                       : "미상"}
@@ -129,7 +129,7 @@ export function SajuAnalysisPanel({ student, analysis }: SajuAnalysisPanelProps)
                 </div>
               </div>
               <div className="text-xs text-gray-500">
-                절기: {result.meta.solarTerm} · 오행 균형: 목 {result.elements.목} / 화 {result.elements.화} / 토 {result.elements.토} / 금 {result.elements.금} / 수 {result.elements.수}
+                절기: {result.meta.solarTerm} · <span data-testid="ohang-analysis">오행 균형: 목 {result.elements.목} / 화 {result.elements.화} / 토 {result.elements.토} / 금 {result.elements.금} / 수 {result.elements.수}</span>
               </div>
             </div>
           ) : (

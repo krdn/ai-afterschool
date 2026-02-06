@@ -37,9 +37,11 @@ export default async function StudentsPage(props: {
                     {students.map((student) => (
                         <Link key={student.id} href={`/students/${student.id}`} className="block">
                             <div data-testid="student-card" className="border p-4 rounded hover:shadow-lg transition bg-white">
-                                <h3 className="text-xl font-semibold mb-2">{student.name}</h3>
+                                <h3 data-testid="student-name" className="text-xl font-semibold mb-2">{student.name}</h3>
                                 <div className="text-gray-600 space-y-1">
-                                    <p>{student.school} {student.grade}학년</p>
+                                    <span data-testid="student-school">{student.school}</span>
+                                    <span> </span>
+                                    <span data-testid="student-grade">{student.grade}학년</span>
                                     <p className="text-sm text-gray-500">
                                         생년월일: {new Date(student.birthDate).toLocaleDateString()}
                                     </p>

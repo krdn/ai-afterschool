@@ -47,7 +47,7 @@ export function NameAnalysisPanel({ student, analysis }: NameAnalysisPanelProps)
     : null
 
   return (
-    <Card>
+    <Card data-testid="name-tab">
       <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <CardTitle>성명학 분석</CardTitle>
         <div className="text-xs text-gray-500">

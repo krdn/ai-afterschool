@@ -87,6 +87,7 @@ export default async function StudentDetailPage(props: {
                             key={tab.id}
                             href={`/students/${student.id}?tab=${tab.id}`}
                             role="tab"
+                            data-testid={`${tab.id}-tab`}
                             className={`px-4 py-2 border-b-2 transition ${currentTab === tab.id ? 'border-blue-600 text-blue-600 font-medium' : 'border-transparent hover:border-gray-300'}`}
                         >
                             {tab.label}

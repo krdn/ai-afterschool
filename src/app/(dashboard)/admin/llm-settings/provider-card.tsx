@@ -114,7 +114,7 @@ export function ProviderCard({ provider, config, savedConfig }: ProviderCardProp
           <div className="space-y-2">
             <Label htmlFor={`${provider}-apikey`}>API Key</Label>
             {savedConfig?.apiKeyMasked && !apiKey && (
-              <p className="text-sm text-muted-foreground">
+              <p data-testid="api-key-display" className="text-sm text-muted-foreground">
                 현재: <code className="bg-muted px-1 rounded">{savedConfig.apiKeyMasked}</code>
               </p>
             )}

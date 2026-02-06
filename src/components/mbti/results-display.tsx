@@ -24,12 +24,12 @@ export function MbtiResultsDisplay({ analysis }: { analysis: MbtiAnalysisData })
 
   return (
     <div className="space-y-6">
-      <div className="text-center">
+      <div data-testid="mbti-result-card" className="text-center">
         <div className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-4 rounded-2xl">
           <span className="text-4xl font-bold tracking-wider">{mbtiType}</span>
           <span className="text-lg font-medium">{typeInfo.name}</span>
         </div>
-        <p className="text-gray-600 mt-3 max-w-lg mx-auto">{typeInfo.summary}</p>
+        <p data-testid="mbti-description" className="text-gray-600 mt-3 max-w-lg mx-auto">{typeInfo.summary}</p>
       </div>
 
       <div className="bg-gray-50 rounded-lg p-4 space-y-4">
@@ -73,7 +73,7 @@ export function MbtiResultsDisplay({ analysis }: { analysis: MbtiAnalysisData })
       </div>
 
       <div className="grid md:grid-cols-2 gap-4">
-        <div className="bg-green-50 rounded-lg p-4">
+        <div data-testid="mbti-strengths" className="bg-green-50 rounded-lg p-4">
           <h3 className="font-semibold text-green-800 mb-3">강점</h3>
           <ul className="space-y-2">
             {typeInfo.strengths.map((strength, i) => (
@@ -84,7 +84,7 @@ export function MbtiResultsDisplay({ analysis }: { analysis: MbtiAnalysisData })
             ))}
           </ul>
         </div>
-        <div className="bg-amber-50 rounded-lg p-4">
+        <div data-testid="mbti-weaknesses" className="bg-amber-50 rounded-lg p-4">
           <h3 className="font-semibold text-amber-800 mb-3">약점</h3>
           <ul className="space-y-2">
             {typeInfo.weaknesses.map((weakness, i) => (
@@ -97,7 +97,7 @@ export function MbtiResultsDisplay({ analysis }: { analysis: MbtiAnalysisData })
         </div>
       </div>
 
-      <div className="bg-blue-50 rounded-lg p-4">
+      <div data-testid="learning-style" className="bg-blue-50 rounded-lg p-4">
         <h3 className="font-semibold text-blue-800 mb-2">추천 학습 방식</h3>
         <p className="text-blue-700">{typeInfo.learningStyle}</p>
       </div>
