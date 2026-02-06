@@ -32,10 +32,10 @@ export default function ReportTab({ studentId, studentName }: ReportTabProps) {
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
 
-      toast.success('PDF 다운로드 완료')
+      toast.success('PDF 다운로드 완료', { id: 'pdf-download-success' })
     } catch (error) {
       console.error('PDF download error:', error)
-      toast.error('PDF 다운로드 실패')
+      toast.error('PDF 다운로드 실패', { id: 'pdf-download-error' })
     } finally {
       setIsDownloading(false)
     }
