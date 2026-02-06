@@ -96,3 +96,95 @@ export async function getAnalysis(studentId: string) {
     });
     return analysis;
 }
+
+/**
+ * 분석 이력 조회 액션
+ * 참고: 현재 스키마는 각 학생당 분석 결과가 1개만 존재합니다 (@unique 제약조건).
+ * 진정한 이력 기능을 위해서는 별도 이력 테이블이 필요하며, 이는 향후 개선 사항입니다.
+ * 현재는 최신 분석 결과와 계산 시간 정보를 반환합니다.
+ */
+export async function getAnalysisHistory(
+    studentId: string,
+    type: 'saju' | 'face' | 'palm' | 'mbti'
+) {
+    try {
+        let historyItem = null
+
+        switch (type) {
+            case 'saju':
+                const sajuAnalysis = await prisma.sajuAnalysis.findUnique({
+                    where: { studentId }
+                })
+                if (sajuAnalysis) {
+                    historyItem = {
+                        id: sajuAnalysis.id,
+                        calculatedAt: sajuAnalysis.calculatedAt,
+                        summary: `버전 ${sajuAnalysis.version} - ${sajuAnalysis.interpretation?.slice(0, 50) || '사주 분석'}...`,
+                        result: sajuAnalysis.result,
+                        interpretation: sajuAnalysis.interpretation
+                    }
+                }
+                break
+            case 'face':
+                const faceAnalysis = await prisma.faceAnalysis.findUnique({
+                    where: { studentId }
+                })
+                if (faceAnalysis) {
+                    historyItem = {
+                        id: faceAnalysis.id,
+                        calculatedAt: faceAnalysis.analyzedAt,
+                        summary: `상태: ${faceAnalysis.status}`,
+                        result: faceAnalysis.result,
+                        errorMessage: faceAnalysis.errorMessage
+                    }
+                }
+                break
+            case 'palm':
+                const palmAnalysis = await prisma.palmAnalysis.findUnique({
+                    where: { studentId }
+                })
+                if (palmAnalysis) {
+                    historyItem = {
+                        id: palmAnalysis.id,
+                        calculatedAt: palmAnalysis.analyzedAt,
+                        summary: `${palmAnalysis.hand} 손 분석 - 상태: ${palmAnalysis.status}`,
+                        result: palmAnalysis.result,
+                        errorMessage: palmAnalysis.errorMessage
+                    }
+                }
+                break
+            case 'mbti':
+                const mbtiAnalysis = await prisma.mbtiAnalysis.findUnique({
+                    where: { studentId }
+                })
+                if (mbtiAnalysis) {
+                    historyItem = {
+                        id: mbtiAnalysis.id,
+                        calculatedAt: mbtiAnalysis.calculatedAt,
+                        summary: `MBTI: ${mbtiAnalysis.mbtiType}`,
+                        result: {
+                            mbtiType: mbtiAnalysis.mbtiType,
+                            percentages: mbtiAnalysis.percentages,
+                            scores: mbtiAnalysis.scores
+                        }
+                    }
+                }
+                break
+        }
+
+        return {
+            success: true,
+            history: historyItem ? [historyItem] : [],
+            note: historyItem
+                ? "현재 스키마에서는 최신 분석 결과 1개만 표시됩니다. 이력 기능은 향후 개선 예정입니다."
+                : "분석 이력이 없습니다."
+        }
+    } catch (error) {
+        console.error(`Failed to fetch ${type} analysis history:`, error)
+        return {
+            success: false,
+            history: [],
+            error: `${type} 분석 이력 조회 중 오류가 발생했습니다.`
+        }
+    }
+}
