@@ -10,15 +10,15 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 ## Current Position
 
 Phase: 24 - Missing Routes Creation
-Plan: 02 of 5
+Plan: 02 of 4
 Status: In progress
-Last activity: 2026-02-06 — Completed Phase 24 Plan 02 (팀 목록/상세 페이지)
+Last activity: 2026-02-07 — Completed Phase 24 Plan 01 (로깅 인프라 및 /teachers/me 리다이렉트)
 
-Progress: [██░░░░░░░░░░░░░░░░░░░] 40%
+Progress: [███░░░░░░░░░░░░░░░░░░] 50%
 
 **v2.1.1 E2E Test Compliance** ○ ACTIVE
 - Phase 23: data-testid Infrastructure (✓ complete)
-- Phase 24: Missing Routes Creation (○ in progress - 2/5 complete)
+- Phase 24: Missing Routes Creation (○ in progress - 2/4 complete)
 - Phase 25: Student, Analysis & Report UI Enhancement (○ pending)
 - Phase 26: Counseling & Matching UI Enhancement (○ pending)
 - Phase 27: RBAC, Auth & Error Handling (○ pending)
@@ -27,7 +27,7 @@ Progress: [██░░░░░░░░░░░░░░░░░░░] 40%
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 131 (v1.0-v2.1)
+- Total plans completed: 132 (v1.0-v2.1)
 - Average duration: ~4.1 min
 - Total execution time: ~8.8 hours
 
@@ -50,15 +50,15 @@ Progress: [██░░░░░░░░░░░░░░░░░░░] 40%
 | 21 (v2.1) | 7 | 109 min | ~15.6 min |
 | 22 (v2.1) | 7 | 27 min | ~4 min |
 | 23 (v2.1.1) | 1 | 5 min | ~5 min |
-| 24 (v2.1.1) | 2 | 2 min | ~1 min |
+| 24 (v2.1.1) | 2 | 5 min | ~2.5 min |
 
 **Recent Trend:**
 - v2.0 complete: 40 plans in ~119 min (~3 min/plan average)
 - v2.1 complete: 30 plans in ~189 min (~6.3 min/plan average)
-- v2.1.1 active: 3 plans in ~7 min (~2.3 min/plan average)
-- Velocity: v1.0 (7 min) → v2.0 (~3 min) → v2.1 (~6 min) → v2.1.1 (~2.3 min)
+- v2.1.1 active: 3 plans in ~10 min (~3.3 min/plan average)
+- Velocity: v1.0 (7 min) → v2.0 (~3 min) → v2.1 (~6 min) → v2.1.1 (~3.3 min)
 
-*Updated after Phase 24 Plan 02 completion*
+*Updated after Phase 24 Plan 01 completion*
 
 ## Accumulated Context
 
@@ -77,6 +77,9 @@ Recent decisions affecting current work:
 - [23-01] 최소 변경 원칙: 기존 UI/스타일 변경 없이 data-testid 속성만 추가
 - [23-01] ProviderSelect 컴포넌트 UI only: 기본 제공자 선택 드롭다운 UI만 구현, 실제 동작은 추후 Phase에서 구현
 - [23-01] DateRangeSelector UI only: 날짜 범위 선택기 UI만 구현, 실제 필터링은 추후 Phase에서 구현
+- [24-01] 감사 로그와 시스템 로그 분리: 사용자별 추적(teacherId, IP, User-Agent)이 필요한 감사 로그와 애플리케이션 전체 이벤트 기록이 목적인 시스템 로그를 별도 모델로 분리
+- [24-01] @@map을 사용한 snake_case 테이블명: 데이터베이스 관리 일관성을 위해 audit_logs, system_logs로 지정
+- [24-01] Server-side redirect 패턴: Server Component에서 Next.js redirect 함수 사용하여 SEO 친화적이고 클라이언트 사이드 리다이렉트보다 빠름
 
 **v2.1 결정:**
 - [v2.1] 선생님 중심 운영: 학부모 계정 없이 선생님이 모든 상담 관리
@@ -180,10 +183,10 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-07 01:01 KST
-Stopped at: Completed Phase 24 Plan 02 (팀 목록/상세 페이지 생성)
+Last session: 2026-02-07 01:04 KST
+Stopped at: Completed Phase 24 Plan 01 (로깅 인프라 및 /teachers/me 리다이렉트)
 Resume file: None
 Next action: Execute Phase 24 Plan 03
 
 ---
-*Last updated: 2026-02-07 (Phase 24 Plan 02 완료)*
+*Last updated: 2026-02-07 (Phase 24 Plan 01 완료)*
