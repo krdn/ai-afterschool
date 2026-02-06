@@ -25,6 +25,7 @@ type StudentImageUploaderProps = {
   previewUrl?: string | null
   value?: StudentImagePayload | null
   onChange?: (payload: StudentImagePayload) => void
+  studentName?: string
 }
 
 const allowedFormats = ["jpg", "jpeg", "png", "heic"]
@@ -46,6 +47,7 @@ export function StudentImageUploader({
   previewUrl,
   value,
   onChange,
+  studentName,
 }: StudentImageUploaderProps) {
   const uploadFolder = studentId
     ? `students/${studentId}/${type}`
@@ -137,7 +139,7 @@ export function StudentImageUploader({
                 height={128}
                 src={publicId}
                 sizes="(max-width: 768px) 100vw, 128px"
-                alt={`${label} 미리보기`}
+                alt={`${studentName || '학생'}의 ${label} 사진`}
                 className="h-32 w-32 rounded-md object-cover"
                 crop="fill"
                 gravity="auto"
