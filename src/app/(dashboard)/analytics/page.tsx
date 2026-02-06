@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from "react"
 import { PerformanceDashboard } from "@/components/analytics/PerformanceDashboard"
+import { PerformanceTrendChart, TrendDataPoint } from "@/components/statistics/PerformanceTrendChart"
 import { Card, CardContent } from "@/components/ui/card"
 import { Loader2, AlertCircle } from "lucide-react"
 import { getTeachers } from "@/lib/actions/teachers"
 import { compareTeachersByGradeImprovement, getCounselingStats, CounselingStats } from "@/lib/actions/analytics"
 import { TeacherWithMetrics } from "@/components/analytics/TeacherPerformanceCard"
 import { getTeacherStudentMetrics } from "@/lib/actions/teacher-performance"
-import { TrendDataPoint } from "@/components/analytics/GradeTrendChart"
+import { DateRange } from "@/types/statistics"
 
 interface TeacherGradeComparison {
   teacherId: string
@@ -77,6 +78,34 @@ export default function AnalyticsPage() {
     fetchAnalyticsData()
   }, [])
 
+  // 성과 향상률 데이터 페칭 핸들러
+  const fetchTrendData = async (range: DateRange): Promise<TrendDataPoint[]> => {
+    try {
+      // GradeHistory에서 기간별 데이터 집계
+      // 여기서는 비어있는 배열을 반환하며, 실제 데이터는 추후 구현
+      // TODO: 실제 GradeHistory 데이터 집계 로직 구현
+      const trendData: TrendDataPoint[] = []
+
+      // 임시 데이터 (데모용)
+      const now = new Date()
+      const dayMs = 24 * 60 * 60 * 1000
+      const daysDiff = Math.floor((now.getTime() - range.start.getTime()) / dayMs)
+
+      for (let i = 0; i <= Math.min(daysDiff, 30); i++) {
+        const date = new Date(range.start.getTime() + i * dayMs)
+        trendData.push({
+          date: date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' }),
+          improvement: Math.random() * 20 - 5 // -5% ~ 15% 랜덤
+        })
+      }
+
+      return trendData.slice(0, 10) // 최대 10개 데이터 포인트
+    } catch (error) {
+      console.error('Failed to fetch trend data:', error)
+      return []
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -87,6 +116,13 @@ export default function AnalyticsPage() {
           </span>
         </div>
       </div>
+
+      {/* 성과 향상률 차트 */}
+      <PerformanceTrendChart
+        initialPreset="3M"
+        onDataRequest={fetchTrendData}
+        title="팀 성과 향상률 추이"
+      />
 
       {loading ? (
         <Card>
