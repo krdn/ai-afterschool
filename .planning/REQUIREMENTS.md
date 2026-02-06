@@ -8,9 +8,9 @@
 ### Student Management
 
 - [x] **STU-01**: 학생 관련 주요 컴포넌트에 data-testid 속성 추가 (student-card, 폼 필드, 탭 등)
-- [ ] **STU-02**: 학생 등록 시 이미지 프리뷰의 img alt 속성 정합성 확보
-- [ ] **STU-03**: 학생 목록 검색 결과가 테스트에서 검증 가능하도록 텍스트 매칭 개선
-- [ ] **STU-04**: 학생 삭제 후 /students 목록으로 리다이렉트 URL 정합성 확보
+- [x] **STU-02**: 학생 등록 시 이미지 프리뷰의 img alt 속성 정합성 확보
+- [x] **STU-03**: 학생 목록 검색 결과가 테스트에서 검증 가능하도록 텍스트 매칭 개선
+- [x] **STU-04**: 학생 삭제 후 /students 목록으로 리다이렉트 URL 정합성 확보
 
 ### Teacher Management
 
@@ -32,9 +32,9 @@
 ### Analysis
 
 - [x] **ANL-01**: 학생 분석 탭에 data-testid 속성 추가 (saju-tab, mbti-tab, analysis-loading 등)
-- [ ] **ANL-02**: 분석 탭 내에서 사주/관상/MBTI를 별도 서브탭으로 분리 표시
-- [ ] **ANL-03**: AI 분석 API 호출 실패 시 에러 메시지 및 재시도 버튼 UI
-- [ ] **ANL-04**: 분석 이력 조회 UI (이전 분석 결과 목록, 상세 보기 모달)
+- [x] **ANL-02**: 분석 탭 내에서 사주/관상/MBTI를 별도 서브탭으로 분리 표시
+- [x] **ANL-03**: AI 분석 API 호출 실패 시 에러 메시지 및 재시도 버튼 UI
+- [x] **ANL-04**: 분석 이력 조회 UI (이전 분석 결과 목록, 상세 보기 모달)
 
 ### Counseling
 
@@ -60,8 +60,8 @@
 
 - [x] **RPT-01**: 학생 리포트 탭 생성 (`/students/[id]?tab=report`) — 리포트 프리뷰 및 PDF 다운로드
 - [x] **RPT-02**: PDF 다운로드 버튼 UI 연동 (다운로드 이벤트 처리)
-- [ ] **UTL-01**: 학생 목록 이미지에 lazy loading 속성 (loading="lazy") 추가
-- [ ] **UTL-02**: Next/Image 컴포넌트의 srcset/width/height 속성 정합성 확보
+- [x] **UTL-01**: 학생 목록 이미지에 lazy loading 속성 (loading="lazy") 추가 (이미지 컬럼 없어 N/A)
+- [x] **UTL-02**: Next/Image 컴포넌트의 srcset/width/height 속성 정합성 확보
 
 ### Auth
 
@@ -81,9 +81,9 @@
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | STU-01 | Phase 23 | Complete |
-| STU-02 | Phase 25 | Pending |
-| STU-03 | Phase 25 | Pending |
-| STU-04 | Phase 25 | Pending |
+| STU-02 | Phase 25 | Complete |
+| STU-03 | Phase 25 | Complete |
+| STU-04 | Phase 25 | Complete |
 | TCH-01 | Phase 24 | Complete |
 | TCH-02 | Phase 27 | Pending |
 | TCH-03 | Phase 27 | Pending |
@@ -96,9 +96,9 @@
 | ADM-06 | Phase 24 | Complete |
 | ADM-07 | Phase 27 | Pending |
 | ANL-01 | Phase 23 | Complete |
-| ANL-02 | Phase 25 | Pending |
-| ANL-03 | Phase 25 | Pending |
-| ANL-04 | Phase 25 | Pending |
+| ANL-02 | Phase 25 | Complete |
+| ANL-03 | Phase 25 | Complete |
+| ANL-04 | Phase 25 | Complete |
 | CNS-01 | Phase 23 | Complete |
 | CNS-02 | Phase 23 | Complete |
 | CNS-03 | Phase 26 | Pending |
@@ -112,14 +112,14 @@
 | PRF-03 | Phase 24 | Complete |
 | RPT-01 | Phase 24 | Complete |
 | RPT-02 | Phase 24 | Complete |
-| UTL-01 | Phase 25 | Pending |
-| UTL-02 | Phase 25 | Pending |
+| UTL-01 | Phase 25 | Complete |
+| UTL-02 | Phase 25 | Complete |
 | AUTH-01 | Phase 27 | Pending |
 
 **Coverage:**
 - v2.1.1 requirements: 34 total
-- Complete: 17 (50%)
-- Pending: 17 (50%)
+- Complete: 26 (76%)
+- Pending: 8 (24%)
 - Mapped to phases: 34 (100%)
 - Unmapped: 0
 
