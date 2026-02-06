@@ -125,7 +125,7 @@ export function StudentTable({ data }: StudentTableProps) {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell colSpan={columns.length} className="h-24 text-center" data-testid="empty-search-result">
                   검색 결과가 없어요.
                 </TableCell>
               </TableRow>
