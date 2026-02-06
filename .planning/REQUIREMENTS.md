@@ -7,7 +7,7 @@
 
 ### Student Management
 
-- [ ] **STU-01**: 학생 관련 주요 컴포넌트에 data-testid 속성 추가 (student-card, 폼 필드, 탭 등)
+- [x] **STU-01**: 학생 관련 주요 컴포넌트에 data-testid 속성 추가 (student-card, 폼 필드, 탭 등)
 - [ ] **STU-02**: 학생 등록 시 이미지 프리뷰의 img alt 속성 정합성 확보
 - [ ] **STU-03**: 학생 목록 검색 결과가 테스트에서 검증 가능하도록 텍스트 매칭 개선
 - [ ] **STU-04**: 학생 삭제 후 /students 목록으로 리다이렉트 URL 정합성 확보
@@ -21,8 +21,8 @@
 
 ### Admin & System
 
-- [ ] **ADM-01**: LLM 설정 페이지(`/admin/llm-settings`)에 data-testid 추가 (current-provider, provider-select 등)
-- [ ] **ADM-02**: 토큰 사용량 페이지(`/admin/llm-usage`)에 data-testid 추가 (usage-chart, total-tokens, estimated-cost)
+- [x] **ADM-01**: LLM 설정 페이지(`/admin/llm-settings`)에 data-testid 추가 (current-provider, provider-select 등)
+- [x] **ADM-02**: 토큰 사용량 페이지(`/admin/llm-usage`)에 data-testid 추가 (usage-chart, total-tokens, estimated-cost)
 - [ ] **ADM-03**: 시스템 상태 모니터링 페이지 생성 (`/admin/system-status`) — DB, 캐시, 스토리지 상태 표시
 - [ ] **ADM-04**: 시스템 로그 조회 페이지 생성 (`/admin/system-logs`)
 - [ ] **ADM-05**: 데이터베이스 백업 관리 페이지 생성 (`/admin/database`)
@@ -31,28 +31,28 @@
 
 ### Analysis
 
-- [ ] **ANL-01**: 학생 분석 탭에 data-testid 속성 추가 (saju-tab, mbti-tab, analysis-loading 등)
+- [x] **ANL-01**: 학생 분석 탭에 data-testid 속성 추가 (saju-tab, mbti-tab, analysis-loading 등)
 - [ ] **ANL-02**: 분석 탭 내에서 사주/관상/MBTI를 별도 서브탭으로 분리 표시
 - [ ] **ANL-03**: AI 분석 API 호출 실패 시 에러 메시지 및 재시도 버튼 UI
 - [ ] **ANL-04**: 분석 이력 조회 UI (이전 분석 결과 목록, 상세 보기 모달)
 
 ### Counseling
 
-- [ ] **CNS-01**: 상담 캘린더 뷰에 data-testid 추가 (calendar-view, counseling-detail-modal 등)
-- [ ] **CNS-02**: 상담 통계 대시보드의 data-testid 및 셀렉터 정합성 확보
+- [x] **CNS-01**: 상담 캘린더 뷰에 data-testid 추가 (calendar-view, counseling-detail-modal 등)
+- [x] **CNS-02**: 상담 통계 대시보드의 data-testid 및 셀렉터 정합성 확보
 - [ ] **CNS-03**: 상담 기록 검색/필터 UI 개선 (검색 입력, 필터 드롭다운)
 - [ ] **CNS-04**: 상담 알림/리마인더 위젯 (다가오는 상담 표시)
 
 ### Matching
 
-- [ ] **MAT-01**: 궁합 점수 표시 UI에 data-testid 추가 (compatibility-score)
-- [ ] **MAT-02**: 공정성 지표 페이지 heading 및 data-testid 추가
+- [x] **MAT-01**: 궁합 점수 표시 UI에 data-testid 추가 (compatibility-score)
+- [x] **MAT-02**: 공정성 지표 페이지 heading 및 data-testid 추가
 - [ ] **MAT-03**: 매칭 이력/감사 로그 UI (변경 이력 테이블)
 - [ ] **MAT-04**: 자동 배정 결과 카운트 표시 (배정된 학생 수)
 
 ### Performance & Analytics
 
-- [ ] **PRF-01**: 성과 대시보드 metric 카드에 data-testid 추가 (metric-card)
+- [x] **PRF-01**: 성과 대시보드 metric 카드에 data-testid 추가 (metric-card)
 - [ ] **PRF-02**: 향상률 차트 및 기간 선택 UI 개선
 - [ ] **PRF-03**: 팀 목록 페이지(`/teams`) 및 팀 상세 페이지(`/teams/[id]`) 생성
 
@@ -80,7 +80,7 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| STU-01 | Phase 23 | Pending |
+| STU-01 | Phase 23 | Complete |
 | STU-02 | Phase 25 | Pending |
 | STU-03 | Phase 25 | Pending |
 | STU-04 | Phase 25 | Pending |
@@ -88,26 +88,26 @@
 | TCH-02 | Phase 27 | Pending |
 | TCH-03 | Phase 27 | Pending |
 | TCH-04 | Phase 27 | Pending |
-| ADM-01 | Phase 23 | Pending |
-| ADM-02 | Phase 23 | Pending |
+| ADM-01 | Phase 23 | Complete |
+| ADM-02 | Phase 23 | Complete |
 | ADM-03 | Phase 24 | Pending |
 | ADM-04 | Phase 24 | Pending |
 | ADM-05 | Phase 24 | Pending |
 | ADM-06 | Phase 24 | Pending |
 | ADM-07 | Phase 27 | Pending |
-| ANL-01 | Phase 23 | Pending |
+| ANL-01 | Phase 23 | Complete |
 | ANL-02 | Phase 25 | Pending |
 | ANL-03 | Phase 25 | Pending |
 | ANL-04 | Phase 25 | Pending |
-| CNS-01 | Phase 23 | Pending |
-| CNS-02 | Phase 23 | Pending |
+| CNS-01 | Phase 23 | Complete |
+| CNS-02 | Phase 23 | Complete |
 | CNS-03 | Phase 26 | Pending |
 | CNS-04 | Phase 26 | Pending |
-| MAT-01 | Phase 23 | Pending |
-| MAT-02 | Phase 23 | Pending |
+| MAT-01 | Phase 23 | Complete |
+| MAT-02 | Phase 23 | Complete |
 | MAT-03 | Phase 26 | Pending |
 | MAT-04 | Phase 26 | Pending |
-| PRF-01 | Phase 23 | Pending |
+| PRF-01 | Phase 23 | Complete |
 | PRF-02 | Phase 26 | Pending |
 | PRF-03 | Phase 24 | Pending |
 | RPT-01 | Phase 24 | Pending |
