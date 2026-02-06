@@ -205,3 +205,23 @@ self_check: "PASSED"
 - a0e3695: FOUND
 - bbabbbf: FOUND
 - e87929f: FOUND
+
+## 파일 존재 확인
+
+- src/app/(dashboard)/admin/page.tsx: FOUND
+- src/components/admin/status-card.tsx: FOUND
+- src/components/admin/metric-card.tsx: FOUND
+- src/components/admin/tabs/status-tab.tsx: FOUND
+- src/components/admin/tabs/logs-tab.tsx: FOUND
+- src/components/admin/tabs/database-tab.tsx: FOUND
+- src/components/admin/tabs/audit-tab.tsx: FOUND
+- src/components/admin/admin-tabs-wrapper.tsx: FOUND
+- src/lib/actions/system.ts: FOUND
+- src/lib/actions/backup.ts: FOUND
+- src/lib/actions/audit.ts: FOUND
+
+## 커밋 확인
+
+- a0e3695: FOUND
+- bbabbbf: FOUND
+- e87929f: FOUND
