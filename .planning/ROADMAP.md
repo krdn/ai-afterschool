@@ -380,13 +380,13 @@ Plans:
   4. 팀장 역할의 제한된 관리 기능 접근 제어가 강화되어 타 팀 데이터 접근이 차단된다
   5. 만료/유효하지 않은 비밀번호 재설정 토큰 접근 시 에러 페이지 UI가 표시된다
 **Plans**: 4 plans in 1 wave
-**Status**: Pending
+**Status**: Complete (2026-02-07)
 
 Plans:
-- [ ] 27-01-PLAN.md — 접근 제어 강화 (AccessDeniedPage 컴포넌트, Teachers 페이지 RBAC, Server Action 검증)
-- [ ] 27-02-PLAN.md — 404 에러 페이지 구현 및 팀장 Admin 접근 (NotFoundPage, Teachers/[id]/not-found, Admin TEAM_LEADER 허용)
-- [ ] 27-03-PLAN.md — 파일 업로드 에러 처리 (이미지 업로더 용량 초과 Toast, Client 측 검증, Server Action 에러 처리)
-- [ ] 27-04-PLAN.md — 비밀번호 재설정 토큰 에러 처리 (ResetPasswordError 컴포넌트, 만료 시간 상세 정보, 재발송 폼, 보안 로깅)
+- [x] 27-01-PLAN.md — 접근 제어 강화 (AccessDeniedPage 컴포넌트, Teachers 페이지 RBAC, Server Action 검증)
+- [x] 27-02-PLAN.md — 404 에러 페이지 구현 및 팀장 Admin 접근 (NotFoundPage, Teachers/[id]/not-found, Admin TEAM_LEADER 허용)
+- [x] 27-03-PLAN.md — 파일 업로드 에러 처리 (이미지 업로더 용량 초과 Toast, Client 측 검증, Server Action 에러 처리)
+- [x] 27-04-PLAN.md — 비밀번호 재설정 토큰 에러 처리 (ResetPasswordError 컴포넌트, 만료 시간 상세 정보, 재발송 폼, 보안 로깅)
 
 ### Phase 28: Integration Verification & Test Alignment
 **Goal**: 통합 검증 및 테스트 수정 (전체 E2E 실행, 남은 셀렉터 수정)
@@ -439,10 +439,10 @@ Phases execute in numeric order: 23 → 24 → 25 → 26 → 27 → 28
 | 24. Missing Routes Creation | v2.1.1 | 4/4 | Complete | 2026-02-07 |
 | 25. Student, Analysis & Report UI Enhancement | v2.1.1 | 4/4 | Complete | 2026-02-07 |
 | 26. Counseling & Matching UI Enhancement | v2.1.1 | 4/4 | Complete | 2026-02-07 |
-| 27. RBAC, Auth & Error Handling | v2.1.1 | 0/? | Pending | — |
+| 27. RBAC, Auth & Error Handling | v2.1.1 | 4/4 | Complete | 2026-02-07 |
 | 28. Integration Verification & Test Alignment | v2.1.1 | 0/? | Pending | — |
 
-**Overall Progress:** 145/149 plans complete (v1.0-v2.1: 100%) | v2.1.1: 5/6 complete (83%)
+**Overall Progress:** 149/153 plans complete (v1.0-v2.1: 100%) | v2.1.1: 6/6 complete (100%)
 
 ---
-*Last updated: 2026-02-07 (Phase 26 완료)*
+*Last updated: 2026-02-07 (Phase 27 완료)*

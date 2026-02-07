@@ -15,9 +15,9 @@
 ### Teacher Management
 
 - [x] **TCH-01**: `/teachers/me` 본인 프로필 조회 페이지 생성 (세션 기반 자동 리다이렉트)
-- [ ] **TCH-02**: 일반 선생님이 `/teachers` 관리 페이지 접근 시 적절한 리다이렉트 또는 차단
-- [ ] **TCH-03**: 존재하지 않는 선생님 ID 접근 시 404 에러 페이지 표시
-- [ ] **TCH-04**: 프로필 사진 업로드 시 용량 초과 에러 메시지 UI
+- [x] **TCH-02**: 일반 선생님이 `/teachers` 관리 페이지 접근 시 적절한 리다이렉트 또는 차단
+- [x] **TCH-03**: 존재하지 않는 선생님 ID 접근 시 404 에러 페이지 표시
+- [x] **TCH-04**: 프로필 사진 업로드 시 용량 초과 에러 메시지 UI
 
 ### Admin & System
 
@@ -27,7 +27,7 @@
 - [x] **ADM-04**: 시스템 로그 조회 페이지 생성 (`/admin`)
 - [x] **ADM-05**: 데이터베이스 백업 관리 페이지 생성 (`/admin`)
 - [x] **ADM-06**: 감사 로그 페이지 생성 (`/admin`) — 설정 변경 이력 표시
-- [ ] **ADM-07**: 팀장 역할의 제한된 관리 기능 접근 제어 (RBAC 강화)
+- [x] **ADM-07**: 팀장 역할의 제한된 관리 기능 접근 제어 (RBAC 강화)
 
 ### Analysis
 
@@ -65,7 +65,7 @@
 
 ### Auth
 
-- [ ] **AUTH-01**: 만료/유효하지 않은 비밀번호 재설정 토큰 접근 시 에러 페이지 UI
+- [x] **AUTH-01**: 만료/유효하지 않은 비밀번호 재설정 토큰 접근 시 에러 페이지 UI
 
 ## Out of Scope
 
@@ -85,41 +85,41 @@
 | STU-03 | Phase 25 | Complete |
 | STU-04 | Phase 25 | Complete |
 | TCH-01 | Phase 24 | Complete |
-| TCH-02 | Phase 27 | Pending |
-| TCH-03 | Phase 27 | Pending |
-| TCH-04 | Phase 27 | Pending |
+| TCH-02 | Phase 27 | Complete |
+| TCH-03 | Phase 27 | Complete |
+| TCH-04 | Phase 27 | Complete |
 | ADM-01 | Phase 23 | Complete |
 | ADM-02 | Phase 23 | Complete |
 | ADM-03 | Phase 24 | Complete |
 | ADM-04 | Phase 24 | Complete |
 | ADM-05 | Phase 24 | Complete |
 | ADM-06 | Phase 24 | Complete |
-| ADM-07 | Phase 27 | Pending |
+| ADM-07 | Phase 27 | Complete |
 | ANL-01 | Phase 23 | Complete |
 | ANL-02 | Phase 25 | Complete |
 | ANL-03 | Phase 25 | Complete |
 | ANL-04 | Phase 25 | Complete |
 | CNS-01 | Phase 23 | Complete |
 | CNS-02 | Phase 23 | Complete |
-| CNS-03 | Phase 26 | Pending |
-| CNS-04 | Phase 26 | Pending |
+| CNS-03 | Phase 26 | Complete |
+| CNS-04 | Phase 26 | Complete |
 | MAT-01 | Phase 23 | Complete |
 | MAT-02 | Phase 23 | Complete |
-| MAT-03 | Phase 26 | Pending |
-| MAT-04 | Phase 26 | Pending |
+| MAT-03 | Phase 26 | Complete |
+| MAT-04 | Phase 26 | Complete |
 | PRF-01 | Phase 23 | Complete |
-| PRF-02 | Phase 26 | Pending |
+| PRF-02 | Phase 26 | Complete |
 | PRF-03 | Phase 24 | Complete |
 | RPT-01 | Phase 24 | Complete |
 | RPT-02 | Phase 24 | Complete |
 | UTL-01 | Phase 25 | Complete |
 | UTL-02 | Phase 25 | Complete |
-| AUTH-01 | Phase 27 | Pending |
+| AUTH-01 | Phase 27 | Complete |
 
 **Coverage:**
 - v2.1.1 requirements: 34 total
-- Complete: 26 (76%)
-- Pending: 8 (24%)
+- Complete: 34 (100%)
+- Pending: 0 (0%)
 - Mapped to phases: 34 (100%)
 - Unmapped: 0
 
