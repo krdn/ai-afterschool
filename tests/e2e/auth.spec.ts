@@ -70,6 +70,8 @@ test.describe('Authentication and User Management', () => {
       await expect(page.locator('text=/올바른 이메일|valid email/i')).toBeVisible({ timeout: 3000 });
     });
 
+    // SKIPPED: Requires email uniqueness validation to be fully implemented
+    // See tests/e2e/SKIPPED_TESTS.md for details
     test.skip('should prevent duplicate email registration', async ({ page }) => {
       await page.goto('/auth/register');
 
@@ -197,6 +199,8 @@ test.describe('Authentication and User Management', () => {
       expect(response.ok() || response.status() === 404).toBeTruthy();
     });
 
+    // SKIPPED: Password reset requires email service integration (RESEND_API_KEY not configured)
+    // See tests/e2e/SKIPPED_TESTS.md for details
     test.skip('should complete password reset with valid token', async ({ page, context }) => {
       // Simulate receiving reset token (in real scenario, extract from email)
       const mockToken = 'test-reset-token-12345';
@@ -314,6 +318,8 @@ test.describe('Authentication and User Management', () => {
       expect([200, 404]).toContain(response.status());
     });
 
+    // SKIPPED: Session timeout requires configuration and time manipulation in tests
+    // See tests/e2e/SKIPPED_TESTS.md for details
     test.skip('should enforce session timeout after inactivity', async ({ page }) => {
       // Login
       await page.goto('/auth/login');
@@ -377,6 +383,8 @@ test.describe('Authentication and User Management', () => {
       expect(page.url()).toContain('/auth/login');
     });
 
+    // SKIPPED: Rate limiting implementation and threshold configuration required
+    // See tests/e2e/SKIPPED_TESTS.md for details
     test.skip('should rate-limit login attempts', async ({ page }) => {
       await page.goto('/auth/login');
 
