@@ -135,10 +135,10 @@ export default function AnalysisTab({ studentId }: { studentId: string }) {
       <Tabs value={subTab} onValueChange={setSubTab} data-testid="analysis-sub-tabs">
         <div className="flex items-center justify-between mb-4">
           <TabsList className="grid w-full max-w-md grid-cols-4">
-            <TabsTrigger value="saju">사주</TabsTrigger>
-            <TabsTrigger value="face">관상</TabsTrigger>
-            <TabsTrigger value="palm">손금</TabsTrigger>
-            <TabsTrigger value="mbti">MBTI</TabsTrigger>
+            <TabsTrigger value="saju" data-testid="saju-tab">사주</TabsTrigger>
+            <TabsTrigger value="face" data-testid="face-tab">관상</TabsTrigger>
+            <TabsTrigger value="palm" data-testid="palm-tab">손금</TabsTrigger>
+            <TabsTrigger value="mbti" data-testid="mbti-tab">MBTI</TabsTrigger>
           </TabsList>
 
           <Button

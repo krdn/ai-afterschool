@@ -45,6 +45,7 @@ export default async function StudentDetailPage(props: {
                             src={profileImage.resizedUrl}
                             alt="프로필 이미지"
                             className="w-24 h-24 rounded-full object-cover border profile"
+                            data-testid="profile-image"
                         />
                     ) : (
                         <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
@@ -59,7 +60,7 @@ export default async function StudentDetailPage(props: {
                 <StudentDetailActions id={student.id} />
             </div>
 
-            <div className="bg-white border rounded-lg p-6 mb-6">
+            <div className="bg-white border rounded-lg p-6 mb-6" data-testid="student-info">
                 <h2 className="text-xl font-semibold mb-4">기본 정보</h2>
                 <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -72,7 +73,7 @@ export default async function StudentDetailPage(props: {
             </div>
 
             {student.parents && student.parents.length > 0 && (
-                <div className="bg-white border rounded-lg p-6 mb-6">
+                <div className="bg-white border rounded-lg p-6 mb-6" data-testid="parent-info">
                     <h2 className="text-xl font-semibold mb-4">보호자 정보</h2>
                     {student.parents.map(parent => (
                         <div key={parent.id} className="mb-2">

@@ -53,7 +53,7 @@ export function FaceAnalysisPanel({
     (analysis?.status === 'pending')
 
   return (
-    <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+    <div className="bg-white rounded-lg shadow-sm overflow-hidden" data-testid="physiognomy-tab">
       {/* Header */}
       <div className="px-6 py-4 border-b flex items-center justify-between">
         <div className="flex items-center gap-3">
