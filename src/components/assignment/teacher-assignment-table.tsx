@@ -103,7 +103,7 @@ export function TeacherAssignmentTable({ teachers }: TeacherAssignmentTableProps
           const count = info.getValue().length
           return (
             <div className="flex items-center gap-2">
-              <span className="font-medium">{count}명</span>
+              <span className="font-medium" data-testid="student-count">{count}명</span>
               <Button
                 variant="ghost"
                 size="sm"
@@ -198,7 +198,7 @@ export function TeacherAssignmentTable({ teachers }: TeacherAssignmentTableProps
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <React.Fragment key={row.id}>
-                  <TableRow data-state={row.getIsSelected() && 'selected'}>
+                  <TableRow data-state={row.getIsSelected() && 'selected'} data-testid="teacher-assignment">
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
                         {flexRender(

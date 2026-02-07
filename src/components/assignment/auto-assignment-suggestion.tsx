@@ -123,7 +123,7 @@ export function AutoAssignmentSuggestion({
           <CardDescription>
             {unassignedStudents.length > 0 ? (
               <>
-                미배정 학생 {unassignedStudents.length}명에 대한 자동 배정을
+                <span data-testid="unassigned-student">미배정 학생 {unassignedStudents.length}명</span>에 대한 자동 배정을
                 생성합니다.
                 <br />
                 궁합 점수와 부하 분산을 고려하여 최적의 배정을 제안합니다.
@@ -138,6 +138,7 @@ export function AutoAssignmentSuggestion({
             onClick={handleGenerate}
             disabled={isGenerating || unassignedStudents.length === 0}
             className="w-full sm:w-auto"
+            data-testid={isGenerating ? "assignment-loading" : "generate-assignment-button"}
           >
             {isGenerating ? (
               <>
@@ -156,7 +157,7 @@ export function AutoAssignmentSuggestion({
 
       {/* 생성된 제안 표시 */}
       {suggestion && (
-        <div className="space-y-4">
+        <div className="space-y-4" data-testid="assignment-proposal">
           {/* 요약 카드 */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Card>
@@ -165,7 +166,7 @@ export function AutoAssignmentSuggestion({
                 <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className="text-2xl font-bold" data-testid="student-count">
                   {suggestion.summary.totalStudents}명
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -293,7 +294,7 @@ export function AutoAssignmentSuggestion({
                   </thead>
                   <tbody className="divide-y">
                     {suggestion.assignments.map((assignment) => (
-                      <tr key={assignment.studentId} className="hover:bg-gray-50">
+                      <tr key={assignment.studentId} className="hover:bg-gray-50" data-testid="teacher-assignment">
                         <td className="px-4 py-3">
                           <p className="font-medium">
                             {getStudentName(assignment.studentId)}

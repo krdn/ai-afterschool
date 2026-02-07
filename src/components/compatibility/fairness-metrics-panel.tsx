@@ -50,7 +50,7 @@ function DisparityIndexCard({ value }: { value: number }) {
       </CardHeader>
       <CardContent>
         <div className="flex items-baseline justify-between">
-          <span className={`text-2xl font-bold ${status.colorClass}`} data-testid="metric-value">
+          <span className={`text-2xl font-bold ${status.colorClass}`} data-testid="metric-value gini-coefficient">
             {value.toFixed(3)}
           </span>
           <StatusBadge status={status} />
