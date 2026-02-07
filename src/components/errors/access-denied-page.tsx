@@ -26,7 +26,7 @@ export function AccessDeniedPage({
   }, [])
 
   return (
-    <div className="flex min-h-[400px] items-center justify-center">
+    <div className="flex min-h-[400px] items-center justify-center" data-testid="access-denied-page">
       <Card className="mx-auto max-w-md">
         <CardHeader>
           <div className="flex justify-center">
