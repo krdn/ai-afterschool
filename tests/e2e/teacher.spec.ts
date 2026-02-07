@@ -6,8 +6,8 @@
 import { test, expect, Page } from '@playwright/test';
 import { loginAsTeacher, loginAsAdmin, TEST_ACCOUNTS } from '../utils/auth';
 
-// 테스트 데이터
-const TEST_TEACHER = TEST_ACCOUNTS.teacher1;
+// 테스트 데이터 - seed.ts에 있는 실제 계정 사용
+const TEST_TEACHER = TEST_ACCOUNTS.teacher;
 
 const TEST_ADMIN = TEST_ACCOUNTS.admin;
 
