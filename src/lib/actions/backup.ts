@@ -14,7 +14,8 @@ export interface BackupFileEntry {
 export async function getBackupList(): Promise<BackupFileEntry[]> {
   const session = await verifySession()
 
-  if (session.role !== 'DIRECTOR') {
+  // Allow both DIRECTOR and TEAM_LEADER roles
+  if (session.role !== 'DIRECTOR' && session.role !== 'TEAM_LEADER') {
     return []
   }
 

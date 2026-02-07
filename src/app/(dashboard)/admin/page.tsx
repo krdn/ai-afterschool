@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { verifySession } from '@/lib/dal'
+import { getRBACPrisma } from '@/lib/db/rbac'
 import { AdminTabsWrapper, AdminTabsContent } from '@/components/admin/admin-tabs-wrapper'
 
 // LLM 설정 관련
@@ -136,7 +137,8 @@ async function getFeatureUsageData(): Promise<FeatureUsageData[]> {
 
 export default async function AdminPage() {
   const session = await verifySession()
-  if (!session || session.role !== 'DIRECTOR') {
+  // Allow both DIRECTOR and TEAM_LEADER roles to access Admin page
+  if (!session || (session.role !== 'DIRECTOR' && session.role !== 'TEAM_LEADER')) {
     redirect('/dashboard')
   }
 
