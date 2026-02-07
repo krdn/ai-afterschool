@@ -10,26 +10,26 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 ## Current Position
 
 Phase: 27 - RBAC, Auth & Error Handling
-Plan: 01
+Plan: 02
 Status: In progress
-Last activity: 2026-02-07 — Plan 27-01 접근 제어 강화 완료
+Last activity: 2026-02-07 — Plan 27-02 404 에러 페이지 및 Admin 팀장 접근 완료
 
-Progress: [████░░░░░░░░░░░░░░░░] 33%
+Progress: [██████░░░░░░░░░░░░░░] 50%
 
 **v2.1.1 E2E Test Compliance** ○ ACTIVE
 - Phase 23: data-testid Infrastructure (✓ complete)
 - Phase 24: Missing Routes Creation (✓ complete)
 - Phase 25: Student, Analysis & Report UI Enhancement (✓ complete)
 - Phase 26: Counseling & Matching UI Enhancement (✓ complete)
-- Phase 27: RBAC, Auth & Error Handling (◐ in progress - 1/4 plans)
+- Phase 27: RBAC, Auth & Error Handling (◐ in progress - 2/4 plans)
 - Phase 28: Integration Verification & Test Alignment (○ pending)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 149 (v1.0-v2.1)
+- Total plans completed: 151 (v1.0-v2.1)
 - Average duration: ~4.1 min
-- Total execution time: ~10.2 hours
+- Total execution time: ~10.3 hours
 
 **By Phase:**
 
@@ -53,14 +53,15 @@ Progress: [████░░░░░░░░░░░░░░░░] 33%
 | 24 (v2.1.1) | 4 | ~9 min | ~2.3 min |
 | 25 (v2.1.1) | 4 | ~25 min | ~6.3 min |
 | 26 (v2.1.1) | 4 | ~38 min | ~9.5 min |
+| 27 (v2.1.1) | 2 | ~12 min | ~6 min |
 
 **Recent Trend:**
 - v2.0 complete: 40 plans in ~119 min (~3 min/plan average)
 - v2.1 complete: 30 plans in ~189 min (~6.3 min/plan average)
-- v2.1.1 active: 22 plans in ~113 min (~5.1 min/plan average)
-- Velocity: v1.0 (7 min) → v2.0 (~3 min) → v2.1 (~6 min) → v2.1.1 (~5.1 min)
+- v2.1.1 active: 24 plans in ~125 min (~5.2 min/plan average)
+- Velocity: v1.0 (7 min) → v2.0 (~3 min) → v2.1 (~6 min) → v2.1.1 (~5.2 min)
 
-*Updated after Phase 26 completion*
+*Updated after Phase 27 Plan 02 completion*
 
 ## Accumulated Context
 
@@ -70,6 +71,10 @@ Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
 **v2.1.1 결정:**
+- [27-02] 공통 404 컴포넌트 구조: Search 아이콘과 회색 배경 사용, 향후 403/401/500 확장 가능한 유연한 구조 유지
+- [27-02] Admin 페이지 TEAM_LEADER 접근: 모든 Admin 탭 허용하되 getRBACPrisma()로 자신의 팀 데이터만 접근 가능 (CONTEXT.md 결정 준수)
+- [27-02] Server Action 레벨 RBAC: getSystemLogs, getAuditLogs, getBackupList에서 getRBACPrisma() 사용하여 자동 팀 필터링
+- [27-02] Next.js 15 not-found.js 패턴: 라우트 레벨 404 처리를 위해 not-found.tsx 파일 생성
 - [27-01] AccessDeniedPage Client Component 패턴: Toast는 Client Component에서만 작동하므로 useEffect로 마운트 시 toast.error 호출
 - [27-01] Server Action 에러 반환 패턴: Promise<void> 대신 Promise<{ success?: boolean; error?: string }>로 명확한 에러 메시지 반환
 - [27-01] MANAGER/TEACHER 역할 접근 제어: Teachers 페이지 접근 차단, AccessDeniedPage로 UI 제공
@@ -219,10 +224,10 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-07 09:46 KST
-Stopped at: Phase 27 Plan 01 Complete
+Last session: 2026-02-07 09:52 KST
+Stopped at: Phase 27 Plan 02 Complete
 Resume file: None
-Next action: Continue with Phase 27 Plan 02 or move to next plan
+Next action: Continue with Phase 27 Plan 03 or move to next plan
 
 ---
-*Last updated: 2026-02-07 (Phase 27 Plan 01 완료)*
+*Last updated: 2026-02-07 (Phase 27 Plan 02 완료)*
