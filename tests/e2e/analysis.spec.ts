@@ -20,11 +20,15 @@ test.describe('Analysis - 성향 분석 시스템', () => {
     await page.waitForLoadState('domcontentloaded');
 
     // 사주/성명학 탭으로 이동
-    const sajuTabText = page.locator('text=사주/성명학');
-    if (await sajuTabText.isVisible({ timeout: 3000 })) {
-      await sajuTabText.click();
-      await page.waitForSelector('[data-testid="saju-tab"]', { state: 'attached', timeout: 5000 })
-        .catch(() => {/* Tab may not have data-testid yet */});
+    const sajuTab = page.locator('[data-testid="saju-tab"]');
+    if (await sajuTab.isVisible({ timeout: 3000 })) {
+      await sajuTab.click();
+    } else {
+      // Fallback to text-based selector
+      const sajuTabText = page.locator('text=사주/성명학');
+      if (await sajuTabText.isVisible({ timeout: 3000 })) {
+        await sajuTabText.click();
+      }
     }
 
     // 분석 실행 버튼 클릭
@@ -75,13 +79,15 @@ test.describe('Analysis - 성향 분석 시스템', () => {
     await page.waitForLoadState('domcontentloaded');
 
     // 관상 탭으로 이동
-    const physiognomyTab = page.locator('text=관상');
-    const physiognomyTabExists = await physiognomyTab.isVisible({ timeout: 3000 });
-
-    if (physiognomyTabExists) {
+    const physiognomyTab = page.locator('[data-testid="face-tab"]');
+    if (await physiognomyTab.isVisible({ timeout: 3000 })) {
       await physiognomyTab.click();
-      await page.waitForSelector('[data-testid="physiognomy-tab"]', { state: 'attached', timeout: 5000 })
-        .catch(() => {/* Tab may not have data-testid yet */});
+    } else {
+      // Fallback to text-based selector
+      const physiognomyTabText = page.locator('text=관상');
+      if (await physiognomyTabText.isVisible({ timeout: 3000 })) {
+        await physiognomyTabText.click();
+      }
     }
 
     // 사진 업로드 필드 확인
@@ -136,10 +142,15 @@ test.describe('Analysis - 성향 분석 시스템', () => {
   test('ANL-03: MBTI 입력 및 결과 판정', async ({ page }) => {
     // 학생 페이지로 이동
     await page.goto('/students/test-student-id');
-    
+
     // MBTI 탭으로 이동
-    await page.click('text=MBTI');
-    await page.waitForSelector('[data-testid="mbti-tab"]');
+    const mbtiTab = page.locator('[data-testid="mbti-tab"]');
+    if (await mbtiTab.isVisible({ timeout: 3000 })) {
+      await mbtiTab.click();
+    } else {
+      // Fallback to text-based selector
+      await page.click('text=MBTI');
+    }
     
     // 직접 입력 옵션 선택
     await page.click('[data-testid="direct-input-option"]');
@@ -274,9 +285,14 @@ test.describe('Analysis - 성향 분석 시스템', () => {
         body: JSON.stringify({ error: 'AI service unavailable' })
       });
     });
-    
+
     await page.goto('/students/test-student-id');
-    await page.click('text=관상');
+    const faceTab = page.locator('[data-testid="face-tab"]');
+    if (await faceTab.isVisible({ timeout: 3000 })) {
+      await faceTab.click();
+    } else {
+      await page.click('text=관상');
+    }
     
     await page.locator('input[type="file"]').setInputFiles('./test-data/sample-face.jpg');
     await page.click('button:has-text("AI 분석 시작")');
@@ -291,7 +307,12 @@ test.describe('Analysis - 성향 분석 시스템', () => {
 
   test('ANL-07: 사주 분석 결과 히스토리 조회', async ({ page }) => {
     await page.goto('/students/test-student-id');
-    await page.click('text=사주/성명학');
+    const sajuTab = page.locator('[data-testid="saju-tab"]');
+    if (await sajuTab.isVisible({ timeout: 3000 })) {
+      await sajuTab.click();
+    } else {
+      await page.click('text=사주/성명학');
+    }
     
     // 분석 이력 섹션
     const historySection = page.locator('[data-testid="analysis-history"]');
@@ -309,7 +330,12 @@ test.describe('Analysis - 성향 분석 시스템', () => {
 
   test('ANL-08: MBTI 설문 중간 저장 (Draft)', async ({ page }) => {
     await page.goto('/students/test-student-id');
-    await page.click('text=MBTI');
+    const mbtiTab = page.locator('[data-testid="mbti-tab"]');
+    if (await mbtiTab.isVisible({ timeout: 3000 })) {
+      await mbtiTab.click();
+    } else {
+      await page.click('text=MBTI');
+    }
     await page.click('[data-testid="survey-input-option"]');
     
     // 일부 질문에만 답변
