@@ -73,7 +73,7 @@ export function ReservationCalendarView({
   }
 
   return (
-    <div className="space-y-4" data-testid="calendar-view">
+    <div className="space-y-4" data-testid="counseling-calendar">
       {/* 뷰 전환 버튼 */}
       <div className="flex items-center justify-center">
         <div className="inline-flex items-center rounded-lg bg-muted p-1">

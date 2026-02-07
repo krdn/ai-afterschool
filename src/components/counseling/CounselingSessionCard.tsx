@@ -20,7 +20,7 @@ export function CounselingSessionCard({ session, onClick }: CounselingSessionCar
     <div
       className="border rounded-lg p-4 space-y-3 hover:bg-gray-50 transition-colors cursor-pointer"
       onClick={onClick}
-      data-testid="counseling-session"
+      data-testid="counseling-session-card"
     >
       {/* Header: Date and Type */}
       <div className="flex items-center justify-between">
