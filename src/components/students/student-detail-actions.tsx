@@ -1,6 +1,7 @@
 "use client";
 
 import { deleteStudent } from "@/lib/actions/student";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -17,9 +18,13 @@ export default function StudentDetailActions({ id }: { id: string }) {
 
     return (
         <div className="flex gap-2">
-            <button data-testid="edit-button" className="bg-gray-200 px-4 py-2 rounded text-sm font-medium hover:bg-gray-300 transition">
+            <Link
+                data-testid="edit-button"
+                href={`/students/${id}/edit`}
+                className="bg-gray-200 px-4 py-2 rounded text-sm font-medium hover:bg-gray-300 transition"
+            >
                 편집
-            </button>
+            </Link>
             <button
                 data-testid="delete-button"
                 onClick={handleDelete}
