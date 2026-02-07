@@ -274,7 +274,7 @@ function CounselingHistoryContent({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card data-testid="monthly-sessions">
+        <Card data-testid="counseling-stat-card-monthly">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
               이번 달 상담 횟수
@@ -285,7 +285,7 @@ function CounselingHistoryContent({
           </CardContent>
         </Card>
 
-        <Card data-testid="total-sessions">
+        <Card data-testid="counseling-stat-card-total">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
               전체 상담 횟수
@@ -296,7 +296,7 @@ function CounselingHistoryContent({
           </CardContent>
         </Card>
 
-        <Card data-testid="avg-duration">
+        <Card data-testid="counseling-stat-card-duration">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
               평균 상담 시간
@@ -309,7 +309,7 @@ function CounselingHistoryContent({
           </CardContent>
         </Card>
 
-        <Card data-testid="followup-count">
+        <Card data-testid="counseling-stat-card-followup">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
               후속 조치 예정
