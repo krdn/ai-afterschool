@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 
 ## Current Position
 
-Phase: 27 - RBAC, Auth & Error Handling
-Plan: —
-Status: Complete ✓
-Last activity: 2026-02-07 — Phase 27 RBAC/에러 처리 완료
+Phase: 28 - Integration Verification & Test Alignment
+Plan: 01
+Status: In progress
+Last activity: 2026-02-07 — Phase 28-01 Test Environment Setup 완료
 
-Progress: [████████████████████████] 100%
+Progress: [███░░░░░░░░░░░░░░░░░░] 25%
 
 **v2.1.1 E2E Test Compliance** ○ ACTIVE
 - Phase 23: data-testid Infrastructure (✓ complete)
@@ -22,12 +22,16 @@ Progress: [███████████████████████
 - Phase 25: Student, Analysis & Report UI Enhancement (✓ complete)
 - Phase 26: Counseling & Matching UI Enhancement (✓ complete)
 - Phase 27: RBAC, Auth & Error Handling (✓ complete)
-- Phase 28: Integration Verification & Test Alignment (○ pending)
+- Phase 28: Integration Verification & Test Alignment (○ in progress)
+  - Plan 01: Test Environment Setup & Initial Run (✓ complete)
+  - Plan 02: Login/Auth Flow Fixes (pending)
+  - Plan 03: Selector Infrastructure Fixes (pending)
+  - Plan 04: API & Navigation Fixes (pending)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 153 (v1.0-v2.1)
+- Total plans completed: 154 (v1.0-v2.1)
 - Average duration: ~4.1 min
 - Total execution time: ~10.5 hours
 
@@ -54,6 +58,7 @@ Progress: [███████████████████████
 | 25 (v2.1.1) | 4 | ~25 min | ~6.3 min |
 | 26 (v2.1.1) | 4 | ~38 min | ~9.5 min |
 | 27 (v2.1.1) | 4 | ~17 min | ~4.3 min |
+| 28 (v2.1.1) | 1 | ~15 min | ~15 min |
 
 **Recent Trend:**
 - v2.0 complete: 40 plans in ~119 min (~3 min/plan average)
@@ -71,6 +76,9 @@ Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
 **v2.1.1 결정:**
+- [28-01] E2E 테스트 실패 유형 체계적 분석: 120개 테스트 중 71개 실패를 5가지 카테고리(로그인/인증, 셀렉터, 타임아웃, API 응답, 내비게이션)로 분류
+- [28-01] 우선순위 기반 수정 순서: 로그인/인증(25개) > 셀렉터(18개) > 타임아웃(15개) > API(8개) > 내비게이션(5개)
+- [28-01] 포트 3000 필수 사용: 테스트가 localhost:3000으로 접속하므로 개발 서버가 반드시 포트 3000 사용해야 함
 - [27-01] AccessDeniedPage Client Component 패턴: Toast는 Client Component에서만 작동하므로 useEffect로 마운트 시 toast.error 호출
 - [27-01] Server Action 에러 반환 패턴: Promise<void> 대신 Promise<{ success?: boolean; error?: string }>로 명확한 에러 메시지 반환
 - [27-01] MANAGER/TEACHER 역할 접근 제어: Teachers 페이지 접근 차단, AccessDeniedPage로 UI 제공
@@ -214,6 +222,11 @@ None yet.
 
 ### Blockers/Concerns
 
+**From Phase 28-01 Test Execution:**
+- Login/Auth flow 실패 원인 미확정: 25개 테스트가 로그인 리다이렉트 실패로 차단됨 (세션 쿠키 또는 미들웨어 문제 가능)
+- API 라우트 404 응답: `/api/teachers?email=...` 등 일부 API가 HTML 대신 JSON을 반환해야 함
+- Admin 페이지 data-testid 누락: 82개 실패 중 상당수가 관리자 페이지 요소 셀렉터 누락
+
 **From v2.1 Research:**
 - Shadow database sync issue: 반복 발생 중 (7회). `npx prisma db push` 워크어라운드 계속 사용.
 - Schema constraint issue: Current schema has teacherId as non-nullable String, which conflicts with "unassigned student" concept.
@@ -230,10 +243,10 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-07 10:35 KST
-Stopped at: Phase 27 Complete
+Last session: 2026-02-07 11:05 KST
+Stopped at: Phase 28-01 Complete
 Resume file: None
-Next action: Execute Phase 28 or move to next phase
+Next action: Execute Phase 28-02 (Login/Auth Flow Fixes)
 
 ---
-*Last updated: 2026-02-07 (Phase 27 완료)*
+*Last updated: 2026-02-07 (Phase 28-01 완료)*
