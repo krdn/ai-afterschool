@@ -187,29 +187,28 @@ export async function updateTeacher(
   redirect(`/teachers/${id}`)
 }
 
-export async function deleteTeacher(id: string): Promise<void> {
+export async function deleteTeacher(id: string): Promise<{ success?: boolean; error?: string }> {
   const session = await verifySession()
 
   // 권한 검증: 원장만 삭제 가능
   if (session.role !== 'DIRECTOR') {
-    throw new Error("선생님을 삭제할 권한이 없어요")
+    return { error: '선생님을 삭제할 권한이 없어요' }
   }
 
   // 본인 삭제 방지
   if (session.userId === id) {
-    throw new Error("본인 계정은 삭제할 수 없어요")
+    return { error: '본인 계정은 삭제할 수 없어요' }
   }
 
   try {
     await db.teacher.delete({
       where: { id },
     })
+    return { success: true }
   } catch (error) {
     console.error("Failed to delete teacher:", error)
-    throw new Error("선생님 삭제 중 오류가 발생했어요")
+    return { error: '선생님 삭제 중 오류가 발생했어요' }
   }
-
-  redirect("/teachers")
 }
 
 export async function getTeachers() {
