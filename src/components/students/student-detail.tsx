@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useState, useTransition } from "react"
 import { format } from "date-fns"
 import { ko } from "date-fns/locale"
+import { toast } from "sonner"
 import { deleteStudent } from "@/lib/actions/students"
 import {
   deleteStudentImage,
@@ -159,20 +160,28 @@ export function StudentDetail({ student, analysisStatus }: StudentDetailProps) {
               }
               onChange={(payload) => {
                 startTransition(async () => {
-                  await setStudentImage(student.id, payload)
-                  setImagesByType((prev) => ({
-                    ...prev,
-                    [payload.type]: {
-                      type: payload.type,
-                      originalUrl: payload.originalUrl,
-                      resizedUrl: null,
-                      publicId: payload.publicId,
-                      format: payload.format || null,
-                      bytes: payload.bytes || null,
-                      width: payload.width || null,
-                      height: payload.height || null,
-                    },
-                  }))
+                  const result = await setStudentImage(student.id, payload)
+
+                  if (result.success) {
+                    setImagesByType((prev) => ({
+                      ...prev,
+                      [payload.type]: {
+                        type: payload.type,
+                        originalUrl: payload.originalUrl,
+                        resizedUrl: null,
+                        publicId: payload.publicId,
+                        format: payload.format || null,
+                        bytes: payload.bytes || null,
+                        width: payload.width || null,
+                        height: payload.height || null,
+                      },
+                    }))
+                  } else {
+                    toast.error("이미지 저장 실패", {
+                      description: result.error,
+                      id: "image-save-error",
+                    })
+                  }
                 })
               }}
             />
@@ -185,11 +194,23 @@ export function StudentDetail({ student, analysisStatus }: StudentDetailProps) {
                 if (!confirm("선택한 이미지를 삭제하시겠어요?")) return
 
                 startTransition(async () => {
-                  await deleteStudentImage(student.id, activeType)
-                  setImagesByType((prev) => ({
-                    ...prev,
-                    [activeType]: null,
-                  }))
+                  const result = await deleteStudentImage(student.id, activeType)
+
+                  if (result.success) {
+                    setImagesByType((prev) => ({
+                      ...prev,
+                      [activeType]: null,
+                    }))
+                    toast.success("이미지 삭제 완료", {
+                      description: "이미지가 삭제되었어요",
+                      id: "image-delete-success",
+                    })
+                  } else {
+                    toast.error("이미지 삭제 실패", {
+                      description: result.error,
+                      id: "image-delete-error",
+                    })
+                  }
                 })
               }}
             >
