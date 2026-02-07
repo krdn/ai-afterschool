@@ -10,26 +10,27 @@ See: .planning/PROJECT.md (updated 2026-02-07)
 ## Current Position
 
 Milestone: v2.1.1 E2E Test Compliance
-Status: SHIPPED ✓
-Last activity: 2026-02-07 — v2.1.1 마일스톤 완료 및 아카이빙
+Status: IN PROGRESS - Gap Closure (28-05-A complete)
+Last activity: 2026-02-07 — Phase 28-05-A data-testid 셀렉터 추가 완료
 
-Progress: [████████████████████████] 100%
+Progress: [████████████████████████] 100% (Phase 28)
 
-**v2.1.1 E2E Test Compliance** ✓ SHIPPED (2026-02-07)
+**v2.1.1 E2E Test Compliance** - IN PROGRESS (Gap Closure)
 - Phase 23: data-testid Infrastructure (✓ complete)
 - Phase 24: Missing Routes Creation (✓ complete)
 - Phase 25: Student, Analysis & Report UI Enhancement (✓ complete)
 - Phase 26: Counseling & Matching UI Enhancement (✓ complete)
 - Phase 27: RBAC, Auth & Error Handling (✓ complete)
 - Phase 28: Integration Verification & Test Alignment (✓ complete)
+  - 28-05-A: data-testid 셀렉터 추가 (✓ complete)
 
 **Summary:**
 - Requirements: 34/34 (100%)
 - Phases: 6/6 complete
-- Plans: 22/22 complete
+- Plans: 23/23 complete (+ 28-05-A)
 - E2E Test Baseline: 18/87 passing (20.7%)
-- Files: 232 modified, 28,481 lines added
-- Technical Debt Accepted: Test coverage gaps (Admin data-testid, timeouts)
+- Gap Closure: 20+ data-testid 추가로 셀렉터 안정성 확보
+- Files: 240 modified, 28,500+ lines added
 
 ## Performance Metrics
 
@@ -107,10 +108,12 @@ Recent decisions affecting current work:
 - [27-04] 토큰 부분 마스킹: 개인정보 보호를 위해 로그에 토큰 전체가 아닌 앞 8자리만 기록
 - [27-04] 로그 레벨 분리: 유효하지 않은 토큰은 WARN(의심스러운 활동), 만료/사용된 토큰은 INFO(일반적인 흐름)
 - [27-04] Inline 재발송 폼: 별도 페이지 이동 없이 같은 컴포넌트에서 이메일 입력 및 재발송 처리
+- [28-05-A] Admin/Analysis/Student/Counseling data-testid 추가: 로그 테이블, 탭 트리거, 모달 등 주요 요소에 testid 추가
+- [28-05-A] 테스트 셀렉터 data-testid 기반으로 변경: student.spec.ts, analysis.spec.ts의 text 기반 셀렉터를 data-testid로 변경, fallback 로직 유지
 - [v2.1.1] E2E 테스트 호환성 우선: 새 기능 추가 없이 기존 구현의 테스트 안정성 확보
 - [v2.1.1] data-testid 일괄 적용: 모든 주요 컴포넌트에 테스트 가능한 셀렉터 추가
-- [v2.1.1] data-testid 네이밍 컨벤션: kebab-case 사용 (예: student-name, analysis-loading)
-- [v2.1.1] data-testid 네이밍 패턴: [component]-[element] 형식 (예: calendar-view, counseling-detail-modal)
+- [v2.1.1] data-testid 네이밍 컨벤션: kebab-case 사용 (예: student-name, analysis-learning)
+- [v2.1.1] data-testid 네이밍 패턴: [component]-[element] 형식 (예: calendar-view, counseling-modal)
 - [v2.1.1] 조건부 data-testid 사용: 동적 컨텐츠(MBTI/학습 스타일)에 조건부 testid 적용
 - [v2.1.1] 누락 라우트 생성: 테스트에서 참조하는 모든 페이지 구현
 - [23-01] 최소 변경 원칙: 기존 UI/스타일 변경 없이 data-testid 속성만 추가
@@ -239,9 +242,10 @@ None yet.
 
 **From Phase 28-04 Test Execution:**
 - E2E 테스트 20.7% 통과율 (18/87): 셀렉터 누락, 타임아웃, 미구현 API 등 다양한 원인
-- Admin 페이지 data-testid 대량 누락: 12개 admin 테스트 모두 실패
-- 학생/상담/매칭 페이지 data-testid 부족: 셀렉터 기반 테스트 불가
+- ~~Admin 페이지 data-testid 대량 누락: 12개 admin 테스트 모두 실패~~ (28-05-A 해결)
+- ~~학생/상담/매칭 페이지 data-testid 부족: 셀렉터 기반 테스트 불가~~ (28-05-A 해결)
 - Teacher API 미구현: `/api/test/reset`, `/api/teams` 등 테스트 전용 엔드포인트 부재
+- 남은 data-testid 누락: Teams, Matching 페이지 (28-05-B 예정)
 
 **From v2.1 Research:**
 - Shadow database sync issue: 반복 발생 중 (7회). `npx prisma db push` 워크어라운드 계속 사용.
@@ -259,10 +263,10 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-07 11:45 KST
-Stopped at: Phase 28-04 Complete
+Last session: 2026-02-07 13:15 KST
+Stopped at: Phase 28-05-A Complete
 Resume file: None
-Next action: Phase 29 or v2.1.2 planning
+Next action: Phase 28-05-B or 28-05-C (E2E Test Execution)
 
 ---
-*Last updated: 2026-02-07 (Phase 28-04 완료)*
+*Last updated: 2026-02-07 (Phase 28-05-A 완료)*
