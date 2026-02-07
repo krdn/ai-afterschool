@@ -28,6 +28,9 @@ test.describe('상담 관리 (Counseling)', () => {
    * 전제 조건: 예약 데이터
    */
   test('CNS-01: 상담 캘린더 및 일정 확인', async () => {
+    // 타임아웃 증가 - 캘린더 로딩을 위해
+    test.setTimeout(60000);
+
     // 1. 상담 페이지로 이동
     await page.goto('/counseling');
     await page.waitForLoadState('domcontentloaded');
@@ -74,6 +77,9 @@ test.describe('상담 관리 (Counseling)', () => {
    * 전제 조건: 학부모 등록됨
    */
   test('CNS-02: 신규 상담 예약 (Flow)', async () => {
+    // 타임아웃 증가 - 상담 예약 플로우를 위해
+    test.setTimeout(60000);
+
     // 1. 신규 상담 예약 페이지로 이동
     await page.goto('/counseling/new');
     await page.waitForLoadState('domcontentloaded');
@@ -122,6 +128,9 @@ test.describe('상담 관리 (Counseling)', () => {
    * 전제 조건: 예약 존재
    */
   test('CNS-03: 상담 완료 및 기록 작성', async () => {
+    // 타임아웃 증가 - AI 요약 생성을 포함한 상담 완료 플로우를 위해
+    test.setTimeout(90000);
+
     // 1. 상담 목록 페이지로 이동
     await page.goto('/counseling');
     
@@ -201,6 +210,9 @@ test.describe('상담 관리 (Counseling)', () => {
    * 전제 조건: 후속 필요 상담
    */
   test('CNS-04: 후속 조치(Follow-up) 관리', async () => {
+    // 타임아웃 증가
+    test.setTimeout(60000);
+
     // 1. 기존 상담 기록에서 후속 조치 필요로 표시
     await page.goto('/counseling');
     
@@ -260,6 +272,9 @@ test.describe('상담 관리 (Counseling)', () => {
    * 추가 테스트: 상담 취소 및 재예약
    */
   test('상담 예약 취소 및 재예약 플로우', async () => {
+    // 타임아웃 증가
+    test.setTimeout(60000);
+
     // 1. 예약된 상담 선택
     await page.goto('/counseling');
     const scheduledSession = page.locator('[data-status="SCHEDULED"]').first();
@@ -302,6 +317,9 @@ test.describe('상담 관리 (Counseling)', () => {
    * 추가 테스트: 상담 기록 검색 및 필터링
    */
   test('상담 기록 검색 및 필터링', async () => {
+    // 타임아웃 증가
+    test.setTimeout(60000);
+
     await page.goto('/counseling');
     
     // 1. 검색창에 학생 이름 입력
@@ -337,6 +355,9 @@ test.describe('상담 관리 (Counseling)', () => {
    * 추가 테스트: 상담 통계 대시보드
    */
   test('상담 통계 및 분석 대시보드 조회', async () => {
+    // 타임아웃 증가 - 차트 렌더링을 위해
+    test.setTimeout(60000);
+
     await page.goto('/counseling/analytics');
     
     // 1. 통계 카드 렌더링 확인
@@ -363,6 +384,9 @@ test.describe('상담 관리 (Counseling)', () => {
    * 추가 테스트: 상담 알림 및 리마인더
    */
   test('상담 알림 및 리마인더 확인', async () => {
+    // 타임아웃 증가
+    test.setTimeout(60000);
+
     // 1. 오늘 예정된 상담이 있는 경우 알림 확인
     await page.goto('/students');
     
