@@ -10,12 +10,12 @@ See: .planning/PROJECT.md (updated 2026-02-07)
 ## Current Position
 
 Milestone: v2.1.1 E2E Test Compliance
-Status: IN PROGRESS - Gap Closure (28-05-B complete)
-Last activity: 2026-02-07 — Phase 28-05-B 테스트 전용 API 엔드포인트 구현 완료
+Status: GAP ANALYSIS COMPLETE - 50% Target Not Achieved
+Last activity: 2026-02-07 — Phase 28-05-C 타임아웃 최적화 및 테스트 실행 완료
 
 Progress: [████████████████████████] 100% (Phase 28)
 
-**v2.1.1 E2E Test Compliance** - IN PROGRESS (Gap Closure)
+**v2.1.1 E2E Test Compliance** - GAP ANALYSIS COMPLETE
 - Phase 23: data-testid Infrastructure (✓ complete)
 - Phase 24: Missing Routes Creation (✓ complete)
 - Phase 25: Student, Analysis & Report UI Enhancement (✓ complete)
@@ -24,14 +24,15 @@ Progress: [███████████████████████
 - Phase 28: Integration Verification & Test Alignment (✓ complete)
   - 28-05-A: data-testid 셀렉터 추가 (✓ complete)
   - 28-05-B: 테스트 전용 API 엔드포인트 구현 (✓ complete)
+  - 28-05-C: 타임아웃 최적화 및 테스트 실행 (✓ complete)
 
 **Summary:**
 - Requirements: 34/34 (100%)
 - Phases: 6/6 complete
-- Plans: 23/23 complete (+ 28-05-A)
-- E2E Test Baseline: 18/87 passing (20.7%)
-- Gap Closure: 20+ data-testid 추가로 셀렉터 안정성 확보
-- Files: 240 modified, 28,500+ lines added
+- Plans: 26/26 complete (+ 28-05-A, 28-05-B, 28-05-C)
+- E2E Test Result: 16-21/80 passing (20-26%) - 50% 목표 미달성
+- Gap Analysis: 미구현 라우트/기능이 PRIMARY BLOCKER (30+ 테스트)
+- Files: 244 modified, 28,600+ lines added
 
 ## Performance Metrics
 
@@ -63,15 +64,15 @@ Progress: [███████████████████████
 | 25 (v2.1.1) | 4 | ~25 min | ~6.3 min |
 | 26 (v2.1.1) | 4 | ~38 min | ~9.5 min |
 | 27 (v2.1.1) | 4 | ~17 min | ~4.3 min |
-| 28 (v2.1.1) | 3 | ~35 min | ~12 min |
+| 28 (v2.1.1) | 6 | ~53 min | ~9 min |
 
 **Recent Trend:**
 - v2.0 complete: 40 plans in ~119 min (~3 min/plan average)
 - v2.1 complete: 30 plans in ~189 min (~6.3 min/plan average)
-- v2.1.1 complete: 28 plans in ~155 min (~5.5 min/plan average)
-- Velocity: v1.0 (7 min) → v2.0 (~3 min) → v2.1 (~6 min) → v2.1.1 (~5.5 min)
+- v2.1.1 complete: 31 plans in ~173 min (~5.6 min/plan average)
+- Velocity: v1.0 (7 min) → v2.0 (~3 min) → v2.1 (~6 min) → v2.1.1 (~5.6 min)
 
-*Updated after Phase 28-03 completion*
+*Updated after Phase 28-05-C completion*
 
 ## Accumulated Context
 
@@ -113,6 +114,9 @@ Recent decisions affecting current work:
 - [28-05-A] 테스트 셀렉터 data-testid 기반으로 변경: student.spec.ts, analysis.spec.ts의 text 기반 셀렉터를 data-testid로 변경, fallback 로직 유지
 - [28-05-B] 테스트 전용 API 엔드포인트 구현: /api/test/reset (POST), /api/teams (GET/POST)로 테스트 데이터 관리 및 팀 조회 기능 제공
 - [28-05-B] isTest 플래그 미구현 상태 인지: test/reset 엔드포인트 구조는 완성되어 있으나 실제 데이터 삭제는 향후 isTest 필드 추가 시 활용 가능하도록 설계됨
+- [28-05-C] 타임아웃 최적화는 주요 문제가 아님: 미구현 라우트/기능이 PRIMARY BLOCKER (30+ 테스트 실패 원인)
+- [28-05-C] 50% 통과율 목표 미달성: 현재 20-26% 통과율, 인증 모듈은 안정적(80%)
+- [28-05-C] 향후 개선 방향: testid 추가(Quick wins)와 라우트 구현(Medium effort)으로 50%+ 달성 가능
 - [v2.1.1] E2E 테스트 호환성 우선: 새 기능 추가 없이 기존 구현의 테스트 안정성 확보
 - [v2.1.1] data-testid 일괄 적용: 모든 주요 컴포넌트에 테스트 가능한 셀렉터 추가
 - [v2.1.1] data-testid 네이밍 컨벤션: kebab-case 사용 (예: student-name, analysis-learning)
@@ -243,12 +247,18 @@ None yet.
 
 ### Blockers/Concerns
 
-**From Phase 28-04 Test Execution:**
-- E2E 테스트 20.7% 통과율 (18/87): 셀렉터 누락, 타임아웃, 미구현 API 등 다양한 원인
-- ~~Admin 페이지 data-testid 대량 누락: 12개 admin 테스트 모두 실패~~ (28-05-A 해결)
-- ~~학생/상담/매칭 페이지 data-testid 부족: 셀렉터 기반 테스트 불가~~ (28-05-A 해결)
-- ~~Teacher API 미구현: `/api/test/reset`, `/api/teams` 등 테스트 전용 엔드포인트 부재~~ (28-05-B 해결)
-- 남은 data-testid 누락: Teams, Matching 페이지 (28-05-C 예정)
+**From Phase 28-05-C Gap Analysis:**
+- E2E 테스트 20-26% 통과율 (16-21/80): 50% 목표 미달성
+- **PRIMARY BLOCKER: 미구현 라우트/기능** (30+ 테스트)
+  - /teachers/me, /teachers: 선생님 프로필/관리 페이지 (14 테스트)
+  - /counseling/analytics, /counseling/new: 상담 관련 페이지 (5+ 테스트)
+  - Admin settings pages (12 테스트)
+  - Report generation (7 테스트)
+- **SECONDARY BLOCKER: 셀렉터 누락** (15+ 테스트)
+  - Matching components (6 테스트)
+  - Analysis/Counseling elements (9+ 테스트)
+- 타임아웃 최적화 완료: actionTimeout 30s→60s, AI 테스트 60-90s
+- 향후 개선: testid 추가(Quick wins +10-15 테스트) → 라우트 구현(+25-35 테스트)
 
 **From v2.1 Research:**
 - Shadow database sync issue: 반복 발생 중 (7회). `npx prisma db push` 워크어라운드 계속 사용.
@@ -266,10 +276,10 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-07 13:52 KST
-Stopped at: Phase 28-05-B Complete
+Last session: 2026-02-07 13:09 KST
+Stopped at: Phase 28-05-C Complete
 Resume file: None
-Next action: Phase 28-05-C (E2E Test Execution)
+Next action: Phase 28-05-D or Phase 29 (Planning)
 
 ---
-*Last updated: 2026-02-07 (Phase 28-05-B 완료)*
+*Last updated: 2026-02-07 (Phase 28-05-C 완료)*
