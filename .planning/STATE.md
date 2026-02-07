@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 ## Current Position
 
 Phase: 27 - RBAC, Auth & Error Handling
-Plan: 04
-Status: In progress
-Last activity: 2026-02-07 — Plan 27-04 비밀번호 재설정 토큰 에러 처리 개선 완료
+Plan: 03
+Status: Complete ✓
+Last activity: 2026-02-07 — Plan 27-03 파일 업로드 에러 처리 개선 완료
 
-Progress: [████████░░░░░░░░░░░░░] 75%
+Progress: [███████████████░░░░░░░] 67%
 
 **v2.1.1 E2E Test Compliance** ○ ACTIVE
 - Phase 23: data-testid Infrastructure (✓ complete)
@@ -71,6 +71,9 @@ Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
 **v2.1.1 결정:**
+- [27-03] Result 타입 반환 패턴 채택: Server Action에서 void 대신 `{ success: boolean; error?: string }` 반환 타입 사용으로 클라이언트에서 명확한 에러 메시지 표시 가능
+- [27-03] 10MB 파일 크기 제한 명시적 설정: Cloudinary CldUploadWidget의 maxFileSize 옵션과 클라이언트 검증으로 이중 제한
+- [27-03] Toast ID 패턴으로 E2E 테스트 지원: 모든 Toast에 id 옵션 추가로 E2E 테스트에서 특정 Toast 노출 검증 가능
 - [27-04] 토큰 부분 마스킹: 개인정보 보호를 위해 로그에 토큰 전체가 아닌 앞 8자리만 기록
 - [27-04] 로그 레벨 분리: 유효하지 않은 토큰은 WARN(의심스러운 활동), 만료/사용된 토큰은 INFO(일반적인 흐름)
 - [27-04] Inline 재발송 폼: 별도 페이지 이동 없이 같은 컴포넌트에서 이메일 입력 및 재발송 처리
@@ -227,10 +230,10 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-07 09:48 KST
-Stopped at: Phase 27 Plan 04 Complete
+Last session: 2026-02-07 09:50 KST
+Stopped at: Phase 27 Plan 03 Complete
 Resume file: None
-Next action: Continue with Phase 27 Plan 05 or move to next phase
+Next action: Continue with Phase 27 remaining plans or move to next phase
 
 ---
-*Last updated: 2026-02-07 (Phase 27 Plan 04 완료)*
+*Last updated: 2026-02-07 (Phase 27 Plan 03 완료)*
