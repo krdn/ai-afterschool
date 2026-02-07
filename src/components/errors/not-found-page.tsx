@@ -28,7 +28,7 @@ export function NotFoundPage({
   const description = `요청하신 ${resourceType} 정보를 찾을 수 없어요. 삭제되었거나 잘못된 주소일 수 있어요.`
 
   return (
-    <div className="flex min-h-[400px] items-center justify-center">
+    <div className="flex min-h-[400px] items-center justify-center" data-testid="not-found-page">
       <Card className="mx-auto max-w-md">
         <CardHeader>
           <div className="flex justify-center">
