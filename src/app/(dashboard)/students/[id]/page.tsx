@@ -82,13 +82,14 @@ export default async function StudentDetailPage(props: {
                 </div>
             )}
 
-            <div className="border-b mb-6">
+            <div className="border-b mb-6" data-testid="student-detail-tabs">
                 <div className="flex gap-4">
                     {tabs.map(tab => (
                         <Link
                             key={tab.id}
                             href={`/students/${student.id}?tab=${tab.id}`}
                             role="tab"
+                            data-tab={tab.id}
                             data-testid={`${tab.id}-tab`}
                             className={`px-4 py-2 border-b-2 transition ${currentTab === tab.id ? 'border-blue-600 text-blue-600 font-medium' : 'border-transparent hover:border-gray-300'}`}
                         >
@@ -106,13 +107,13 @@ export default async function StudentDetailPage(props: {
                     <AnalysisTab studentId={student.id} />
                 )}
                 {currentTab === 'matching' && (
-                    <div>
+                    <div data-testid="matching-tab-content">
                         <h3 className="text-lg font-bold mb-4">선생님 매칭 궁합</h3>
                         <p className="text-gray-500">담당 선생님과의 매칭 점수 및 상세 분석을 표시합니다.</p>
                     </div>
                 )}
                 {currentTab === 'counseling' && (
-                    <div>
+                    <div data-testid="counseling-tab-content">
                         <h3 className="text-lg font-bold mb-4">상담 기록</h3>
                         <p className="text-gray-500">학부모 및 학생 상담 내역을 표시합니다.</p>
                     </div>
