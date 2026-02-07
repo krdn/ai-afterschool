@@ -56,13 +56,14 @@ export function TeacherRecommendationList({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" data-testid="matching-results">
       {recommendations.map((recommendation, index) => {
         const isCurrentTeacher = recommendation.teacherId === currentTeacherId
 
         return (
           <div
             key={recommendation.teacherId}
+            data-testid={`teacher-match-${recommendation.teacherId}`}
             className={`rounded-lg border bg-white p-6 shadow-sm transition-colors ${
               isCurrentTeacher ? "border-blue-500 bg-blue-50" : ""
             }`}

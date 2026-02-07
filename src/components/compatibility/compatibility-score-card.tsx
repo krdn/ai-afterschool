@@ -43,7 +43,7 @@ export function CompatibilityScoreCard({
   reasons,
 }: CompatibilityScoreCardProps) {
   return (
-    <Card className="h-full" data-testid="compatibility-score">
+    <Card className="h-full" data-testid="compatibility-card">
       <CardHeader className="pb-2">
         <CardTitle className="text-base">궁합 상세 점수</CardTitle>
       </CardHeader>
