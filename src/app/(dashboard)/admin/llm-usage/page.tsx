@@ -211,7 +211,7 @@ export default async function LLMUsagePage() {
   ]);
 
   return (
-    <div className="container py-6 space-y-8">
+    <div className="container py-6 space-y-8" data-testid="admin-llm-usage-page">
       {/* 헤더 */}
       <div>
         <h1 className="text-2xl font-bold">LLM 사용량 대시보드</h1>
