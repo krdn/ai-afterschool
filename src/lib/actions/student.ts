@@ -138,3 +138,86 @@ export async function deleteStudent(id: string) {
 
     revalidatePath("/students");
 }
+
+export async function updateStudent(id: string, formData: FormData) {
+    const session = await getSession();
+    if (!session || !session.userId) {
+        throw new Error("Unauthorized");
+    }
+
+    const rawData = {
+        name: formData.get("name"),
+        birthDate: formData.get("birthDate"),
+        grade: formData.get("grade"),
+        school: formData.get("school"),
+        parentName: formData.get("parentName"),
+        parentPhone: formData.get("parentPhone"),
+    };
+
+    const validatedData = createStudentSchema.parse(rawData);
+
+    const result = await db.$transaction(async (tx) => {
+        // 1. 학생 정보 수정
+        const student = await tx.student.update({
+            where: { id },
+            data: {
+                name: validatedData.name,
+                birthDate: new Date(validatedData.birthDate),
+                grade: validatedData.grade,
+                school: validatedData.school,
+            },
+        });
+
+        // 2. 기존 부모 정보가 있다면 업데이트
+        const existingParent = await tx.parent.findFirst({
+            where: { studentId: id, isPrimary: true }
+        });
+
+        if (validatedData.parentName && validatedData.parentPhone) {
+            if (existingParent) {
+                await tx.parent.update({
+                    where: { id: existingParent.id },
+                    data: {
+                        name: validatedData.parentName,
+                        phone: validatedData.parentPhone,
+                    }
+                });
+            } else {
+                await tx.parent.create({
+                    data: {
+                        name: validatedData.parentName,
+                        phone: validatedData.parentPhone,
+                        relation: ParentRelation.MOTHER,
+                        isPrimary: true,
+                        studentId: id
+                    }
+                });
+            }
+        }
+
+        // 3. 새 이미지가 업로드되었다면 기존 이미지 삭제 후 새 이미지 저장
+        const imageFile = formData.get("image") as File;
+        if (imageFile && imageFile.size > 0) {
+            // 기존 프로필 이미지 삭제
+            await tx.studentImage.deleteMany({
+                where: { studentId: id, type: StudentImageType.profile }
+            });
+
+            await tx.studentImage.create({
+                data: {
+                    studentId: id,
+                    type: StudentImageType.profile,
+                    originalUrl: "https://res.cloudinary.com/demo/image/upload/v1/sample.jpg",
+                    resizedUrl: "https://res.cloudinary.com/demo/image/upload/w_200/sample.jpg",
+                    publicId: "sample_public_id"
+                }
+            });
+        }
+
+        return student;
+    });
+
+    revalidatePath("/students");
+    revalidatePath(`/students/${id}`);
+    redirect(`/students/${id}`);
+}
