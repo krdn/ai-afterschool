@@ -15,7 +15,7 @@ interface StudentFormProps {
   };
 }
 
-export default function StudentForm({ student }: StudentFormProps) {
+export function StudentForm({ student }: StudentFormProps) {
   const [preview, setPreview] = useState<string | null>(
     student?.images?.find(img => img.type === "profile")?.resizedUrl || null
   );
