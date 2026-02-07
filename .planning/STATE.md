@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 ## Current Position
 
 Phase: 28 - Integration Verification & Test Alignment
-Plan: 01
+Plan: 02
 Status: In progress
-Last activity: 2026-02-07 — Phase 28-01 Test Environment Setup 완료
+Last activity: 2026-02-07 — Phase 28-02 Selector Fixes 완료
 
-Progress: [███░░░░░░░░░░░░░░░░░░] 25%
+Progress: [████░░░░░░░░░░░░░░░░░] 38%
 
 **v2.1.1 E2E Test Compliance** ○ ACTIVE
 - Phase 23: data-testid Infrastructure (✓ complete)
@@ -24,8 +24,8 @@ Progress: [███░░░░░░░░░░░░░░░░░░] 25%
 - Phase 27: RBAC, Auth & Error Handling (✓ complete)
 - Phase 28: Integration Verification & Test Alignment (○ in progress)
   - Plan 01: Test Environment Setup & Initial Run (✓ complete)
-  - Plan 02: Login/Auth Flow Fixes (pending)
-  - Plan 03: Selector Infrastructure Fixes (pending)
+  - Plan 02: Selector Fixes for High-Priority Components (✓ complete)
+  - Plan 03: Login/Auth Flow Fixes (pending)
   - Plan 04: API & Navigation Fixes (pending)
 
 ## Performance Metrics
@@ -58,15 +58,15 @@ Progress: [███░░░░░░░░░░░░░░░░░░] 25%
 | 25 (v2.1.1) | 4 | ~25 min | ~6.3 min |
 | 26 (v2.1.1) | 4 | ~38 min | ~9.5 min |
 | 27 (v2.1.1) | 4 | ~17 min | ~4.3 min |
-| 28 (v2.1.1) | 1 | ~15 min | ~15 min |
+| 28 (v2.1.1) | 2 | ~20 min | ~10 min |
 
 **Recent Trend:**
 - v2.0 complete: 40 plans in ~119 min (~3 min/plan average)
 - v2.1 complete: 30 plans in ~189 min (~6.3 min/plan average)
-- v2.1.1 complete: 26 plans in ~130 min (~5 min/plan average)
+- v2.1.1 complete: 27 plans in ~140 min (~5.2 min/plan average)
 - Velocity: v1.0 (7 min) → v2.0 (~3 min) → v2.1 (~6 min) → v2.1.1 (~5 min)
 
-*Updated after Phase 27 completion*
+*Updated after Phase 28-02 completion*
 
 ## Accumulated Context
 
@@ -76,6 +76,10 @@ Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
 **v2.1.1 결정:**
+- [28-02] data-tab 속성 추가: 학생 상세 탭에 data-tab 속성 추가로 탭 선택자 개선
+- [28-02] AdminTabsContent testid 매핑: 탭 값에 따른 동적 testid 할당으로 통합 admin 페이지 지원
+- [28-02] 통계 카드 testid 패턴: counseling-stat-card-{type} 패턴으로 일관성 유지
+- [28-02] 동적 매칭 ID: teacher-match-{id} 패턴으로 각 선생님 매칭 카드 식별
 - [28-01] E2E 테스트 실패 유형 체계적 분석: 120개 테스트 중 71개 실패를 5가지 카테고리(로그인/인증, 셀렉터, 타임아웃, API 응답, 내비게이션)로 분류
 - [28-01] 우선순위 기반 수정 순서: 로그인/인증(25개) > 셀렉터(18개) > 타임아웃(15개) > API(8개) > 내비게이션(5개)
 - [28-01] 포트 3000 필수 사용: 테스트가 localhost:3000으로 접속하므로 개발 서버가 반드시 포트 3000 사용해야 함
@@ -243,10 +247,10 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-07 11:05 KST
-Stopped at: Phase 28-01 Complete
+Last session: 2026-02-07 11:27 KST
+Stopped at: Phase 28-02 Complete
 Resume file: None
-Next action: Execute Phase 28-02 (Login/Auth Flow Fixes)
+Next action: Execute Phase 28-03 (Login/Auth Flow Fixes)
 
 ---
-*Last updated: 2026-02-07 (Phase 28-01 완료)*
+*Last updated: 2026-02-07 (Phase 28-02 완료)*
