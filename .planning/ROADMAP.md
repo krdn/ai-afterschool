@@ -293,7 +293,7 @@ Plans:
 - [x] Phase 25: Student, Analysis & Report UI Enhancement (4/4 plans) — completed 2026-02-07
 - [x] Phase 26: Counseling & Matching UI Enhancement (4/4 plans) — completed 2026-02-07
 - [x] Phase 27: RBAC, Auth & Error Handling (4/4 plans) — completed 2026-02-07
-- [x] Phase 28: Integration Verification & Test Alignment (8/8 plans) — completed 2026-02-07, 26% pass rate
+- [x] Phase 28: Integration Verification & Test Alignment (9 plans) — in progress, 26% → 30-40% target
   - [x] 28-01-PLAN.md — E2E Test Failure Analysis
   - [x] 28-02-PLAN.md — Selector Fixes (Admin, Counseling, Analysis)
   - [x] 28-03-PLAN.md — Authentication Test Fixes
@@ -301,6 +301,7 @@ Plans:
   - [x] 28-05-A-PLAN.md — Gap Closure: Admin/Analysis/Student/Counseling data-testid
   - [x] 28-05-B-PLAN.md — Gap Closure: Test API Endpoints
   - [x] 28-05-C-PLAN.md — Gap Closure: Timeout Optimization
+  - [ ] 28-06-PLAN.md — Quick Wins: Skip unimplemented + Matching data-testid
 
 </details>
 
