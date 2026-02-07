@@ -12,9 +12,9 @@ const testUser = {
 };
 
 const existingUser = {
-  email: 'test@afterschool.com',  // seed.ts의 테스트 계정
+  email: 'teacher1@test.com',  // seed-test.ts의 테스트 계정
   password: 'test1234',
-  name: '테스트 선생님',
+  name: '김선생',
 };
 
 test.describe('Authentication and User Management', () => {
@@ -287,8 +287,8 @@ test.describe('Authentication and User Management', () => {
 
     test('should allow director/admin full access', async ({ page }) => {
       const adminUser = {
-        email: 'admin@afterschool.com',  // seed.ts의 admin 계정
-        password: 'admin1234',
+        email: 'admin@test.com',  // seed-test.ts의 admin 계정
+        password: 'test1234',
       };
 
       // Login as director
@@ -352,8 +352,8 @@ test.describe('Authentication and User Management', () => {
       await page.click('button[type="submit"]');
       await page.waitForURL(/\/students/, { timeout: 60000 });
 
-      // Click logout
-      await page.click('button:has-text("로그아웃"), button:has-text("Logout"), [aria-label*="logout" i]');
+      // Click logout - use data-testid
+      await page.click('[data-testid="logout-button"]');
 
       // Should redirect to login
       await page.waitForURL(/\/auth\/login/, { timeout: 5000 });

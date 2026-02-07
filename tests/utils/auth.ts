@@ -2,11 +2,11 @@ import { Page } from '@playwright/test';
 
 /**
  * 선생님 계정으로 로그인
- * 기본값: seed.ts의 테스트 선생님 계정 사용
+ * 기본값: seed-test.ts의 테스트 선생님 계정 사용
  */
 export async function loginAsTeacher(
     page: Page,
-    email: string = 'test@afterschool.com',  // seed.ts의 실제 계정
+    email: string = 'teacher1@test.com',  // seed-test.ts의 실제 계정
     password: string = 'test1234'
 ) {
     await page.goto('/auth/login');
@@ -32,12 +32,12 @@ export async function loginAsTeacher(
 
 /**
  * 관리자 계정으로 로그인
- * 기본값: seed.ts의 admin 계정 사용
+ * 기본값: seed-test.ts의 admin 계정 사용
  */
 export async function loginAsAdmin(
     page: Page,
-    email: string = 'admin@afterschool.com',  // seed.ts의 실제 계정
-    password: string = 'admin1234'
+    email: string = 'admin@test.com',  // seed-test.ts의 실제 계정
+    password: string = 'test1234'
 ) {
     await page.goto('/auth/login');
     await page.waitForLoadState('domcontentloaded');
@@ -92,19 +92,19 @@ export async function isLoggedIn(page: Page): Promise<boolean> {
 
 /**
  * 테스트 계정 정보
- * prisma/seed.ts에 정의된 계정과 일치시켜야 함
+ * prisma/seed-test.ts에 정의된 계정과 일치시켜야 함
  */
 export const TEST_ACCOUNTS = {
     admin: {
-        email: 'admin@afterschool.com',  // seed.ts의 admin 계정
-        password: 'admin1234',            // seed.ts의 비밀번호
+        email: 'admin@test.com',  // seed-test.ts의 admin 계정
+        password: 'test1234',            // seed-test.ts의 비밀번호
         name: '관리자',
         role: 'DIRECTOR',
     },
     teacher: {
-        email: 'test@afterschool.com',   // seed.ts의 test teacher 계정
-        password: 'test1234',             // seed.ts의 비밀번호
-        name: '테스트 선생님',
+        email: 'teacher1@test.com',   // seed-test.ts의 test teacher 계정
+        password: 'test1234',             // seed-test.ts의 비밀번호
+        name: '김선생',
         role: 'TEACHER',
     },
     // 추가 테스트 계정 (필요시 seed.ts에 추가 후 사용)
