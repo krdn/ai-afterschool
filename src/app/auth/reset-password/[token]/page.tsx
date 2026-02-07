@@ -1,14 +1,8 @@
-import Link from "next/link"
-import { db } from "@/lib/db"
-import { NewPasswordForm } from "@/components/auth/new-password-form"
-import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { db } from '@/lib/db'
+import { logSystemAction } from '@/lib/dal'
+import { headers } from 'next/headers'
+import { NewPasswordForm } from '@/components/auth/new-password-form'
+import { ResetPasswordError } from '@/components/auth/reset-password-error'
 
 export default async function ResetPasswordTokenPage({
   params,
@@ -21,67 +15,55 @@ export default async function ResetPasswordTokenPage({
     where: { token },
   })
 
+  // 유효하지 않은 토큰 처리
   if (!resetToken) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-center">유효하지 않은 링크</CardTitle>
-        </CardHeader>
-        <CardContent className="text-center space-y-4">
-          <div className="text-6xl">❌</div>
-          <p className="text-gray-600">
-            유효하지 않은 링크예요. 비밀번호 재설정을 다시 요청해주세요.
-          </p>
-        </CardContent>
-        <CardFooter className="justify-center">
-          <Button asChild>
-            <Link href="/reset-password">다시 요청하기</Link>
-          </Button>
-        </CardFooter>
-      </Card>
-    )
+    const headersList = await headers()
+    const ip =
+      headersList.get('x-forwarded-for') ||
+      headersList.get('x-real-ip') ||
+      'unknown'
+
+    // 의심스러운 활동 로깅 (WARN 레벨)
+    await logSystemAction({
+      level: 'WARN',
+      message: 'Invalid password reset token accessed',
+      context: { token: token.substring(0, 8) + '...', ip },
+    })
+
+    return <ResetPasswordError errorType="invalid" />
   }
 
+  // 만료된 토큰 처리
   if (resetToken.expiresAt < new Date()) {
+    // 만료된 토큰은 INFO 레벨 로깅 (일반적인 만료)
+    await logSystemAction({
+      level: 'INFO',
+      message: 'Expired password reset token accessed',
+      context: {
+        token: token.substring(0, 8) + '...',
+        expiredAt: resetToken.expiresAt,
+      },
+    })
+
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-center">링크가 만료되었어요</CardTitle>
-        </CardHeader>
-        <CardContent className="text-center space-y-4">
-          <div className="text-6xl">⏰</div>
-          <p className="text-gray-600">
-            링크가 만료되었어요. 비밀번호 재설정을 다시 요청해주세요.
-          </p>
-        </CardContent>
-        <CardFooter className="justify-center">
-          <Button asChild>
-            <Link href="/reset-password">다시 요청하기</Link>
-          </Button>
-        </CardFooter>
-      </Card>
+      <ResetPasswordError
+        errorType="expired"
+        expiredAt={resetToken.expiresAt}
+        createdAt={resetToken.createdAt}
+      />
     )
   }
 
+  // 이미 사용된 토큰 처리
   if (resetToken.used) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-center">이미 사용된 링크</CardTitle>
-        </CardHeader>
-        <CardContent className="text-center space-y-4">
-          <div className="text-6xl">🔒</div>
-          <p className="text-gray-600">
-            이미 사용된 링크예요. 비밀번호 재설정을 다시 요청해주세요.
-          </p>
-        </CardContent>
-        <CardFooter className="justify-center">
-          <Button asChild>
-            <Link href="/reset-password">다시 요청하기</Link>
-          </Button>
-        </CardFooter>
-      </Card>
-    )
+    // 사용된 토큰은 INFO 레벨 로깅 (정상적인 흐름)
+    await logSystemAction({
+      level: 'INFO',
+      message: 'Used password reset token accessed',
+      context: { token: token.substring(0, 8) + '...' },
+    })
+
+    return <ResetPasswordError errorType="used" />
   }
 
   return <NewPasswordForm token={token} />
