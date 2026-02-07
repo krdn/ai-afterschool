@@ -379,6 +379,14 @@ Plans:
   3. 프로필 사진 업로드 시 용량 초과 에러 메시지 UI가 표시된다
   4. 팀장 역할의 제한된 관리 기능 접근 제어가 강화되어 타 팀 데이터 접근이 차단된다
   5. 만료/유효하지 않은 비밀번호 재설정 토큰 접근 시 에러 페이지 UI가 표시된다
+**Plans**: 4 plans in 1 wave
+**Status**: Pending
+
+Plans:
+- [ ] 27-01-PLAN.md — 접근 제어 강화 (AccessDeniedPage 컴포넌트, Teachers 페이지 RBAC, Server Action 검증)
+- [ ] 27-02-PLAN.md — 404 에러 페이지 구현 및 팀장 Admin 접근 (NotFoundPage, Teachers/[id]/not-found, Admin TEAM_LEADER 허용)
+- [ ] 27-03-PLAN.md — 파일 업로드 에러 처리 (이미지 업로더 용량 초과 Toast, Client 측 검증, Server Action 에러 처리)
+- [ ] 27-04-PLAN.md — 비밀번호 재설정 토큰 에러 처리 (ResetPasswordError 컴포넌트, 만료 시간 상세 정보, 재발송 폼, 보안 로깅)
 
 ### Phase 28: Integration Verification & Test Alignment
 **Goal**: 통합 검증 및 테스트 수정 (전체 E2E 실행, 남은 셀렉터 수정)
