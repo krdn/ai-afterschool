@@ -2,9 +2,15 @@ import { Page } from '@playwright/test';
 
 /**
  * 선생님 계정으로 로그인
+ * 기본값: seed.ts의 테스트 선생님 계정 사용
  */
-export async function loginAsTeacher(page: Page, email: string = 'teacher1@test.com', password: string = 'test1234') {
+export async function loginAsTeacher(
+    page: Page,
+    email: string = 'test@afterschool.com',  // seed.ts의 실제 계정
+    password: string = 'test1234'
+) {
     await page.goto('/auth/login');
+    await page.waitForLoadState('domcontentloaded');
 
     // 이메일 입력
     await page.fill('input[name="email"]', email);
@@ -17,19 +23,35 @@ export async function loginAsTeacher(page: Page, email: string = 'teacher1@test.
 
     // 로그인 완료 대기 (로그인 페이지를 벗어나면 성공)
     await page.waitForURL((url) => !url.pathname.includes('/auth/login'), { timeout: 10000 });
+
+    // 세션 쿠키 확인
+    const cookies = await page.context().cookies();
+    const sessionCookie = cookies.find(c => c.name === 'session' || c.name.includes('session'));
+    return sessionCookie !== undefined;
 }
 
 /**
  * 관리자 계정으로 로그인
+ * 기본값: seed.ts의 admin 계정 사용
  */
-export async function loginAsAdmin(page: Page, email: string = 'admin@test.com', password: string = 'test1234') {
+export async function loginAsAdmin(
+    page: Page,
+    email: string = 'admin@afterschool.com',  // seed.ts의 실제 계정
+    password: string = 'admin1234'
+) {
     await page.goto('/auth/login');
+    await page.waitForLoadState('domcontentloaded');
 
     await page.fill('input[name="email"]', email);
     await page.fill('input[name="password"]', password);
     await page.click('button[type="submit"]');
 
     await page.waitForURL((url) => !url.pathname.includes('/auth/login'), { timeout: 10000 });
+
+    // 세션 쿠키 확인
+    const cookies = await page.context().cookies();
+    const sessionCookie = cookies.find(c => c.name === 'session' || c.name.includes('session'));
+    return sessionCookie !== undefined;
 }
 
 /**
@@ -37,15 +59,17 @@ export async function loginAsAdmin(page: Page, email: string = 'admin@test.com',
  */
 export async function logout(page: Page) {
     // 로그아웃 버튼 찾기 (헤더 또는 메뉴에 있을 가능성)
-    const logoutButton = page.locator('button:has-text("로그아웃"), a:has-text("로그아웃")').first();
+    const logoutButton = page.locator('button:has-text("로그아웃"), a:has-text("로그아웃"), [aria-label*="logout" i]').first();
 
-    if (await logoutButton.isVisible({ timeout: 2000 }).catch(() => false)) {
+    const isVisible = await logoutButton.isVisible({ timeout: 3000 }).catch(() => false);
+
+    if (isVisible) {
         await logoutButton.click();
-        await page.waitForURL('/auth/login', { timeout: 5000 });
+        await page.waitForURL(/\/auth\/login/, { timeout: 5000 });
     } else {
         // 로그아웃 버튼이 없으면 직접 로그아웃 라우트 호출
         await page.goto('/auth/logout');
-        await page.waitForURL('/auth/login', { timeout: 5000 });
+        await page.waitForURL(/\/auth\/login/, { timeout: 5000 });
     }
 }
 
@@ -54,11 +78,12 @@ export async function logout(page: Page) {
  */
 export async function isLoggedIn(page: Page): Promise<boolean> {
     try {
-        // 대시보드 접근 시도
-        await page.goto('/dashboard', { waitUntil: 'networkidle', timeout: 5000 });
+        // 학생 목록 페이지 접근 시도 (기본 protected route)
+        await page.goto('/students', { waitUntil: 'domcontentloaded', timeout: 5000 });
 
         // 로그인 페이지로 리다이렉트되지 않았으면 로그인 상태
-        return !page.url().includes('/auth/login');
+        const currentUrl = page.url();
+        return !currentUrl.includes('/auth/login') && !currentUrl.includes('/auth/register');
     } catch {
         return false;
     }
@@ -66,21 +91,32 @@ export async function isLoggedIn(page: Page): Promise<boolean> {
 
 /**
  * 테스트 계정 정보
+ * prisma/seed.ts에 정의된 계정과 일치시켜야 함
  */
 export const TEST_ACCOUNTS = {
     admin: {
-        email: 'admin@test.com',
-        password: 'test1234',
+        email: 'admin@afterschool.com',  // seed.ts의 admin 계정
+        password: 'admin1234',            // seed.ts의 비밀번호
         name: '관리자',
+        role: 'DIRECTOR',
     },
+    teacher: {
+        email: 'test@afterschool.com',   // seed.ts의 test teacher 계정
+        password: 'test1234',             // seed.ts의 비밀번호
+        name: '테스트 선생님',
+        role: 'TEACHER',
+    },
+    // 추가 테스트 계정 (필요시 seed.ts에 추가 후 사용)
     teacher1: {
         email: 'teacher1@test.com',
         password: 'test1234',
         name: '김선생',
+        role: 'TEACHER',
     },
     teacher2: {
         email: 'teacher2@test.com',
         password: 'test1234',
         name: '이선생',
+        role: 'TEACHER',
     },
 } as const;
