@@ -2,6 +2,7 @@
 
 import { verifySession } from '@/lib/dal'
 import { db } from '@/lib/db'
+import { getRBACPrisma } from '@/lib/db/rbac'
 
 export interface AuditLogEntry {
   id: string
@@ -29,7 +30,8 @@ export async function getAuditLogs(params: {
 }): Promise<AuditLogsResult> {
   const session = await verifySession()
 
-  if (session.role !== 'DIRECTOR') {
+  // Allow both DIRECTOR and TEAM_LEADER roles
+  if (session.role !== 'DIRECTOR' && session.role !== 'TEAM_LEADER') {
     return { logs: [], total: 0, page: 1, pageSize: 20 }
   }
 
@@ -41,8 +43,11 @@ export async function getAuditLogs(params: {
     ? { action: params.action }
     : {}
 
+  // Use RBAC Prisma for automatic team filtering
+  const prisma = getRBACPrisma(session)
+
   const [logs, total] = await Promise.all([
-    db.auditLog.findMany({
+    prisma.auditLog.findMany({
       where,
       include: {
         teacher: {
@@ -56,7 +61,7 @@ export async function getAuditLogs(params: {
       skip,
       take: pageSize,
     }),
-    db.auditLog.count({ where }),
+    prisma.auditLog.count({ where }),
   ])
 
   return {

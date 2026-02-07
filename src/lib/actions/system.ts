@@ -2,6 +2,7 @@
 
 import { verifySession } from '@/lib/dal'
 import { db } from '@/lib/db'
+import { getRBACPrisma } from '@/lib/db/rbac'
 
 export interface SystemLogEntry {
   id: string
@@ -25,7 +26,8 @@ export async function getSystemLogs(params: {
 }): Promise<SystemLogsResult> {
   const session = await verifySession()
 
-  if (session.role !== 'DIRECTOR') {
+  // Allow both DIRECTOR and TEAM_LEADER roles
+  if (session.role !== 'DIRECTOR' && session.role !== 'TEAM_LEADER') {
     return { logs: [], total: 0, page: 1, pageSize: 20 }
   }
 
@@ -37,14 +39,17 @@ export async function getSystemLogs(params: {
     ? { level: params.level }
     : {}
 
+  // Use RBAC Prisma for automatic team filtering
+  const prisma = getRBACPrisma(session)
+
   const [logs, total] = await Promise.all([
-    db.systemLog.findMany({
+    prisma.systemLog.findMany({
       where,
       orderBy: { timestamp: 'desc' },
       skip,
       take: pageSize,
     }),
-    db.systemLog.count({ where }),
+    prisma.systemLog.count({ where }),
   ])
 
   return {
