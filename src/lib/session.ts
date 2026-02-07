@@ -53,9 +53,12 @@ export async function createSession(
   const session = await encrypt({ userId, role, teamId, expiresAt })
   const cookieStore = await cookies()
 
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || ''
+  const isHttps = appUrl.startsWith('https://')
+
   cookieStore.set('session', session, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: isHttps,
     expires: expiresAt,
     sameSite: 'lax',
     path: '/',
