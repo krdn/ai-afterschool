@@ -32,5 +32,15 @@ interface AdminTabsContentProps {
 }
 
 export function AdminTabsContent({ value, children }: AdminTabsContentProps) {
-  return <TabsContent value={value} className="space-y-6">{children}</TabsContent>
+  // Map tab values to test IDs for E2E testing
+  const testIdMap: Record<string, string> = {
+    'llm-settings': 'admin-llm-settings-page',
+    'llm-usage': 'admin-llm-usage-page',
+    'system-status': 'admin-system-status-page',
+    'system-logs': 'admin-system-logs-page',
+    'database': 'admin-backup-page',
+    'audit-logs': 'admin-audit-logs-page',
+  }
+
+  return <TabsContent value={value} className="space-y-6" data-testid={testIdMap[value]}>{children}</TabsContent>
 }
