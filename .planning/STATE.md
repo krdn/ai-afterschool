@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 ## Current Position
 
 Phase: 28 - Integration Verification & Test Alignment
-Plan: 02
+Plan: 03
 Status: In progress
-Last activity: 2026-02-07 — Phase 28-02 Selector Fixes 완료
+Last activity: 2026-02-07 — Phase 28-03 Test File Updates & Timing Fixes 완료
 
-Progress: [████░░░░░░░░░░░░░░░░░] 38%
+Progress: [█████░░░░░░░░░░░░░░░░] 44%
 
 **v2.1.1 E2E Test Compliance** ○ ACTIVE
 - Phase 23: data-testid Infrastructure (✓ complete)
@@ -25,7 +25,7 @@ Progress: [████░░░░░░░░░░░░░░░░░] 38%
 - Phase 28: Integration Verification & Test Alignment (○ in progress)
   - Plan 01: Test Environment Setup & Initial Run (✓ complete)
   - Plan 02: Selector Fixes for High-Priority Components (✓ complete)
-  - Plan 03: Login/Auth Flow Fixes (pending)
+  - Plan 03: Test File Updates & Timing Fixes (✓ complete)
   - Plan 04: API & Navigation Fixes (pending)
 
 ## Performance Metrics
@@ -58,15 +58,15 @@ Progress: [████░░░░░░░░░░░░░░░░░] 38%
 | 25 (v2.1.1) | 4 | ~25 min | ~6.3 min |
 | 26 (v2.1.1) | 4 | ~38 min | ~9.5 min |
 | 27 (v2.1.1) | 4 | ~17 min | ~4.3 min |
-| 28 (v2.1.1) | 2 | ~20 min | ~10 min |
+| 28 (v2.1.1) | 3 | ~35 min | ~12 min |
 
 **Recent Trend:**
 - v2.0 complete: 40 plans in ~119 min (~3 min/plan average)
 - v2.1 complete: 30 plans in ~189 min (~6.3 min/plan average)
-- v2.1.1 complete: 27 plans in ~140 min (~5.2 min/plan average)
-- Velocity: v1.0 (7 min) → v2.0 (~3 min) → v2.1 (~6 min) → v2.1.1 (~5 min)
+- v2.1.1 complete: 28 plans in ~155 min (~5.5 min/plan average)
+- Velocity: v1.0 (7 min) → v2.0 (~3 min) → v2.1 (~6 min) → v2.1.1 (~5.5 min)
 
-*Updated after Phase 28-02 completion*
+*Updated after Phase 28-03 completion*
 
 ## Accumulated Context
 
@@ -76,6 +76,11 @@ Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
 **v2.1.1 결정:**
+- [28-03] 조건부 요소 체크 패턴: count() > 0 확인 후 isVisible() 실행로 선택적 요소 처리
+- [28-03] 대체 선택자(Fallback) 패턴: data-testid 없을 때 role/text 기반 선택자 사용으로 호환성 유지
+- [28-03] seed 데이터 계정 일치: 테스트 계정을 prisma/seed.ts의 실제 계정(admin@afterschool.com, test@afterschool.com)과 정확히 일치
+- [28-03] 세션 쿠키 검증: 로그인 함수에서 session 쿠키 존재 확인으로 인증 상태 검증
+- [28-03] 건너뛴 테스트 우선순위 분류: 이메일 서비스(중) > 세션/레이트리미팅(하)로 재활성화 계획 수립
 - [28-02] data-tab 속성 추가: 학생 상세 탭에 data-tab 속성 추가로 탭 선택자 개선
 - [28-02] AdminTabsContent testid 매핑: 탭 값에 따른 동적 testid 할당으로 통합 admin 페이지 지원
 - [28-02] 통계 카드 testid 패턴: counseling-stat-card-{type} 패턴으로 일관성 유지
@@ -247,10 +252,10 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-07 11:27 KST
-Stopped at: Phase 28-02 Complete
+Last session: 2026-02-07 11:45 KST
+Stopped at: Phase 28-03 Complete
 Resume file: None
-Next action: Execute Phase 28-03 (Login/Auth Flow Fixes)
+Next action: Execute Phase 28-04 (API & Navigation Fixes)
 
 ---
-*Last updated: 2026-02-07 (Phase 28-02 완료)*
+*Last updated: 2026-02-07 (Phase 28-03 완료)*
