@@ -1,5 +1,41 @@
 # Project Milestones: AI AfterSchool
 
+## v2.1.1 E2E Test Compliance (Shipped: 2026-02-07)
+
+**Delivered:** E2E 테스트 인프라 구축과 테스트 호환성 확보로 안정적인 테스트 기반 마련. data-testid 속성 195개 추가, 누락 라우트 7개 생성, UI 보강(서브탭 분리, 에러 처리, 검색/필터), RBAC 강화(AccessDeniedPage, NotFoundPage, 팀장 Admin 접근), 감사 로그 인프라 구축, E2E 테스트 기준선 확립(20.7% 통과율, TEST-MAINTENANCE.md 가이드).
+
+**Phases completed:** 23-28 (22 plans total)
+
+**Key accomplishments:**
+
+- E2E 테스트 인프라 구축 (195개 data-testid 속성 추가, 셀렉터 네이밍 컨벤션)
+- 누락 라우트 완성 (/teachers/me, /admin 6개 탭, /teams, /students/[id]/report)
+- UI 보강 (분석 탭 4개 서브탭 분리, 통일 에러 처리, 검색/필터 UI)
+- RBAC 강화 (AccessDeniedPage, NotFoundPage, 팀장 Admin 접근 제어)
+- 감사 로그 인프라 (AuditLog, SystemLog 모델, 로깅 유틸리티)
+- E2E 테스트 기준선 확립 (18/87 통과, 20.7%, 인증 모듈 80% 달성)
+- TEST-MAINTENANCE.md 가이드 작성 (534줄, 유지보수 지침)
+
+**Stats:**
+
+- 232 files created/modified
+- ~28,481 lines added
+- 6 phases, 22 plans
+- 2 days from milestone start to ship (2026-02-05 → 2026-02-07)
+- Integration health score: 100% (E2E flows connected)
+
+**Git range:** `feat(23-01)` → `docs(28-04)`
+
+**Technical Debt Accepted:**
+- E2E 테스트 커버리지 20.7% (목표 100%, Admin data-testid 누락, 타임아웃 이슈)
+- 분석 이력 기능 제약 (@unique로 1개 레코드만 표시)
+- 12개 Admin 테스트 실패 (data-testid 누락)
+- 15개 타임아웃 실패 (페이지 로드 시간)
+
+**What's next:** v2.2 will focus on attendance tracking and tuition management features.
+
+---
+
 ## v2.1 Parent Counseling Management (Shipped: 2026-02-05)
 
 **Delivered:** 선생님 중심의 학부모 상담 예약/기록 시스템으로 체계적인 상담 관리 및 통계 제공. 학부모 정보 관리, 예약 시스템, 캘린더 시각화, 상담 통계 대시보드, AI 상담 지원 기능을 포함.
