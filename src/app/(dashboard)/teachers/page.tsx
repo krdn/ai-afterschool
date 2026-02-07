@@ -4,6 +4,7 @@ import { getTeachers } from '@/lib/actions/teachers'
 import { Button } from '@/components/ui/button'
 import { TeacherTable } from '@/components/teachers/teacher-table'
 import { EmptyState } from '@/components/students/empty-state'
+import { AccessDeniedPage } from '@/components/errors/access-denied-page'
 import { Users } from 'lucide-react'
 
 export default async function TeachersPage() {
@@ -11,14 +12,7 @@ export default async function TeachersPage() {
 
   // 권한 검증: 원장 또는 팀장만 선생님 목록 접근 가능
   if (session.role === 'MANAGER' || session.role === 'TEACHER') {
-    return (
-      <div className="space-y-6">
-        <h1 className="text-2xl font-bold">선생님 관리</h1>
-        <p className="text-gray-500">
-          선생님 목록을 볼 권한이 없어요
-        </p>
-      </div>
-    )
+    return <AccessDeniedPage resource="선생님 관리" action="접근" />
   }
 
   const teachers = await getTeachers()
