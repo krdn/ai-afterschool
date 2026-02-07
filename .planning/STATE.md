@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 ## Current Position
 
 Phase: 27 - RBAC, Auth & Error Handling
-Plan: 02
+Plan: 04
 Status: In progress
-Last activity: 2026-02-07 — Plan 27-02 404 에러 페이지 및 Admin 팀장 접근 완료
+Last activity: 2026-02-07 — Plan 27-04 비밀번호 재설정 토큰 에러 처리 개선 완료
 
-Progress: [██████░░░░░░░░░░░░░░] 50%
+Progress: [████████░░░░░░░░░░░░░] 75%
 
 **v2.1.1 E2E Test Compliance** ○ ACTIVE
 - Phase 23: data-testid Infrastructure (✓ complete)
 - Phase 24: Missing Routes Creation (✓ complete)
 - Phase 25: Student, Analysis & Report UI Enhancement (✓ complete)
 - Phase 26: Counseling & Matching UI Enhancement (✓ complete)
-- Phase 27: RBAC, Auth & Error Handling (◐ in progress - 2/4 plans)
+- Phase 27: RBAC, Auth & Error Handling (◐ in progress - 3/4 plans)
 - Phase 28: Integration Verification & Test Alignment (○ pending)
 
 ## Performance Metrics
@@ -53,15 +53,15 @@ Progress: [██████░░░░░░░░░░░░░░] 50%
 | 24 (v2.1.1) | 4 | ~9 min | ~2.3 min |
 | 25 (v2.1.1) | 4 | ~25 min | ~6.3 min |
 | 26 (v2.1.1) | 4 | ~38 min | ~9.5 min |
-| 27 (v2.1.1) | 2 | ~12 min | ~6 min |
+| 27 (v2.1.1) | 3 | ~13 min | ~4.3 min |
 
 **Recent Trend:**
 - v2.0 complete: 40 plans in ~119 min (~3 min/plan average)
 - v2.1 complete: 30 plans in ~189 min (~6.3 min/plan average)
-- v2.1.1 active: 24 plans in ~125 min (~5.2 min/plan average)
-- Velocity: v1.0 (7 min) → v2.0 (~3 min) → v2.1 (~6 min) → v2.1.1 (~5.2 min)
+- v2.1.1 active: 25 plans in ~126 min (~5 min/plan average)
+- Velocity: v1.0 (7 min) → v2.0 (~3 min) → v2.1 (~6 min) → v2.1.1 (~5 min)
 
-*Updated after Phase 27 Plan 02 completion*
+*Updated after Phase 27 Plan 04 completion*
 
 ## Accumulated Context
 
@@ -71,6 +71,9 @@ Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
 **v2.1.1 결정:**
+- [27-04] 토큰 부분 마스킹: 개인정보 보호를 위해 로그에 토큰 전체가 아닌 앞 8자리만 기록
+- [27-04] 로그 레벨 분리: 유효하지 않은 토큰은 WARN(의심스러운 활동), 만료/사용된 토큰은 INFO(일반적인 흐름)
+- [27-04] Inline 재발송 폼: 별도 페이지 이동 없이 같은 컴포넌트에서 이메일 입력 및 재발송 처리
 - [27-02] 공통 404 컴포넌트 구조: Search 아이콘과 회색 배경 사용, 향후 403/401/500 확장 가능한 유연한 구조 유지
 - [27-02] Admin 페이지 TEAM_LEADER 접근: 모든 Admin 탭 허용하되 getRBACPrisma()로 자신의 팀 데이터만 접근 가능 (CONTEXT.md 결정 준수)
 - [27-02] Server Action 레벨 RBAC: getSystemLogs, getAuditLogs, getBackupList에서 getRBACPrisma() 사용하여 자동 팀 필터링
@@ -224,10 +227,10 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-07 09:52 KST
-Stopped at: Phase 27 Plan 02 Complete
+Last session: 2026-02-07 09:48 KST
+Stopped at: Phase 27 Plan 04 Complete
 Resume file: None
-Next action: Continue with Phase 27 Plan 03 or move to next plan
+Next action: Continue with Phase 27 Plan 05 or move to next phase
 
 ---
-*Last updated: 2026-02-07 (Phase 27 Plan 02 완료)*
+*Last updated: 2026-02-07 (Phase 27 Plan 04 완료)*
