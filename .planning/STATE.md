@@ -9,19 +9,19 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 
 ## Current Position
 
-Phase: 26 - Counseling & Matching UI Enhancement
-Plan: —
-Status: Complete ✓
-Last activity: 2026-02-07 — Phase 26 상담/매칭/성과 UI 보강 완료
+Phase: 27 - RBAC, Auth & Error Handling
+Plan: 01
+Status: In progress
+Last activity: 2026-02-07 — Plan 27-01 접근 제어 강화 완료
 
-Progress: [████████████████████████] 100%
+Progress: [████░░░░░░░░░░░░░░░░] 33%
 
 **v2.1.1 E2E Test Compliance** ○ ACTIVE
 - Phase 23: data-testid Infrastructure (✓ complete)
 - Phase 24: Missing Routes Creation (✓ complete)
 - Phase 25: Student, Analysis & Report UI Enhancement (✓ complete)
 - Phase 26: Counseling & Matching UI Enhancement (✓ complete)
-- Phase 27: RBAC, Auth & Error Handling (○ pending)
+- Phase 27: RBAC, Auth & Error Handling (◐ in progress - 1/4 plans)
 - Phase 28: Integration Verification & Test Alignment (○ pending)
 
 ## Performance Metrics
@@ -70,6 +70,9 @@ Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
 **v2.1.1 결정:**
+- [27-01] AccessDeniedPage Client Component 패턴: Toast는 Client Component에서만 작동하므로 useEffect로 마운트 시 toast.error 호출
+- [27-01] Server Action 에러 반환 패턴: Promise<void> 대신 Promise<{ success?: boolean; error?: string }>로 명확한 에러 메시지 반환
+- [27-01] MANAGER/TEACHER 역할 접근 제어: Teachers 페이지 접근 차단, AccessDeniedPage로 UI 제공
 - [v2.1.1] E2E 테스트 호환성 우선: 새 기능 추가 없이 기존 구현의 테스트 안정성 확보
 - [v2.1.1] data-testid 일괄 적용: 모든 주요 컴포넌트에 테스트 가능한 셀렉터 추가
 - [v2.1.1] data-testid 네이밍 컨벤션: kebab-case 사용 (예: student-name, analysis-loading)
@@ -216,10 +219,10 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-07 09:35 KST
-Stopped at: Phase 26 Complete
+Last session: 2026-02-07 09:46 KST
+Stopped at: Phase 27 Plan 01 Complete
 Resume file: None
-Next action: Execute Phase 27 or move to next phase
+Next action: Continue with Phase 27 Plan 02 or move to next plan
 
 ---
-*Last updated: 2026-02-07 (Phase 26 완료)*
+*Last updated: 2026-02-07 (Phase 27 Plan 01 완료)*
