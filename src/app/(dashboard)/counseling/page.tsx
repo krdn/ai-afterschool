@@ -268,7 +268,7 @@ function CounselingHistoryContent({
   return (
     <div className="space-y-6">
       <div className="flex justify-end">
-        <Button variant="outline" asChild>
+        <Button variant="outline" asChild data-testid="new-counseling-button">
           <Link href="/counseling/new">새 상담 기록</Link>
         </Button>
       </div>
@@ -332,7 +332,7 @@ function CounselingHistoryContent({
       </Card>
 
       {/* 다중 필터 */}
-      <Card>
+      <Card data-testid="counseling-filters">
         <CardHeader>
           <CardTitle>필터</CardTitle>
         </CardHeader>

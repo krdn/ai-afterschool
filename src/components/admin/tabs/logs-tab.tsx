@@ -91,7 +91,7 @@ export function LogsTab({ initialLevel = 'ALL', initialPage = 1 }: LogsTabProps)
               </TableHeader>
               <TableBody>
                 {logs.map((log) => (
-                  <TableRow key={log.id} data-testid="log-row">
+                  <TableRow key={log.id} data-testid="system-log-row">
                     <TableCell data-testid="log-timestamp">
                       {new Date(log.timestamp).toLocaleString('ko-KR')}
                     </TableCell>
