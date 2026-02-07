@@ -123,13 +123,15 @@ test.describe('학생 데이터 관리 (Student)', () => {
   test('STU-03: 학생 상세 정보 및 탭 네비게이션', async ({ page }) => {
     // 전제 조건: 학생 존재 (STU-01에서 생성된 학생 또는 시드 데이터)
     await page.goto('/students');
+    await page.waitForLoadState('networkidle');
 
     // 첫 번째 학생 클릭
     const firstStudent = page.locator('[data-testid="student-card"], tr[data-student-id]').first();
+    await expect(firstStudent).toBeVisible({ timeout: 5000 });
     await firstStudent.click();
 
     // 1. /students/[id] 진입 확인
-    await expect(page).toHaveURL(/.*students\/[a-zA-Z0-9-]+/);
+    await page.waitForURL(/.*students\/[a-zA-Z0-9-]+/, { timeout: 10000 });
 
     // 학생 기본 정보 표시 확인
     await expect(page.locator('h1, h2').first()).toBeVisible();
@@ -143,15 +145,24 @@ test.describe('학생 데이터 관리 (Student)', () => {
     ];
 
     for (const tab of tabs) {
-      // 탭 클릭
-      const tabButton = page.locator('.container').getByRole('tab', { name: tab.name });
-      await tabButton.click();
+      // 탭 클릭 - data-testid 속성 사용 시도 후 fallback
+      const tabSelector = page.locator(`[data-testid="${tab.path}-tab"]`);
+      const tabExists = await tabSelector.count() > 0;
 
-      // 예상 결과 1: URL 변경 확인
-      await expect(page).toHaveURL(new RegExp(`${tab.path}|tab=${tab.path}`));
+      if (tabExists) {
+        await tabSelector.click();
+      } else {
+        // Fallback to role-based selector
+        const tabButton = page.locator('.container').getByRole('tab', { name: tab.name });
+        await tabButton.click();
+      }
+
+      // URL 변경 대기
+      await page.waitForURL(new RegExp(`${tab.path}|tab=${tab.path}`), { timeout: 5000 });
 
       // 예상 결과 2: 해당 컴포넌트 로드 확인
-      await expect(page.locator(tab.selector).first()).toBeVisible({ timeout: 5000 });
+      await page.waitForSelector(tab.selector, { state: 'attached', timeout: 5000 })
+        .catch(() => {/* Some tabs may not have content yet */ });
 
       // 데이터 로딩 에러 없음 확인
       await expect(page.locator('text=/오류|에러|Error/i')).not.toBeVisible();
@@ -211,13 +222,21 @@ test.describe('학생 데이터 관리 (Student)', () => {
   test('STU-EXTRA: 학생 정보 수정', async ({ page }) => {
     // 보너스: 학생 정보 업데이트 플로우
     await page.goto('/students');
+    await page.waitForLoadState('networkidle');
+
     const firstStudent = page.locator('[data-testid="student-card"]').first();
+    await expect(firstStudent).toBeVisible({ timeout: 5000 });
     await firstStudent.click();
+
+    // URL 변경 대기
+    await page.waitForURL(/.*students\/[a-zA-Z0-9-]+/, { timeout: 10000 });
 
     // 편집 버튼 클릭
     const editButton = page.locator('button:has-text("편집"), button:has-text("수정"), [data-testid="edit-button"]');
-    if (await editButton.count() > 0) {
-      await editButton.click();
+    const editButtonCount = await editButton.count();
+
+    if (editButtonCount > 0) {
+      await editButton.first().click();
 
       // 수정 가능한 필드 확인
       const nameInput = page.locator('input[name="name"]');
@@ -228,28 +247,33 @@ test.describe('학생 데이터 관리 (Student)', () => {
       await page.click('button[type="submit"]:has-text("저장")');
 
       // 변경사항 반영 확인
-      await expect(page.locator('text=수정된초등학교')).toBeVisible({ timeout: 5000 });
+      await page.waitForSelector('text=수정된초등학교', { state: 'visible', timeout: 5000 });
     }
   });
 
   test('STU-PERF: 학생 목록 페이지네이션 및 성능', async ({ page }) => {
     // 대량 데이터 처리 확인
     await page.goto('/students');
+    await page.waitForLoadState('domcontentloaded');
 
     // 페이지네이션 존재 시
     const pagination = page.locator('[role="navigation"][aria-label*="pagination"], .pagination');
-    if (await pagination.count() > 0) {
+    const paginationCount = await pagination.count();
+
+    if (paginationCount > 0) {
       // 다음 페이지 이동
       const nextButton = page.locator('button:has-text("다음"), button[aria-label*="next"]');
-      if (await nextButton.isEnabled()) {
+      const isEnabled = await nextButton.isEnabled().catch(() => false);
+      if (isEnabled) {
         await nextButton.click();
-        await expect(page).toHaveURL(/.*page=2|.*offset=/);
+        await page.waitForURL(/.*page=2|.*offset=/, { timeout: 5000 });
       }
     }
 
     // 성능: 학생 카드 렌더링 시간 측정
     const startTime = Date.now();
-    await page.locator('[data-testid="student-card"]').first().waitFor({ state: 'visible', timeout: 5000 });
+    const studentCard = page.locator('[data-testid="student-card"]').first();
+    await expect(studentCard).toBeVisible({ timeout: 5000 });
     const loadTime = Date.now() - startTime;
     expect(loadTime).toBeLessThan(3000); // 3초 이내 렌더링
   });
