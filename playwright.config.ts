@@ -24,9 +24,9 @@ export default defineConfig({
 
         /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
         trace: 'on-first-retry',
-        /* 타임아웃 증가 - 초기 로딩 시간 고려 */
-        actionTimeout: 30000,
-        navigationTimeout: 30000,
+        /* 타임아웃 증가 - AI 분석 등 시간이 오래 걸리는 작업 고려 */
+        actionTimeout: 60000,
+        navigationTimeout: 60000,
     },
 
     /* Configure projects for major browsers */

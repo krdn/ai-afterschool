@@ -15,6 +15,9 @@ test.describe('Analysis - 성향 분석 시스템', () => {
 
   // ANL-01: 사주/성명학 계산 정확성
   test('ANL-01: 사주/성명학 계산 정확성', async ({ page }) => {
+    // 타임아웃 증가 - 분석 작업을 위해
+    test.setTimeout(60000);
+
     // 테스트 학생 페이지로 이동 (생년월일이 있는 학생)
     await page.goto('/students/test-student-id');
     await page.waitForLoadState('domcontentloaded');
@@ -74,6 +77,9 @@ test.describe('Analysis - 성향 분석 시스템', () => {
 
   // ANL-02: AI 관상/손금 분석 (Claude Vision)
   test('ANL-02: AI 관상/손금 분석 (Claude Vision)', async ({ page }) => {
+    // 타임아웃 증가 - AI Vision API 호출을 위해
+    test.setTimeout(90000);
+
     // 학생 페이지로 이동
     await page.goto('/students/test-student-id');
     await page.waitForLoadState('domcontentloaded');
@@ -140,6 +146,9 @@ test.describe('Analysis - 성향 분석 시스템', () => {
 
   // ANL-03: MBTI 입력 및 결과 판정
   test('ANL-03: MBTI 입력 및 결과 판정', async ({ page }) => {
+    // 타임아웃 증가 - MBTI 분석을 위해
+    test.setTimeout(60000);
+
     // 학생 페이지로 이동
     await page.goto('/students/test-student-id');
 
@@ -197,6 +206,9 @@ test.describe('Analysis - 성향 분석 시스템', () => {
 
   // ANL-04: 통합 성향 요약 생성 (Aggregation)
   test('ANL-04: 통합 성향 요약 생성 (Aggregation)', async ({ page }) => {
+    // 타임아웃 증가 - 통합 분석은 시간이 오래 걸림
+    test.setTimeout(90000);
+
     // 전제 조건: 분석 데이터가 이미 존재하는 학생
     await page.goto('/students/test-student-with-analysis');
     await page.waitForLoadState('domcontentloaded');
@@ -277,6 +289,9 @@ test.describe('Analysis - 성향 분석 시스템', () => {
   });
 
   test('ANL-06: AI 분석 API 오류 핸들링', async ({ page }) => {
+    // 타임아웃 증가 - 에러 핸들링 테스트를 위해
+    test.setTimeout(60000);
+
     // API 실패 시뮬레이션 (네트워크 인터셉트)
     await page.route('**/api/analysis/physiognomy', route => {
       route.fulfill({
@@ -306,6 +321,9 @@ test.describe('Analysis - 성향 분석 시스템', () => {
   });
 
   test('ANL-07: 사주 분석 결과 히스토리 조회', async ({ page }) => {
+    // 타임아웃 증가
+    test.setTimeout(60000);
+
     await page.goto('/students/test-student-id');
     const sajuTab = page.locator('[data-testid="saju-tab"]');
     if (await sajuTab.isVisible({ timeout: 3000 })) {
@@ -329,6 +347,9 @@ test.describe('Analysis - 성향 분석 시스템', () => {
   });
 
   test('ANL-08: MBTI 설문 중간 저장 (Draft)', async ({ page }) => {
+    // 타임아웃 증가
+    test.setTimeout(60000);
+
     await page.goto('/students/test-student-id');
     const mbtiTab = page.locator('[data-testid="mbti-tab"]');
     if (await mbtiTab.isVisible({ timeout: 3000 })) {

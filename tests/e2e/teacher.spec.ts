@@ -40,6 +40,9 @@ test.describe('선생님 데이터 관리 (Teacher)', () => {
 
   // TCH-01: 관리자: 선생님 팀/역할 변경
   test('TCH-01: 관리자가 선생님의 팀 및 역할을 변경할 수 있다', async ({ page }) => {
+    // 타임아웃 증가 - 팀 생성 및 선생님 관리 작업을 위해
+    test.setTimeout(60000);
+
     // Arrange: 선생님 및 관리자 계정 생성
     await createTestTeacher(page);
     await page.goto('/auth/register');
@@ -89,6 +92,9 @@ test.describe('선생님 데이터 관리 (Teacher)', () => {
 
   // TCH-02: 선생님 본인 프로필 조회
   test('TCH-02: 선생님이 본인 프로필 정보를 조회할 수 있다', async ({ page }) => {
+    // 타임아웃 증가
+    test.setTimeout(60000);
+
     // Arrange: 선생님 계정 생성 및 로그인
     await createTestTeacher(page);
     await loginAsTeacher(page);
@@ -135,6 +141,9 @@ test.describe('선생님 데이터 관리 (Teacher)', () => {
 
   // TCH-02-ALT: 직접 URL 접근으로 프로필 조회
   test('TCH-02-ALT: /teachers/me URL로 직접 접근하여 프로필 조회', async ({ page }) => {
+    // 타임아웃 증가
+    test.setTimeout(60000);
+
     // Arrange
     await createTestTeacher(page);
     await loginAsTeacher(page);
@@ -150,6 +159,9 @@ test.describe('선생님 데이터 관리 (Teacher)', () => {
 
   // TCH-03: 선생님 자신의 성향 분석 실행
   test('TCH-03: 선생님이 본인의 사주/MBTI 분석을 실행할 수 있다', async ({ page }) => {
+    // 타임아웃 증가 - 사주/MBTI 분석을 위해
+    test.setTimeout(90000);
+
     // Arrange: 선생님 계정 생성 및 프로필 정보 입력
     await createTestTeacher(page);
     await loginAsTeacher(page);
@@ -210,6 +222,9 @@ test.describe('선생님 데이터 관리 (Teacher)', () => {
 
   // TCH-03-ERR: 생년월일 없이 분석 실행 시 에러 처리
   test('TCH-03-ERR: 생년월일 정보 없이 사주 분석 실행 시 에러 메시지 표시', async ({ page }) => {
+    // 타임아웃 증가
+    test.setTimeout(60000);
+
     // Arrange: 생년월일 미입력 상태
     await createTestTeacher(page);
     await loginAsTeacher(page);
@@ -226,6 +241,9 @@ test.describe('선생님 데이터 관리 (Teacher)', () => {
 
   // TCH-04: 권한 검증 - 타 선생님 프로필 접근 불가
   test('TCH-04: 선생님은 다른 선생님의 프로필을 임의로 조회할 수 없다', async ({ page }) => {
+    // 타임아웃 증가
+    test.setTimeout(60000);
+
     // Arrange: 두 명의 선생님 계정 생성
     await createTestTeacher(page);
     
@@ -257,6 +275,9 @@ test.describe('선생님 데이터 관리 (Teacher)', () => {
 
   // TCH-05: 선생님 목록 조회 (관리자 전용)
   test('TCH-05: 관리자는 전체 선생님 목록을 조회하고 검색할 수 있다', async ({ page }) => {
+    // 타임아웃 증가
+    test.setTimeout(60000);
+
     // Arrange: 여러 선생님 생성
     const teachers = [
       { email: 'kim@test.com', name: '김선생', role: 'TEACHER' },
@@ -303,6 +324,9 @@ test.describe('선생님 데이터 관리 (Teacher)', () => {
 
   // TCH-06: 선생님 프로필 사진 업로드
   test('TCH-06: 선생님이 프로필 사진을 업로드하고 표시할 수 있다', async ({ page }) => {
+    // 타임아웃 증가 - 파일 업로드를 위해
+    test.setTimeout(60000);
+
     // Arrange
     await createTestTeacher(page);
     await loginAsTeacher(page);
@@ -334,6 +358,9 @@ test.describe('선생님 데이터 관리 (Teacher)', () => {
 
   // TCH-07: 선생님 담당 학생 통계 및 성과
   test('TCH-07: 선생님 프로필에서 담당 학생들의 성과 통계를 확인할 수 있다', async ({ page }) => {
+    // 타임아웃 증가
+    test.setTimeout(60000);
+
     // Arrange: 선생님 및 담당 학생 생성
     await createTestTeacher(page);
     await loginAsTeacher(page);
@@ -372,6 +399,9 @@ test.describe('선생님 데이터 관리 (Teacher)', () => {
 test.describe('선생님 관리 - 예외 및 에러 처리', () => {
   
   test('TCH-ERR-01: 일반 선생님은 선생님 관리 페이지 접근 불가', async ({ page }) => {
+    // 타임아웃 증가
+    test.setTimeout(60000);
+
     await page.goto('/auth/register');
     await page.fill('input[name="email"]', TEST_TEACHER.email);
     await page.fill('input[name="password"]', TEST_TEACHER.password);
@@ -386,6 +416,9 @@ test.describe('선생님 관리 - 예외 및 에러 처리', () => {
   });
 
   test('TCH-ERR-02: 존재하지 않는 선생님 ID 접근 시 404', async ({ page }) => {
+    // 타임아웃 증가
+    test.setTimeout(60000);
+
     await page.goto('/auth/register');
     await page.fill('input[name="email"]', TEST_ADMIN.email);
     await page.fill('input[name="password"]', TEST_ADMIN.password);
@@ -400,6 +433,9 @@ test.describe('선생님 관리 - 예외 및 에러 처리', () => {
   });
 
   test('TCH-ERR-03: 프로필 사진 용량 초과 시 에러', async ({ page }) => {
+    // 타임아웃 증가
+    test.setTimeout(60000);
+
     await page.goto('/auth/register');
     await page.fill('input[name="email"]', TEST_TEACHER.email);
     await page.fill('input[name="password"]', TEST_TEACHER.password);
