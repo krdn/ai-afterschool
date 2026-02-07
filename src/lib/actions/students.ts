@@ -208,7 +208,15 @@ export async function createStudent(
     studentId = student.id
 
     for (const imagePayload of imagePayloads.images) {
-      await setStudentImage(studentId, imagePayload)
+      const imageResult = await setStudentImage(studentId, imagePayload)
+      if (!imageResult.success) {
+        console.error("Failed to save student image:", imageResult.error)
+        return {
+          errors: {
+            _form: [`이미지 저장 실패: ${imageResult.error}`],
+          },
+        }
+      }
     }
   } catch (error) {
     console.error("Failed to create student:", error)
@@ -330,7 +338,15 @@ export async function updateStudent(
     }
 
     for (const imagePayload of imagePayloads.images) {
-      await setStudentImage(studentId, imagePayload)
+      const imageResult = await setStudentImage(studentId, imagePayload)
+      if (!imageResult.success) {
+        console.error("Failed to save student image:", imageResult.error)
+        return {
+          errors: {
+            _form: [`이미지 저장 실패: ${imageResult.error}`],
+          },
+        }
+      }
     }
   } catch (error) {
     console.error("Failed to update student:", error)
