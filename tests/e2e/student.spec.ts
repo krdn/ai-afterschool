@@ -45,7 +45,7 @@ test.describe('학생 데이터 관리 (Student)', () => {
     await expect(page.locator('img[alt*="preview"], img[alt*="미리보기"]')).toBeVisible();
 
     // 제출
-    await page.click('button[type="submit"]:has-text("등록"), button:has-text("저장")');
+    await page.click('[data-testid="add-student-button"], button[type="submit"]:has-text("등록")');
 
     // 예상 결과 1: 학생 생성 완료 및 Cloudinary 이미지 저장 확인
     await expect(page).toHaveURL(/.*students\/[a-zA-Z0-9-]+/);
@@ -78,7 +78,7 @@ test.describe('학생 데이터 관리 (Student)', () => {
     expect(initialCount).toBeGreaterThan(0);
 
     // 1. 검색창에 '김철수' 입력
-    const searchInput = page.locator('input[placeholder*="검색"], input[type="search"], input[name="search"]');
+    const searchInput = page.locator('[data-testid="student-search-input"]');
     await searchInput.fill('김철수');
     await page.keyboard.press('Enter');
     await page.waitForTimeout(500); // debounce 대기
