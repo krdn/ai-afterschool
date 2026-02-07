@@ -80,7 +80,7 @@ export default async function FairnessMetricsPage() {
           <div className="border-b px-6 py-4">
             <h2 className="text-lg font-semibold">제안별 공정성 메트릭</h2>
           </div>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto" data-testid="teacher-fairness-table">
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
