@@ -100,3 +100,9 @@ ALTER TABLE "ParentCounselingReservation" ADD CONSTRAINT "ParentCounselingReserv
 
 -- AddForeignKey
 ALTER TABLE "audit_logs" ADD CONSTRAINT "audit_logs_teacherId_fkey" FOREIGN KEY ("teacherId") REFERENCES "Teacher"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AlterTable: Add missing columns
+ALTER TABLE "CounselingSession" ADD COLUMN "aiSummary" TEXT;
+ALTER TABLE "PersonalitySummary" ADD COLUMN "scores" JSONB;
+ALTER TABLE "Parent" ADD COLUMN "relationOther" TEXT;
+ALTER TABLE "Parent" ADD COLUMN "note" TEXT;
