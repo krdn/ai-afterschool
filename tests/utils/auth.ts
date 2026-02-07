@@ -12,14 +12,14 @@ export async function loginAsTeacher(
     await page.goto('/auth/login');
     await page.waitForLoadState('domcontentloaded');
 
-    // 이메일 입력
-    await page.fill('input[name="email"]', email);
+    // 이메일 입력 - data-testid 사용
+    await page.fill('[data-testid="email-input"]', email);
 
-    // 비밀번호 입력
-    await page.fill('input[name="password"]', password);
+    // 비밀번호 입력 - data-testid 사용
+    await page.fill('[data-testid="password-input"]', password);
 
-    // 로그인 버튼 클릭
-    await page.click('button[type="submit"]');
+    // 로그인 버튼 클릭 - data-testid 사용
+    await page.click('[data-testid="login-button"]');
 
     // 로그인 완료 대기 (로그인 페이지를 벗어나면 성공)
     await page.waitForURL((url) => !url.pathname.includes('/auth/login'), { timeout: 10000 });
@@ -42,9 +42,10 @@ export async function loginAsAdmin(
     await page.goto('/auth/login');
     await page.waitForLoadState('domcontentloaded');
 
-    await page.fill('input[name="email"]', email);
-    await page.fill('input[name="password"]', password);
-    await page.click('button[type="submit"]');
+    // data-testid 사용하여 로그인
+    await page.fill('[data-testid="email-input"]', email);
+    await page.fill('[data-testid="password-input"]', password);
+    await page.click('[data-testid="login-button"]');
 
     await page.waitForURL((url) => !url.pathname.includes('/auth/login'), { timeout: 10000 });
 

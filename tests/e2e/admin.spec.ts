@@ -1,10 +1,10 @@
 
 import { test, expect } from '@playwright/test';
-import { loginAsAdmin, loginAsTeacher } from '../utils/auth';
+import { loginAsAdmin, loginAsTeacher, TEST_ACCOUNTS } from '../utils/auth';
 
 /**
  * Admin & System Settings Test Suite
- * 
+ *
  * Covers:
  * - SYS-01: AI Model Configuration & API Key Management
  * - SYS-02: Token Usage & Cost Monitoring
@@ -14,18 +14,9 @@ import { loginAsAdmin, loginAsTeacher } from '../utils/auth';
 
 test.describe('Admin & System Settings', () => {
 
-  // Test data
-  const adminUser = {
-    email: 'admin@test.com',
-    password: 'test1234',
-    role: 'DIRECTOR'
-  };
-
-  const regularTeacher = {
-    email: 'teacher1@test.com',
-    password: 'test1234',
-    role: 'TEACHER'
-  };
+  // Test data - seed.ts의 계정과 일치
+  const adminUser = TEST_ACCOUNTS.admin;
+  const regularTeacher = TEST_ACCOUNTS.teacher;
 
   test.beforeEach(async ({ page }) => {
     // Login as admin for most tests
