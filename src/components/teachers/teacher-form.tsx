@@ -1,6 +1,6 @@
 "use client"
 
-import { startTransition, useActionState, useEffect, useRef } from "react"
+import { startTransition, useActionState, useEffect, useRef, type FormEvent } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -26,6 +26,7 @@ type TeacherFormProps = {
 type TeacherFormValues = z.infer<typeof TeacherSchema>
 
 export function TeacherForm({ teams = [] }: TeacherFormProps) {
+  const formRef = useRef<HTMLFormElement>(null)
   const [state, formAction, pending] = useActionState<TeacherFormState, FormData>(
     createTeacher,
     { errors: {} }
@@ -53,28 +54,33 @@ export function TeacherForm({ teams = [] }: TeacherFormProps) {
     defaultValues: {
       name: "",
       email: "",
-      password: "",
       role: "TEACHER",
       teamId: null,
       phone: "",
+      birthDate: "",
+      nameHanja: "",
     },
     mode: "onChange",
   })
 
-  const handleSubmit = form.handleSubmit((_values, event) => {
-    event?.preventDefault()
-    const formElement = event?.currentTarget
-    if (!formElement) return
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
 
-    const formData = new FormData(formElement)
+    // 클라이언트 검증 실행
+    form.handleSubmit(() => {
+      const formElement = formRef.current
+      if (!formElement) return
 
-    // 제출 시작 토스트 표시
-    toast.loading("선생님 등록 중...", { id: "teacher-form-submit" })
+      const formData = new FormData(formElement)
 
-    startTransition(() => {
-      formAction(formData)
-    })
-  })
+      // 제출 시작 토스트 표시
+      toast.loading("선생님 등록 중...", { id: "teacher-form-submit" })
+
+      startTransition(() => {
+        formAction(formData)
+      })
+    })()
+  }
 
   return (
     <Card>
@@ -82,12 +88,16 @@ export function TeacherForm({ teams = [] }: TeacherFormProps) {
         <CardTitle>선생님 등록</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
           {state?.errors?._form && (
             <div className="p-3 rounded-md bg-red-50 text-red-600 text-sm">
               {state.errors._form[0]}
             </div>
           )}
+
+          <div className="p-3 rounded-md bg-blue-50 text-blue-700 text-sm">
+            기본 비밀번호(afterschool2026!)가 자동 설정됩니다. 첫 로그인 후 변경해주세요.
+          </div>
 
           <div className="space-y-4">
             <h3 className="text-lg font-medium">기본 정보</h3>
@@ -107,6 +117,16 @@ export function TeacherForm({ teams = [] }: TeacherFormProps) {
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="nameHanja">한자 이름</Label>
+              <Input
+                id="nameHanja"
+                placeholder="洪吉東"
+                {...form.register("nameHanja")}
+              />
+              <p className="text-xs text-muted-foreground">사주 및 이름 분석에 사용됩니다</p>
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="email">이메일 *</Label>
               <Input
                 id="email"
@@ -114,6 +134,7 @@ export function TeacherForm({ teams = [] }: TeacherFormProps) {
                 placeholder="teacher@example.com"
                 {...form.register("email")}
               />
+              <p className="text-xs text-muted-foreground">로그인 아이디로 사용됩니다</p>
               {(state?.errors?.email || form.formState.errors.email) && (
                 <p className="text-sm text-red-600">
                   {state?.errors?.email?.[0] || form.formState.errors.email?.message}
@@ -122,33 +143,63 @@ export function TeacherForm({ teams = [] }: TeacherFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">비밀번호 *</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="8자 이상"
-                {...form.register("password")}
-              />
-              {(state?.errors?.password || form.formState.errors.password) && (
-                <p className="text-sm text-red-600">
-                  {state?.errors?.password?.[0] ||
-                    form.formState.errors.password?.message}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="phone">연락처</Label>
+              <Label htmlFor="phone">연락처 *</Label>
               <Input
                 id="phone"
                 placeholder="010-0000-0000"
                 {...form.register("phone")}
               />
+              <p className="text-xs text-muted-foreground">010-0000-0000 형식으로 입력해주세요</p>
               {(state?.errors?.phone || form.formState.errors.phone) && (
                 <p className="text-sm text-red-600">
                   {state?.errors?.phone?.[0] || form.formState.errors.phone?.message}
                 </p>
               )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="birthDate">생년월일 *</Label>
+              <Input
+                id="birthDate"
+                type="date"
+                {...form.register("birthDate")}
+              />
+              <p className="text-xs text-muted-foreground">사주 분석의 기본 정보입니다</p>
+              {(state?.errors?.birthDate || form.formState.errors.birthDate) && (
+                <p className="text-sm text-red-600">
+                  {state?.errors?.birthDate?.[0] || form.formState.errors.birthDate?.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="birthTimeHour">태어난 시간</Label>
+              <div className="flex items-center gap-2">
+                <select
+                  name="birthTimeHour"
+                  id="birthTimeHour"
+                  defaultValue=""
+                  className="flex h-10 w-24 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                >
+                  <option value="">시</option>
+                  {Array.from({ length: 24 }, (_, i) => (
+                    <option key={i} value={i}>{String(i).padStart(2, "0")}시</option>
+                  ))}
+                </select>
+                <span className="text-muted-foreground">:</span>
+                <select
+                  name="birthTimeMinute"
+                  id="birthTimeMinute"
+                  defaultValue=""
+                  className="flex h-10 w-24 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                >
+                  <option value="">분</option>
+                  {[0, 10, 20, 30, 40, 50].map((m) => (
+                    <option key={m} value={m}>{String(m).padStart(2, "0")}분</option>
+                  ))}
+                </select>
+              </div>
+              <p className="text-xs text-muted-foreground">사주 분석 시 시주 계산에 사용됩니다 (모르면 비워두세요)</p>
             </div>
           </div>
 
@@ -168,6 +219,7 @@ export function TeacherForm({ teams = [] }: TeacherFormProps) {
                   <SelectItem value="DIRECTOR">원장</SelectItem>
                 </SelectContent>
               </Select>
+              <p className="text-xs text-muted-foreground">원장, 팀장, 매니저, 선생님 중 선택합니다</p>
               {state?.errors?.role && (
                 <p className="text-sm text-red-600">{state.errors.role[0]}</p>
               )}
