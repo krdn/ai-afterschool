@@ -18,7 +18,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Input } from '@/components/ui/input'
-import { columns, type Teacher } from './columns'
+import { getColumns, type Teacher } from './columns'
 import {
   Select,
   SelectContent,
@@ -29,6 +29,8 @@ import {
 
 type TeacherTableProps = {
   data: Teacher[]
+  currentUserId: string
+  currentRole: string
 }
 
 const roleLabels: Record<Teacher['role'], string> = {
@@ -38,11 +40,16 @@ const roleLabels: Record<Teacher['role'], string> = {
   TEACHER: '선생님',
 }
 
-export function TeacherTable({ data }: TeacherTableProps) {
+export function TeacherTable({ data, currentUserId, currentRole }: TeacherTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [globalFilter, setGlobalFilter] = React.useState('')
   const [roleFilter, setRoleFilter] = React.useState<string>('all')
   const [teamFilter, setTeamFilter] = React.useState<string>('all')
+
+  const columns = React.useMemo(
+    () => getColumns({ currentUserId, currentRole }),
+    [currentUserId, currentRole]
+  )
 
   // 데이터에서 고유한 팀 목록 추출
   const teams = React.useMemo(() => {

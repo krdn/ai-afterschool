@@ -9,6 +9,7 @@ import { TeacherPalmPanel } from "@/components/teachers/teacher-palm-panel"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
+import { TeacherDeleteDialog } from "@/components/teachers/teacher-delete-dialog"
 import type { SajuResult } from "@/lib/analysis/saju"
 import type { NameNumerologyResult } from "@/lib/analysis/name-numerology"
 
@@ -77,21 +78,29 @@ export default async function TeacherDetailPage({ params }: PageProps) {
   return (
     <div className="container mx-auto px-4 py-8 space-y-6">
       {/* 뒤로 가기 및 헤더: 기본 정보 */}
-      <div className="flex items-center gap-4 mb-8">
-        <Button variant="ghost" size="sm" asChild>
-          <Link href="/teachers">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            목록으로
-          </Link>
-        </Button>
-        <div>
-          <h1 className="text-3xl font-bold">{teacher.name}</h1>
-          <p className="text-gray-600">{teacher.email}</p>
-          <div className="flex gap-2 mt-2">
-            <span className="badge">{teacher.role}</span>
-            {teacher.team && <span className="badge">{teacher.team.name}</span>}
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/teachers">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              목록으로
+            </Link>
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold">{teacher.name}</h1>
+            <p className="text-gray-600">{teacher.email}</p>
+            <div className="flex gap-2 mt-2">
+              <span className="badge">{teacher.role}</span>
+              {teacher.team && <span className="badge">{teacher.team.name}</span>}
+            </div>
           </div>
         </div>
+        {session.role === "DIRECTOR" && session.userId !== teacher.id && (
+          <TeacherDeleteDialog
+            teacherId={teacher.id}
+            teacherName={teacher.name}
+          />
+        )}
       </div>
 
       {/* 분석 패널 그리드 */}
