@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { toast } from "sonner"
-import { createTeacher, type TeacherFormState } from "@/lib/actions/teachers"
+import { createTeacher, updateTeacher, type TeacherFormState } from "@/lib/actions/teachers"
 import { TeacherSchema } from "@/lib/validations/teachers"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -19,16 +19,39 @@ import {
 } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
+type TeacherData = {
+  id: string
+  name: string
+  email: string
+  role: 'DIRECTOR' | 'TEAM_LEADER' | 'MANAGER' | 'TEACHER'
+  teamId: string | null
+  phone: string | null
+  birthDate: Date | null
+  nameHanja: string | null
+  birthTimeHour: number | null
+  birthTimeMinute: number | null
+}
+
 type TeacherFormProps = {
   teams?: Array<{ id: string; name: string }>
+  teacher?: TeacherData
+  currentRole?: 'DIRECTOR' | 'TEAM_LEADER' | 'MANAGER' | 'TEACHER'
 }
 
 type TeacherFormValues = z.infer<typeof TeacherSchema>
 
-export function TeacherForm({ teams = [] }: TeacherFormProps) {
+export function TeacherForm({ teams = [], teacher, currentRole }: TeacherFormProps) {
+  const isEdit = !!teacher
+  const showRoleFields = currentRole === 'DIRECTOR'
+
   const formRef = useRef<HTMLFormElement>(null)
+
+  const action = isEdit
+    ? updateTeacher.bind(null, teacher.id)
+    : createTeacher
+
   const [state, formAction, pending] = useActionState<TeacherFormState, FormData>(
-    createTeacher,
+    action,
     { errors: {} }
   )
 
@@ -49,16 +72,22 @@ export function TeacherForm({ teams = [] }: TeacherFormProps) {
     }
   }, [pending, state?.errors?._form])
 
+  const formatDate = (date: Date | null) => {
+    if (!date) return ""
+    const d = new Date(date)
+    return d.toISOString().split("T")[0]
+  }
+
   const form = useForm<TeacherFormValues>({
     resolver: zodResolver(TeacherSchema),
     defaultValues: {
-      name: "",
-      email: "",
-      role: "TEACHER",
-      teamId: null,
-      phone: "",
-      birthDate: "",
-      nameHanja: "",
+      name: teacher?.name ?? "",
+      email: teacher?.email ?? "",
+      role: teacher?.role ?? "TEACHER",
+      teamId: teacher?.teamId ?? null,
+      phone: teacher?.phone ?? "",
+      birthDate: formatDate(teacher?.birthDate ?? null),
+      nameHanja: teacher?.nameHanja ?? "",
     },
     mode: "onChange",
   })
@@ -74,7 +103,7 @@ export function TeacherForm({ teams = [] }: TeacherFormProps) {
       const formData = new FormData(formElement)
 
       // 제출 시작 토스트 표시
-      toast.loading("선생님 등록 중...", { id: "teacher-form-submit" })
+      toast.loading(isEdit ? "수정 중..." : "선생님 등록 중...", { id: "teacher-form-submit" })
 
       startTransition(() => {
         formAction(formData)
@@ -85,7 +114,7 @@ export function TeacherForm({ teams = [] }: TeacherFormProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>선생님 등록</CardTitle>
+        <CardTitle>{isEdit ? "선생님 정보 수정" : "선생님 등록"}</CardTitle>
       </CardHeader>
       <CardContent>
         <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
@@ -95,9 +124,11 @@ export function TeacherForm({ teams = [] }: TeacherFormProps) {
             </div>
           )}
 
-          <div className="p-3 rounded-md bg-blue-50 text-blue-700 text-sm">
-            기본 비밀번호(afterschool2026!)가 자동 설정됩니다. 첫 로그인 후 변경해주세요.
-          </div>
+          {!isEdit && (
+            <div className="p-3 rounded-md bg-blue-50 text-blue-700 text-sm">
+              기본 비밀번호(afterschool2026!)가 자동 설정됩니다. 첫 로그인 후 변경해주세요.
+            </div>
+          )}
 
           <div className="space-y-4">
             <h3 className="text-lg font-medium">기본 정보</h3>
@@ -178,7 +209,7 @@ export function TeacherForm({ teams = [] }: TeacherFormProps) {
                 <select
                   name="birthTimeHour"
                   id="birthTimeHour"
-                  defaultValue=""
+                  defaultValue={teacher?.birthTimeHour?.toString() ?? ""}
                   className="flex h-10 w-24 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   <option value="">시</option>
@@ -190,7 +221,7 @@ export function TeacherForm({ teams = [] }: TeacherFormProps) {
                 <select
                   name="birthTimeMinute"
                   id="birthTimeMinute"
-                  defaultValue=""
+                  defaultValue={teacher?.birthTimeMinute?.toString() ?? ""}
                   className="flex h-10 w-24 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   <option value="">분</option>
@@ -203,57 +234,61 @@ export function TeacherForm({ teams = [] }: TeacherFormProps) {
             </div>
           </div>
 
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium">역할 및 소속</h3>
+          {showRoleFields && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">역할 및 소속</h3>
 
-            <div className="space-y-2">
-              <Label htmlFor="role">역할 *</Label>
-              <Select name="role" defaultValue="TEACHER">
-                <SelectTrigger id="role">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="TEACHER">선생님</SelectItem>
-                  <SelectItem value="MANAGER">매니저</SelectItem>
-                  <SelectItem value="TEAM_LEADER">팀장</SelectItem>
-                  <SelectItem value="DIRECTOR">원장</SelectItem>
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground">원장, 팀장, 매니저, 선생님 중 선택합니다</p>
-              {state?.errors?.role && (
-                <p className="text-sm text-red-600">{state.errors.role[0]}</p>
-              )}
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="role">역할 *</Label>
+                <Select name="role" defaultValue={teacher?.role ?? "TEACHER"}>
+                  <SelectTrigger id="role">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="TEACHER">선생님</SelectItem>
+                    <SelectItem value="MANAGER">매니저</SelectItem>
+                    <SelectItem value="TEAM_LEADER">팀장</SelectItem>
+                    <SelectItem value="DIRECTOR">원장</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">원장, 팀장, 매니저, 선생님 중 선택합니다</p>
+                {state?.errors?.role && (
+                  <p className="text-sm text-red-600">{state.errors.role[0]}</p>
+                )}
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="teamId">팀 (선택)</Label>
-              <Select name="teamId">
-                <SelectTrigger id="teamId">
-                  <SelectValue placeholder="팀을 선택하세요" />
-                </SelectTrigger>
-                <SelectContent>
-                  {teams.length > 0 ? (
-                    teams.map((team) => (
-                      <SelectItem key={team.id} value={team.id}>
-                        {team.name}
+              <div className="space-y-2">
+                <Label htmlFor="teamId">팀 (선택)</Label>
+                <Select name="teamId" defaultValue={teacher?.teamId ?? undefined}>
+                  <SelectTrigger id="teamId">
+                    <SelectValue placeholder="팀을 선택하세요" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {teams.length > 0 ? (
+                      teams.map((team) => (
+                        <SelectItem key={team.id} value={team.id}>
+                          {team.name}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="no-team" disabled>
+                        등록된 팀이 없습니다
                       </SelectItem>
-                    ))
-                  ) : (
-                    <SelectItem value="no-team" disabled>
-                      등록된 팀이 없습니다
-                    </SelectItem>
-                  )}
-                </SelectContent>
-              </Select>
-              {state?.errors?.teamId && (
-                <p className="text-sm text-red-600">{state.errors.teamId[0]}</p>
-              )}
+                    )}
+                  </SelectContent>
+                </Select>
+                {state?.errors?.teamId && (
+                  <p className="text-sm text-red-600">{state.errors.teamId[0]}</p>
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="flex justify-end">
             <Button type="submit" disabled={pending}>
-              {pending ? "등록 중..." : "등록하기"}
+              {pending
+                ? (isEdit ? "수정 중..." : "등록 중...")
+                : (isEdit ? "수정하기" : "등록하기")}
             </Button>
           </div>
         </form>

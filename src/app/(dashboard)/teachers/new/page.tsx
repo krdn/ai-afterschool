@@ -24,7 +24,7 @@ export default async function NewTeacherPage() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <TeacherForm teams={teams} />
+      <TeacherForm teams={teams} currentRole={session.role} />
     </div>
   )
 }
