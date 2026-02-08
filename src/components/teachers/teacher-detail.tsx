@@ -26,6 +26,7 @@ type TeacherDetailProps = {
   }
   currentRole: 'DIRECTOR' | 'TEAM_LEADER' | 'MANAGER' | 'TEACHER'
   currentUserId: string
+  currentTeamId: string | null
 }
 
 const roleLabels: Record<TeacherDetailProps['teacher']['role'], string> = {
@@ -35,8 +36,12 @@ const roleLabels: Record<TeacherDetailProps['teacher']['role'], string> = {
   TEACHER: '선생님',
 }
 
-export function TeacherDetail({ teacher, currentRole, currentUserId }: TeacherDetailProps) {
+export function TeacherDetail({ teacher, currentRole, currentUserId, currentTeamId }: TeacherDetailProps) {
   const canDelete = currentRole === 'DIRECTOR' && currentUserId !== teacher.id
+  const canEdit =
+    currentRole === 'DIRECTOR' ||
+    currentUserId === teacher.id ||
+    (currentRole === 'TEAM_LEADER' && currentTeamId !== null && currentTeamId === teacher.teamId)
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('ko-KR', {
       year: 'numeric',
@@ -51,13 +56,15 @@ export function TeacherDetail({ teacher, currentRole, currentUserId }: TeacherDe
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>기본 정보</CardTitle>
-            {currentRole === 'DIRECTOR' && (
+            {(canEdit || canDelete) && (
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" asChild>
-                  <Link href={`/teachers/${teacher.id}/edit`}>
-                    수정하기
-                  </Link>
-                </Button>
+                {canEdit && (
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href={`/teachers/${teacher.id}/edit`}>
+                      수정하기
+                    </Link>
+                  </Button>
+                )}
                 {canDelete && (
                   <TeacherDeleteDialog
                     teacherId={teacher.id}

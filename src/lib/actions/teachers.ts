@@ -126,7 +126,7 @@ export async function updateTeacher(
 ): Promise<TeacherFormState> {
   const session = await verifySession()
 
-  // 권한 검증: 원장 또는 본인만 수정 가능
+  // 권한 검증: 원장, 팀장(같은 팀), 본인만 수정 가능
   const teacher = await db.teacher.findUnique({
     where: { id },
     select: { id: true, role: true, teamId: true, email: true },
@@ -140,7 +140,14 @@ export async function updateTeacher(
     }
   }
 
-  if (session.role !== 'DIRECTOR' && session.userId !== id) {
+  const isDirector = session.role === 'DIRECTOR'
+  const isSelf = session.userId === id
+  const isTeamLeaderOfSameTeam =
+    session.role === 'TEAM_LEADER' &&
+    session.teamId !== null &&
+    session.teamId === teacher.teamId
+
+  if (!isDirector && !isSelf && !isTeamLeaderOfSameTeam) {
     return {
       errors: {
         _form: ["선생님을 수정할 권한이 없어요"],
@@ -190,6 +197,12 @@ export async function updateTeacher(
   // 비밀번호 해싱
   if (restData.password) {
     restData.password = await argon2.hash(restData.password)
+  }
+
+  // DIRECTOR가 아닌 경우 role/teamId 변경 차단 (서버 강제)
+  if (!isDirector) {
+    delete restData.role
+    delete restData.teamId
   }
 
   const updateData: Record<string, unknown> = { ...restData }
