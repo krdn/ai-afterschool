@@ -38,6 +38,22 @@ export default async function LLMSettingsPage() {
     .filter((c: LLMConfigData) => c.isEnabled && c.isValidated)
     .map((c: LLMConfigData) => c.provider as ProviderName);
 
+  // Ollama는 내장 제공자 — API 키 불필요, 항상 사용 가능
+  if (!enabledProviders.includes('ollama')) {
+    enabledProviders.push('ollama');
+  }
+
+  // 현재 기본 제공자: 가장 많은 기능에서 primaryProvider로 설정된 제공자
+  const providerCounts = new Map<string, number>();
+  featureConfigs.forEach((c: { primaryProvider: string }) => {
+    providerCounts.set(c.primaryProvider, (providerCounts.get(c.primaryProvider) || 0) + 1);
+  });
+  let currentDefault: ProviderName | null = null;
+  if (providerCounts.size > 0) {
+    currentDefault = [...providerCounts.entries()]
+      .sort((a, b) => b[1] - a[1])[0][0] as ProviderName;
+  }
+
   const configMap = new Map<string, LLMConfigData>(
     llmConfigs.map((c: LLMConfigData) => [c.provider, c])
   );
@@ -61,7 +77,7 @@ export default async function LLMSettingsPage() {
             </div>
           )}
         </div>
-        <ProviderSelect enabledProviders={enabledProviders} />
+        <ProviderSelect enabledProviders={enabledProviders} currentDefault={currentDefault} />
       </section>
 
       <section className="space-y-4">
