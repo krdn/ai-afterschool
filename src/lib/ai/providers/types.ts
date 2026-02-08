@@ -56,8 +56,8 @@ export const PROVIDER_CONFIGS: Record<ProviderName, ProviderConfig> = {
     displayName: 'Ollama',
     requiresApiKey: false,
     supportsVision: false,
-    defaultModel: 'llama3.1:8b',
-    models: ['llama3.1:8b', 'mistral', 'codellama'],
+    defaultModel: 'llama3.2:3b',
+    models: [],  // 서버에서 동적으로 가져옴
   },
 };
 
