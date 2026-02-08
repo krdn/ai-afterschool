@@ -7,7 +7,10 @@ import { Loader2, RefreshCw } from "lucide-react"
 import { runSajuAnalysisAction } from "../../app/(dashboard)/students/[id]/saju/actions"
 import type { SajuResult } from "@/lib/analysis/saju"
 import type { ProviderName } from "@/lib/ai/providers/types"
+import type { AnalysisPromptId } from "@/lib/ai/saju-prompts"
+import { getPromptOptions } from "@/lib/ai/saju-prompts"
 import { ProviderSelector } from "@/components/students/provider-selector"
+import { PromptSelector } from "@/components/students/prompt-selector"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
@@ -66,21 +69,31 @@ export function SajuAnalysisPanel({ student, analysis, enabledProviders = [], on
   const [isPending, startTransition] = useTransition()
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [selectedProvider, setSelectedProvider] = useState('built-in')
+  const [selectedPromptId, setSelectedPromptId] = useState<AnalysisPromptId>('default')
   const [providerLabel, setProviderLabel] = useState<string | null>(null)
+  const [promptLabel, setPromptLabel] = useState<string | null>(null)
+  const promptOptions = getPromptOptions()
   const result = analysis?.result as SajuResult | undefined
 
   const handleRunAnalysis = () => {
     startTransition(async () => {
       setErrorMessage(null)
       setProviderLabel(null)
+      setPromptLabel(null)
       try {
-        const res = await runSajuAnalysisAction(student.id, selectedProvider)
+        const promptId = selectedProvider === 'built-in' ? 'default' : selectedPromptId
+        const res = await runSajuAnalysisAction(student.id, selectedProvider, promptId)
         if (res.llmFailed) {
           setErrorMessage(`내장 알고리즘으로 대체 해석했습니다. ${res.llmError || 'LLM 설정을 확인해주세요.'}`)
           setProviderLabel('내장 알고리즘')
         } else {
           const model = res.usedModel && res.usedModel !== 'default' ? ` (${res.usedModel})` : ''
           setProviderLabel(`${res.usedProvider}${model}`)
+        }
+        // 사용된 프롬프트명 표시 (기본 해석이 아닌 경우만)
+        if (promptId !== 'default') {
+          const meta = promptOptions.find((p) => p.id === promptId)
+          if (meta) setPromptLabel(meta.name)
         }
         onAnalysisComplete?.()
       } catch (error) {
@@ -121,7 +134,7 @@ export function SajuAnalysisPanel({ student, analysis, enabledProviders = [], on
               {student.birthTimeHour === null ? " (시주 계산 제외)" : ""}
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 flex-wrap">
             <ProviderSelector
               selectedProvider={selectedProvider}
               onProviderChange={setSelectedProvider}
@@ -129,6 +142,14 @@ export function SajuAnalysisPanel({ student, analysis, enabledProviders = [], on
               showBuiltIn
               disabled={isPending}
             />
+            {selectedProvider !== 'built-in' && (
+              <PromptSelector
+                selectedPromptId={selectedPromptId}
+                onPromptChange={setSelectedPromptId}
+                promptOptions={promptOptions}
+                disabled={isPending}
+              />
+            )}
             <Button
               type="button"
               disabled={isPending}
@@ -213,6 +234,11 @@ export function SajuAnalysisPanel({ student, analysis, enabledProviders = [], on
             {providerLabel && (
               <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-200">
                 {providerLabel}
+              </span>
+            )}
+            {promptLabel && (
+              <span className="text-xs px-2 py-0.5 rounded-full bg-purple-50 text-purple-600 border border-purple-200">
+                {promptLabel}
               </span>
             )}
           </div>
