@@ -1,5 +1,36 @@
 import { getStudents } from "@/lib/actions/student";
 import Link from "next/link";
+import Image from "next/image";
+
+const avatarColors = [
+    "bg-blue-500", "bg-green-500", "bg-purple-500", "bg-orange-500",
+    "bg-pink-500", "bg-teal-500", "bg-indigo-500", "bg-rose-500",
+];
+
+function StudentAvatar({ student }: { student: { name: string; images?: Array<{ type: string; resizedUrl: string }> } }) {
+    const profileImage = student.images?.find((img) => img.type === "profile");
+
+    if (profileImage) {
+        return (
+            <Image
+                src={profileImage.resizedUrl}
+                alt={`${student.name} 프로필`}
+                width={40}
+                height={40}
+                className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+            />
+        );
+    }
+
+    const initial = student.name.charAt(0);
+    const colorIndex = student.name.charCodeAt(0) % avatarColors.length;
+
+    return (
+        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0 ${avatarColors[colorIndex]}`}>
+            {initial}
+        </div>
+    );
+}
 
 export default async function StudentsPage(props: {
     searchParams?: Promise<{ query?: string }>;
@@ -38,7 +69,10 @@ export default async function StudentsPage(props: {
                     {students.map((student) => (
                         <Link key={student.id} href={`/students/${student.id}`} className="block">
                             <div data-testid="student-card" className="border p-4 rounded hover:shadow-lg transition bg-white">
-                                <h3 data-testid="student-name" className="text-xl font-semibold mb-2">{student.name}</h3>
+                                <div className="flex items-center gap-3 mb-2">
+                                    <StudentAvatar student={student} />
+                                    <h3 data-testid="student-name" className="text-xl font-semibold">{student.name}</h3>
+                                </div>
                                 <div className="text-gray-600 space-y-1">
                                     <span data-testid="student-school">{student.school}</span>
                                     <span> </span>

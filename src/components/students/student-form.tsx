@@ -1,43 +1,84 @@
-"use client";
+"use client"
 
-import { createStudent, updateStudent } from "@/lib/actions/student";
-import { useState } from "react";
-import { Student } from "@prisma/client";
+import { useActionState, useState } from "react"
+import {
+  createStudent,
+  updateStudent,
+  type StudentFormState,
+} from "@/lib/actions/students"
+import {
+  StudentImageUploader,
+  type StudentImagePayload,
+} from "@/components/students/student-image-uploader"
 
 interface StudentFormProps {
-  student?: Student & {
+  student?: {
+    id: string
+    name: string
+    birthDate: Date
+    birthTimeHour: number | null
+    birthTimeMinute: number | null
+    grade: number | null
+    school: string | null
     images?: Array<{
-      id: string;
-      url: string;
-      resizedUrl: string;
-      type: string;
-    }>;
-  };
+      id: string
+      url?: string
+      originalUrl: string
+      resizedUrl: string
+      publicId: string
+      type: string
+    }>
+    parents?: Array<{
+      id: string
+      name: string
+      phone: string | null
+    }>
+  }
 }
 
+const initialState: StudentFormState = {}
+
 export function StudentForm({ student }: StudentFormProps) {
-  const [preview, setPreview] = useState<string | null>(
-    student?.images?.find(img => img.type === "profile")?.resizedUrl || null
-  );
-  const isEdit = !!student;
+  const isEdit = !!student
+  const existingProfile = student?.images?.find(
+    (img) => img.type === "profile"
+  )
 
-  const action = isEdit ? updateStudent.bind(null, student.id) : createStudent;
+  const [profileImage, setProfileImage] = useState<StudentImagePayload | null>(
+    null
+  )
+  const [draftId] = useState(() => crypto.randomUUID())
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+  const action = isEdit
+    ? updateStudent.bind(null, student.id)
+    : createStudent
+
+  const [state, formAction, pending] = useActionState(action, initialState)
+
+  function handleSubmit(formData: FormData) {
+    if (profileImage) {
+      formData.set("profileImage", JSON.stringify(profileImage))
     }
-  };
+    formAction(formData)
+  }
 
   return (
-    <form action={action} className="space-y-4 max-w-md mx-auto p-4 border rounded-lg bg-white">
+    <form
+      action={handleSubmit}
+      className="space-y-4 max-w-md mx-auto p-4 border rounded-lg bg-white"
+    >
+      {state.errors?._form && (
+        <div className="bg-red-50 text-red-600 p-3 rounded text-sm">
+          {state.errors._form.map((err, i) => (
+            <p key={i}>{err}</p>
+          ))}
+        </div>
+      )}
+
       <div>
-        <label htmlFor="name" className="block text-sm font-medium">이름</label>
+        <label htmlFor="name" className="block text-sm font-medium">
+          이름
+        </label>
         <input
           type="text"
           name="name"
@@ -47,19 +88,33 @@ export function StudentForm({ student }: StudentFormProps) {
           className="border p-2 w-full rounded"
           data-testid="student-name-input"
         />
+        {state.errors?.name && (
+          <p className="text-red-500 text-xs mt-1">{state.errors.name[0]}</p>
+        )}
       </div>
 
       <div>
-        <label htmlFor="birthDate" className="block text-sm font-medium">생년월일</label>
+        <label htmlFor="birthDate" className="block text-sm font-medium">
+          생년월일
+        </label>
         <input
           type="date"
           name="birthDate"
           id="birthDate"
           required
-          defaultValue={student?.birthDate ? new Date(student.birthDate).toISOString().split('T')[0] : undefined}
+          defaultValue={
+            student?.birthDate
+              ? new Date(student.birthDate).toISOString().split("T")[0]
+              : undefined
+          }
           className="border p-2 w-full rounded"
           data-testid="student-birthdate-input"
         />
+        {state.errors?.birthDate && (
+          <p className="text-red-500 text-xs mt-1">
+            {state.errors.birthDate[0]}
+          </p>
+        )}
       </div>
 
       <div>
@@ -76,7 +131,9 @@ export function StudentForm({ student }: StudentFormProps) {
           >
             <option value="">시</option>
             {Array.from({ length: 24 }, (_, i) => (
-              <option key={i} value={i}>{String(i).padStart(2, "0")}시</option>
+              <option key={i} value={i}>
+                {String(i).padStart(2, "0")}시
+              </option>
             ))}
           </select>
           <span className="text-gray-500">:</span>
@@ -89,48 +146,66 @@ export function StudentForm({ student }: StudentFormProps) {
           >
             <option value="">분</option>
             {[0, 10, 20, 30, 40, 50].map((m) => (
-              <option key={m} value={m}>{String(m).padStart(2, "0")}분</option>
+              <option key={m} value={m}>
+                {String(m).padStart(2, "0")}분
+              </option>
             ))}
           </select>
         </div>
-        <p className="text-xs text-gray-400 mt-1">사주 분석 시 시주 계산에 사용됩니다</p>
+        <p className="text-xs text-gray-400 mt-1">
+          사주 분석 시 시주 계산에 사용됩니다
+        </p>
       </div>
 
       <div>
-        <label htmlFor="grade" className="block text-sm font-medium">학년</label>
+        <label htmlFor="grade" className="block text-sm font-medium">
+          학년
+        </label>
         <select
           name="grade"
           id="grade"
           required
-          defaultValue={student?.grade}
+          defaultValue={student?.grade ?? ""}
           className="border p-2 w-full rounded"
           data-testid="student-grade-select"
         >
           <option value="">선택하세요</option>
           {[1, 2, 3, 4, 5, 6].map((g) => (
-            <option key={g} value={g}>{g}학년</option>
+            <option key={g} value={g}>
+              {g}학년
+            </option>
           ))}
         </select>
+        {state.errors?.grade && (
+          <p className="text-red-500 text-xs mt-1">{state.errors.grade[0]}</p>
+        )}
       </div>
 
       <div>
-        <label htmlFor="school" className="block text-sm font-medium">학교</label>
+        <label htmlFor="school" className="block text-sm font-medium">
+          학교
+        </label>
         <input
           type="text"
           name="school"
           id="school"
           required
-          defaultValue={student?.school}
+          defaultValue={student?.school ?? ""}
           className="border p-2 w-full rounded"
           data-testid="student-school-input"
         />
+        {state.errors?.school && (
+          <p className="text-red-500 text-xs mt-1">{state.errors.school[0]}</p>
+        )}
       </div>
 
       <div className="border-t pt-4 mt-4">
         <h3 className="font-semibold mb-2">학부모 정보</h3>
         <div className="space-y-2">
           <div>
-            <label htmlFor="parentName" className="block text-sm font-medium">부모님 성함</label>
+            <label htmlFor="parentName" className="block text-sm font-medium">
+              부모님 성함
+            </label>
             <input
               type="text"
               name="parentName"
@@ -141,12 +216,14 @@ export function StudentForm({ student }: StudentFormProps) {
             />
           </div>
           <div>
-            <label htmlFor="parentPhone" className="block text-sm font-medium">부모님 연락처</label>
+            <label htmlFor="parentPhone" className="block text-sm font-medium">
+              부모님 연락처
+            </label>
             <input
               type="text"
               name="parentPhone"
               id="parentPhone"
-              defaultValue={student?.parents?.[0]?.phone}
+              defaultValue={student?.parents?.[0]?.phone ?? ""}
               placeholder="010-0000-0000"
               className="border p-2 w-full rounded"
               data-testid="parent-phone-input"
@@ -156,30 +233,29 @@ export function StudentForm({ student }: StudentFormProps) {
       </div>
 
       <div className="border-t pt-4 mt-4">
-        <label htmlFor="image" className="block text-sm font-medium">프로필 사진</label>
-        <input
-          type="file"
-          name="image"
-          id="image"
-          accept="image/*"
-          onChange={handleImageChange}
-          className="border p-2 w-full rounded"
-          data-testid="profile-image-input"
+        <StudentImageUploader
+          type="profile"
+          label="프로필 사진"
+          description="학생의 프로필 사진을 업로드해주세요"
+          studentId={student?.id}
+          draftId={isEdit ? undefined : draftId}
+          previewUrl={existingProfile?.resizedUrl}
+          value={profileImage}
+          onChange={setProfileImage}
+          studentName={student?.name}
         />
-        {preview && (
-          <div className="mt-2">
-            <img src={preview} alt="프로필 미리보기" className="w-32 h-32 object-cover rounded border" data-testid="image-preview" />
-          </div>
-        )}
       </div>
 
       <button
         type="submit"
-        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full font-bold"
+        disabled={pending}
+        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full font-bold disabled:opacity-50"
         data-testid="submit-student-button"
       >
-        {isEdit ? "수정" : "등록"}
+        {pending ? "저장 중..." : isEdit ? "수정" : "등록"}
       </button>
     </form>
-  );
+  )
 }
+
+export default StudentForm
