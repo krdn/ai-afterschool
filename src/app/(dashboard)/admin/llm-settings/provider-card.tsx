@@ -82,8 +82,9 @@ export function ProviderCard({ provider, config, savedConfig }: ProviderCardProp
   }, [provider]);
 
   const handleTest = async () => {
-    if (!apiKey && config.requiresApiKey) {
-      setTestResult({ valid: false, error: 'API key is required' });
+    // 새 키가 없고, 저장된 키도 없으면 검증 불가
+    if (!apiKey && !savedConfig?.apiKeyMasked && config.requiresApiKey) {
+      setTestResult({ valid: false, error: 'API 키를 입력해주세요' });
       return;
     }
 
@@ -91,10 +92,24 @@ export function ProviderCard({ provider, config, savedConfig }: ProviderCardProp
     setTestResult(null);
 
     try {
-      const result = await testProviderAction(provider, apiKey);
+      // 새 키가 있으면 먼저 저장한 후 검증
+      if (apiKey) {
+        await saveLLMConfigAction({
+          provider,
+          apiKey,
+          isEnabled: true,
+          baseUrl: config.name === 'ollama' ? baseUrl : undefined,
+          defaultModel,
+        });
+      }
+
+      // 서버에서 저장된 키(또는 방금 저장한 키)로 검증
+      const result = await testProviderAction(provider, apiKey || undefined);
       setTestResult(result);
       if (result.valid) {
         setIsValidated(true);
+        setIsEnabled(true);
+        if (apiKey) setApiKey('');
       }
     } finally {
       setIsTesting(false);

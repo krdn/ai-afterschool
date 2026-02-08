@@ -35,13 +35,13 @@ function resolveLatestCalculatedAt(
 
 export async function getStudentCalculationStatus(
   studentId: string,
-  teacherId: string
+  teacherId: string | null
 ): Promise<CalculationStatus | null> {
+  const where: { id: string; teacherId?: string } = { id: studentId }
+  if (teacherId) where.teacherId = teacherId
+
   const student = await db.student.findFirst({
-    where: {
-      id: studentId,
-      teacherId,
-    },
+    where,
     include: {
       sajuAnalysis: true,
       nameAnalysis: true,
@@ -117,14 +117,14 @@ export async function upsertNameAnalysis(
 
 export async function markStudentRecalculationNeeded(
   studentId: string,
-  teacherId: string,
+  teacherId: string | null,
   reason: string
 ) {
+  const where: { id: string; teacherId?: string } = { id: studentId }
+  if (teacherId) where.teacherId = teacherId
+
   const result = await db.student.updateMany({
-    where: {
-      id: studentId,
-      teacherId,
-    },
+    where,
     data: {
       calculationRecalculationNeeded: true,
       calculationRecalculationReason: reason,
@@ -139,13 +139,13 @@ export async function markStudentRecalculationNeeded(
 
 export async function clearStudentRecalculationNeeded(
   studentId: string,
-  teacherId: string
+  teacherId: string | null
 ) {
+  const where: { id: string; teacherId?: string } = { id: studentId }
+  if (teacherId) where.teacherId = teacherId
+
   const result = await db.student.updateMany({
-    where: {
-      id: studentId,
-      teacherId,
-    },
+    where,
     data: {
       calculationRecalculationNeeded: false,
       calculationRecalculationReason: null,

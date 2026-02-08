@@ -30,11 +30,30 @@ import type { ProviderName } from "@/lib/ai/providers/types"
 type AnalysisInput = Prisma.JsonValue
 type AnalysisResult = Prisma.JsonValue
 
+function humanizeLLMError(raw: string): string {
+  if (raw.includes('quota') || raw.includes('rate') || raw.includes('RESOURCE_EXHAUSTED'))
+    return 'API 사용량 한도를 초과했습니다. 요금제를 확인하세요.'
+  if (raw.includes('401') || raw.includes('Unauthorized') || raw.includes('API_KEY_INVALID'))
+    return 'API 키가 유효하지 않습니다. 설정을 확인하세요.'
+  if (raw.includes('ECONNREFUSED') || raw.includes('fetch failed'))
+    return 'LLM 서버에 연결할 수 없습니다. 서버 상태를 확인하세요.'
+  if (raw.includes('timeout') || raw.includes('abort'))
+    return 'LLM 서버 응답 시간이 초과되었습니다. 잠시 후 다시 시도하세요.'
+  if (raw.includes('Method Not Allowed'))
+    return 'LLM 서버 설정이 올바르지 않습니다. 관리자에게 문의하세요.'
+  if (raw.includes('not configured') || raw.includes('not enabled'))
+    return '해당 LLM 제공자가 설정되지 않았습니다. 관리자 설정을 확인하세요.'
+  return 'LLM 호출 중 오류가 발생했습니다. 잠시 후 다시 시도하세요.'
+}
+
+function ownerTeacherId(session: { userId: string; role: string }): string | null {
+  return session.role === 'TEACHER' ? session.userId : null
+}
+
 async function ensureStudentAccess(studentId: string, session: { userId: string; role: string }) {
   const where: { id: string; teacherId?: string } = { id: studentId }
-  if (session.role === 'TEACHER') {
-    where.teacherId = session.userId
-  }
+  const tid = ownerTeacherId(session)
+  if (tid) where.teacherId = tid
 
   const student = await db.student.findFirst({
     where,
@@ -48,7 +67,7 @@ async function ensureStudentAccess(studentId: string, session: { userId: string;
 
 export async function getCalculationStatus(studentId: string) {
   const session = await verifySession()
-  return getStudentCalculationStatus(studentId, session.userId)
+  return getStudentCalculationStatus(studentId, ownerTeacherId(session))
 }
 
 export async function saveSajuAnalysis(
@@ -66,7 +85,7 @@ export async function saveSajuAnalysis(
     interpretation,
   })
 
-  await clearStudentRecalculationNeeded(studentId, session.userId)
+  await clearStudentRecalculationNeeded(studentId, ownerTeacherId(session))
   revalidatePath(`/students/${studentId}`)
 }
 
@@ -85,7 +104,7 @@ export async function saveNameAnalysis(
     interpretation,
   })
 
-  await clearStudentRecalculationNeeded(studentId, session.userId)
+  await clearStudentRecalculationNeeded(studentId, ownerTeacherId(session))
   revalidatePath(`/students/${studentId}`)
 }
 
@@ -94,7 +113,7 @@ export async function markRecalculationNeeded(
   reason: string
 ) {
   const session = await verifySession()
-  await markStudentRecalculationNeeded(studentId, session.userId, reason)
+  await markStudentRecalculationNeeded(studentId, ownerTeacherId(session), reason)
   revalidatePath(`/students/${studentId}`)
 }
 
@@ -145,6 +164,9 @@ export async function runSajuAnalysis(studentId: string, provider?: string) {
   // 해석만 내장/LLM 분기
   let interpretation: string
   let llmFailed = false
+  let llmError: string | undefined
+  let usedProvider = '내장 알고리즘'
+  let usedModel: string | undefined
   if (!provider || provider === 'built-in') {
     interpretation = generateSajuInterpretation(result)
   } else {
@@ -164,10 +186,14 @@ export async function runSajuAnalysis(studentId: string, provider?: string) {
             maxOutputTokens: 2048,
           })
       interpretation = llmResult.text
+      usedProvider = llmResult.provider
+      usedModel = llmResult.model
     } catch (error) {
-      console.error('[Saju Analysis] LLM failed, falling back to built-in:', error)
+      const errorMsg = error instanceof Error ? error.message : String(error)
+      console.error('[Saju Analysis] LLM failed, falling back to built-in:', errorMsg)
       interpretation = generateSajuInterpretation(result)
       llmFailed = true
+      llmError = humanizeLLMError(errorMsg)
     }
   }
 
@@ -177,6 +203,9 @@ export async function runSajuAnalysis(studentId: string, provider?: string) {
     result,
     interpretation,
     llmFailed,
+    llmError,
+    usedProvider,
+    usedModel,
   }
 }
 

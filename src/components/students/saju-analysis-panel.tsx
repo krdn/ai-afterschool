@@ -25,10 +25,33 @@ type SajuAnalysisPanelProps = {
     calculatedAt: Date | string
   } | null
   enabledProviders?: ProviderName[]
+  onAnalysisComplete?: () => void
 }
 
 function toDate(value: Date | string) {
   return value instanceof Date ? value : new Date(value)
+}
+
+const HANJA_MAP: Record<string, string> = {
+  // 천간
+  갑: "甲", 을: "乙", 병: "丙", 정: "丁", 무: "戊",
+  기: "己", 경: "庚", 신: "辛", 임: "壬", 계: "癸",
+  // 지지
+  자: "子", 축: "丑", 인: "寅", 묘: "卯", 진: "辰", 사: "巳",
+  오: "午", 미: "未", 유: "酉", 술: "戌", 해: "亥",
+  // 지지 '신'은 천간과 겹치므로 별도 처리 불필요 (context로 구분)
+}
+
+// 지지 전용 한자 (천간 '신(辛)'과 지지 '신(申)' 구분)
+const BRANCH_HANJA: Record<string, string> = {
+  자: "子", 축: "丑", 인: "寅", 묘: "卯", 진: "辰", 사: "巳",
+  오: "午", 미: "未", 신: "申", 유: "酉", 술: "戌", 해: "亥",
+}
+
+function hanjaLabel(stem: string, branch: string) {
+  const stemHanja = HANJA_MAP[stem] ?? stem
+  const branchHanja = BRANCH_HANJA[branch] ?? branch
+  return `${stemHanja}${branchHanja}(${stem}${branch})`
 }
 
 function formatBirthTime(hour: number | null, minute: number | null) {
@@ -39,11 +62,33 @@ function formatBirthTime(hour: number | null, minute: number | null) {
   return `${String(hour).padStart(2, "0")}:${String(safeMinute).padStart(2, "0")}`
 }
 
-export function SajuAnalysisPanel({ student, analysis, enabledProviders = [] }: SajuAnalysisPanelProps) {
+export function SajuAnalysisPanel({ student, analysis, enabledProviders = [], onAnalysisComplete }: SajuAnalysisPanelProps) {
   const [isPending, startTransition] = useTransition()
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [selectedProvider, setSelectedProvider] = useState('built-in')
+  const [providerLabel, setProviderLabel] = useState<string | null>(null)
   const result = analysis?.result as SajuResult | undefined
+
+  const handleRunAnalysis = () => {
+    startTransition(async () => {
+      setErrorMessage(null)
+      setProviderLabel(null)
+      try {
+        const res = await runSajuAnalysisAction(student.id, selectedProvider)
+        if (res.llmFailed) {
+          setErrorMessage(`내장 알고리즘으로 대체 해석했습니다. ${res.llmError || 'LLM 설정을 확인해주세요.'}`)
+          setProviderLabel('내장 알고리즘')
+        } else {
+          const model = res.usedModel && res.usedModel !== 'default' ? ` (${res.usedModel})` : ''
+          setProviderLabel(`${res.usedProvider}${model}`)
+        }
+        onAnalysisComplete?.()
+      } catch (error) {
+        console.error("Failed to run saju analysis", error)
+        setErrorMessage(`사주 분석에 실패했습니다. (원인: ${error instanceof Error ? error.message : '알 수 없는 오류'}) 다시 시도해주세요.`)
+      }
+    })
+  }
 
   const calculatedAt = analysis?.calculatedAt
     ? toDate(analysis.calculatedAt)
@@ -88,20 +133,7 @@ export function SajuAnalysisPanel({ student, analysis, enabledProviders = [] }: 
               type="button"
               disabled={isPending}
               data-testid="saju-analyze-button"
-              onClick={() => {
-                startTransition(async () => {
-                  setErrorMessage(null)
-                  try {
-                    const res = await runSajuAnalysisAction(student.id, selectedProvider)
-                    if (res.llmFailed) {
-                      setErrorMessage("LLM 연결에 실패하여 내장 알고리즘으로 해석했습니다. LLM 설정을 확인해주세요.")
-                    }
-                  } catch (error) {
-                    console.error("Failed to run saju analysis", error)
-                    setErrorMessage(`사주 분석에 실패했습니다. (원인: ${error instanceof Error ? error.message : '알 수 없는 오류'}) 다시 시도해주세요.`)
-                  }
-                })
-              }}
+              onClick={handleRunAnalysis}
             >
               {isPending ? "분석 중..." : "사주 분석 실행"}
             </Button>
@@ -110,20 +142,7 @@ export function SajuAnalysisPanel({ student, analysis, enabledProviders = [] }: 
             <div data-testid="analysis-error" className="flex items-center justify-between gap-4 mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-sm text-red-700">{errorMessage}</p>
               <Button
-                onClick={() => {
-                  startTransition(async () => {
-                    setErrorMessage(null)
-                    try {
-                      const res = await runSajuAnalysisAction(student.id, selectedProvider)
-                      if (res.llmFailed) {
-                        setErrorMessage("LLM 연결에 실패하여 내장 알고리즘으로 해석했습니다. LLM 설정을 확인해주세요.")
-                      }
-                    } catch (error) {
-                      console.error("Failed to run saju analysis", error)
-                      setErrorMessage(`사주 분석에 실패했습니다. (원인: ${error instanceof Error ? error.message : '알 수 없는 오류'}) 다시 시도해주세요.`)
-                    }
-                  })
-                }}
+                onClick={handleRunAnalysis}
                 disabled={isPending}
                 variant="outline"
                 size="sm"
@@ -153,29 +172,26 @@ export function SajuAnalysisPanel({ student, analysis, enabledProviders = [] }: 
                 <div>
                   <p className="text-xs text-gray-500">연주</p>
                   <p data-testid="year-pillar" className="font-medium">
-                    {result.pillars.year.stem}
-                    {result.pillars.year.branch}
+                    {hanjaLabel(result.pillars.year.stem, result.pillars.year.branch)}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500">월주</p>
                   <p data-testid="month-pillar" className="font-medium">
-                    {result.pillars.month.stem}
-                    {result.pillars.month.branch}
+                    {hanjaLabel(result.pillars.month.stem, result.pillars.month.branch)}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500">일주</p>
                   <p data-testid="day-pillar" className="font-medium">
-                    {result.pillars.day.stem}
-                    {result.pillars.day.branch}
+                    {hanjaLabel(result.pillars.day.stem, result.pillars.day.branch)}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500">시주</p>
                   <p data-testid="hour-pillar" className="font-medium">
                     {result.pillars.hour
-                      ? `${result.pillars.hour.stem}${result.pillars.hour.branch}`
+                      ? hanjaLabel(result.pillars.hour.stem, result.pillars.hour.branch)
                       : "미상"}
                   </p>
                 </div>
@@ -192,7 +208,14 @@ export function SajuAnalysisPanel({ student, analysis, enabledProviders = [] }: 
         </div>
 
         <div className="space-y-2">
-          <h3 className="text-sm font-semibold text-gray-600">3. 해석</h3>
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-gray-600">3. 해석</h3>
+            {providerLabel && (
+              <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-200">
+                {providerLabel}
+              </span>
+            )}
+          </div>
           {analysis?.interpretation ? (
             <div className="rounded-md border border-gray-200 bg-white p-4 text-sm leading-6 text-gray-700 whitespace-pre-wrap">
               {analysis.interpretation}

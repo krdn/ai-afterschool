@@ -96,6 +96,15 @@ export default function AnalysisTab({ studentId }: { studentId: string }) {
     setSelectedHistoryItem(null)
   }, [])
 
+  const refreshData = useCallback(async () => {
+    try {
+      const result = await getStudentAnalysisData(studentId)
+      setData(result)
+    } catch (error) {
+      console.error("Failed to load analysis data:", error)
+    }
+  }, [studentId])
+
   // Fetch student and analysis data
   useEffect(() => {
     const loadData = async () => {
@@ -166,6 +175,7 @@ export default function AnalysisTab({ studentId }: { studentId: string }) {
             }}
             analysis={data.student.sajuAnalysis}
             enabledProviders={data.enabledProviders}
+            onAnalysisComplete={refreshData}
           />
         </TabsContent>
 
