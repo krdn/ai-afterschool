@@ -200,6 +200,15 @@ export async function deleteTeacher(id: string): Promise<{ success?: boolean; er
     return { error: '본인 계정은 삭제할 수 없어요' }
   }
 
+  // 담당 학생 존재 여부 확인
+  const studentCount = await db.student.count({
+    where: { teacherId: id },
+  })
+
+  if (studentCount > 0) {
+    return { error: `담당 학생이 ${studentCount}명 있어요. 먼저 다른 선생님에게 재배정해주세요.` }
+  }
+
   try {
     await db.teacher.delete({
       where: { id },
@@ -209,6 +218,18 @@ export async function deleteTeacher(id: string): Promise<{ success?: boolean; er
     console.error("Failed to delete teacher:", error)
     return { error: '선생님 삭제 중 오류가 발생했어요' }
   }
+}
+
+export async function getTeacherStudentCount(teacherId: string): Promise<number> {
+  const session = await verifySession()
+
+  if (session.role !== 'DIRECTOR') {
+    return 0
+  }
+
+  return db.student.count({
+    where: { teacherId },
+  })
 }
 
 export async function getTeachers() {

@@ -49,7 +49,11 @@ export default async function TeachersPage() {
           ]}
         />
       ) : (
-        <TeacherTable data={teachers} />
+        <TeacherTable
+          data={teachers}
+          currentUserId={session.userId}
+          currentRole={session.role}
+        />
       )}
     </div>
   )
