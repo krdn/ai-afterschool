@@ -1,99 +1,117 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
-import { saveLLMConfigAction } from "@/lib/actions/llm-settings"
-import type { ProviderName } from "@/lib/ai/providers"
+import { Loader2, Check } from "lucide-react"
+import { setDefaultProviderAction } from "@/lib/actions/llm-settings"
+import { PROVIDER_CONFIGS, type ProviderName } from "@/lib/ai/providers"
 
 interface ProviderSelectProps {
   enabledProviders: ProviderName[]
+  currentDefault: ProviderName | null
 }
 
-const PROVIDER_NAMES: Record<ProviderName, string> = {
-  anthropic: "Claude (Anthropic)",
-  openai: "OpenAI",
-  google: "Google",
-  ollama: "Ollama (Local)",
+const ALL_PROVIDERS: ProviderName[] = ['ollama', 'anthropic', 'openai', 'google']
+
+const PROVIDER_ICONS: Record<ProviderName, string> = {
+  ollama: 'O',
+  anthropic: 'C',
+  openai: 'G',
+  google: 'G',
 }
 
-export function ProviderSelect({ enabledProviders }: ProviderSelectProps) {
-  const [selectedProvider, setSelectedProvider] = useState<ProviderName | "">("")
-  const [isOpen, setIsOpen] = useState(false)
+const PROVIDER_COLORS: Record<ProviderName, { bg: string; selected: string }> = {
+  ollama: { bg: 'bg-purple-50 border-purple-200 hover:bg-purple-100', selected: 'bg-purple-100 border-purple-500 ring-2 ring-purple-300' },
+  anthropic: { bg: 'bg-orange-50 border-orange-200 hover:bg-orange-100', selected: 'bg-orange-100 border-orange-500 ring-2 ring-orange-300' },
+  openai: { bg: 'bg-green-50 border-green-200 hover:bg-green-100', selected: 'bg-green-100 border-green-500 ring-2 ring-green-300' },
+  google: { bg: 'bg-blue-50 border-blue-200 hover:bg-blue-100', selected: 'bg-blue-100 border-blue-500 ring-2 ring-blue-300' },
+}
+
+export function ProviderSelect({ enabledProviders, currentDefault }: ProviderSelectProps) {
+  const [selected, setSelected] = useState<ProviderName | null>(currentDefault)
   const [isSaving, setIsSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
 
   const handleSelect = async (provider: ProviderName) => {
-    setSelectedProvider(provider)
-    setIsOpen(false)
+    if (isSaving) return
+    setSelected(provider)
     setIsSaving(true)
+    setSaved(false)
 
     try {
-      // Note: 기본 제공자 저장 기능은 향후 Phase에서 구현
-      // 여기서는 UI만 구현합니다
-      await saveLLMConfigAction({
-        provider,
-        isEnabled: true,
-      })
+      await setDefaultProviderAction(provider)
+      setSaved(true)
+      setTimeout(() => setSaved(false), 2000)
     } catch (error) {
-      console.error("Failed to set primary provider:", error)
+      console.error("Failed to set default provider:", error)
     } finally {
       setIsSaving(false)
     }
   }
 
   return (
-    <div className="space-y-2">
-      <Label htmlFor="provider-select">기본 제공자 선택</Label>
-      <div className="relative">
-        <button
-          id="provider-select"
-          data-testid="provider-select"
-          type="button"
-          onClick={() => setIsOpen(!isOpen)}
-          disabled={isSaving}
-          className="w-full flex items-center justify-between px-4 py-2 border rounded-md bg-white hover:bg-gray-50 disabled:opacity-50"
-        >
-          <span>
-            {selectedProvider
-              ? PROVIDER_NAMES[selectedProvider]
-              : "기본 제공자 선택..."}
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <Label>기본 제공자 선택</Label>
+        {saved && (
+          <span className="text-xs text-green-600 flex items-center gap-1">
+            <Check className="h-3 w-3" /> 저장됨
           </span>
-          <svg
-            className={`w-4 h-4 transition-transform ${isOpen ? "rotate-180" : ""}`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 9l-7 7-7-7"
-            />
-          </svg>
-        </button>
-
-        {isOpen && (
-          <div className="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-auto">
-            {enabledProviders.length === 0 ? (
-              <div className="px-4 py-2 text-sm text-gray-500">
-                먼저 제공자를 활성화해주세요
-              </div>
-            ) : (
-              enabledProviders.map((provider) => (
-                <button
-                  key={provider}
-                  type="button"
-                  onClick={() => handleSelect(provider)}
-                  className="w-full px-4 py-2 text-left hover:bg-gray-100 transition"
-                >
-                  {PROVIDER_NAMES[provider]}
-                </button>
-              ))
-            )}
-          </div>
+        )}
+        {isSaving && (
+          <span className="text-xs text-muted-foreground flex items-center gap-1">
+            <Loader2 className="h-3 w-3 animate-spin" /> 저장 중...
+          </span>
         )}
       </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {ALL_PROVIDERS.map((provider) => {
+          const config = PROVIDER_CONFIGS[provider]
+          const isSelected = selected === provider
+          const isEnabled = enabledProviders.includes(provider)
+          const isBuiltIn = provider === 'ollama'
+          const colors = PROVIDER_COLORS[provider]
+
+          return (
+            <button
+              key={provider}
+              type="button"
+              onClick={() => handleSelect(provider)}
+              disabled={isSaving || (!isEnabled && !isBuiltIn)}
+              className={`
+                relative flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all
+                ${isSelected ? colors.selected : colors.bg}
+                ${(!isEnabled && !isBuiltIn) ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}
+                disabled:pointer-events-none
+              `}
+            >
+              <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg bg-white/80 border">
+                {PROVIDER_ICONS[provider]}
+              </div>
+              <span className="text-sm font-medium">{config.displayName}</span>
+              <span className="text-xs text-muted-foreground">
+                {isBuiltIn ? '내장 (무료)' : config.requiresApiKey ? 'API 키 필요' : ''}
+              </span>
+              {!isEnabled && !isBuiltIn && (
+                <span className="text-xs text-red-500">미활성</span>
+              )}
+              {isBuiltIn && !isEnabled && (
+                <span className="text-xs text-green-600">항상 사용 가능</span>
+              )}
+              {isSelected && (
+                <div className="absolute top-2 right-2">
+                  <Check className="h-4 w-4 text-green-600" />
+                </div>
+              )}
+            </button>
+          )
+        })}
+      </div>
+
+      <p className="text-xs text-muted-foreground">
+        선택한 제공자가 모든 AI 기능의 기본 제공자로 설정됩니다. 비전 기능(관상/손금)은 비전 지원 제공자만 적용됩니다.
+      </p>
     </div>
   )
 }

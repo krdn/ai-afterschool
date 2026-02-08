@@ -79,7 +79,14 @@ export async function getEnabledProviders(): Promise<ProviderName[]> {
     select: { provider: true },
   });
 
-  return configs.map((c) => c.provider as ProviderName);
+  const providers = configs.map((c) => c.provider as ProviderName);
+
+  // Ollama는 내장 제공자 — API 키 불필요, 항상 사용 가능
+  if (!providers.includes('ollama')) {
+    providers.push('ollama');
+  }
+
+  return providers;
 }
 
 interface FeatureConfigInput {

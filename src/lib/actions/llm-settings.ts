@@ -113,6 +113,38 @@ export async function getBudgetSummaryAction() {
   return getBudgetSummary();
 }
 
+export async function setDefaultProviderAction(provider: ProviderName) {
+  await requireDirector();
+
+  const { PROVIDER_CONFIGS } = await import('@/lib/ai/providers');
+  const allFeatures: FeatureType[] = [
+    'learning_analysis', 'counseling_suggest', 'report_generate',
+    'face_analysis', 'palm_analysis', 'personality_summary',
+    'saju_analysis', 'mbti_analysis',
+  ];
+
+  const visionFeatures: FeatureType[] = ['face_analysis', 'palm_analysis'];
+  const supportsVision = PROVIDER_CONFIGS[provider].supportsVision;
+
+  const allProviders: ProviderName[] = ['ollama', 'anthropic', 'openai', 'google'];
+  const fallback = allProviders.filter((p) => p !== provider);
+
+  for (const feature of allFeatures) {
+    // vision 기능인데 선택된 제공자가 vision 미지원이면 건너뜀
+    if (visionFeatures.includes(feature) && !supportsVision) {
+      continue;
+    }
+    await saveFeatureConfig({
+      featureType: feature,
+      primaryProvider: provider,
+      fallbackOrder: fallback,
+    });
+  }
+
+  revalidatePath('/admin/llm-settings');
+  return { success: true, provider };
+}
+
 export async function getOllamaModelsAction() {
   await requireDirector();
   const { getOllamaModels } = await import('@/lib/ai/providers/ollama');
