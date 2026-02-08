@@ -121,13 +121,8 @@ export function StudentImageUploader({
               onOpen={(widget) => {
                 // 위젯이 열릴 때 추가 검증이 필요하면 여기서 처리
               }}
-              onUploadAdded={(file, widget) => {
-                // 파일이 추가될 때 검증 (클라이언트 측 이중 검증)
-                if (file && !validateFileBeforeUpload(file as File)) {
-                  // 파일이 유효하지 않으면 업로드 취소
-                  widget.close()
-                  return false
-                }
+              onUploadAdded={() => {
+                // Cloudinary 위젯 옵션(maxFileSize, clientAllowedFormats)으로 검증
               }}
               onSuccess={(result) => {
                 const info = result?.info as
@@ -217,11 +212,6 @@ export function StudentImageUploader({
                   onClick={() => {
                     if (!isLoading) {
                       open()
-                      // 업로드 시작 시 로딩 토스트 표시
-                      toast.loading("이미지 업로드 중...", {
-                        id: "upload-loading",
-                        description: "파일을 업로드하고 있어요",
-                      })
                     }
                   }}
                   disabled={isLoading}

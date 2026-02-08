@@ -241,7 +241,7 @@ export async function updateStudent(
   const existingStudent = await db.student.findFirst({
     where: {
       id: studentId,
-      teacherId: session.userId,
+      ...(session.role === "DIRECTOR" ? {} : { teacherId: session.userId }),
     },
   })
 
