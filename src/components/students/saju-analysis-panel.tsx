@@ -6,6 +6,8 @@ import { ko } from "date-fns/locale"
 import { Loader2, RefreshCw } from "lucide-react"
 import { runSajuAnalysisAction } from "../../app/(dashboard)/students/[id]/saju/actions"
 import type { SajuResult } from "@/lib/analysis/saju"
+import type { ProviderName } from "@/lib/ai/providers/types"
+import { ProviderSelector } from "@/components/students/provider-selector"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
@@ -22,6 +24,7 @@ type SajuAnalysisPanelProps = {
     interpretation: string | null
     calculatedAt: Date | string
   } | null
+  enabledProviders?: ProviderName[]
 }
 
 function toDate(value: Date | string) {
@@ -36,9 +39,10 @@ function formatBirthTime(hour: number | null, minute: number | null) {
   return `${String(hour).padStart(2, "0")}:${String(safeMinute).padStart(2, "0")}`
 }
 
-export function SajuAnalysisPanel({ student, analysis }: SajuAnalysisPanelProps) {
+export function SajuAnalysisPanel({ student, analysis, enabledProviders = [] }: SajuAnalysisPanelProps) {
   const [isPending, startTransition] = useTransition()
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [selectedProvider, setSelectedProvider] = useState('built-in')
   const result = analysis?.result as SajuResult | undefined
 
   const calculatedAt = analysis?.calculatedAt
@@ -72,24 +76,36 @@ export function SajuAnalysisPanel({ student, analysis }: SajuAnalysisPanelProps)
               {student.birthTimeHour === null ? " (시주 계산 제외)" : ""}
             </p>
           </div>
-          <Button
-            type="button"
-            disabled={isPending}
-            data-testid="saju-analyze-button"
-            onClick={() => {
-              startTransition(async () => {
-                setErrorMessage(null)
-                try {
-                  await runSajuAnalysisAction(student.id)
-                } catch (error) {
-                  console.error("Failed to run saju analysis", error)
-                  setErrorMessage(`사주 분석에 실패했습니다. (원인: ${error instanceof Error ? error.message : '알 수 없는 오류'}) 다시 시도해주세요.`)
-                }
-              })
-            }}
-          >
-            {isPending ? "분석 중..." : "사주 분석 실행"}
-          </Button>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+            <ProviderSelector
+              selectedProvider={selectedProvider}
+              onProviderChange={setSelectedProvider}
+              availableProviders={enabledProviders}
+              showBuiltIn
+              disabled={isPending}
+            />
+            <Button
+              type="button"
+              disabled={isPending}
+              data-testid="saju-analyze-button"
+              onClick={() => {
+                startTransition(async () => {
+                  setErrorMessage(null)
+                  try {
+                    const res = await runSajuAnalysisAction(student.id, selectedProvider)
+                    if (res.llmFailed) {
+                      setErrorMessage("LLM 연결에 실패하여 내장 알고리즘으로 해석했습니다. LLM 설정을 확인해주세요.")
+                    }
+                  } catch (error) {
+                    console.error("Failed to run saju analysis", error)
+                    setErrorMessage(`사주 분석에 실패했습니다. (원인: ${error instanceof Error ? error.message : '알 수 없는 오류'}) 다시 시도해주세요.`)
+                  }
+                })
+              }}
+            >
+              {isPending ? "분석 중..." : "사주 분석 실행"}
+            </Button>
+          </div>
           {errorMessage ? (
             <div data-testid="analysis-error" className="flex items-center justify-between gap-4 mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-sm text-red-700">{errorMessage}</p>
@@ -98,7 +114,10 @@ export function SajuAnalysisPanel({ student, analysis }: SajuAnalysisPanelProps)
                   startTransition(async () => {
                     setErrorMessage(null)
                     try {
-                      await runSajuAnalysisAction(student.id)
+                      const res = await runSajuAnalysisAction(student.id, selectedProvider)
+                      if (res.llmFailed) {
+                        setErrorMessage("LLM 연결에 실패하여 내장 알고리즘으로 해석했습니다. LLM 설정을 확인해주세요.")
+                      }
                     } catch (error) {
                       console.error("Failed to run saju analysis", error)
                       setErrorMessage(`사주 분석에 실패했습니다. (원인: ${error instanceof Error ? error.message : '알 수 없는 오류'}) 다시 시도해주세요.`)

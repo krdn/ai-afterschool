@@ -11,6 +11,9 @@ import {
   upsertMbtiAnalysis,
   upsertMbtiDraft,
 } from "@/lib/db/mbti-analysis"
+import { generateWithProvider, generateWithSpecificProvider } from "@/lib/ai/router"
+import { MBTI_INTERPRETATION_PROMPT } from "@/lib/ai/prompts"
+import type { ProviderName } from "@/lib/ai/providers/types"
 import questions from "@/data/mbti/questions.json"
 import descriptions from "@/data/mbti/descriptions.json"
 
@@ -239,5 +242,53 @@ ${typeDescription.famousPeople.join(", ")}
       percentages: data.percentages,
       interpretation,
     },
+  }
+}
+
+/**
+ * MBTI 결과를 LLM으로 재해석
+ * 기존 MBTI 결과(유형+비율)를 기반으로 LLM이 풍부한 해석을 생성
+ */
+export async function generateMbtiLLMInterpretation(
+  studentId: string,
+  provider?: string
+) {
+  const session = await verifySession()
+  await ensureStudentAccess(studentId, session.userId)
+
+  // 기존 MBTI 결과 조회
+  const analysis = await getMbtiAnalysisDb(studentId)
+  if (!analysis) {
+    throw new Error("MBTI 분석 결과가 없습니다. 먼저 설문을 완료해주세요.")
+  }
+
+  const percentages = analysis.percentages as Record<string, number>
+  const prompt = MBTI_INTERPRETATION_PROMPT(analysis.mbtiType, percentages)
+
+  const llmResult = (!provider || provider === 'auto')
+    ? await generateWithProvider({
+        featureType: 'mbti_analysis',
+        prompt,
+        teacherId: session.userId,
+        maxOutputTokens: 2048,
+      })
+    : await generateWithSpecificProvider(provider as ProviderName, {
+        featureType: 'mbti_analysis',
+        prompt,
+        teacherId: session.userId,
+        maxOutputTokens: 2048,
+      })
+
+  // DB의 interpretation 필드 업데이트
+  await db.mbtiAnalysis.update({
+    where: { studentId },
+    data: { interpretation: llmResult.text },
+  })
+
+  revalidatePath(`/students/${studentId}`)
+
+  return {
+    success: true,
+    interpretation: llmResult.text,
   }
 }

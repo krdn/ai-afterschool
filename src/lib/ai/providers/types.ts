@@ -1,12 +1,14 @@
 export type ProviderName = 'anthropic' | 'openai' | 'google' | 'ollama';
 
-export type FeatureType = 
+export type FeatureType =
   | 'learning_analysis'   // 학습 분석
   | 'counseling_suggest'  // 상담 제안
   | 'report_generate'     // 보고서 생성
   | 'face_analysis'       // 관상 분석
   | 'palm_analysis'       // 손금 분석
-  | 'personality_summary'; // 통합 성향 분석
+  | 'personality_summary' // 통합 성향 분석
+  | 'saju_analysis'       // 사주 해석
+  | 'mbti_analysis';      // MBTI 해석
 
 export interface ProviderConfig {
   name: ProviderName;

@@ -23,16 +23,21 @@ import {
   upsertNameAnalysis,
   upsertSajuAnalysis,
 } from "@/lib/db/student-analysis"
+import { generateWithProvider, generateWithSpecificProvider } from "@/lib/ai/router"
+import { SAJU_INTERPRETATION_PROMPT } from "@/lib/ai/prompts"
+import type { ProviderName } from "@/lib/ai/providers/types"
 
 type AnalysisInput = Prisma.JsonValue
 type AnalysisResult = Prisma.JsonValue
 
-async function ensureStudentAccess(studentId: string, teacherId: string) {
+async function ensureStudentAccess(studentId: string, session: { userId: string; role: string }) {
+  const where: { id: string; teacherId?: string } = { id: studentId }
+  if (session.role === 'TEACHER') {
+    where.teacherId = session.userId
+  }
+
   const student = await db.student.findFirst({
-    where: {
-      id: studentId,
-      teacherId,
-    },
+    where,
     select: { id: true },
   })
 
@@ -53,7 +58,7 @@ export async function saveSajuAnalysis(
   interpretation?: string | null
 ) {
   const session = await verifySession()
-  await ensureStudentAccess(studentId, session.userId)
+  await ensureStudentAccess(studentId, session)
 
   await upsertSajuAnalysis(studentId, {
     inputSnapshot,
@@ -72,7 +77,7 @@ export async function saveNameAnalysis(
   interpretation?: string | null
 ) {
   const session = await verifySession()
-  await ensureStudentAccess(studentId, session.userId)
+  await ensureStudentAccess(studentId, session)
 
   await upsertNameAnalysis(studentId, {
     inputSnapshot,
@@ -93,14 +98,16 @@ export async function markRecalculationNeeded(
   revalidatePath(`/students/${studentId}`)
 }
 
-export async function runSajuAnalysis(studentId: string) {
+export async function runSajuAnalysis(studentId: string, provider?: string) {
   const session = await verifySession()
 
+  const where: { id: string; teacherId?: string } = { id: studentId }
+  if (session.role === 'TEACHER') {
+    where.teacherId = session.userId
+  }
+
   const student = await db.student.findFirst({
-    where: {
-      id: studentId,
-      teacherId: session.userId,
-    },
+    where,
     select: {
       id: true,
       birthDate: true,
@@ -128,29 +135,61 @@ export async function runSajuAnalysis(studentId: string) {
     longitude: 127.0,
   }
 
+  // 사주 계산은 항상 알고리즘
   const result = calculateSaju({
     birthDate: student.birthDate,
     time,
     longitude: 127.0,
   })
-  const interpretation = generateSajuInterpretation(result)
+
+  // 해석만 내장/LLM 분기
+  let interpretation: string
+  let llmFailed = false
+  if (!provider || provider === 'built-in') {
+    interpretation = generateSajuInterpretation(result)
+  } else {
+    try {
+      const prompt = SAJU_INTERPRETATION_PROMPT(result)
+      const llmResult = provider === 'auto'
+        ? await generateWithProvider({
+            featureType: 'saju_analysis',
+            prompt,
+            teacherId: session.userId,
+            maxOutputTokens: 2048,
+          })
+        : await generateWithSpecificProvider(provider as ProviderName, {
+            featureType: 'saju_analysis',
+            prompt,
+            teacherId: session.userId,
+            maxOutputTokens: 2048,
+          })
+      interpretation = llmResult.text
+    } catch (error) {
+      console.error('[Saju Analysis] LLM failed, falling back to built-in:', error)
+      interpretation = generateSajuInterpretation(result)
+      llmFailed = true
+    }
+  }
 
   await saveSajuAnalysis(studentId, inputSnapshot, result, interpretation)
 
   return {
     result,
     interpretation,
+    llmFailed,
   }
 }
 
 export async function runNameAnalysis(studentId: string) {
   const session = await verifySession()
 
+  const nameWhere: { id: string; teacherId?: string } = { id: studentId }
+  if (session.role === 'TEACHER') {
+    nameWhere.teacherId = session.userId
+  }
+
   const student = await db.student.findFirst({
-    where: {
-      id: studentId,
-      teacherId: session.userId,
-    },
+    where: nameWhere,
     select: {
       id: true,
       name: true,

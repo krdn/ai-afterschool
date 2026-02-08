@@ -5,6 +5,8 @@ import Image from "next/image"
 import { Hand, Sparkles, AlertCircle, RefreshCw, Loader2 } from "lucide-react"
 import { analyzePalmImage } from "@/lib/actions/ai-image-analysis"
 import { DISCLAIMER_TEXT } from "@/lib/ai/prompts"
+import type { ProviderName } from "@/lib/ai/providers/types"
+import { ProviderSelector } from "@/components/students/provider-selector"
 import { Button } from "@/components/ui/button"
 
 type PalmAnalysis = {
@@ -20,12 +22,14 @@ type Props = {
   studentId: string
   analysis: PalmAnalysis
   palmImageUrl: string | null
+  enabledProviders?: ProviderName[]
 }
 
 export function PalmAnalysisPanel({
   studentId,
   analysis,
-  palmImageUrl
+  palmImageUrl,
+  enabledProviders = []
 }: Props) {
   const [, startTransition] = useTransition()
   const [localStatus, setLocalStatus] = useState<'idle' | 'analyzing'>('idle')
@@ -33,6 +37,7 @@ export function PalmAnalysisPanel({
     (analysis?.hand === 'left' || analysis?.hand === 'right') ? analysis.hand : 'right'
   )
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [selectedProvider, setSelectedProvider] = useState('auto')
 
   const handleAnalyze = () => {
     if (!palmImageUrl) {
@@ -43,7 +48,7 @@ export function PalmAnalysisPanel({
     setLocalStatus('analyzing')
     setErrorMessage(null)
     startTransition(async () => {
-      const result = await analyzePalmImage(studentId, palmImageUrl, selectedHand)
+      const result = await analyzePalmImage(studentId, palmImageUrl, selectedHand, selectedProvider)
       if (result.success) {
         window.location.reload()
       } else {
@@ -59,13 +64,20 @@ export function PalmAnalysisPanel({
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden" data-testid="palmistry-tab">
       {/* Header */}
-      <div className="px-6 py-4 border-b flex items-center justify-between">
+      <div className="px-6 py-4 border-b flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-purple-100 rounded-lg">
             <Hand className="w-5 h-5 text-purple-600" />
           </div>
           <h2 className="text-lg font-semibold">AI 손금 분석</h2>
         </div>
+        <ProviderSelector
+          selectedProvider={selectedProvider}
+          onProviderChange={setSelectedProvider}
+          availableProviders={enabledProviders}
+          requiresVision
+          disabled={isAnalyzing}
+        />
       </div>
 
       {/* Content */}

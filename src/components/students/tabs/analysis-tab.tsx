@@ -13,6 +13,7 @@ import { AnalysisHistoryDetailDialog } from "@/components/students/analysis-hist
 import { getStudentAnalysisData } from "@/lib/actions/student-analysis-tab"
 import { getAnalysisHistory } from "@/lib/actions/analysis"
 import type { AnalysisHistoryItem } from "@/components/students/analysis-history-dialog"
+import type { ProviderName } from "@/lib/ai/providers/types"
 
 export default function AnalysisTab({ studentId }: { studentId: string }) {
   const [subTab, setSubTab] = useState("saju")
@@ -37,7 +38,8 @@ export default function AnalysisTab({ studentId }: { studentId: string }) {
     faceAnalysis: any
     palmAnalysis: any
     mbtiAnalysis: any
-  }>({ student: null, faceAnalysis: null, palmAnalysis: null, mbtiAnalysis: null })
+    enabledProviders: ProviderName[]
+  }>({ student: null, faceAnalysis: null, palmAnalysis: null, mbtiAnalysis: null, enabledProviders: [] })
   const [loading, setLoading] = useState(true)
 
   // History dialog states
@@ -163,6 +165,7 @@ export default function AnalysisTab({ studentId }: { studentId: string }) {
               birthTimeMinute: data.student.birthTimeMinute
             }}
             analysis={data.student.sajuAnalysis}
+            enabledProviders={data.enabledProviders}
           />
         </TabsContent>
 
@@ -171,6 +174,7 @@ export default function AnalysisTab({ studentId }: { studentId: string }) {
             studentId={studentId}
             analysis={data.faceAnalysis}
             faceImageUrl={faceImageUrl}
+            enabledProviders={data.enabledProviders}
           />
         </TabsContent>
 
@@ -179,6 +183,7 @@ export default function AnalysisTab({ studentId }: { studentId: string }) {
             studentId={studentId}
             analysis={data.palmAnalysis}
             palmImageUrl={palmImageUrl}
+            enabledProviders={data.enabledProviders}
           />
         </TabsContent>
 
@@ -187,6 +192,7 @@ export default function AnalysisTab({ studentId }: { studentId: string }) {
             studentId={studentId}
             studentName={data.student.name}
             analysis={data.mbtiAnalysis}
+            enabledProviders={data.enabledProviders}
           />
         </TabsContent>
       </Tabs>

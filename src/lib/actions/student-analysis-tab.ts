@@ -4,6 +4,8 @@ import { db } from "@/lib/db"
 import { getFaceAnalysisByStudentId } from "@/lib/db/face-analysis"
 import { getPalmAnalysisByStudentId } from "@/lib/db/palm-analysis"
 import { getMbtiAnalysis } from "@/lib/db/mbti-analysis"
+import { getEnabledProviders } from "@/lib/ai/config"
+import type { ProviderName } from "@/lib/ai/providers/types"
 
 export type StudentAnalysisData = {
   student: {
@@ -43,36 +45,39 @@ export type StudentAnalysisData = {
     percentages: Record<string, number>
     calculatedAt: Date
   } | null
+  enabledProviders: ProviderName[]
 }
 
 export async function getStudentAnalysisData(studentId: string): Promise<StudentAnalysisData> {
   try {
-    // Fetch student data
-    const student = await db.student.findUnique({
-      where: { id: studentId },
-      include: {
-        sajuAnalysis: true,
-        images: true
-      }
-    })
+    // Fetch student data and enabled providers in parallel
+    const [student, enabledProviders] = await Promise.all([
+      db.student.findUnique({
+        where: { id: studentId },
+        include: {
+          sajuAnalysis: true,
+          images: true
+        }
+      }),
+      getEnabledProviders().catch(() => [] as ProviderName[])
+    ])
 
     if (!student) {
       return {
         student: null,
         faceAnalysis: null,
         palmAnalysis: null,
-        mbtiAnalysis: null
+        mbtiAnalysis: null,
+        enabledProviders
       }
     }
 
-    // Fetch face analysis
-    const faceAnalysis = await getFaceAnalysisByStudentId(studentId)
-
-    // Fetch palm analysis
-    const palmAnalysis = await getPalmAnalysisByStudentId(studentId)
-
-    // Fetch MBTI analysis
-    const mbtiAnalysis = await getMbtiAnalysis(studentId)
+    // Fetch face, palm, mbti analysis in parallel
+    const [faceAnalysis, palmAnalysis, mbtiAnalysis] = await Promise.all([
+      getFaceAnalysisByStudentId(studentId),
+      getPalmAnalysisByStudentId(studentId),
+      getMbtiAnalysis(studentId)
+    ])
 
     return {
       student: {
@@ -90,7 +95,8 @@ export async function getStudentAnalysisData(studentId: string): Promise<Student
         mbtiType: mbtiAnalysis.mbtiType,
         percentages: mbtiAnalysis.percentages as Record<string, number>,
         calculatedAt: mbtiAnalysis.calculatedAt
-      } : null
+      } : null,
+      enabledProviders
     }
   } catch (error) {
     console.error("Failed to load analysis data:", error)
@@ -98,7 +104,8 @@ export async function getStudentAnalysisData(studentId: string): Promise<Student
       student: null,
       faceAnalysis: null,
       palmAnalysis: null,
-      mbtiAnalysis: null
+      mbtiAnalysis: null,
+      enabledProviders: []
     }
   }
 }

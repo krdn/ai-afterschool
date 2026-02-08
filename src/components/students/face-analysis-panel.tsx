@@ -4,6 +4,8 @@ import { useState, useTransition } from "react"
 import { Camera, Sparkles, AlertCircle, RefreshCw, Loader2 } from "lucide-react"
 import { analyzeFaceImage } from "@/lib/actions/ai-image-analysis"
 import { DISCLAIMER_TEXT } from "@/lib/ai/prompts"
+import type { ProviderName } from "@/lib/ai/providers/types"
+import { ProviderSelector } from "@/components/students/provider-selector"
 import { Button } from "@/components/ui/button"
 
 type FaceAnalysis = {
@@ -18,16 +20,19 @@ type Props = {
   studentId: string
   analysis: FaceAnalysis
   faceImageUrl: string | null
+  enabledProviders?: ProviderName[]
 }
 
 export function FaceAnalysisPanel({
   studentId,
   analysis,
-  faceImageUrl
+  faceImageUrl,
+  enabledProviders = []
 }: Props) {
   const [, startTransition] = useTransition()
   const [localStatus, setLocalStatus] = useState<'idle' | 'analyzing'>('idle')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [selectedProvider, setSelectedProvider] = useState('auto')
 
   const handleAnalyze = () => {
     if (!faceImageUrl) {
@@ -38,9 +43,8 @@ export function FaceAnalysisPanel({
     setLocalStatus('analyzing')
     setErrorMessage(null)
     startTransition(async () => {
-      const result = await analyzeFaceImage(studentId, faceImageUrl)
+      const result = await analyzeFaceImage(studentId, faceImageUrl, selectedProvider)
       if (result.success) {
-        // revalidatePath로 페이지 새로고침
         window.location.reload()
       } else {
         setErrorMessage(`이미지 분석에 실패했습니다. (원인: ${result.error || '알 수 없는 오류'}) 다시 시도해주세요.`)
@@ -55,13 +59,20 @@ export function FaceAnalysisPanel({
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden" data-testid="physiognomy-tab">
       {/* Header */}
-      <div className="px-6 py-4 border-b flex items-center justify-between">
+      <div className="px-6 py-4 border-b flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-blue-100 rounded-lg">
             <Sparkles className="w-5 h-5 text-blue-600" />
           </div>
           <h2 className="text-lg font-semibold">AI 관상 분석</h2>
         </div>
+        <ProviderSelector
+          selectedProvider={selectedProvider}
+          onProviderChange={setSelectedProvider}
+          availableProviders={enabledProviders}
+          requiresVision
+          disabled={isAnalyzing}
+        />
       </div>
 
       {/* Content */}

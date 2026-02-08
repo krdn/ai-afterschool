@@ -33,6 +33,11 @@ export async function createStudent(formData: FormData) {
 
     const validatedData = createStudentSchema.parse(rawData);
 
+    const birthTimeHourRaw = formData.get("birthTimeHour") as string | null;
+    const birthTimeMinuteRaw = formData.get("birthTimeMinute") as string | null;
+    const birthTimeHour = birthTimeHourRaw !== null && birthTimeHourRaw !== "" ? parseInt(birthTimeHourRaw, 10) : null;
+    const birthTimeMinute = birthTimeMinuteRaw !== null && birthTimeMinuteRaw !== "" ? parseInt(birthTimeMinuteRaw, 10) : null;
+
     const result = await db.$transaction(async (tx) => {
         // 1. 학생 생성
         const student = await tx.student.create({
@@ -42,6 +47,8 @@ export async function createStudent(formData: FormData) {
                 grade: validatedData.grade,
                 school: validatedData.school,
                 teacherId: session.userId,
+                birthTimeHour,
+                birthTimeMinute,
             },
         });
 
@@ -156,6 +163,11 @@ export async function updateStudent(id: string, formData: FormData) {
 
     const validatedData = createStudentSchema.parse(rawData);
 
+    const editBirthTimeHourRaw = formData.get("birthTimeHour") as string | null;
+    const editBirthTimeMinuteRaw = formData.get("birthTimeMinute") as string | null;
+    const editBirthTimeHour = editBirthTimeHourRaw !== null && editBirthTimeHourRaw !== "" ? parseInt(editBirthTimeHourRaw, 10) : null;
+    const editBirthTimeMinute = editBirthTimeMinuteRaw !== null && editBirthTimeMinuteRaw !== "" ? parseInt(editBirthTimeMinuteRaw, 10) : null;
+
     const result = await db.$transaction(async (tx) => {
         // 1. 학생 정보 수정
         const student = await tx.student.update({
@@ -165,6 +177,8 @@ export async function updateStudent(id: string, formData: FormData) {
                 birthDate: new Date(validatedData.birthDate),
                 grade: validatedData.grade,
                 school: validatedData.school,
+                birthTimeHour: editBirthTimeHour,
+                birthTimeMinute: editBirthTimeMinute,
             },
         });
 
