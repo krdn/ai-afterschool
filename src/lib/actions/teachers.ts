@@ -6,14 +6,19 @@ import { verifySession } from "@/lib/dal"
 import { db } from "@/lib/db"
 import { TeacherSchema, UpdateTeacherSchema } from "@/lib/validations/teachers"
 
+const DEFAULT_PASSWORD = "afterschool2026!"
+
 export type TeacherFormState = {
   errors?: {
     name?: string[]
     email?: string[]
-    password?: string[]
     role?: string[]
     teamId?: string[]
     phone?: string[]
+    birthDate?: string[]
+    nameHanja?: string[]
+    birthTimeHour?: string[]
+    birthTimeMinute?: string[]
     _form?: string[]
   }
   message?: string
@@ -34,13 +39,19 @@ export async function createTeacher(
     }
   }
 
+  const rawBirthTimeHour = formData.get("birthTimeHour")
+  const rawBirthTimeMinute = formData.get("birthTimeMinute")
+
   const validatedFields = TeacherSchema.safeParse({
     name: formData.get("name"),
     email: formData.get("email"),
-    password: formData.get("password"),
     role: formData.get("role"),
     teamId: formData.get("teamId") || null,
-    phone: formData.get("phone") || undefined,
+    phone: formData.get("phone"),
+    birthDate: formData.get("birthDate"),
+    nameHanja: formData.get("nameHanja") || undefined,
+    birthTimeHour: rawBirthTimeHour !== null && rawBirthTimeHour !== "" ? Number(rawBirthTimeHour) : null,
+    birthTimeMinute: rawBirthTimeMinute !== null && rawBirthTimeMinute !== "" ? Number(rawBirthTimeMinute) : null,
   })
 
   if (!validatedFields.success) {
@@ -49,7 +60,7 @@ export async function createTeacher(
     }
   }
 
-  const { name, email, password, role, teamId, phone } = validatedFields.data
+  const { name, email, role, teamId, phone, birthDate, nameHanja, birthTimeHour, birthTimeMinute } = validatedFields.data
 
   // 이메일 중복 검증
   const existingTeacher = await db.teacher.findUnique({
@@ -79,7 +90,7 @@ export async function createTeacher(
     }
   }
 
-  const hashedPassword = await argon2.hash(password)
+  const hashedPassword = await argon2.hash(DEFAULT_PASSWORD)
 
   try {
     await db.teacher.create({
@@ -90,6 +101,10 @@ export async function createTeacher(
         role,
         teamId,
         phone,
+        birthDate: new Date(birthDate),
+        nameHanja: nameHanja || null,
+        birthTimeHour: birthTimeHour ?? null,
+        birthTimeMinute: birthTimeMinute ?? null,
       },
     })
   } catch (error) {
@@ -133,6 +148,9 @@ export async function updateTeacher(
     }
   }
 
+  const rawBirthTimeHour = formData.get("birthTimeHour")
+  const rawBirthTimeMinute = formData.get("birthTimeMinute")
+
   const validatedFields = UpdateTeacherSchema.safeParse({
     name: formData.get("name") || undefined,
     email: formData.get("email") || undefined,
@@ -140,6 +158,10 @@ export async function updateTeacher(
     role: formData.get("role") || undefined,
     teamId: formData.get("teamId") || null,
     phone: formData.get("phone") || undefined,
+    birthDate: formData.get("birthDate") || undefined,
+    nameHanja: formData.get("nameHanja") || undefined,
+    birthTimeHour: rawBirthTimeHour !== null && rawBirthTimeHour !== "" ? Number(rawBirthTimeHour) : undefined,
+    birthTimeMinute: rawBirthTimeMinute !== null && rawBirthTimeMinute !== "" ? Number(rawBirthTimeMinute) : undefined,
   })
 
   if (!validatedFields.success) {
@@ -148,12 +170,12 @@ export async function updateTeacher(
     }
   }
 
-  const data = validatedFields.data
+  const { birthDate, nameHanja, birthTimeHour, birthTimeMinute, ...restData } = validatedFields.data
 
   // 이메일 중복 검증 (이메일 변경 시)
-  if (data.email && data.email !== teacher.email) {
+  if (restData.email && restData.email !== teacher.email) {
     const existingTeacher = await db.teacher.findUnique({
-      where: { email: data.email },
+      where: { email: restData.email },
     })
 
     if (existingTeacher) {
@@ -166,14 +188,20 @@ export async function updateTeacher(
   }
 
   // 비밀번호 해싱
-  if (data.password) {
-    data.password = await argon2.hash(data.password)
+  if (restData.password) {
+    restData.password = await argon2.hash(restData.password)
   }
+
+  const updateData: Record<string, unknown> = { ...restData }
+  if (birthDate !== undefined) updateData.birthDate = new Date(birthDate)
+  if (nameHanja !== undefined) updateData.nameHanja = nameHanja || null
+  if (birthTimeHour !== undefined) updateData.birthTimeHour = birthTimeHour
+  if (birthTimeMinute !== undefined) updateData.birthTimeMinute = birthTimeMinute
 
   try {
     await db.teacher.update({
       where: { id },
-      data,
+      data: updateData,
     })
   } catch (error) {
     console.error("Failed to update teacher:", error)
@@ -280,6 +308,10 @@ export async function getTeacherById(id: string) {
         },
       },
       phone: true,
+      birthDate: true,
+      nameHanja: true,
+      birthTimeHour: true,
+      birthTimeMinute: true,
       createdAt: true,
       updatedAt: true,
     },
