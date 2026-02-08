@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { verifySession } from '@/lib/dal';
 import {
   getAllLLMConfigs,
+  getLLMConfig,
   saveLLMConfig,
   markLLMConfigValidated,
   getAllFeatureConfigs,
@@ -42,30 +43,29 @@ export async function saveLLMConfigAction(input: {
   return { success: true, config: result };
 }
 
-export async function testProviderAction(provider: ProviderName, apiKey: string) {
+export async function testProviderAction(provider: ProviderName, apiKey?: string) {
   await requireDirector();
 
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/llm/test-provider`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ provider, apiKey }),
-      }
-    );
+    // apiKey가 없으면 DB에 저장된 키를 사용
+    let effectiveApiKey = apiKey;
+    if (!effectiveApiKey && provider !== 'ollama') {
+      const config = await getLLMConfig(provider);
+      effectiveApiKey = config?.apiKey ?? undefined;
+    }
 
-    const result = await response.json();
-    
+    const { testProviderConnection } = await import('@/lib/ai/test-provider');
+    const result = await testProviderConnection(provider, effectiveApiKey);
+
     if (result.valid) {
       await markLLMConfigValidated(provider, true);
     }
-    
+
     return result;
   } catch (error) {
-    return { 
-      valid: false, 
-      error: error instanceof Error ? error.message : 'Unknown error' 
+    return {
+      valid: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
     };
   }
 }

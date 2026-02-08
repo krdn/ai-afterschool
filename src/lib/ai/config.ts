@@ -45,21 +45,35 @@ export async function saveLLMConfig(input: LLMConfigInput) {
   const { provider, apiKey, isEnabled, baseUrl, defaultModel } = input;
   const providerConfig = PROVIDER_CONFIGS[provider];
 
-  const data = {
+  const baseData = {
     provider,
     displayName: providerConfig.displayName,
-    apiKeyEncrypted: apiKey ? encryptApiKey(apiKey) : null,
     isEnabled,
-    isValidated: false,
-    validatedAt: null,
     baseUrl: baseUrl || null,
     defaultModel: defaultModel || providerConfig.defaultModel,
   };
 
+  // apiKey가 있으면 새로 암호화, 없으면 기존 값 유지 (update 시 생략)
+  const createData = {
+    ...baseData,
+    apiKeyEncrypted: apiKey ? encryptApiKey(apiKey) : null,
+    isValidated: false,
+    validatedAt: null,
+  };
+
+  const updateData = {
+    ...baseData,
+    ...(apiKey ? {
+      apiKeyEncrypted: encryptApiKey(apiKey),
+      isValidated: false,
+      validatedAt: null,
+    } : {}),
+  };
+
   return db.lLMConfig.upsert({
     where: { provider },
-    create: data,
-    update: data,
+    create: createData,
+    update: updateData,
   });
 }
 

@@ -56,16 +56,17 @@ interface GenerateResult {
 
 async function setupProviderEnv(provider: ProviderName): Promise<boolean> {
   const config = await getLLMConfig(provider);
-  
-  if (!config || !config.isEnabled) {
-    return false;
-  }
 
+  // Ollama는 내장 제공자 — DB config 없이도 동작
   if (provider === 'ollama') {
-    if (config.baseUrl) {
+    if (config?.baseUrl) {
       process.env.OLLAMA_BASE_URL = config.baseUrl;
     }
     return true;
+  }
+
+  if (!config || !config.isEnabled) {
+    return false;
   }
 
   if (!config.apiKey) {
