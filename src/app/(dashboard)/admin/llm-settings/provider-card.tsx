@@ -1,13 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Loader2, Check, X, Eye, EyeOff } from 'lucide-react';
-import { saveLLMConfigAction, testProviderAction } from '@/lib/actions/llm-settings';
+import { saveLLMConfigAction, testProviderAction, getOllamaModelsAction } from '@/lib/actions/llm-settings';
 import type { ProviderName, ProviderConfig } from '@/lib/ai/providers';
 
 interface ProviderCardProps {
@@ -34,11 +34,14 @@ export function ProviderCard({ provider, config, savedConfig }: ProviderCardProp
   const [isEnabled, setIsEnabled] = useState(savedConfig?.isEnabled ?? false);
   const [apiKey, setApiKey] = useState('');
   const [baseUrl, setBaseUrl] = useState(savedConfig?.baseUrl ?? '');
+  const [defaultModel, setDefaultModel] = useState(savedConfig?.defaultModel ?? config.defaultModel);
   const [showApiKey, setShowApiKey] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
   const [testResult, setTestResult] = useState<{ valid: boolean; error?: string } | null>(null);
   const [isValidated, setIsValidated] = useState(savedConfig?.isValidated ?? false);
+  const [ollamaModels, setOllamaModels] = useState<{ name: string; size: number }[]>([]);
+  const [isLoadingModels, setIsLoadingModels] = useState(false);
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -48,8 +51,9 @@ export function ProviderCard({ provider, config, savedConfig }: ProviderCardProp
         apiKey: apiKey || undefined,
         isEnabled,
         baseUrl: config.name === 'ollama' ? baseUrl : undefined,
+        defaultModel,
       });
-      
+
       if (apiKey) {
         setIsValidated(false);
         setApiKey('');
@@ -58,6 +62,24 @@ export function ProviderCard({ provider, config, savedConfig }: ProviderCardProp
       setIsSaving(false);
     }
   };
+
+  const loadOllamaModels = async () => {
+    setIsLoadingModels(true);
+    try {
+      const models = await getOllamaModelsAction();
+      setOllamaModels(models);
+    } catch (error) {
+      console.error('Failed to load Ollama models:', error);
+    } finally {
+      setIsLoadingModels(false);
+    }
+  };
+
+  useEffect(() => {
+    if (provider === 'ollama') {
+      loadOllamaModels();
+    }
+  }, [provider]);
 
   const handleTest = async () => {
     if (!apiKey && config.requiresApiKey) {
@@ -198,13 +220,56 @@ export function ProviderCard({ provider, config, savedConfig }: ProviderCardProp
         )}
 
         <div className="space-y-2">
-          <Label>기본 모델</Label>
-          <p className="text-sm text-muted-foreground">
-            {savedConfig?.defaultModel || config.defaultModel}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            사용 가능: {config.models.join(', ')}
-          </p>
+          <Label htmlFor={`${provider}-model`}>기본 모델</Label>
+          {provider === 'ollama' ? (
+            <div className="space-y-2">
+              <div className="flex gap-2">
+                <select
+                  id={`${provider}-model`}
+                  value={defaultModel}
+                  onChange={(e) => setDefaultModel(e.target.value)}
+                  disabled={isLoadingModels}
+                  className="flex-1 px-3 py-2 border rounded-md bg-white text-sm disabled:opacity-50"
+                >
+                  {isLoadingModels ? (
+                    <option>모델 불러오는 중...</option>
+                  ) : ollamaModels.length === 0 ? (
+                    <option value={defaultModel}>{defaultModel}</option>
+                  ) : (
+                    ollamaModels.map((m) => (
+                      <option key={m.name} value={m.name}>
+                        {m.name} ({(m.size / 1e9).toFixed(1)}GB)
+                      </option>
+                    ))
+                  )}
+                </select>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={loadOllamaModels}
+                  disabled={isLoadingModels}
+                >
+                  {isLoadingModels ? <Loader2 className="h-4 w-4 animate-spin" /> : '새로고침'}
+                </Button>
+              </div>
+              {ollamaModels.length > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  Ollama 서버에서 {ollamaModels.length}개 모델 로드됨
+                </p>
+              )}
+            </div>
+          ) : (
+            <select
+              id={`${provider}-model`}
+              value={defaultModel}
+              onChange={(e) => setDefaultModel(e.target.value)}
+              className="w-full px-3 py-2 border rounded-md bg-white text-sm"
+            >
+              {config.models.map((m) => (
+                <option key={m} value={m}>{m}</option>
+              ))}
+            </select>
+          )}
         </div>
 
         <Button

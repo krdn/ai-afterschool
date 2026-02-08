@@ -112,3 +112,10 @@ export async function getBudgetSummaryAction() {
   await requireDirector();
   return getBudgetSummary();
 }
+
+export async function getOllamaModelsAction() {
+  await requireDirector();
+  const { getOllamaModels } = await import('@/lib/ai/providers/ollama');
+  const models = await getOllamaModels();
+  return models.map((m) => ({ name: m.name, size: m.size }));
+}

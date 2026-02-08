@@ -5,6 +5,15 @@ export function getOllamaBaseUrl(): string {
   return process.env.OLLAMA_BASE_URL || 'http://192.168.0.5:11434/api';
 }
 
+/**
+ * 모델 목록 조회 등 직접 Ollama API 호출용 URL
+ * OLLAMA_BASE_URL이 프록시(Open WebUI 등)를 가리킬 경우,
+ * OLLAMA_DIRECT_URL로 직접 Ollama 서버에 접근합니다.
+ */
+function getOllamaDirectUrl(): string {
+  return process.env.OLLAMA_DIRECT_URL || 'http://192.168.0.5:11434/api';
+}
+
 export function createOllamaInstance() {
   return createOllama({
     baseURL: getOllamaBaseUrl(),
@@ -19,7 +28,7 @@ interface OllamaConnectionResult {
 }
 
 export async function testOllamaConnection(): Promise<OllamaConnectionResult> {
-  const baseUrl = getOllamaBaseUrl();
+  const baseUrl = getOllamaDirectUrl();
   const startTime = Date.now();
 
   try {
@@ -65,7 +74,7 @@ interface OllamaModel {
 }
 
 export async function getOllamaModels(): Promise<OllamaModel[]> {
-  const baseUrl = getOllamaBaseUrl();
+  const baseUrl = getOllamaDirectUrl();
 
   try {
     const tagsUrl = baseUrl.replace('/api', '/api/tags');
