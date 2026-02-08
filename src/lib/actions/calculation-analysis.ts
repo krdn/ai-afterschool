@@ -24,7 +24,7 @@ import {
   upsertSajuAnalysis,
 } from "@/lib/db/student-analysis"
 import { generateWithProvider, generateWithSpecificProvider } from "@/lib/ai/router"
-import { SAJU_INTERPRETATION_PROMPT } from "@/lib/ai/prompts"
+import { getPromptDefinition, type AnalysisPromptId } from "@/lib/ai/saju-prompts"
 import type { ProviderName } from "@/lib/ai/providers/types"
 
 type AnalysisInput = Prisma.JsonValue
@@ -117,7 +117,7 @@ export async function markRecalculationNeeded(
   revalidatePath(`/students/${studentId}`)
 }
 
-export async function runSajuAnalysis(studentId: string, provider?: string) {
+export async function runSajuAnalysis(studentId: string, provider?: string, promptId?: string) {
   const session = await verifySession()
 
   const where: { id: string; teacherId?: string } = { id: studentId }
@@ -147,11 +147,15 @@ export async function runSajuAnalysis(studentId: string, provider?: string) {
           minute: student.birthTimeMinute ?? 0,
         }
   const timeKnown = Boolean(time)
+  const resolvedPromptId: AnalysisPromptId =
+    (promptId as AnalysisPromptId) || 'default'
+
   const inputSnapshot = {
     birthDate: student.birthDate.toISOString(),
     timeKnown,
     time,
     longitude: 127.0,
+    promptId: resolvedPromptId,
   }
 
   // 사주 계산은 항상 알고리즘
@@ -171,19 +175,21 @@ export async function runSajuAnalysis(studentId: string, provider?: string) {
     interpretation = generateSajuInterpretation(result)
   } else {
     try {
-      const prompt = SAJU_INTERPRETATION_PROMPT(result)
+      const promptDef = getPromptDefinition(resolvedPromptId)
+      const prompt = promptDef.buildPrompt(result)
+      const maxTokens = resolvedPromptId === 'default' ? 2048 : 4096
       const llmResult = provider === 'auto'
         ? await generateWithProvider({
             featureType: 'saju_analysis',
             prompt,
             teacherId: session.userId,
-            maxOutputTokens: 2048,
+            maxOutputTokens: maxTokens,
           })
         : await generateWithSpecificProvider(provider as ProviderName, {
             featureType: 'saju_analysis',
             prompt,
             teacherId: session.userId,
-            maxOutputTokens: 2048,
+            maxOutputTokens: maxTokens,
           })
       interpretation = llmResult.text
       usedProvider = llmResult.provider
