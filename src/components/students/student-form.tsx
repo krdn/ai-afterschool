@@ -63,6 +63,40 @@ export function StudentForm({ student }: StudentFormProps) {
       </div>
 
       <div>
+        <label htmlFor="birthTimeHour" className="block text-sm font-medium">
+          출생 시간 <span className="text-gray-400 font-normal">(선택)</span>
+        </label>
+        <div className="flex items-center gap-2">
+          <select
+            name="birthTimeHour"
+            id="birthTimeHour"
+            defaultValue={student?.birthTimeHour ?? ""}
+            className="border p-2 rounded w-24"
+            data-testid="student-birthtime-hour-select"
+          >
+            <option value="">시</option>
+            {Array.from({ length: 24 }, (_, i) => (
+              <option key={i} value={i}>{String(i).padStart(2, "0")}시</option>
+            ))}
+          </select>
+          <span className="text-gray-500">:</span>
+          <select
+            name="birthTimeMinute"
+            id="birthTimeMinute"
+            defaultValue={student?.birthTimeMinute ?? ""}
+            className="border p-2 rounded w-24"
+            data-testid="student-birthtime-minute-select"
+          >
+            <option value="">분</option>
+            {[0, 10, 20, 30, 40, 50].map((m) => (
+              <option key={m} value={m}>{String(m).padStart(2, "0")}분</option>
+            ))}
+          </select>
+        </div>
+        <p className="text-xs text-gray-400 mt-1">사주 분석 시 시주 계산에 사용됩니다</p>
+      </div>
+
+      <div>
         <label htmlFor="grade" className="block text-sm font-medium">학년</label>
         <select
           name="grade"

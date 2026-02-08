@@ -622,15 +622,15 @@ enum StudentImageType {
 model AuditLog {
   id         String   @id @default(cuid())
   teacherId  String
-  action     String   // CREATE, UPDATE, DELETE 등
-  entityType String   // Team, Teacher, Student, LLMConfig 등
+  action     String // CREATE, UPDATE, DELETE 등
+  entityType String // Team, Teacher, Student, LLMConfig 등
   entityId   String?
-  changes    Json?    // 변경 전후 데이터
+  changes    Json? // 변경 전후 데이터
   ipAddress  String?
   userAgent  String?
   createdAt  DateTime @default(now())
 
-  teacher    Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  teacher Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
 
   @@index([teacherId])
   @@index([entityType, entityId])
@@ -641,9 +641,9 @@ model AuditLog {
 // 시스템 로그: 애플리케이션 로그 기록
 model SystemLog {
   id        String   @id @default(cuid())
-  level     String   // ERROR, WARN, INFO, DEBUG
+  level     String // ERROR, WARN, INFO, DEBUG
   message   String
-  context   Json?    // 추가 컨텍스트 데이터
+  context   Json? // 추가 컨텍스트 데이터
   timestamp DateTime @default(now())
 
   @@index([level])

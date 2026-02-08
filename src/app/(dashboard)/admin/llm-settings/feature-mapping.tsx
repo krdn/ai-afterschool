@@ -25,6 +25,8 @@ const FEATURE_LABELS: Record<FeatureType, string> = {
   face_analysis: '관상 분석',
   palm_analysis: '손금 분석',
   personality_summary: '통합 성향 분석',
+  saju_analysis: '사주 해석',
+  mbti_analysis: 'MBTI 해석',
 };
 
 const VISION_FEATURES: FeatureType[] = ['face_analysis', 'palm_analysis'];

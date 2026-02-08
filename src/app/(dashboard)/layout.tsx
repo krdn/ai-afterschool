@@ -2,6 +2,9 @@ import Link from "next/link"
 import { getCurrentTeacher } from "@/lib/dal"
 import { LogoutButton } from "@/components/auth/logout-button"
 import { NotificationBell } from "@/components/layout/notification-bell"
+import { DevUserSwitcher } from "@/components/dev/dev-user-switcher"
+
+const isDev = process.env.NODE_ENV === "development"
 
 export default async function DashboardLayout({
   children,
@@ -84,6 +87,8 @@ export default async function DashboardLayout({
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {children}
       </main>
+
+      {isDev && <DevUserSwitcher currentUserId={teacher.id} />}
     </div>
   )
 }

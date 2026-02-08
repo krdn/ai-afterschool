@@ -2,10 +2,12 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Brain, Pencil, Edit3, RefreshCw, Loader2, AlertCircle } from "lucide-react"
+import { Brain, Pencil, Edit3, Sparkles, AlertCircle } from "lucide-react"
 import { MbtiResultsDisplay } from "@/components/mbti/results-display"
 import { MbtiDirectInputModal } from "@/components/students/mbti-direct-input-modal"
-import { saveMbtiDirectInput } from "@/lib/actions/mbti-survey"
+import { saveMbtiDirectInput, generateMbtiLLMInterpretation } from "@/lib/actions/mbti-survey"
+import type { ProviderName } from "@/lib/ai/providers/types"
+import { ProviderSelector } from "@/components/students/provider-selector"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 
@@ -19,12 +21,15 @@ type Props = {
   studentId: string
   studentName: string
   analysis: MbtiAnalysis
+  enabledProviders?: ProviderName[]
 }
 
-export function MbtiAnalysisPanel({ studentId, studentName, analysis }: Props) {
+export function MbtiAnalysisPanel({ studentId, studentName, analysis, enabledProviders = [] }: Props) {
   const [showDirectInput, setShowDirectInput] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [selectedProvider, setSelectedProvider] = useState('auto')
   const router = useRouter()
 
   const handleDirectInputSave = async (data: {
@@ -107,18 +112,49 @@ export function MbtiAnalysisPanel({ studentId, studentName, analysis }: Props) {
           </div>
         )}
         {analysis ? (
-          <MbtiResultsDisplay
-            analysis={{
-              mbtiType: analysis.mbtiType,
-              percentages: analysis.percentages as {
-                E: number; I: number
-                S: number; N: number
-                T: number; F: number
-                J: number; P: number
-              },
-              calculatedAt: analysis.calculatedAt
-            }}
-          />
+          <div className="space-y-4">
+            <MbtiResultsDisplay
+              analysis={{
+                mbtiType: analysis.mbtiType,
+                percentages: analysis.percentages as {
+                  E: number; I: number
+                  S: number; N: number
+                  T: number; F: number
+                  J: number; P: number
+                },
+                calculatedAt: analysis.calculatedAt
+              }}
+            />
+            {/* AI 해석 버튼 */}
+            <div className="border-t pt-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+              <ProviderSelector
+                selectedProvider={selectedProvider}
+                onProviderChange={setSelectedProvider}
+                availableProviders={enabledProviders}
+                disabled={isGeneratingAI}
+              />
+              <Button
+                onClick={async () => {
+                  setIsGeneratingAI(true)
+                  setErrorMessage(null)
+                  try {
+                    await generateMbtiLLMInterpretation(studentId, selectedProvider)
+                    router.refresh()
+                  } catch (error) {
+                    setErrorMessage(`AI 해석에 실패했습니다. (원인: ${error instanceof Error ? error.message : '알 수 없는 오류'})`)
+                  } finally {
+                    setIsGeneratingAI(false)
+                  }
+                }}
+                disabled={isGeneratingAI}
+                variant="outline"
+                size="sm"
+              >
+                <Sparkles className="w-4 h-4 mr-1" />
+                {isGeneratingAI ? "AI 해석 중..." : "AI로 해석하기"}
+              </Button>
+            </div>
+          </div>
         ) : (
           <div className="text-center py-8">
             <Brain className="w-12 h-12 text-gray-300 mx-auto mb-3" />

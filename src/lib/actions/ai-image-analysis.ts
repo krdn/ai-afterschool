@@ -2,12 +2,13 @@
 
 import { revalidatePath } from "next/cache"
 import { after } from "next/server"
-import { generateWithVision, FailoverError } from "@/lib/ai/router"
+import { generateWithVision, generateVisionWithSpecificProvider, FailoverError } from "@/lib/ai/router"
 import { FACE_READING_PROMPT, PALM_READING_PROMPT } from "@/lib/ai/prompts"
 import { verifySession } from "@/lib/dal"
 import { db } from "@/lib/db"
 import { upsertFaceAnalysis } from "@/lib/db/face-analysis"
 import { upsertPalmAnalysis } from "@/lib/db/palm-analysis"
+import type { ProviderName } from "@/lib/ai/providers/types"
 
 /**
  * 학생 관상 분석 (통합 LLM 라우터 사용)
@@ -15,7 +16,7 @@ import { upsertPalmAnalysis } from "@/lib/db/palm-analysis"
  * Vision을 지원하는 제공자에서 자동 폴백됩니다.
  * (anthropic, openai, google 순)
  */
-export async function analyzeFaceImage(studentId: string, imageUrl: string) {
+export async function analyzeFaceImage(studentId: string, imageUrl: string, provider?: string) {
   const session = await verifySession()
 
   // 학생 접근 권한 확인
@@ -35,15 +36,19 @@ export async function analyzeFaceImage(studentId: string, imageUrl: string) {
       const imageBuffer = Buffer.from(await imageResponse.arrayBuffer())
       const base64Image = imageBuffer.toString('base64')
 
-      // 통합 라우터를 통한 Vision API 호출 (자동 폴백)
-      const response = await generateWithVision({
-        featureType: 'face_analysis',
+      // Vision API 호출 — provider 분기
+      const visionOptions = {
+        featureType: 'face_analysis' as const,
         teacherId: session.userId,
         imageBase64: base64Image,
-        mimeType: 'image/jpeg',
+        mimeType: 'image/jpeg' as const,
         prompt: FACE_READING_PROMPT,
         maxOutputTokens: 2048,
-      })
+      }
+
+      const response = (provider && provider !== 'auto')
+        ? await generateVisionWithSpecificProvider(provider as ProviderName, visionOptions)
+        : await generateWithVision(visionOptions)
 
       // JSON 응답 파싱
       const result = JSON.parse(response.text)
@@ -105,7 +110,8 @@ export async function analyzeFaceImage(studentId: string, imageUrl: string) {
 export async function analyzePalmImage(
   studentId: string,
   imageUrl: string,
-  hand: 'left' | 'right'
+  hand: 'left' | 'right',
+  provider?: string
 ) {
   const session = await verifySession()
 
@@ -123,15 +129,19 @@ export async function analyzePalmImage(
       const imageBuffer = Buffer.from(await imageResponse.arrayBuffer())
       const base64Image = imageBuffer.toString('base64')
 
-      // 통합 라우터를 통한 Vision API 호출 (자동 폴백)
-      const response = await generateWithVision({
-        featureType: 'palm_analysis',
+      // Vision API 호출 — provider 분기
+      const visionOptions = {
+        featureType: 'palm_analysis' as const,
         teacherId: session.userId,
         imageBase64: base64Image,
-        mimeType: 'image/jpeg',
+        mimeType: 'image/jpeg' as const,
         prompt: PALM_READING_PROMPT,
         maxOutputTokens: 2048,
-      })
+      }
+
+      const response = (provider && provider !== 'auto')
+        ? await generateVisionWithSpecificProvider(provider as ProviderName, visionOptions)
+        : await generateWithVision(visionOptions)
 
       const result = JSON.parse(response.text)
 
