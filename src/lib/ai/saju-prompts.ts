@@ -16,8 +16,8 @@ export type AnalysisPromptId =
   | "learning-dna"
   | "exam-slump"
   | "career-navi"
+  | "subject-strategy"
   | "mental-energy"
-  | "parent-support"
 
 export type AnalysisPromptMeta = {
   id: AnalysisPromptId
@@ -41,7 +41,7 @@ export type StudentInfo = {
 
 export type AnalysisPromptDefinition = {
   meta: AnalysisPromptMeta
-  buildPrompt: (sajuResult: SajuResult, studentInfo?: StudentInfo) => string
+  buildPrompt: (sajuResult: SajuResult, studentInfo?: StudentInfo, additionalRequest?: string) => string
 }
 
 // ---------------------------------------------------------------------------
@@ -100,6 +100,21 @@ ${r.tenGods.hour ? `- 시주 십성: ${r.tenGods.hour}` : ''}`.trim()
 }
 
 // ---------------------------------------------------------------------------
+// 추가 요청사항 결합 헬퍼
+// ---------------------------------------------------------------------------
+
+function appendAdditionalRequest(prompt: string, additionalRequest?: string): string {
+  if (!additionalRequest?.trim()) return prompt
+  return `${prompt}
+
+───────────────────────────────────
+[분석자 추가 요청/특이사항]
+${additionalRequest.trim()}
+───────────────────────────────────
+위 추가 요청사항을 반드시 분석 결과에 반영해주세요.`
+}
+
+// ---------------------------------------------------------------------------
 // 프롬프트 정의
 // ---------------------------------------------------------------------------
 
@@ -115,7 +130,8 @@ const PROMPT_DEFINITIONS: Record<AnalysisPromptId, AnalysisPromptDefinition> = {
       recommendedTiming: "첫 상담, 일반 상담",
       tags: ["종합", "기본"],
     },
-    buildPrompt: (sajuResult, _studentInfo) => SAJU_INTERPRETATION_PROMPT(sajuResult),
+    buildPrompt: (sajuResult, _studentInfo, additionalRequest) =>
+      appendAdditionalRequest(SAJU_INTERPRETATION_PROMPT(sajuResult), additionalRequest),
   },
 
   "learning-dna": {
@@ -129,7 +145,7 @@ const PROMPT_DEFINITIONS: Record<AnalysisPromptId, AnalysisPromptDefinition> = {
       recommendedTiming: "학기 초, 새 학년 시작 전, 학습 방법을 바꾸고 싶을 때",
       tags: ["학습", "체질", "공부법", "시간대", "환경"],
     },
-    buildPrompt: (sajuResult, studentInfo) => `
+    buildPrompt: (sajuResult, studentInfo, additionalRequest) => appendAdditionalRequest(`
 역할:
 당신은 사주명리학 30년 경력의 학업 전문 상담사이며,
 한국 중·고등학교 교육과정과 학습심리학에 정통합니다.
@@ -196,7 +212,7 @@ ${formatSajuData(sajuResult)}
 • 마지막에 학생에게 보내는 짧은 응원 메시지를 포함합니다.
 • 마크다운 형식으로 작성합니다.
 ───────────────────────────────────
-`.trim(),
+`.trim(), additionalRequest),
   },
 
   "exam-slump": {
@@ -210,7 +226,7 @@ ${formatSajuData(sajuResult)}
       recommendedTiming: "성적 하락기, 시험 전 불안감 심할 때, 공부 의욕 상실 시",
       tags: ["시험", "슬럼프", "성적", "불안", "탈출"],
     },
-    buildPrompt: (sajuResult, studentInfo) => `
+    buildPrompt: (sajuResult, studentInfo, additionalRequest) => appendAdditionalRequest(`
 역할:
 당신은 사주명리학 전문가이자 청소년 학습심리 코칭 전문가입니다.
 학생이 현재 겪는 학업 고민의 근본 원인을 사주 관점에서 읽어내고,
@@ -280,7 +296,7 @@ ${formatSajuData(sajuResult)}
   꾸준한 노력에 의해 이루어진다는 점을 서두와 말미에 명시합니다.
 • 마크다운 형식으로 작성합니다.
 ───────────────────────────────────
-`.trim(),
+`.trim(), additionalRequest),
   },
 
   "career-navi": {
@@ -294,7 +310,7 @@ ${formatSajuData(sajuResult)}
       recommendedTiming: "문이과 선택기, 고교 진학 전, 수시/정시 전략 수립기",
       tags: ["진로", "학과", "입시", "적성", "로드맵"],
     },
-    buildPrompt: (sajuResult, studentInfo) => `
+    buildPrompt: (sajuResult, studentInfo, additionalRequest) => appendAdditionalRequest(`
 역할:
 당신은 사주명리학 기반 진로 적성 분석 전문가이며,
 한국 입시 제도(수시·정시·학생부종합·특기자 등)에 정통한
@@ -372,7 +388,7 @@ ${formatSajuData(sajuResult)}
   메시지를 반드시 포함합니다.
 • 마크다운 형식으로 작성합니다.
 ───────────────────────────────────
-`.trim(),
+`.trim(), additionalRequest),
   },
 
   "mental-energy": {
@@ -386,7 +402,7 @@ ${formatSajuData(sajuResult)}
       recommendedTiming: "번아웃, 시험 불안 심화, 자신감 상실, 비교 스트레스 시",
       tags: ["멘탈", "자기효능감", "불안", "무기력", "자존감"],
     },
-    buildPrompt: (sajuResult, studentInfo) => `
+    buildPrompt: (sajuResult, studentInfo, additionalRequest) => appendAdditionalRequest(`
 역할:
 당신은 사주명리학과 청소년 긍정심리학을 융합한 멘탈 코칭 전문가입니다.
 사주를 통해 학생의 감정 구조와 스트레스 반응 패턴을 읽어내고,
@@ -460,113 +476,92 @@ ${formatSajuData(sajuResult)}
   난이도를 낮추고, 작은 성공 경험을 쌓도록 유도합니다.
 • 마크다운 형식으로 작성합니다.
 ───────────────────────────────────
-`.trim(),
+`.trim(), additionalRequest),
   },
 
-  "parent-support": {
+  "subject-strategy": {
     meta: {
-      id: "parent-support",
-      name: "부모-자녀 학업 궁합 & 맞춤 서포트 전략서",
-      shortDescription: "부모와 자녀의 사주 궁합 분석으로 학업 갈등 원인을 밝히고 최적의 지원 방식 설계",
-      target: "부모 (자녀 학업 지원 방법을 알고 싶은 학부모)",
+      id: "subject-strategy",
+      name: "과목별 오행 공략 지도 & 성적 향상 설계",
+      shortDescription: "오행과 교과목을 매핑하여 과목별 체감 난이도의 사주적 원인을 밝히고 맞춤 공략법 제시",
+      target: "특정 과목에 어려움을 겪거나 전략적 성적 관리가 필요한 학생",
       levels: "★★★★☆ (중급~심화)",
-      purpose: "부모와 자녀의 사주 궁합을 분석하여 학업 관련 갈등의 원인을 밝히고, 자녀의 사주 특성에 맞는 최적의 양육·지원 방식을 설계한다",
-      recommendedTiming: "부모-자녀 학업 갈등 시, 양육 방식 전환 필요 시, 입시 동반 전략 수립 시",
-      tags: ["부모", "자녀", "궁합", "양육", "소통", "갈등"],
+      purpose: "오행과 교과목을 매핑하여 과목별 체감 난이도의 사주적 원인을 밝히고, 강점 과목 극대화 + 약점 과목 공략법을 제시한다",
+      recommendedTiming: "내신 전략 수립, 선택과목 결정, 약점 과목 집중 보완 시",
+      tags: ["과목", "오행", "성적", "내신", "시간표"],
     },
-    buildPrompt: (sajuResult, studentInfo) => `
+    buildPrompt: (sajuResult, studentInfo, additionalRequest) => appendAdditionalRequest(`
 역할:
-당신은 가족 관계 전문 사주 상담사이자 교육 코칭 전문가입니다.
-부모와 자녀의 사주를 함께 분석하여,
-"왜 우리 아이와 학업 이야기만 하면 부딪히는지"를 사주 관점에서 설명하고,
-부모가 자녀의 타고난 기질에 맞게 학업을 지원할 수 있도록
-구체적인 소통법과 서포트 전략을 제시하는 것이 목표입니다.
+당신은 사주명리학 기반 학습 전략 설계 전문가이며,
+한국 중·고등학교 교과 체계와 대학 입시 구조에 정통합니다.
+제공된 사주 원국을 분석하여 각 교과목과 오행의 연결 관계를 밝히고,
+학생이 자신의 강점을 최대화하면서 약점을 전략적으로 보완할 수 있도록
+과목별 맞춤 학습 전략을 설계합니다.
 
-[자녀 정보]
+[학생 정보]
 ─────────────────
 ${formatStudentInfo(studentInfo)}
 ─────────────────
 
-[자녀 사주 데이터]
+[학생 사주 데이터]
 ─────────────────
 ${formatSajuData(sajuResult)}
 ─────────────────
 
-분석 요청 항목:
+분석 항목:
 
-1. 부모-자녀 사주 원국 비교 분석
-   ─ 자녀 사주 도표 + 부모 사주 도표 병렬 배치
-   ─ 각각의 일간(日干) 오행 확인
-   ─ 오행 상생·상극 관계 매핑:
-     • 상생(相生) 지점: 자연스럽게 통하는 영역
-     • 상극(相剋) 지점: 의도치 않게 충돌하는 영역
-   ─ 부모의 오행이 자녀에게 "힘이 되는 에너지"인지
-     "압박이 되는 에너지"인지 판단
+1. 오행 × 교과목 친화도 매핑
+   ─ 아래 프레임워크에 학생의 오행 분포를 대입하여
+     과목별 체감 난이도를 예측합니다:
 
-2. 자녀 일간별 최적 양육·학업 지도법
-   ─ 자녀의 일간 유형에 맞춘 커뮤니케이션 가이드:
+     목(木) 기운 → 국어·문학·제2외국어 (언어 확장, 성장)
+     화(火) 기운 → 예체능·발표·토론·사회탐구 (표현, 열정)
+     토(土) 기운 → 한국사·윤리·통합사회·생명과학 (종합, 안정)
+     금(金) 기운 → 수학·물리·코딩·기술가정 (논리, 정밀, 구조)
+     수(水) 기운 → 영어·과학탐구·탐구실험·정보 (유연, 탐색, 흡수)
 
-   • 갑(甲)목 자녀: 큰 나무형
-     → 자율성 존중 | "네가 계획 세워봐" | 지시 ✕ 제안 ○
-   • 을(乙)목 자녀: 덩굴형
-     → 정서적 지지 우선 | 함께 앉아주기 | 비교 절대 금지
-   • 병(丙)화 자녀: 태양형
-     → 즉각적 칭찬 | 인정·관심 표현 | 무관심이 최대 적
-   • 정(丁)화 자녀: 촛불형
-     → 조용한 격려 | 1:1 대화 | 큰 소리 ✕
-   • 무(戊)토 자녀: 산형
-     → 일관된 규칙 | 천천히 기다려주기 | 급하게 재촉 ✕
-   • 기(己)토 자녀: 텃밭형
-     → 구체적 가이드 제공 | 작은 성공 경험 쌓기 | 방치 ✕
-   • 경(庚)금 자녀: 바위형
-     → 명확한 목표 제시 | 보상 시스템 | 감정적 호소 ✕
-   • 신(辛)금 자녀: 보석형
-     → 섬세한 피드백 | 미적 환경 | 거친 표현 ✕
-   • 임(壬)수 자녀: 강물형
-     → 자유도 높은 환경 | 다양한 경험 | 틀에 가두기 ✕
-   • 계(癸)수 자녀: 이슬형
-     → 감성적 교감 | 안전한 환경 | 큰 변화 갑작스럽게 ✕
+   ─ 학생 사주의 강한 오행 2개 → 자연스럽게 잘하는 과목군
+   ─ 학생 사주의 약한 오행 → 체감 난이도가 높은 과목군
+   ─ 학생이 보고한 강점/약점 과목과 사주 분석의 일치도 확인
 
-   ─ 해당 일간의 상세 분석 + "이렇게 말해보세요" 예시 대화문
+2. 약점 과목의 사주적 원인 심층 분석
+   ─ 부족한 오행이 해당 과목과 직접 연결되는지 확인
+   ─ 상극 관계로 인한 심리적 거부감 여부
+   ─ "싫어서 못하는 것" vs "접근법이 맞지 않아서 힘든 것" 구분
+   ─ 세운·대운에서 해당 오행이 일시적으로 약해진 것인지
+     원국 차원에서 구조적으로 약한 것인지 판단
 
-3. 갈등 원인의 사주적 해석
-   ─ 부모와 자녀의 오행 충돌 지점 구체적 진단
-     예: 부모가 경(庚)금 → 자녀가 갑(甲)목인 경우
-         "금극목(金剋木): 부모의 단호한 지시가
-          자녀에게는 '나를 잘라내려 한다'로 느껴질 수 있습니다"
-   ─ 갈등을 중재하는 '통관(通關) 오행' 찾기
-     (부모와 자녀 사이에 다리 역할을 하는 에너지)
-   ─ 통관 오행을 일상에서 활용하는 구체적 방법
+3. 과목별 맞춤 공략법
+   ─ 강점 과목: 1등급/만점으로 끌어올리는 사주 에너지 활용법
+   ─ 약점 과목: 오행 보완을 통한 거부감 해소 전략
+     예: 수(水) 부족으로 영어가 약하면 →
+         물 기운 보강: 파란색 필기구 사용, 저녁 시간대 학습,
+         음악 들으며 공부, 유연한 학습 방식(다양한 교재 로테이션)
+   ─ 각 약점 과목당 구체적 행동 지침 3가지
 
-4. 부모의 최적 서포트 역할 정의
-   ─ 사주 궁합에 따른 양육 스타일 추천:
-     • 관리형 (스케줄·학원 관리에 적합한 궁합)
-     • 멘토형 (방향 제시·대화에 적합한 궁합)
-     • 응원형 (정서적 지지·환경 조성에 적합한 궁합)
-     • 위임형 (전문가에 맡기고 뒤에서 지원하는 궁합)
-   ─ 부모가 하면 효과적인 행동 TOP 3
-   ─ 부모가 피해야 할 행동 TOP 3
-   ─ 학원·과외 선택 시 자녀 사주에 맞는 기준
+4. 하루 시간표 설계 (오행 시간대 기반)
+   ─ 12지지 시간대별 에너지 특성과 학생 사주의 궁합 분석
+   ─ 과목별 최적 학습 시간 배치표 제안
+   ─ 과목 전환 시 뇌 리셋을 위한 오행 전환 팁
+     (예: 수학→국어 전환 시 금→목 전환 = 잠깐 스트레칭)
 
-5. 가정 내 학업 환경 최적화
-   ─ 부모-자녀 오행 궁합 기반 학업 대화 시간대 추천
-   ─ 갈등이 고조될 때 "쿨다운 프로토콜" (30초/3분/10분)
-   ─ 부모 자신의 스트레스 관리 오행 처방 (부모도 지친다)
-   ─ 가족 전체 오행 밸런스를 위한 주말 활동 제안
+5. 시험 주간 전략
+   ─ 시험 2주 전: 과목별 우선순위 배치 (투자 대비 효율 기준)
+   ─ 시험 1주 전: 오행 밸런스 생활 루틴
+   ─ 시험 당일: 과목 순서별 에너지 전환 팁
+   ─ 시험 사이 쉬는 시간 활용법
 
 ───────────────────────────────────
 [톤 & 주의사항]
-• 부모의 양육 방식을 판단하거나 비난하지 않습니다.
-  "지금까지 잘못했다"가 아닌 "더 효과적인 방법이 있다"로 접근합니다.
-• 부모의 헌신과 걱정을 충분히 인정한 후 대안을 제시합니다.
-• 자녀의 자율성과 부모의 역할 모두 존중하는 균형 잡힌 시각을 유지합니다.
-• "사주 궁합이 안 좋다"는 표현 대신
-  "서로 다른 에너지를 가지고 있어 조율이 필요하다"로 표현합니다.
-• 부모가 읽고 바로 오늘 저녁부터 실천할 수 있는 수준의
-  구체적 행동 지침을 제공합니다.
+• "이 과목은 안 맞는다"가 아닌
+  "다른 접근법이 필요한 과목"으로 표현합니다.
+• 어떤 과목도 포기하지 않도록 동기를 부여하되,
+  전략적 시간 배분의 현실성도 함께 제시합니다.
+• 구체적인 행동으로 연결되지 않는 추상적 조언은 하지 않습니다.
+• 과목별 전략은 실제 학교 수업·시험 상황에 적용 가능해야 합니다.
 • 마크다운 형식으로 작성합니다.
 ───────────────────────────────────
-`.trim(),
+`.trim(), additionalRequest),
   },
 }
 
@@ -582,6 +577,22 @@ export function getPromptOptions(): AnalysisPromptMeta[] {
 /** ID로 프롬프트 정의 조회 */
 export function getPromptDefinition(id: AnalysisPromptId): AnalysisPromptDefinition {
   return PROMPT_DEFINITIONS[id] ?? PROMPT_DEFINITIONS.default
+}
+
+/**
+ * DB 프리셋 템플릿으로부터 프롬프트를 빌드합니다.
+ * 템플릿 내 {학생정보}, {사주데이터} 플레이스홀더를 실제 값으로 치환합니다.
+ */
+export function buildPromptFromTemplate(
+  template: string,
+  sajuResult: SajuResult,
+  studentInfo?: StudentInfo,
+  additionalRequest?: string,
+): string {
+  const filled = template
+    .replaceAll("{학생정보}", formatStudentInfo(studentInfo))
+    .replaceAll("{사주데이터}", formatSajuData(sajuResult))
+  return appendAdditionalRequest(filled.trim(), additionalRequest)
 }
 
 /** 프롬프트 미리보기 텍스트 (샘플 사주 데이터 적용) */

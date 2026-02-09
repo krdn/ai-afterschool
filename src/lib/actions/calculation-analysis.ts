@@ -18,13 +18,15 @@ import {
 } from "@/lib/analysis/hanja-strokes"
 import {
   clearStudentRecalculationNeeded,
+  createSajuHistory,
   getStudentCalculationStatus,
   markStudentRecalculationNeeded,
   upsertNameAnalysis,
   upsertSajuAnalysis,
 } from "@/lib/db/student-analysis"
 import { generateWithProvider, generateWithSpecificProvider } from "@/lib/ai/router"
-import { getPromptDefinition, type AnalysisPromptId, type StudentInfo } from "@/lib/ai/saju-prompts"
+import { getPromptDefinition, buildPromptFromTemplate, type AnalysisPromptId, type StudentInfo } from "@/lib/ai/saju-prompts"
+import { getPresetByKey } from "@/lib/db/saju-prompt-preset"
 import type { ProviderName } from "@/lib/ai/providers/types"
 
 type AnalysisInput = Prisma.JsonValue
@@ -117,7 +119,7 @@ export async function markRecalculationNeeded(
   revalidatePath(`/students/${studentId}`)
 }
 
-export async function runSajuAnalysis(studentId: string, provider?: string, promptId?: string) {
+export async function runSajuAnalysis(studentId: string, provider?: string, promptId?: string, additionalRequest?: string) {
   const session = await verifySession()
 
   const where: { id: string; teacherId?: string } = { id: studentId }
@@ -150,8 +152,7 @@ export async function runSajuAnalysis(studentId: string, provider?: string, prom
           minute: student.birthTimeMinute ?? 0,
         }
   const timeKnown = Boolean(time)
-  const resolvedPromptId: AnalysisPromptId =
-    (promptId as AnalysisPromptId) || 'default'
+  const resolvedPromptId = promptId || 'default'
 
   const inputSnapshot = {
     birthDate: student.birthDate.toISOString(),
@@ -178,7 +179,6 @@ export async function runSajuAnalysis(studentId: string, provider?: string, prom
     interpretation = generateSajuInterpretation(result)
   } else {
     try {
-      const promptDef = getPromptDefinition(resolvedPromptId)
       const birthDateStr = student.birthDate.toISOString().split('T')[0]
       const birthTimeStr = student.birthTimeHour !== null
         ? `${String(student.birthTimeHour).padStart(2, '0')}:${String(student.birthTimeMinute ?? 0).padStart(2, '0')}`
@@ -190,7 +190,16 @@ export async function runSajuAnalysis(studentId: string, provider?: string, prom
         school: student.school,
         targetMajor: student.targetMajor ?? undefined,
       }
-      const prompt = promptDef.buildPrompt(result, studentInfoForPrompt)
+
+      // DB 프리셋 우선, 없으면 코드 기본값 사용
+      const dbPreset = await getPresetByKey(resolvedPromptId)
+      let prompt: string
+      if (dbPreset?.isActive && dbPreset.promptTemplate) {
+        prompt = buildPromptFromTemplate(dbPreset.promptTemplate, result, studentInfoForPrompt, additionalRequest)
+      } else {
+        const promptDef = getPromptDefinition(resolvedPromptId as AnalysisPromptId)
+        prompt = promptDef.buildPrompt(result, studentInfoForPrompt, additionalRequest)
+      }
       const maxTokens = resolvedPromptId === 'default' ? 2048 : 4096
       const llmResult = provider === 'auto'
         ? await generateWithProvider({
@@ -218,6 +227,17 @@ export async function runSajuAnalysis(studentId: string, provider?: string, prom
   }
 
   await saveSajuAnalysis(studentId, inputSnapshot, result, interpretation)
+
+  // 이력 테이블에 저장
+  await createSajuHistory({
+    studentId,
+    promptId: resolvedPromptId,
+    additionalRequest: additionalRequest || null,
+    result: result as Prisma.InputJsonValue,
+    interpretation,
+    usedProvider,
+    usedModel: usedModel ?? null,
+  })
 
   return {
     result,

@@ -25,6 +25,10 @@ import { LogsTab } from '@/components/admin/tabs/logs-tab'
 import { DatabaseTab } from '@/components/admin/tabs/database-tab'
 import { AuditTab } from '@/components/admin/tabs/audit-tab'
 
+// 사주 프롬프트 관리
+import { SajuPromptsTab } from '@/components/admin/tabs/saju-prompts-tab'
+import { getAllPresets } from '@/lib/db/saju-prompt-preset'
+
 export const metadata = {
   title: '관리자 | AI AfterSchool',
   description: '시스템 관리 대시보드',
@@ -154,6 +158,7 @@ export default async function AdminPage() {
     dailyUsageData,
     providerUsageData,
     featureUsageData,
+    sajuPromptPresets,
   ] = await Promise.all([
     getAllLLMConfigs(),
     getAllFeatureConfigs(),
@@ -165,6 +170,7 @@ export default async function AdminPage() {
     getDailyUsageData(),
     getProviderUsageData(),
     getFeatureUsageData(),
+    getAllPresets(),
   ])
 
   const enabledProviders = llmConfigs
@@ -304,6 +310,11 @@ export default async function AdminPage() {
             featureData={featureUsageData}
           />
           <CostAlerts initialData={usageSummary} />
+        </AdminTabsContent>
+
+        {/* 사주 프롬프트 관리 탭 */}
+        <AdminTabsContent value="saju-prompts">
+          <SajuPromptsTab initialPresets={sajuPromptPresets} />
         </AdminTabsContent>
 
         {/* 시스템 상태 탭 */}

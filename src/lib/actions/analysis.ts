@@ -111,7 +111,29 @@ export async function getAnalysisHistory(
         let historyItem = null
 
         switch (type) {
-            case 'saju':
+            case 'saju': {
+                const sajuHistoryList = await prisma.sajuAnalysisHistory.findMany({
+                    where: { studentId },
+                    orderBy: { createdAt: 'desc' },
+                    take: 50,
+                })
+                if (sajuHistoryList.length > 0) {
+                    return {
+                        success: true,
+                        history: sajuHistoryList.map((h) => ({
+                            id: h.id,
+                            calculatedAt: h.calculatedAt,
+                            summary: `${h.promptId !== 'default' ? `[${h.promptId}] ` : ''}${h.usedProvider}${h.additionalRequest ? ' +추가요청' : ''} - ${h.interpretation?.slice(0, 50) || '사주 분석'}...`,
+                            result: h.result,
+                            interpretation: h.interpretation,
+                            promptId: h.promptId,
+                            additionalRequest: h.additionalRequest,
+                            usedProvider: h.usedProvider,
+                            usedModel: h.usedModel,
+                        })),
+                    }
+                }
+                // 이력 테이블에 없으면 기존 SajuAnalysis에서 폴백
                 const sajuAnalysis = await prisma.sajuAnalysis.findUnique({
                     where: { studentId }
                 })
@@ -125,6 +147,7 @@ export async function getAnalysisHistory(
                     }
                 }
                 break
+            }
             case 'face':
                 const faceAnalysis = await prisma.faceAnalysis.findUnique({
                     where: { studentId }
