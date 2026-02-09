@@ -24,7 +24,7 @@ import {
   upsertSajuAnalysis,
 } from "@/lib/db/student-analysis"
 import { generateWithProvider, generateWithSpecificProvider } from "@/lib/ai/router"
-import { getPromptDefinition, type AnalysisPromptId } from "@/lib/ai/saju-prompts"
+import { getPromptDefinition, type AnalysisPromptId, type StudentInfo } from "@/lib/ai/saju-prompts"
 import type { ProviderName } from "@/lib/ai/providers/types"
 
 type AnalysisInput = Prisma.JsonValue
@@ -132,6 +132,9 @@ export async function runSajuAnalysis(studentId: string, provider?: string, prom
       birthDate: true,
       birthTimeHour: true,
       birthTimeMinute: true,
+      grade: true,
+      school: true,
+      targetMajor: true,
     },
   })
 
@@ -176,7 +179,18 @@ export async function runSajuAnalysis(studentId: string, provider?: string, prom
   } else {
     try {
       const promptDef = getPromptDefinition(resolvedPromptId)
-      const prompt = promptDef.buildPrompt(result)
+      const birthDateStr = student.birthDate.toISOString().split('T')[0]
+      const birthTimeStr = student.birthTimeHour !== null
+        ? `${String(student.birthTimeHour).padStart(2, '0')}:${String(student.birthTimeMinute ?? 0).padStart(2, '0')}`
+        : '미상'
+      const studentInfoForPrompt: StudentInfo = {
+        birthDate: birthDateStr,
+        birthTime: birthTimeStr,
+        grade: student.grade,
+        school: student.school,
+        targetMajor: student.targetMajor ?? undefined,
+      }
+      const prompt = promptDef.buildPrompt(result, studentInfoForPrompt)
       const maxTokens = resolvedPromptId === 'default' ? 2048 : 4096
       const llmResult = provider === 'auto'
         ? await generateWithProvider({
