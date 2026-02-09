@@ -57,21 +57,13 @@ export default async function DashboardLayout({
                     </Link>
                   </>
                 )}
-                {teacher.role === "DIRECTOR" && (
-                  <>
-                    <Link
-                      href="/admin/llm-settings"
-                      className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                    >
-                      LLM 설정
-                    </Link>
-                    <Link
-                      href="/admin/llm-usage"
-                      className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                    >
-                      사용량
-                    </Link>
-                  </>
+                {(teacher.role === "DIRECTOR" || teacher.role === "TEAM_LEADER") && (
+                  <Link
+                    href="/admin"
+                    className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                  >
+                    관리자 도구
+                  </Link>
                 )}
               </nav>
             </div>

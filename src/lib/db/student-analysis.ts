@@ -137,6 +137,59 @@ export async function markStudentRecalculationNeeded(
   }
 }
 
+// ---------------------------------------------------------------------------
+// 사주 분석 이력
+// ---------------------------------------------------------------------------
+
+export type SajuHistoryPayload = {
+  studentId: string
+  promptId: string
+  additionalRequest?: string | null
+  result: Prisma.InputJsonValue
+  interpretation?: string | null
+  usedProvider: string
+  usedModel?: string | null
+  calculatedAt?: Date
+}
+
+export async function createSajuHistory(payload: SajuHistoryPayload) {
+  return db.sajuAnalysisHistory.create({
+    data: {
+      studentId: payload.studentId,
+      promptId: payload.promptId,
+      additionalRequest: payload.additionalRequest ?? null,
+      result: payload.result,
+      interpretation: payload.interpretation ?? null,
+      usedProvider: payload.usedProvider,
+      usedModel: payload.usedModel ?? null,
+      calculatedAt: payload.calculatedAt ?? new Date(),
+    },
+  })
+}
+
+export async function getSajuHistoryList(studentId: string) {
+  return db.sajuAnalysisHistory.findMany({
+    where: { studentId },
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      promptId: true,
+      additionalRequest: true,
+      usedProvider: true,
+      usedModel: true,
+      calculatedAt: true,
+      createdAt: true,
+      interpretation: true,
+    },
+  })
+}
+
+export async function getSajuHistoryDetail(historyId: string) {
+  return db.sajuAnalysisHistory.findUnique({
+    where: { id: historyId },
+  })
+}
+
 export async function clearStudentRecalculationNeeded(
   studentId: string,
   teacherId: string | null

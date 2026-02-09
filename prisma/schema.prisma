@@ -114,6 +114,22 @@ model SajuAnalysis {
   student        Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
 }
 
+model SajuAnalysisHistory {
+  id                String   @id @default(cuid())
+  studentId         String
+  promptId          String   @default("default")
+  additionalRequest String?
+  result            Json
+  interpretation    String?
+  usedProvider      String   @default("내장 알고리즘")
+  usedModel         String?
+  calculatedAt      DateTime
+  createdAt         DateTime @default(now())
+
+  @@index([studentId])
+  @@index([studentId, createdAt(sort: Desc)])
+}
+
 model NameAnalysis {
   id             String   @id @default(cuid())
   studentId      String   @unique
@@ -616,6 +632,28 @@ enum StudentImageType {
   profile
   face
   palm
+}
+
+// 사주 분석 프롬프트 프리셋 (관리자 커스텀)
+model SajuPromptPreset {
+  id                 String   @id @default(cuid())
+  promptKey          String   @unique // 프롬프트 식별자 (예: "learning-dna", "custom-1")
+  name               String   // 표시 이름
+  shortDescription   String   // 짧은 설명
+  target             String   // 상담 대상
+  levels             String   @default("★★★☆☆") // 분석 깊이
+  purpose            String   // 핵심 목적
+  recommendedTiming  String   // 추천 시기
+  tags               Json     @default("[]") // 태그 배열
+  promptTemplate     String   // 프롬프트 본문 템플릿
+  isBuiltIn          Boolean  @default(false) // 기본 내장 프롬프트 여부
+  isActive           Boolean  @default(true) // 활성 상태
+  sortOrder          Int      @default(0) // 정렬 순서
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([isActive])
+  @@index([sortOrder])
 }
 
 // 감사 로그: 설정 변경 이력 추적

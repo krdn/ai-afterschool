@@ -3,16 +3,18 @@
 import { useState, useTransition } from "react"
 import { format } from "date-fns"
 import { ko } from "date-fns/locale"
-import { Loader2, RefreshCw } from "lucide-react"
+import { Loader2, RefreshCw, History } from "lucide-react"
 import { runSajuAnalysisAction } from "../../app/(dashboard)/students/[id]/saju/actions"
 import type { SajuResult } from "@/lib/analysis/saju"
 import type { ProviderName } from "@/lib/ai/providers/types"
-import type { AnalysisPromptId } from "@/lib/ai/saju-prompts"
-import { getPromptOptions } from "@/lib/ai/saju-prompts"
+import { getPromptOptions, type AnalysisPromptMeta } from "@/lib/ai/saju-prompts"
 import { ProviderSelector } from "@/components/students/provider-selector"
 import { PromptSelector } from "@/components/students/prompt-selector"
+import { SajuHelpDialog } from "@/components/students/saju-help-dialog"
+import { SajuHistoryPanel } from "@/components/students/saju-history-panel"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Textarea } from "@/components/ui/textarea"
 
 type SajuAnalysisPanelProps = {
   student: {
@@ -36,16 +38,12 @@ function toDate(value: Date | string) {
 }
 
 const HANJA_MAP: Record<string, string> = {
-  // 천간
   갑: "甲", 을: "乙", 병: "丙", 정: "丁", 무: "戊",
   기: "己", 경: "庚", 신: "辛", 임: "壬", 계: "癸",
-  // 지지
   자: "子", 축: "丑", 인: "寅", 묘: "卯", 진: "辰", 사: "巳",
   오: "午", 미: "未", 유: "酉", 술: "戌", 해: "亥",
-  // 지지 '신'은 천간과 겹치므로 별도 처리 불필요 (context로 구분)
 }
 
-// 지지 전용 한자 (천간 '신(辛)'과 지지 '신(申)' 구분)
 const BRANCH_HANJA: Record<string, string> = {
   자: "子", 축: "丑", 인: "寅", 묘: "卯", 진: "辰", 사: "巳",
   오: "午", 미: "未", 신: "申", 유: "酉", 술: "戌", 해: "亥",
@@ -69,11 +67,14 @@ export function SajuAnalysisPanel({ student, analysis, enabledProviders = [], on
   const [isPending, startTransition] = useTransition()
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [selectedProvider, setSelectedProvider] = useState('built-in')
-  const [selectedPromptId, setSelectedPromptId] = useState<AnalysisPromptId>('default')
+  const [selectedPromptId, setSelectedPromptId] = useState<string>('default')
+  const [additionalRequest, setAdditionalRequest] = useState('')
   const [providerLabel, setProviderLabel] = useState<string | null>(null)
   const [promptLabel, setPromptLabel] = useState<string | null>(null)
+  const [showHistory, setShowHistory] = useState(false)
   const promptOptions = getPromptOptions()
   const result = analysis?.result as SajuResult | undefined
+  const isLLM = selectedProvider !== 'built-in'
 
   const handleRunAnalysis = () => {
     startTransition(async () => {
@@ -81,8 +82,9 @@ export function SajuAnalysisPanel({ student, analysis, enabledProviders = [], on
       setProviderLabel(null)
       setPromptLabel(null)
       try {
-        const promptId = selectedProvider === 'built-in' ? 'default' : selectedPromptId
-        const res = await runSajuAnalysisAction(student.id, selectedProvider, promptId)
+        const promptId = isLLM ? selectedPromptId : 'default'
+        const extra = isLLM ? additionalRequest.trim() || undefined : undefined
+        const res = await runSajuAnalysisAction(student.id, selectedProvider, promptId, extra)
         if (res.llmFailed) {
           setErrorMessage(`내장 알고리즘으로 대체 해석했습니다. ${res.llmError || 'LLM 설정을 확인해주세요.'}`)
           setProviderLabel('내장 알고리즘')
@@ -90,7 +92,6 @@ export function SajuAnalysisPanel({ student, analysis, enabledProviders = [], on
           const model = res.usedModel && res.usedModel !== 'default' ? ` (${res.usedModel})` : ''
           setProviderLabel(`${res.usedProvider}${model}`)
         }
-        // 사용된 프롬프트명 표시 (기본 해석이 아닌 경우만)
         if (promptId !== 'default') {
           const meta = promptOptions.find((p) => p.id === promptId)
           if (meta) setPromptLabel(meta.name)
@@ -110,17 +111,36 @@ export function SajuAnalysisPanel({ student, analysis, enabledProviders = [], on
   return (
     <Card data-testid="saju-tab">
       <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <CardTitle>사주 분석</CardTitle>
-        <div className="text-xs text-gray-500">
-          {calculatedAt
-            ? `최근 계산: ${format(calculatedAt, "yyyy.MM.dd HH:mm", {
-                locale: ko,
-              })}`
-            : "아직 분석되지 않았어요."}
+        <div className="flex items-center gap-2">
+          <CardTitle>사주 분석</CardTitle>
+          <SajuHelpDialog />
+        </div>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1"
+            onClick={() => setShowHistory(!showHistory)}
+          >
+            <History className="h-4 w-4" />
+            이력
+          </Button>
+          <div className="text-xs text-gray-500">
+            {calculatedAt
+              ? `최근 계산: ${format(calculatedAt, "yyyy.MM.dd HH:mm", {
+                  locale: ko,
+                })}`
+              : "아직 분석되지 않았어요."}
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="space-y-2">
+        {/* 이력 패널 */}
+        {showHistory && (
+          <SajuHistoryPanel studentId={student.id} />
+        )}
+
+        <div className="space-y-3">
           <h3 className="text-sm font-semibold text-gray-600">1. 기본 정보</h3>
           <div className="rounded-md bg-gray-50 p-4 text-sm text-gray-700">
             <p>학생: {student.name}</p>
@@ -134,31 +154,67 @@ export function SajuAnalysisPanel({ student, analysis, enabledProviders = [], on
               {student.birthTimeHour === null ? " (시주 계산 제외)" : ""}
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 flex-wrap">
-            <ProviderSelector
-              selectedProvider={selectedProvider}
-              onProviderChange={setSelectedProvider}
-              availableProviders={enabledProviders}
-              showBuiltIn
-              disabled={isPending}
-            />
-            {selectedProvider !== 'built-in' && (
-              <PromptSelector
-                selectedPromptId={selectedPromptId}
-                onPromptChange={setSelectedPromptId}
-                promptOptions={promptOptions}
+
+          {/* 분석 설정 영역 */}
+          <div className="rounded-md border border-gray-200 p-4 space-y-3">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 flex-wrap">
+              <ProviderSelector
+                selectedProvider={selectedProvider}
+                onProviderChange={setSelectedProvider}
+                availableProviders={enabledProviders}
+                showBuiltIn
                 disabled={isPending}
               />
+              {isLLM && (
+                <PromptSelector
+                  selectedPromptId={selectedPromptId}
+                  onPromptChange={setSelectedPromptId}
+                  promptOptions={promptOptions}
+                  disabled={isPending}
+                  showInfoCard
+                />
+              )}
+            </div>
+
+            {/* 추가 요청/특이사항 (LLM 선택 시만) */}
+            {isLLM && (
+              <div className="space-y-1">
+                <label className="text-xs text-gray-500">
+                  추가 요청 / 특이사항 (선택)
+                </label>
+                <Textarea
+                  placeholder="예: 최근 수학 성적이 급락했습니다. 수학 학습에 대한 조언을 중점적으로 부탁드립니다."
+                  value={additionalRequest}
+                  onChange={(e) => setAdditionalRequest(e.target.value)}
+                  disabled={isPending}
+                  rows={2}
+                  className="text-sm resize-none"
+                  maxLength={500}
+                />
+                <p className="text-[10px] text-gray-400 text-right">
+                  {additionalRequest.length}/500
+                </p>
+              </div>
             )}
+
             <Button
               type="button"
               disabled={isPending}
               data-testid="saju-analyze-button"
               onClick={handleRunAnalysis}
+              className="w-full sm:w-auto"
             >
-              {isPending ? "분석 중..." : "사주 분석 실행"}
+              {isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin mr-1" />
+                  분석 중...
+                </>
+              ) : (
+                "사주 분석 실행"
+              )}
             </Button>
           </div>
+
           {errorMessage ? (
             <div data-testid="analysis-error" className="flex items-center justify-between gap-4 mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-sm text-red-700">{errorMessage}</p>
