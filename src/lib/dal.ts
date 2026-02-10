@@ -29,7 +29,9 @@ export const verifySession = cache(async (): Promise<VerifiedSession> => {
     redirect('/auth/login')
   }
 
-  await updateSession(payload.userId, payload.role, payload.teamId)
+  // NOTE: Session update is disabled in layouts/server components
+  // Session refresh only happens in middleware to avoid cookie modification in non-action contexts
+  // await updateSession(payload.userId, payload.role, payload.teamId)
 
   // PostgreSQL RLS 세션 컨텍스트 설정 (일시적으로 비활성화)
   // TODO: RLS 설정 후 다시 활성화 필요

@@ -70,16 +70,10 @@ export async function updateSession(
   role: SessionPayload['role'],
   teamId: string | null
 ): Promise<void> {
-  const cookieStore = await cookies()
-  const session = cookieStore.get('session')?.value
-  const payload = await decrypt(session)
-
-  if (!payload) return
-
-  const oneDayFromNow = new Date(Date.now() + 24 * 60 * 60 * 1000)
-  if (payload.expiresAt < oneDayFromNow) {
-    await createSession(userId, role, teamId)
-  }
+  // NOTE: Session update is disabled in Next.js 15
+  // Cookies can only be modified in Server Actions or Route Handlers
+  // Session refresh should only happen in middleware or during login
+  return
 }
 
 export async function deleteSession(): Promise<void> {
