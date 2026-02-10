@@ -634,10 +634,11 @@ enum StudentImageType {
   palm
 }
 
-// 사주 분석 프롬프트 프리셋 (관리자 커스텀)
-model SajuPromptPreset {
+// 분석 프롬프트 프리셋 (사주, 관상, 손금, MBTI 등 모든 분석 유형 지원)
+model AnalysisPromptPreset {
   id                 String   @id @default(cuid())
-  promptKey          String   @unique // 프롬프트 식별자 (예: "learning-dna", "custom-1")
+  analysisType       String   @default("saju") // "saju", "face", "palm", "mbti"
+  promptKey          String   // 프롬프트 식별자 (예: "learning-dna", "custom-1")
   name               String   // 표시 이름
   shortDescription   String   // 짧은 설명
   target             String   // 상담 대상
@@ -652,8 +653,10 @@ model SajuPromptPreset {
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
-  @@index([isActive])
+  @@unique([promptKey, analysisType])
+  @@index([analysisType, isActive])
   @@index([sortOrder])
+  @@map("analysis_prompt_presets")
 }
 
 // 감사 로그: 설정 변경 이력 추적
