@@ -7,6 +7,7 @@ import { FACE_READING_PROMPT } from "@/lib/ai/prompts"
 import { verifySession } from "@/lib/dal"
 import { db } from "@/lib/db"
 import { upsertTeacherFaceAnalysis } from "@/lib/db/teacher-face-analysis"
+import { extractJsonFromLLM } from "@/lib/utils/extract-json"
 
 /**
  * 선생님 관상 분석 실행 (통합 LLM 라우터 사용)
@@ -50,8 +51,8 @@ export async function runTeacherFaceAnalysis(teacherId: string, imageUrl: string
         maxOutputTokens: 2048,
       })
 
-      // JSON 응답 파싱
-      const result = JSON.parse(response.text)
+      // JSON 응답 파싱 (마크다운 코드블록 등 LLM 응답 형식 대응)
+      const result = extractJsonFromLLM(response.text)
 
       // 폴백 발생 시 로깅
       if (response.wasFailover) {
