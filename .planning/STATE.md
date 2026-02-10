@@ -11,7 +11,7 @@ See: .planning/PROJECT.md (updated 2026-02-07)
 
 Milestone: v2.1.1 E2E Test Compliance
 Status: COMPLETE ✓ (2026-02-07)
-Last activity: 2026-02-10 - Completed quick task 003: 관상/손금/MBTI 프롬프트 관리 시스템 추가
+Last activity: 2026-02-11 - Completed quick task 004: LLM 설정 전면 개선 - 8개 제공자 지원
 
 Progress: [████████████████████████] 100%
 
