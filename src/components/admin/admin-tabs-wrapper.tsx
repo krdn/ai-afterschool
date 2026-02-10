@@ -16,7 +16,7 @@ export function AdminTabsWrapper({ children, defaultValue = 'llm-settings' }: Ad
       <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7">
         <TabsTrigger value="llm-settings">LLM 설정</TabsTrigger>
         <TabsTrigger value="llm-usage">토큰 사용량</TabsTrigger>
-        <TabsTrigger value="saju-prompts">사주 프롬프트</TabsTrigger>
+        <TabsTrigger value="ai-prompts">AI 프롬프트</TabsTrigger>
         <TabsTrigger value="system-status">시스템 상태</TabsTrigger>
         <TabsTrigger value="system-logs">시스템 로그</TabsTrigger>
         <TabsTrigger value="database">데이터베이스</TabsTrigger>
@@ -37,7 +37,7 @@ export function AdminTabsContent({ value, children }: AdminTabsContentProps) {
   const testIdMap: Record<string, string> = {
     'llm-settings': 'admin-llm-settings-page',
     'llm-usage': 'admin-llm-usage-page',
-    'saju-prompts': 'admin-saju-prompts-page',
+    'ai-prompts': 'admin-ai-prompts-page',
     'system-status': 'admin-system-status-page',
     'system-logs': 'admin-system-logs-page',
     'database': 'admin-backup-page',

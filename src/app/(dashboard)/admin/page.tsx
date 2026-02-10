@@ -25,10 +25,13 @@ import { LogsTab } from '@/components/admin/tabs/logs-tab'
 import { DatabaseTab } from '@/components/admin/tabs/database-tab'
 import { AuditTab } from '@/components/admin/tabs/audit-tab'
 
-// 사주 프롬프트 관리
-import { SajuPromptsTab } from '@/components/admin/tabs/saju-prompts-tab'
-import { getAllPresets, seedBuiltInPresets } from '@/lib/db/saju-prompt-preset'
-import { getBuiltInSeedData } from '@/lib/ai/saju-prompts'
+// AI 프롬프트 관리 (통합)
+import { AnalysisPromptsTab } from '@/components/admin/tabs/analysis-prompts-tab'
+import { getAllPresetsByType, seedBuiltInPresets, type AnalysisType } from '@/lib/db/analysis-prompt-preset'
+import { getBuiltInSeedData as getSajuSeedData } from '@/lib/ai/saju-prompts'
+import { getBuiltInSeedData as getFaceSeedData } from '@/lib/ai/face-prompts'
+import { getBuiltInSeedData as getPalmSeedData } from '@/lib/ai/palm-prompts'
+import { getBuiltInSeedData as getMbtiSeedData } from '@/lib/ai/mbti-prompts'
 
 export const metadata = {
   title: '관리자 | AI AfterSchool',
@@ -159,7 +162,6 @@ export default async function AdminPage() {
     dailyUsageData,
     providerUsageData,
     featureUsageData,
-    sajuPromptPresets,
   ] = await Promise.all([
     getAllLLMConfigs(),
     getAllFeatureConfigs(),
@@ -171,8 +173,22 @@ export default async function AdminPage() {
     getDailyUsageData(),
     getProviderUsageData(),
     getFeatureUsageData(),
-    seedBuiltInPresets(getBuiltInSeedData()).then(() => getAllPresets()),
   ])
+
+  // AI 프롬프트 seed 및 조회
+  await Promise.all([
+    seedBuiltInPresets(getSajuSeedData()),
+    seedBuiltInPresets(getFaceSeedData()),
+    seedBuiltInPresets(getPalmSeedData()),
+    seedBuiltInPresets(getMbtiSeedData()),
+  ])
+
+  const analysisPromptPresets = {
+    saju: await getAllPresetsByType('saju'),
+    face: await getAllPresetsByType('face'),
+    palm: await getAllPresetsByType('palm'),
+    mbti: await getAllPresetsByType('mbti'),
+  }
 
   const enabledProviders = llmConfigs
     .filter((c: LLMConfigData) => c.isEnabled && c.isValidated)
@@ -313,9 +329,9 @@ export default async function AdminPage() {
           <CostAlerts initialData={usageSummary} />
         </AdminTabsContent>
 
-        {/* 사주 프롬프트 관리 탭 */}
-        <AdminTabsContent value="saju-prompts">
-          <SajuPromptsTab initialPresets={sajuPromptPresets} />
+        {/* AI 프롬프트 관리 탭 (통합) */}
+        <AdminTabsContent value="ai-prompts">
+          <AnalysisPromptsTab initialPresets={analysisPromptPresets} />
         </AdminTabsContent>
 
         {/* 시스템 상태 탭 */}
