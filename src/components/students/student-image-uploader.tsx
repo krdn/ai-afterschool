@@ -25,7 +25,9 @@ type StudentImageUploaderProps = {
   draftId?: string
   previewUrl?: string | null
   value?: StudentImagePayload | null
-  onChange?: (payload: StudentImagePayload) => void
+  onChange?: (payload: StudentImagePayload | null) => void
+  /** 삭제 버튼 표시 여부 (기본: false) */
+  removable?: boolean
   studentName?: string
   /** 업로드 폴더를 직접 지정 (예: "teachers/{id}/profile"). 미지정 시 students 기본 경로 사용 */
   folder?: string
@@ -79,6 +81,7 @@ export function StudentImageUploader({
   onChange,
   studentName,
   folder,
+  removable = false,
 }: StudentImageUploaderProps) {
   const uploadFolder = folder
     ? folder
@@ -112,6 +115,7 @@ export function StudentImageUploader({
               </p>
             </div>
 
+            <div className="flex items-center gap-2">
             <CldUploadWidget
               signatureEndpoint="/api/cloudinary/sign"
               options={{
@@ -229,6 +233,22 @@ export function StudentImageUploader({
                 </Button>
               )}
             </CldUploadWidget>
+
+            {removable && hasPreview && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                onClick={() => {
+                  onChange?.(null)
+                  toast.success("사진이 삭제되었어요", { id: "image-removed" })
+                }}
+              >
+                삭제
+              </Button>
+            )}
+            </div>
           </div>
 
           {publicId ? (

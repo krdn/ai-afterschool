@@ -1,11 +1,13 @@
 "use client"
 
-import { useActionState, useState } from "react"
+import { useActionState, useState, useTransition } from "react"
+import { toast } from "sonner"
 import {
   createStudent,
   updateStudent,
   type StudentFormState,
 } from "@/lib/actions/students"
+import { deleteStudentImage } from "@/lib/actions/student-images"
 import {
   StudentImageUploader,
   type StudentImagePayload,
@@ -58,6 +60,8 @@ export function StudentForm({ student }: StudentFormProps) {
   const [profileImage, setProfileImage] = useState<StudentImagePayload | null>(
     null
   )
+  const [profileRemoved, setProfileRemoved] = useState(false)
+  const [isDeleting, startDeleteTransition] = useTransition()
   const [draftId] = useState(() => crypto.randomUUID())
   const [nameHanjaText, setNameHanjaText] = useState(
     () => student ? extractInitialHanjaText(student.nameHanja) : ""
@@ -321,10 +325,28 @@ export function StudentForm({ student }: StudentFormProps) {
           description="학생의 프로필 사진을 업로드해주세요"
           studentId={student?.id}
           draftId={isEdit ? undefined : draftId}
-          previewUrl={existingProfile?.resizedUrl}
+          previewUrl={profileRemoved ? undefined : (profileImage ? undefined : existingProfile?.resizedUrl)}
           value={profileImage}
-          onChange={setProfileImage}
+          onChange={(payload) => {
+            if (payload === null) {
+              // 삭제 처리
+              setProfileImage(null)
+              setProfileRemoved(true)
+              if (isEdit && student?.id && existingProfile) {
+                startDeleteTransition(async () => {
+                  const result = await deleteStudentImage(student.id, "profile")
+                  if (!result.success) {
+                    toast.error("사진 삭제 실패", { description: result.error })
+                  }
+                })
+              }
+            } else {
+              setProfileImage(payload)
+              setProfileRemoved(false)
+            }
+          }}
           studentName={student?.name}
+          removable
         />
       </div>
 

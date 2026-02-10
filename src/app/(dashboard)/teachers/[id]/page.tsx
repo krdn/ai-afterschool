@@ -19,6 +19,9 @@ export default async function TeacherDetailPage({ params }: PageProps) {
     where: { id },
     include: {
       team: true,
+      _count: {
+        select: { students: true },
+      },
     },
   })
 
