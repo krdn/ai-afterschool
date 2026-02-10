@@ -3,8 +3,8 @@
 import { useState, useTransition, useEffect } from "react"
 import { format } from "date-fns"
 import { ko } from "date-fns/locale"
-import { Loader2, RefreshCw, History } from "lucide-react"
-import { runSajuAnalysisAction, getMergedPromptOptionsAction } from "../../app/(dashboard)/students/[id]/saju/actions"
+import { Loader2, RefreshCw, History, Sparkles } from "lucide-react"
+import { runSajuAnalysisAction, getMergedPromptOptionsAction, simplifyInterpretationAction } from "../../app/(dashboard)/students/[id]/saju/actions"
 import type { SajuResult } from "@/lib/analysis/saju"
 import type { ProviderName } from "@/lib/ai/providers/types"
 import type { AnalysisPromptMeta } from "@/lib/ai/saju-prompts"
@@ -81,6 +81,10 @@ export function SajuAnalysisPanel({ student, analysis, enabledProviders = [], on
   const [showHistory, setShowHistory] = useState(false)
   const [viewMode, setViewMode] = useState<"markdown" | "rendered">("rendered")
   const [promptOptions, setPromptOptions] = useState<AnalysisPromptMeta[]>([])
+  const [simplifiedText, setSimplifiedText] = useState<string | null>(null)
+  const [isSimplifying, setIsSimplifying] = useState(false)
+  const [showSimplified, setShowSimplified] = useState(false)
+  const [simplifyError, setSimplifyError] = useState<string | null>(null)
 
   // DB에서 프롬프트 옵션 실시간 로드
   useEffect(() => {
@@ -90,11 +94,41 @@ export function SajuAnalysisPanel({ student, analysis, enabledProviders = [], on
   const result = analysis?.result as SajuResult | undefined
   const isLLM = selectedProvider !== 'built-in'
 
+  const handleSimplify = async () => {
+    if (!analysis?.interpretation) return
+
+    // 캐시가 있으면 바로 토글
+    if (simplifiedText) {
+      setShowSimplified(!showSimplified)
+      return
+    }
+
+    // AI로 생성
+    setIsSimplifying(true)
+    setSimplifyError(null)
+    try {
+      const res = await simplifyInterpretationAction(
+        analysis.interpretation,
+        selectedProvider === 'built-in' ? 'auto' : selectedProvider
+      )
+      setSimplifiedText(res.text)
+      setShowSimplified(true)
+    } catch (error) {
+      console.error('Failed to simplify interpretation:', error)
+      setSimplifyError('쉽게 풀이 생성에 실패했습니다. 다시 시도해주세요.')
+    } finally {
+      setIsSimplifying(false)
+    }
+  }
+
   const handleRunAnalysis = () => {
     startTransition(async () => {
       setErrorMessage(null)
       setProviderLabel(null)
       setPromptLabel(null)
+      setSimplifiedText(null)
+      setShowSimplified(false)
+      setSimplifyError(null)
       try {
         const promptId = isLLM ? selectedPromptId : 'default'
         const extra = isLLM ? additionalRequest.trim() || undefined : undefined
@@ -311,6 +345,25 @@ export function SajuAnalysisPanel({ student, analysis, enabledProviders = [], on
                 {promptLabel}
               </span>
             )}
+            {analysis?.interpretation && selectedProvider !== 'built-in' && (
+              <button
+                type="button"
+                disabled={isSimplifying}
+                onClick={handleSimplify}
+                className={`inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded-full border transition-colors ${
+                  showSimplified
+                    ? 'bg-amber-100 text-amber-700 border-amber-300'
+                    : 'bg-white text-gray-500 border-gray-200 hover:bg-amber-50 hover:text-amber-600 hover:border-amber-200'
+                }`}
+              >
+                {isSimplifying ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : (
+                  <Sparkles className="h-3 w-3" />
+                )}
+                쉽게 풀이
+              </button>
+            )}
             {analysis?.interpretation && (
               <div className="ml-auto flex rounded-md border border-gray-200 text-xs overflow-hidden">
                 <button
@@ -331,15 +384,28 @@ export function SajuAnalysisPanel({ student, analysis, enabledProviders = [], on
             )}
           </div>
           {analysis?.interpretation ? (
-            viewMode === "rendered" ? (
-              <div className="rounded-md border border-gray-200 bg-white p-4">
-                <MarkdownRenderer content={analysis.interpretation} />
-              </div>
-            ) : (
-              <div className="rounded-md border border-gray-200 bg-gray-50 p-4 text-sm leading-6 text-gray-700 whitespace-pre-wrap font-mono">
-                {analysis.interpretation}
-              </div>
-            )
+            <>
+              {showSimplified && simplifiedText && (
+                <div className="flex items-center gap-1 mb-2">
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 border border-amber-200">
+                    <Sparkles className="inline h-3 w-3 mr-0.5" />
+                    쉽게 풀이 보기 중
+                  </span>
+                </div>
+              )}
+              {viewMode === "rendered" ? (
+                <div className="rounded-md border border-gray-200 bg-white p-4">
+                  <MarkdownRenderer content={showSimplified && simplifiedText ? simplifiedText : analysis.interpretation} />
+                </div>
+              ) : (
+                <div className="rounded-md border border-gray-200 bg-gray-50 p-4 text-sm leading-6 text-gray-700 whitespace-pre-wrap font-mono">
+                  {showSimplified && simplifiedText ? simplifiedText : analysis.interpretation}
+                </div>
+              )}
+              {simplifyError && (
+                <p className="text-xs text-red-500 mt-1">{simplifyError}</p>
+              )}
+            </>
           ) : (
             <div className="rounded-md bg-gray-50 p-4 text-sm text-gray-500">
               사주 해석이 아직 생성되지 않았어요.
