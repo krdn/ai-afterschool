@@ -600,6 +600,7 @@ export function buildPromptFromTemplate(
  * 각 프롬프트의 buildPrompt에서 사용하는 템플릿을 {학생정보}, {사주데이터} 플레이스홀더 방식으로 추출합니다.
  */
 export function getBuiltInSeedData(): Array<{
+  analysisType: "saju"
   promptKey: string
   name: string
   shortDescription: string
@@ -680,6 +681,7 @@ export function getBuiltInSeedData(): Array<{
   return ids.map((id, index) => {
     const meta = PROMPT_DEFINITIONS[id].meta
     return {
+      analysisType: "saju" as const,
       promptKey: id,
       name: meta.name,
       shortDescription: meta.shortDescription,
