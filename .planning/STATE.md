@@ -262,6 +262,7 @@ None yet.
 | 001 | 사주 해석 결과에 사용 모델 정보 영구 표시 | 2026-02-10 | e337201 | [001-saju-model-display](./quick/001-saju-model-display/) |
 | 002 | 사주 해석 쉽게 풀이 기능 (AI 텍스트 변환 토글) | 2026-02-10 | 47aa096 | [002-saju-easy-explanation](./quick/002-saju-easy-explanation/) |
 | 003 | 관상/손금/MBTI 프롬프트 관리 시스템 추가 | 2026-02-10 | 28375bf | [003-face-palm-mbti](./quick/003-face-palm-mbti/) |
+| 004 | LLM 제공자 CRUD 확장 (8개 제공자 지원) | 2026-02-11 | 1fab53c | [004-llm-llm-crud](./quick/4-llm-llm-crud/) |
 
 ### Blockers/Concerns
 
@@ -290,10 +291,10 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-10 10:57 KST
-Stopped at: Quick Task 002 Complete (사주 해석 쉽게 풀이 기능)
+Last session: 2026-02-11
+Stopped at: Quick Task 004 Complete (LLM 제공자 CRUD 확장)
 Resume file: None
 Next action: v2.2 Planning (Teacher Management, Admin Settings, Attendance/Tuition) 또는 추가 Quick Tasks
 
 ---
-*Last updated: 2026-02-10 (Quick Task 002 완료)*
+*Last updated: 2026-02-11 (Quick Task 004 완료)*
