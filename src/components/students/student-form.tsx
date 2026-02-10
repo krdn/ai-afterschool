@@ -314,6 +314,11 @@ export function StudentForm({ student }: StudentFormProps) {
               className="border p-2 w-full rounded"
               data-testid="parent-phone-input"
             />
+            {state.errors?.parentPhone && (
+              <p className="text-red-500 text-xs mt-1">
+                {state.errors.parentPhone[0]}
+              </p>
+            )}
           </div>
         </div>
       </div>
