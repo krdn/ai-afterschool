@@ -213,6 +213,7 @@ export default function AnalysisTab({ studentId }: { studentId: string }) {
             analysis={data.mbtiAnalysis}
             enabledProviders={data.enabledProviders}
             promptOptions={data.mbtiPromptOptions}
+            onDataChange={refreshData}
           />
         </TabsContent>
       </Tabs>
