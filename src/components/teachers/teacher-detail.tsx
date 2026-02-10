@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
+import { CldImage } from 'next-cloudinary'
 import {
   Mail,
   Phone,
@@ -21,6 +22,8 @@ type TeacherDetailProps = {
     teamId: string | null
     team: { id: string; name: string } | null
     phone: string | null
+    profileImage: string | null
+    profileImagePublicId: string | null
     createdAt: Date
     updatedAt: Date
   }
@@ -76,6 +79,23 @@ export function TeacherDetail({ teacher, currentRole, currentUserId, currentTeam
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
+          {teacher.profileImagePublicId && (
+            <div className="flex justify-center pb-2">
+              <CldImage
+                width={128}
+                height={128}
+                src={teacher.profileImagePublicId}
+                sizes="128px"
+                alt={`${teacher.name} 프로필 사진`}
+                className="h-32 w-32 rounded-full object-cover border-2 border-gray-100"
+                crop="fill"
+                gravity="face"
+                quality="auto"
+                format="auto"
+              />
+            </div>
+          )}
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <p className="text-sm text-gray-500">이름</p>

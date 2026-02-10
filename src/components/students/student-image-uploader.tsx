@@ -27,6 +27,8 @@ type StudentImageUploaderProps = {
   value?: StudentImagePayload | null
   onChange?: (payload: StudentImagePayload) => void
   studentName?: string
+  /** 업로드 폴더를 직접 지정 (예: "teachers/{id}/profile"). 미지정 시 students 기본 경로 사용 */
+  folder?: string
 }
 
 const allowedFormats = ["jpg", "jpeg", "png", "heic"]
@@ -76,10 +78,13 @@ export function StudentImageUploader({
   value,
   onChange,
   studentName,
+  folder,
 }: StudentImageUploaderProps) {
-  const uploadFolder = studentId
-    ? `students/${studentId}/${type}`
-    : `students/drafts/${draftId || "draft"}/${type}`
+  const uploadFolder = folder
+    ? folder
+    : studentId
+      ? `students/${studentId}/${type}`
+      : `students/drafts/${draftId || "draft"}/${type}`
 
   const hasPreview = Boolean(previewUrl || value)
 

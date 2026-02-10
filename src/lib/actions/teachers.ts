@@ -62,6 +62,9 @@ export async function createTeacher(
 
   const { name, email, role, teamId, phone, birthDate, nameHanja, birthTimeHour, birthTimeMinute } = validatedFields.data
 
+  const profileImage = formData.get("profileImage") as string || null
+  const profileImagePublicId = formData.get("profileImagePublicId") as string || null
+
   // 이메일 중복 검증
   const existingTeacher = await db.teacher.findUnique({
     where: { email },
@@ -105,6 +108,8 @@ export async function createTeacher(
         nameHanja: nameHanja || null,
         birthTimeHour: birthTimeHour ?? null,
         birthTimeMinute: birthTimeMinute ?? null,
+        profileImage,
+        profileImagePublicId,
       },
     })
   } catch (error) {
@@ -205,11 +210,16 @@ export async function updateTeacher(
     delete restData.teamId
   }
 
+  const profileImage = formData.get("profileImage") as string || null
+  const profileImagePublicId = formData.get("profileImagePublicId") as string || null
+
   const updateData: Record<string, unknown> = { ...restData }
   if (birthDate !== undefined) updateData.birthDate = new Date(birthDate)
   if (nameHanja !== undefined) updateData.nameHanja = nameHanja || null
   if (birthTimeHour !== undefined) updateData.birthTimeHour = birthTimeHour
   if (birthTimeMinute !== undefined) updateData.birthTimeMinute = birthTimeMinute
+  updateData.profileImage = profileImage
+  updateData.profileImagePublicId = profileImagePublicId
 
   try {
     await db.teacher.update({
@@ -296,6 +306,11 @@ export async function getTeachers() {
         },
       },
       createdAt: true,
+      _count: {
+        select: {
+          students: true,
+        },
+      },
     },
     orderBy: { createdAt: 'desc' },
   })
@@ -325,6 +340,8 @@ export async function getTeacherById(id: string) {
       nameHanja: true,
       birthTimeHour: true,
       birthTimeMinute: true,
+      profileImage: true,
+      profileImagePublicId: true,
       createdAt: true,
       updatedAt: true,
     },
