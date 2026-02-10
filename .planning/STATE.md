@@ -11,7 +11,7 @@ See: .planning/PROJECT.md (updated 2026-02-07)
 
 Milestone: v2.1.1 E2E Test Compliance
 Status: COMPLETE ✓ (2026-02-07)
-Last activity: 2026-02-10 - Completed quick task 001: 사주 해석 결과에 사용 모델 정보 영구 표시
+Last activity: 2026-02-10 - Completed quick task 002: 사주 해석 쉽게 풀이 기능
 
 Progress: [████████████████████████] 100%
 
@@ -260,6 +260,7 @@ None yet.
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 001 | 사주 해석 결과에 사용 모델 정보 영구 표시 | 2026-02-10 | e337201 | [001-saju-model-display](./quick/001-saju-model-display/) |
+| 002 | 사주 해석 쉽게 풀이 기능 (AI 텍스트 변환 토글) | 2026-02-10 | 47aa096 | [002-saju-easy-explanation](./quick/002-saju-easy-explanation/) |
 
 ### Blockers/Concerns
 
@@ -288,10 +289,10 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-07 14:44 KST
-Stopped at: Phase 28-06 Complete (v2.1.1 Milestone COMPLETE)
+Last session: 2026-02-10 10:57 KST
+Stopped at: Quick Task 002 Complete (사주 해석 쉽게 풀이 기능)
 Resume file: None
-Next action: v2.2 Planning (Teacher Management, Admin Settings, Attendance/Tuition)
+Next action: v2.2 Planning (Teacher Management, Admin Settings, Attendance/Tuition) 또는 추가 Quick Tasks
 
 ---
-*Last updated: 2026-02-07 (Phase 28-06 완료, v2.1.1 COMPLETE)*
+*Last updated: 2026-02-10 (Quick Task 002 완료)*
