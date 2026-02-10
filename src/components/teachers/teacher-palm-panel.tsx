@@ -5,6 +5,12 @@ import Image from "next/image"
 import { Hand, Sparkles, AlertCircle } from "lucide-react"
 import { runTeacherPalmAnalysis } from "@/lib/actions/teacher-palm-analysis"
 import { DISCLAIMER_TEXT } from "@/lib/ai/prompts"
+import type { ProviderName } from "@/lib/ai/providers/types"
+import { ProviderSelector } from "@/components/students/provider-selector"
+import { PromptSelector } from "@/components/students/prompt-selector"
+import type { GenericPromptMeta } from "@/components/students/prompt-selector"
+import { PalmHelpDialog } from "@/components/students/palm-help-dialog"
+import { Button } from "@/components/ui/button"
 
 type TeacherPalmAnalysis = {
   id: string
@@ -20,19 +26,25 @@ type Props = {
   teacherName: string
   analysis: TeacherPalmAnalysis
   palmImageUrl: string | null
+  enabledProviders?: ProviderName[]
+  promptOptions?: GenericPromptMeta[]
 }
 
 export function TeacherPalmPanel({
   teacherId,
   teacherName,
   analysis,
-  palmImageUrl
+  palmImageUrl,
+  enabledProviders = [],
+  promptOptions = [],
 }: Props) {
   const [, startTransition] = useTransition()
   const [localStatus, setLocalStatus] = useState<'idle' | 'analyzing'>('idle')
   const [selectedHand, setSelectedHand] = useState<'left' | 'right'>(
     (analysis?.hand === 'left' || analysis?.hand === 'right') ? analysis.hand : 'right'
   )
+  const [selectedProvider, setSelectedProvider] = useState('auto')
+  const [selectedPromptId, setSelectedPromptId] = useState('default')
 
   const handleAnalyze = () => {
     if (!palmImageUrl) {
@@ -47,7 +59,7 @@ export function TeacherPalmPanel({
         if (result.success) {
           window.location.reload()
         }
-      } catch (error) {
+      } catch {
         alert("분석 시작에 실패했습니다. 다시 시도해주세요.")
         setLocalStatus('idle')
       }
@@ -66,6 +78,27 @@ export function TeacherPalmPanel({
             <Hand className="w-5 h-5 text-purple-600" />
           </div>
           <h2 className="text-lg font-semibold">AI 손금 분석</h2>
+          <PalmHelpDialog />
+        </div>
+      </div>
+
+      {/* Provider/Prompt selectors */}
+      <div className="px-6 pt-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 flex-wrap">
+          <ProviderSelector
+            selectedProvider={selectedProvider}
+            onProviderChange={setSelectedProvider}
+            availableProviders={enabledProviders}
+            disabled={isAnalyzing}
+          />
+          {promptOptions.length > 0 && (
+            <PromptSelector
+              selectedPromptId={selectedPromptId}
+              onPromptChange={setSelectedPromptId}
+              promptOptions={promptOptions}
+              disabled={isAnalyzing}
+            />
+          )}
         </div>
       </div>
 
@@ -113,7 +146,6 @@ function AnalysisResult({ result, imageUrl, hand }: { result: unknown; imageUrl:
   }
   return (
     <div className="space-y-6">
-      {/* Image Preview with Hand Label */}
       <div className="flex flex-col items-center">
         <Image
           src={imageUrl}
@@ -127,20 +159,17 @@ function AnalysisResult({ result, imageUrl, hand }: { result: unknown; imageUrl:
         </span>
       </div>
 
-      {/* Disclaimer Banner */}
       <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
         <p className="text-sm text-yellow-800">
           {DISCLAIMER_TEXT.palm}
         </p>
       </div>
 
-      {/* Clarity Indicator */}
       <div className="flex items-center gap-2">
         <span className="text-sm font-medium">손금 선명도:</span>
         <ClarityBadge clarity={analysisResult.clarity} />
       </div>
 
-      {/* Lines Detected */}
       <div>
         <h3 className="font-semibold mb-2">주요 손금</h3>
         <dl className="space-y-3">
@@ -156,7 +185,6 @@ function AnalysisResult({ result, imageUrl, hand }: { result: unknown; imageUrl:
         </dl>
       </div>
 
-      {/* Personality Traits */}
       <div>
         <h3 className="font-semibold mb-2">성격 특성</h3>
         <ul className="list-disc list-inside space-y-1">
@@ -166,7 +194,6 @@ function AnalysisResult({ result, imageUrl, hand }: { result: unknown; imageUrl:
         </ul>
       </div>
 
-      {/* Fortune */}
       <div>
         <h3 className="font-semibold mb-2">운세 해석</h3>
         <div className="space-y-2 text-sm">
@@ -176,7 +203,6 @@ function AnalysisResult({ result, imageUrl, hand }: { result: unknown; imageUrl:
         </div>
       </div>
 
-      {/* Overall Interpretation */}
       {analysisResult.overallInterpretation && (
         <div>
           <h3 className="font-semibold mb-2">종합 해석</h3>
@@ -195,13 +221,7 @@ function ClarityBadge({ clarity }: { clarity: 'clear' | 'unclear' | 'partial' })
     partial: 'bg-yellow-100 text-yellow-800',
     unclear: 'bg-red-100 text-red-800'
   }
-
-  const labels = {
-    clear: '선명함',
-    partial: '일부만 보임',
-    unclear: '흐릿함'
-  }
-
+  const labels = { clear: '선명함', partial: '일부만 보임', unclear: '흐릿함' }
   return (
     <span className={`px-2 py-1 rounded text-xs font-medium ${styles[clarity]}`}>
       {labels[clarity]}
@@ -228,11 +248,26 @@ function LoadingState() {
   )
 }
 
+function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return (
+    <div className="text-center py-8">
+      <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-4 text-left">
+        <div className="flex">
+          <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0" />
+          <div className="ml-3">
+            <p className="text-sm text-red-800">{message}</p>
+          </div>
+        </div>
+      </div>
+      <Button variant="outline" onClick={onRetry}>
+        다시 시도
+      </Button>
+    </div>
+  )
+}
+
 function EmptyState({
-  hasImage,
-  selectedHand,
-  onHandChange,
-  onAnalyze
+  hasImage, selectedHand, onHandChange, onAnalyze
 }: {
   hasImage: boolean
   selectedHand: 'left' | 'right'
@@ -248,66 +283,31 @@ function EmptyState({
           : "아직 손바닥 사진이 없어요. 선생님 정보에서 손바닥 사진을 업로드해주세요."
         }
       </p>
-
       {hasImage && (
         <div className="space-y-4">
-          {/* Hand Selection */}
           <div className="flex items-center justify-center gap-4">
             <span className="text-sm text-gray-600">손 선택:</span>
             <div className="flex gap-2">
-              <button
+              <Button
+                variant={selectedHand === 'left' ? 'default' : 'outline'}
                 onClick={() => onHandChange('left')}
-                className={`px-4 py-2 rounded-lg border transition-colors ${
-                  selectedHand === 'left'
-                    ? 'bg-purple-600 text-white border-purple-600'
-                    : 'bg-white text-gray-700 border-gray-300 hover:border-purple-400'
-                }`}
               >
                 왼손 (감성)
-              </button>
-              <button
+              </Button>
+              <Button
+                variant={selectedHand === 'right' ? 'default' : 'outline'}
                 onClick={() => onHandChange('right')}
-                className={`px-4 py-2 rounded-lg border transition-colors ${
-                  selectedHand === 'right'
-                    ? 'bg-purple-600 text-white border-purple-600'
-                    : 'bg-white text-gray-700 border-gray-300 hover:border-purple-400'
-                }`}
               >
                 오른손 (현실)
-              </button>
+              </Button>
             </div>
           </div>
-
-          <button
-            onClick={onAnalyze}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-          >
-            <Sparkles className="w-4 h-4" />
+          <Button onClick={onAnalyze}>
+            <Sparkles className="w-4 h-4 mr-1" />
             분석 시작
-          </button>
+          </Button>
         </div>
       )}
-    </div>
-  )
-}
-
-function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
-  return (
-    <div className="text-center py-8">
-      <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-4 text-left">
-        <div className="flex">
-          <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0" />
-          <div className="ml-3">
-            <p className="text-sm text-red-800">{message}</p>
-          </div>
-        </div>
-      </div>
-      <button
-        onClick={onRetry}
-        className="inline-flex items-center gap-2 px-4 py-2 border border-red-600 text-red-600 rounded-lg hover:bg-red-50 transition-colors"
-      >
-        다시 시도
-      </button>
     </div>
   )
 }

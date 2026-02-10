@@ -1,9 +1,6 @@
-'use client'
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { CldImage } from 'next-cloudinary'
 import {
   Mail,
   Phone,
@@ -14,7 +11,6 @@ import {
   Clock,
   GraduationCap,
 } from 'lucide-react'
-import { TeacherDeleteDialog } from './teacher-delete-dialog'
 
 type TeacherDetailProps = {
   teacher: {
@@ -35,9 +31,6 @@ type TeacherDetailProps = {
     updatedAt: Date
     _count: { students: number }
   }
-  currentRole: 'DIRECTOR' | 'TEAM_LEADER' | 'MANAGER' | 'TEACHER'
-  currentUserId: string
-  currentTeamId: string | null
 }
 
 const roleLabels: Record<TeacherDetailProps['teacher']['role'], string> = {
@@ -47,12 +40,7 @@ const roleLabels: Record<TeacherDetailProps['teacher']['role'], string> = {
   TEACHER: '선생님',
 }
 
-export function TeacherDetail({ teacher, currentRole, currentUserId, currentTeamId }: TeacherDetailProps) {
-  const canDelete = currentRole === 'DIRECTOR' && currentUserId !== teacher.id
-  const canEdit =
-    currentRole === 'DIRECTOR' ||
-    currentUserId === teacher.id ||
-    (currentRole === 'TEAM_LEADER' && currentTeamId !== null && currentTeamId === teacher.teamId)
+export function TeacherDetail({ teacher }: TeacherDetailProps) {
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('ko-KR', {
       year: 'numeric',
@@ -65,45 +53,9 @@ export function TeacherDetail({ teacher, currentRole, currentUserId, currentTeam
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>기본 정보</CardTitle>
-            {(canEdit || canDelete) && (
-              <div className="flex items-center gap-2">
-                {canEdit && (
-                  <Button variant="outline" size="sm" asChild>
-                    <Link href={`/teachers/${teacher.id}/edit`}>
-                      수정하기
-                    </Link>
-                  </Button>
-                )}
-                {canDelete && (
-                  <TeacherDeleteDialog
-                    teacherId={teacher.id}
-                    teacherName={teacher.name}
-                  />
-                )}
-              </div>
-            )}
-          </div>
+          <CardTitle>기본 정보</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {teacher.profileImagePublicId && (
-            <div className="flex justify-center pb-2">
-              <CldImage
-                width={128}
-                height={128}
-                src={teacher.profileImagePublicId}
-                sizes="128px"
-                alt={`${teacher.name} 프로필 사진`}
-                className="h-32 w-32 rounded-full object-cover border-2 border-gray-100"
-                crop="fill"
-                gravity="face"
-                quality="auto"
-                format="auto"
-              />
-            </div>
-          )}
-
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <p className="text-sm text-gray-500">이름</p>

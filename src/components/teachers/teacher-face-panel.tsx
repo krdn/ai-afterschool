@@ -4,6 +4,12 @@ import { useState, useTransition } from "react"
 import { Camera, Sparkles, AlertCircle } from "lucide-react"
 import { runTeacherFaceAnalysis } from "@/lib/actions/teacher-face-analysis"
 import { DISCLAIMER_TEXT } from "@/lib/ai/prompts"
+import type { ProviderName } from "@/lib/ai/providers/types"
+import { ProviderSelector } from "@/components/students/provider-selector"
+import { PromptSelector } from "@/components/students/prompt-selector"
+import type { GenericPromptMeta } from "@/components/students/prompt-selector"
+import { FaceHelpDialog } from "@/components/students/face-help-dialog"
+import { Button } from "@/components/ui/button"
 
 type TeacherFaceAnalysis = {
   id: string
@@ -18,16 +24,22 @@ type Props = {
   teacherName: string
   analysis: TeacherFaceAnalysis
   faceImageUrl: string | null
+  enabledProviders?: ProviderName[]
+  promptOptions?: GenericPromptMeta[]
 }
 
 export function TeacherFacePanel({
   teacherId,
   teacherName,
   analysis,
-  faceImageUrl
+  faceImageUrl,
+  enabledProviders = [],
+  promptOptions = [],
 }: Props) {
   const [, startTransition] = useTransition()
   const [localStatus, setLocalStatus] = useState<'idle' | 'analyzing'>('idle')
+  const [selectedProvider, setSelectedProvider] = useState('auto')
+  const [selectedPromptId, setSelectedPromptId] = useState('default')
 
   const handleAnalyze = () => {
     if (!faceImageUrl) {
@@ -39,7 +51,6 @@ export function TeacherFacePanel({
     startTransition(async () => {
       const result = await runTeacherFaceAnalysis(teacherId, faceImageUrl)
       if (result.success) {
-        // revalidatePath로 페이지 새로고침
         window.location.reload()
       } else {
         alert(result.error || "분석에 실패했습니다.")
@@ -60,13 +71,34 @@ export function TeacherFacePanel({
             <Sparkles className="w-5 h-5 text-blue-600" />
           </div>
           <h2 className="text-lg font-semibold">AI 관상 분석</h2>
+          <FaceHelpDialog />
+        </div>
+      </div>
+
+      {/* Provider/Prompt selectors */}
+      <div className="px-6 pt-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 flex-wrap">
+          <ProviderSelector
+            selectedProvider={selectedProvider}
+            onProviderChange={setSelectedProvider}
+            availableProviders={enabledProviders}
+            disabled={isAnalyzing}
+          />
+          {promptOptions.length > 0 && (
+            <PromptSelector
+              selectedPromptId={selectedPromptId}
+              onPromptChange={setSelectedPromptId}
+              promptOptions={promptOptions}
+              disabled={isAnalyzing}
+            />
+          )}
         </div>
       </div>
 
       {/* Content */}
       <div className="p-6">
         {analysis?.status === 'complete' && analysis.result ? (
-          <AnalysisResult result={analysis.result} imageUrl={analysis.imageUrl} />
+          <AnalysisResult result={analysis.result} imageUrl={analysis.imageUrl} onReanalyze={handleAnalyze} />
         ) : analysis?.status === 'failed' ? (
           <ErrorState
             message={analysis.errorMessage || "분석에 실패했습니다."}
@@ -85,7 +117,7 @@ export function TeacherFacePanel({
   )
 }
 
-function AnalysisResult({ result, imageUrl }: { result: unknown; imageUrl: string | null }) {
+function AnalysisResult({ result, imageUrl, onReanalyze }: { result: unknown; imageUrl: string | null; onReanalyze: () => void }) {
   const analysisResult = result as {
     faceShape: string
     features: {
@@ -106,7 +138,6 @@ function AnalysisResult({ result, imageUrl }: { result: unknown; imageUrl: strin
   }
   return (
     <div className="space-y-6">
-      {/* Image Preview */}
       {imageUrl && (
         <div className="flex justify-center">
           <img
@@ -117,20 +148,17 @@ function AnalysisResult({ result, imageUrl }: { result: unknown; imageUrl: strin
         </div>
       )}
 
-      {/* Disclaimer Banner */}
       <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
         <p className="text-sm text-yellow-800">
           {DISCLAIMER_TEXT.face}
         </p>
       </div>
 
-      {/* Face Shape */}
       <div>
         <h3 className="font-semibold mb-2">얼굴형</h3>
         <p className="text-gray-700">{analysisResult.faceShape}</p>
       </div>
 
-      {/* Features */}
       <div>
         <h3 className="font-semibold mb-2">이목구비</h3>
         <dl className="grid grid-cols-2 gap-3">
@@ -143,7 +171,6 @@ function AnalysisResult({ result, imageUrl }: { result: unknown; imageUrl: strin
         </dl>
       </div>
 
-      {/* Personality Traits */}
       <div>
         <h3 className="font-semibold mb-2">성격 특성</h3>
         <ul className="list-disc list-inside space-y-1">
@@ -153,7 +180,6 @@ function AnalysisResult({ result, imageUrl }: { result: unknown; imageUrl: strin
         </ul>
       </div>
 
-      {/* Fortune */}
       <div>
         <h3 className="font-semibold mb-2">운세 해석</h3>
         <div className="space-y-2 text-sm">
@@ -163,7 +189,6 @@ function AnalysisResult({ result, imageUrl }: { result: unknown; imageUrl: strin
         </div>
       </div>
 
-      {/* Overall Interpretation */}
       {analysisResult.overallInterpretation && (
         <div>
           <h3 className="font-semibold mb-2">종합 해석</h3>
@@ -173,15 +198,11 @@ function AnalysisResult({ result, imageUrl }: { result: unknown; imageUrl: strin
         </div>
       )}
 
-      {/* Re-analyze button */}
       <div className="pt-4 border-t">
-        <button
-          onClick={() => window.location.reload()}
-          className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-        >
-          <Sparkles className="w-4 h-4" />
+        <Button variant="outline" onClick={onReanalyze}>
+          <Sparkles className="w-4 h-4 mr-1" />
           재분석
-        </button>
+        </Button>
       </div>
     </div>
   )
@@ -217,13 +238,10 @@ function EmptyState({ hasImage, onAnalyze }: { hasImage: boolean; onAnalyze: () 
         }
       </p>
       {hasImage && (
-        <button
-          onClick={onAnalyze}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          <Sparkles className="w-4 h-4" />
+        <Button onClick={onAnalyze}>
+          <Sparkles className="w-4 h-4 mr-1" />
           분석 시작
-        </button>
+        </Button>
       )}
     </div>
   )
@@ -240,12 +258,9 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
           </div>
         </div>
       </div>
-      <button
-        onClick={onRetry}
-        className="inline-flex items-center gap-2 px-4 py-2 border border-red-600 text-red-600 rounded-lg hover:bg-red-50 transition-colors"
-      >
+      <Button variant="outline" onClick={onRetry}>
         다시 시도
-      </button>
+      </Button>
     </div>
   )
 }
