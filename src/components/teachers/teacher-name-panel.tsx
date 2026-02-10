@@ -151,12 +151,20 @@ export function TeacherNamePanel({ teacherId, teacherName, analysis, teacherName
           <div className="flex gap-2">
             <Button
               type="button"
-              disabled={isPending}
+              disabled={isPending || !canAnalyzeHanja}
               onClick={handleAnalysis}
               variant="outline"
             >
-              {isPending ? "분석 중..." : canAnalyzeHanja ? "성명학 수리 분석" : "한글 이름풀이"}
+              {isPending ? "분석 중..." : "성명학 수리 분석"}
             </Button>
+            {!analysis && (
+              <Button
+                type="button"
+                onClick={handleAnalysis}
+              >
+                한글 이름풀이
+              </Button>
+            )}
           </div>
           {!canAnalyzeHanja && (
             <p className="text-xs text-amber-600">
