@@ -28,6 +28,10 @@ const PROVIDER_COLORS: Record<ProviderName, string> = {
   openai: 'bg-green-100 text-green-700 border-green-200',
   google: 'bg-blue-100 text-blue-700 border-blue-200',
   ollama: 'bg-purple-100 text-purple-700 border-purple-200',
+  deepseek: 'bg-cyan-100 text-cyan-700 border-cyan-200',
+  mistral: 'bg-amber-100 text-amber-700 border-amber-200',
+  cohere: 'bg-rose-100 text-rose-700 border-rose-200',
+  xai: 'bg-slate-100 text-slate-700 border-slate-200',
 };
 
 export function ProviderCard({ provider, config, savedConfig }: ProviderCardProps) {
