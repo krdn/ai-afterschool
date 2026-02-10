@@ -14,10 +14,22 @@ import { Badge } from "@/components/ui/badge"
 import { PromptPreviewDialog } from "./prompt-preview-dialog"
 import type { AnalysisPromptMeta } from "@/lib/ai/saju-prompts"
 
+/** 범용 프롬프트 메타 타입 (사주/관상/손금/MBTI 공통) */
+export type GenericPromptMeta = {
+  id: string
+  name: string
+  shortDescription: string
+  target: string
+  levels: string
+  purpose: string
+  recommendedTiming: string
+  tags: string[]
+}
+
 type Props = {
   selectedPromptId: string
   onPromptChange: (id: string) => void
-  promptOptions: AnalysisPromptMeta[]
+  promptOptions: GenericPromptMeta[] | AnalysisPromptMeta[]
   disabled?: boolean
   showInfoCard?: boolean
 }

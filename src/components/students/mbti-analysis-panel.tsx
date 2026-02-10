@@ -8,6 +8,9 @@ import { MbtiDirectInputModal } from "@/components/students/mbti-direct-input-mo
 import { saveMbtiDirectInput, generateMbtiLLMInterpretation } from "@/lib/actions/mbti-survey"
 import type { ProviderName } from "@/lib/ai/providers/types"
 import { ProviderSelector } from "@/components/students/provider-selector"
+import { PromptSelector } from "@/components/students/prompt-selector"
+import type { GenericPromptMeta } from "@/components/students/prompt-selector"
+import { MbtiHelpDialog } from "@/components/students/mbti-help-dialog"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 
@@ -22,14 +25,16 @@ type Props = {
   studentName: string
   analysis: MbtiAnalysis
   enabledProviders?: ProviderName[]
+  promptOptions?: GenericPromptMeta[]
 }
 
-export function MbtiAnalysisPanel({ studentId, studentName, analysis, enabledProviders = [] }: Props) {
+export function MbtiAnalysisPanel({ studentId, studentName, analysis, enabledProviders = [], promptOptions = [] }: Props) {
   const [showDirectInput, setShowDirectInput] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [isGeneratingAI, setIsGeneratingAI] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [selectedProvider, setSelectedProvider] = useState('auto')
+  const [selectedPromptId, setSelectedPromptId] = useState('default')
   const router = useRouter()
 
   const handleDirectInputSave = async (data: {
@@ -66,6 +71,7 @@ export function MbtiAnalysisPanel({ studentId, studentName, analysis, enabledPro
             <Brain className="w-5 h-5 text-purple-600" />
           </div>
           <h2 data-testid="mbti-tab" className="text-lg font-semibold">MBTI 성향 분석</h2>
+          <MbtiHelpDialog />
         </div>
         {analysis && (
           <div className="flex items-center gap-2">
@@ -126,7 +132,15 @@ export function MbtiAnalysisPanel({ studentId, studentName, analysis, enabledPro
               }}
             />
             {/* AI 해석 버튼 */}
-            <div className="border-t pt-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+            <div className="border-t pt-4 flex flex-col sm:flex-row items-start sm:items-center gap-3 flex-wrap">
+              {promptOptions.length > 0 && (
+                <PromptSelector
+                  selectedPromptId={selectedPromptId}
+                  onPromptChange={setSelectedPromptId}
+                  promptOptions={promptOptions}
+                  disabled={isGeneratingAI}
+                />
+              )}
               <ProviderSelector
                 selectedProvider={selectedProvider}
                 onProviderChange={setSelectedProvider}
@@ -138,7 +152,7 @@ export function MbtiAnalysisPanel({ studentId, studentName, analysis, enabledPro
                   setIsGeneratingAI(true)
                   setErrorMessage(null)
                   try {
-                    await generateMbtiLLMInterpretation(studentId, selectedProvider)
+                    await generateMbtiLLMInterpretation(studentId, selectedProvider, selectedPromptId)
                     router.refresh()
                   } catch (error) {
                     setErrorMessage(`AI 해석에 실패했습니다. (원인: ${error instanceof Error ? error.message : '알 수 없는 오류'})`)
