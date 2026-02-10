@@ -39,7 +39,9 @@ export default function AnalysisTab({ studentId }: { studentId: string }) {
     palmAnalysis: any
     mbtiAnalysis: any
     enabledProviders: ProviderName[]
-  }>({ student: null, faceAnalysis: null, palmAnalysis: null, mbtiAnalysis: null, enabledProviders: [] })
+    lastUsedProvider: string | null
+    lastUsedModel: string | null
+  }>({ student: null, faceAnalysis: null, palmAnalysis: null, mbtiAnalysis: null, enabledProviders: [], lastUsedProvider: null, lastUsedModel: null })
   const [loading, setLoading] = useState(true)
 
   // History dialog states
@@ -176,6 +178,8 @@ export default function AnalysisTab({ studentId }: { studentId: string }) {
             analysis={data.student.sajuAnalysis}
             enabledProviders={data.enabledProviders}
             onAnalysisComplete={refreshData}
+            lastUsedProvider={data.lastUsedProvider}
+            lastUsedModel={data.lastUsedModel}
           />
         </TabsContent>
 
