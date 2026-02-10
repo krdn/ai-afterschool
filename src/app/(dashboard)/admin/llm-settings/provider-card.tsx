@@ -39,7 +39,7 @@ const PROVIDER_COLORS: Record<ProviderName, string> = {
 export function ProviderCard({ provider, config, savedConfig }: ProviderCardProps) {
   const [isEnabled, setIsEnabled] = useState(savedConfig?.isEnabled ?? false);
   const [apiKey, setApiKey] = useState('');
-  const [baseUrl, setBaseUrl] = useState(savedConfig?.baseUrl ?? '');
+  const [baseUrl, setBaseUrl] = useState(savedConfig?.baseUrl || (provider === 'ollama' ? 'http://192.168.0.5:11434/api' : ''));
   const [defaultModel, setDefaultModel] = useState(savedConfig?.defaultModel ?? config.defaultModel);
   const [showApiKey, setShowApiKey] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -205,17 +205,46 @@ export function ProviderCard({ provider, config, savedConfig }: ProviderCardProp
         )}
 
         {provider === 'ollama' && (
-          <div className="space-y-2">
-            <Label htmlFor={`${provider}-baseurl`}>Ollama Server URL</Label>
-            <Input
-              id={`${provider}-baseurl`}
-              placeholder="http://192.168.0.5:11434/api"
-              value={baseUrl}
-              onChange={(e) => setBaseUrl(e.target.value)}
-            />
-            <p className="text-xs text-muted-foreground">
-              Ollama 서버 주소. 로컬 Docker 사용 시 명시적 IP 필요
-            </p>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor={`${provider}-baseurl`}>Ollama Server URL</Label>
+              <Input
+                id={`${provider}-baseurl`}
+                placeholder="http://192.168.0.5:11434/api"
+                value={baseUrl}
+                onChange={(e) => setBaseUrl(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">
+                Ollama 서버 주소. 로컬 Docker 사용 시 명시적 IP 필요
+              </p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor={`${provider}-apikey`}>API Key <span className="text-muted-foreground font-normal">(선택)</span></Label>
+              {savedConfig?.apiKeyMasked && !apiKey && (
+                <p className="text-sm text-muted-foreground">
+                  현재: <code className="bg-muted px-1 rounded">{savedConfig.apiKeyMasked}</code>
+                </p>
+              )}
+              <div className="relative">
+                <Input
+                  id={`${provider}-apikey`}
+                  type={showApiKey ? 'text' : 'password'}
+                  placeholder="인증이 필요한 경우 API 키 입력..."
+                  value={apiKey}
+                  onChange={(e) => setApiKey(e.target.value)}
+                />
+                <button
+                  type="button"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  onClick={() => setShowApiKey(!showApiKey)}
+                >
+                  {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Ollama 서버에 인증이 설정된 경우에만 입력
+              </p>
+            </div>
             <Button
               variant="outline"
               size="sm"
