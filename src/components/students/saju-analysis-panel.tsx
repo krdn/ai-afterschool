@@ -32,6 +32,8 @@ type SajuAnalysisPanelProps = {
   } | null
   enabledProviders?: ProviderName[]
   onAnalysisComplete?: () => void
+  lastUsedProvider?: string | null
+  lastUsedModel?: string | null
 }
 
 function toDate(value: Date | string) {
@@ -64,13 +66,17 @@ function formatBirthTime(hour: number | null, minute: number | null) {
   return `${String(hour).padStart(2, "0")}:${String(safeMinute).padStart(2, "0")}`
 }
 
-export function SajuAnalysisPanel({ student, analysis, enabledProviders = [], onAnalysisComplete }: SajuAnalysisPanelProps) {
+export function SajuAnalysisPanel({ student, analysis, enabledProviders = [], onAnalysisComplete, lastUsedProvider, lastUsedModel }: SajuAnalysisPanelProps) {
   const [isPending, startTransition] = useTransition()
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [selectedProvider, setSelectedProvider] = useState('built-in')
   const [selectedPromptId, setSelectedPromptId] = useState<string>('default')
   const [additionalRequest, setAdditionalRequest] = useState('')
-  const [providerLabel, setProviderLabel] = useState<string | null>(null)
+  const [providerLabel, setProviderLabel] = useState<string | null>(() => {
+    if (!lastUsedProvider) return null
+    const model = lastUsedModel && lastUsedModel !== 'default' ? ` (${lastUsedModel})` : ''
+    return `${lastUsedProvider}${model}`
+  })
   const [promptLabel, setPromptLabel] = useState<string | null>(null)
   const [showHistory, setShowHistory] = useState(false)
   const [viewMode, setViewMode] = useState<"markdown" | "rendered">("rendered")
