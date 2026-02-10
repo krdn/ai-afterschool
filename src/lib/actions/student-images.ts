@@ -58,7 +58,7 @@ export async function setStudentImage(
     const student = await db.student.findFirst({
       where: {
         id: studentId,
-        teacherId: session.userId,
+        ...(session.role === "DIRECTOR" ? {} : { teacherId: session.userId }),
       },
     })
 
@@ -159,7 +159,7 @@ export async function deleteStudentImage(
     const student = await db.student.findFirst({
       where: {
         id: studentId,
-        teacherId: session.userId,
+        ...(session.role === "DIRECTOR" ? {} : { teacherId: session.userId }),
       },
     })
 

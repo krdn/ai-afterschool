@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation"
 import type { NameNumerologyResult } from "@/lib/analysis/name-numerology"
 import {
   coerceHanjaSelections,
-  getStrokeCount,
+  getStrokeInfo,
   normalizeHanjaSelections,
   selectionsToHanjaName,
 } from "@/lib/analysis/hanja-strokes"
@@ -102,7 +102,13 @@ export function TeacherNamePanel({
                   </span>
                   <span className="text-xs text-gray-500">
                     {selection.hanja
-                      ? `${getStrokeCount(selection.hanja) ?? "?"}획`
+                      ? (() => {
+                          const info = getStrokeInfo(selection.hanja)
+                          if (!info) return "?획"
+                          return info.estimated
+                            ? `~${info.strokes}획`
+                            : `${info.strokes}획`
+                        })()
                       : "획수 없음"}
                   </span>
                 </div>

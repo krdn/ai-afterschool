@@ -67,6 +67,9 @@ export default async function StudentDetailPage(props: {
                         <span className="text-gray-500">생년월일:</span> {new Date(student.birthDate).toLocaleDateString()}
                     </div>
                     <div>
+                        <span className="text-gray-500">국적:</span> {student.nationality || "한국"}
+                    </div>
+                    <div>
                         <span className="text-gray-500">담당 선생님:</span> {student.teacher?.name}
                     </div>
                 </div>
