@@ -11,13 +11,17 @@ interface ProviderSelectProps {
   currentDefault: ProviderName | null
 }
 
-const ALL_PROVIDERS: ProviderName[] = ['ollama', 'anthropic', 'openai', 'google']
+const ALL_PROVIDERS: ProviderName[] = ['ollama', 'anthropic', 'openai', 'google', 'deepseek', 'mistral', 'cohere', 'xai']
 
 const PROVIDER_ICONS: Record<ProviderName, string> = {
   ollama: 'O',
   anthropic: 'C',
   openai: 'G',
   google: 'G',
+  deepseek: 'D',
+  mistral: 'M',
+  cohere: 'C',
+  xai: 'X',
 }
 
 const PROVIDER_COLORS: Record<ProviderName, { bg: string; selected: string }> = {
@@ -25,6 +29,10 @@ const PROVIDER_COLORS: Record<ProviderName, { bg: string; selected: string }> = 
   anthropic: { bg: 'bg-orange-50 border-orange-200 hover:bg-orange-100', selected: 'bg-orange-100 border-orange-500 ring-2 ring-orange-300' },
   openai: { bg: 'bg-green-50 border-green-200 hover:bg-green-100', selected: 'bg-green-100 border-green-500 ring-2 ring-green-300' },
   google: { bg: 'bg-blue-50 border-blue-200 hover:bg-blue-100', selected: 'bg-blue-100 border-blue-500 ring-2 ring-blue-300' },
+  deepseek: { bg: 'bg-cyan-50 border-cyan-200 hover:bg-cyan-100', selected: 'bg-cyan-100 border-cyan-500 ring-2 ring-cyan-300' },
+  mistral: { bg: 'bg-amber-50 border-amber-200 hover:bg-amber-100', selected: 'bg-amber-100 border-amber-500 ring-2 ring-amber-300' },
+  cohere: { bg: 'bg-rose-50 border-rose-200 hover:bg-rose-100', selected: 'bg-rose-100 border-rose-500 ring-2 ring-rose-300' },
+  xai: { bg: 'bg-slate-50 border-slate-200 hover:bg-slate-100', selected: 'bg-slate-100 border-slate-500 ring-2 ring-slate-300' },
 }
 
 export function ProviderSelect({ enabledProviders, currentDefault }: ProviderSelectProps) {
