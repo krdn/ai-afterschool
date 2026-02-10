@@ -5,7 +5,19 @@ import { getFaceAnalysisByStudentId } from "@/lib/db/face-analysis"
 import { getPalmAnalysisByStudentId } from "@/lib/db/palm-analysis"
 import { getMbtiAnalysis } from "@/lib/db/mbti-analysis"
 import { getEnabledProviders } from "@/lib/ai/config"
+import { getActivePresetsByType } from "@/lib/db/analysis-prompt-preset"
 import type { ProviderName } from "@/lib/ai/providers/types"
+
+export type PromptOption = {
+  id: string
+  name: string
+  shortDescription: string
+  target: string
+  levels: string
+  purpose: string
+  recommendedTiming: string
+  tags: string[]
+}
 
 export type StudentAnalysisData = {
   student: {
@@ -48,12 +60,15 @@ export type StudentAnalysisData = {
   enabledProviders: ProviderName[]
   lastUsedProvider: string | null
   lastUsedModel: string | null
+  facePromptOptions: PromptOption[]
+  palmPromptOptions: PromptOption[]
+  mbtiPromptOptions: PromptOption[]
 }
 
 export async function getStudentAnalysisData(studentId: string): Promise<StudentAnalysisData> {
   try {
-    // Fetch student data and enabled providers in parallel
-    const [student, enabledProviders] = await Promise.all([
+    // Fetch student data, enabled providers, and prompt options in parallel
+    const [student, enabledProviders, facePresets, palmPresets, mbtiPresets] = await Promise.all([
       db.student.findUnique({
         where: { id: studentId },
         include: {
@@ -61,8 +76,23 @@ export async function getStudentAnalysisData(studentId: string): Promise<Student
           images: true
         }
       }),
-      getEnabledProviders().catch(() => [] as ProviderName[])
+      getEnabledProviders().catch(() => [] as ProviderName[]),
+      getActivePresetsByType("face").catch(() => []),
+      getActivePresetsByType("palm").catch(() => []),
+      getActivePresetsByType("mbti").catch(() => []),
     ])
+
+    const toPromptOptions = (presets: Awaited<ReturnType<typeof getActivePresetsByType>>): PromptOption[] =>
+      presets.map(p => ({
+        id: p.promptKey,
+        name: p.name,
+        shortDescription: p.shortDescription,
+        target: p.target,
+        levels: p.levels,
+        purpose: p.purpose,
+        recommendedTiming: p.recommendedTiming,
+        tags: p.tags,
+      }))
 
     if (!student) {
       return {
@@ -72,7 +102,10 @@ export async function getStudentAnalysisData(studentId: string): Promise<Student
         mbtiAnalysis: null,
         enabledProviders,
         lastUsedProvider: null,
-        lastUsedModel: null
+        lastUsedModel: null,
+        facePromptOptions: toPromptOptions(facePresets),
+        palmPromptOptions: toPromptOptions(palmPresets),
+        mbtiPromptOptions: toPromptOptions(mbtiPresets),
       }
     }
 
@@ -107,7 +140,10 @@ export async function getStudentAnalysisData(studentId: string): Promise<Student
       } : null,
       enabledProviders,
       lastUsedProvider: sajuHistory?.usedProvider ?? null,
-      lastUsedModel: sajuHistory?.usedModel ?? null
+      lastUsedModel: sajuHistory?.usedModel ?? null,
+      facePromptOptions: toPromptOptions(facePresets),
+      palmPromptOptions: toPromptOptions(palmPresets),
+      mbtiPromptOptions: toPromptOptions(mbtiPresets),
     }
   } catch (error) {
     console.error("Failed to load analysis data:", error)
@@ -118,7 +154,10 @@ export async function getStudentAnalysisData(studentId: string): Promise<Student
       mbtiAnalysis: null,
       enabledProviders: [],
       lastUsedProvider: null,
-      lastUsedModel: null
+      lastUsedModel: null,
+      facePromptOptions: [],
+      palmPromptOptions: [],
+      mbtiPromptOptions: [],
     }
   }
 }

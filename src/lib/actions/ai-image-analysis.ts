@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache"
 import { after } from "next/server"
 import { generateWithVision, generateVisionWithSpecificProvider, FailoverError } from "@/lib/ai/router"
 import { FACE_READING_PROMPT, PALM_READING_PROMPT } from "@/lib/ai/prompts"
+import { getFacePrompt, type FacePromptId } from "@/lib/ai/face-prompts"
+import { getPalmPrompt, type PalmPromptId } from "@/lib/ai/palm-prompts"
 import { verifySession } from "@/lib/dal"
 import { db } from "@/lib/db"
 import { upsertFaceAnalysis } from "@/lib/db/face-analysis"
@@ -16,7 +18,7 @@ import type { ProviderName } from "@/lib/ai/providers/types"
  * Vision을 지원하는 제공자에서 자동 폴백됩니다.
  * (anthropic, openai, google 순)
  */
-export async function analyzeFaceImage(studentId: string, imageUrl: string, provider?: string) {
+export async function analyzeFaceImage(studentId: string, imageUrl: string, provider?: string, promptId?: string) {
   const session = await verifySession()
 
   // 학생 접근 권한 확인
@@ -36,13 +38,18 @@ export async function analyzeFaceImage(studentId: string, imageUrl: string, prov
       const imageBuffer = Buffer.from(await imageResponse.arrayBuffer())
       const base64Image = imageBuffer.toString('base64')
 
+      // 선택된 프롬프트 또는 기본 프롬프트 사용
+      const selectedPrompt = promptId && promptId !== 'default'
+        ? getFacePrompt(promptId as FacePromptId)?.promptTemplate ?? FACE_READING_PROMPT
+        : FACE_READING_PROMPT
+
       // Vision API 호출 — provider 분기
       const visionOptions = {
         featureType: 'face_analysis' as const,
         teacherId: session.userId,
         imageBase64: base64Image,
         mimeType: 'image/jpeg' as const,
-        prompt: FACE_READING_PROMPT,
+        prompt: selectedPrompt,
         maxOutputTokens: 2048,
       }
 
@@ -111,7 +118,8 @@ export async function analyzePalmImage(
   studentId: string,
   imageUrl: string,
   hand: 'left' | 'right',
-  provider?: string
+  provider?: string,
+  promptId?: string
 ) {
   const session = await verifySession()
 
@@ -129,13 +137,18 @@ export async function analyzePalmImage(
       const imageBuffer = Buffer.from(await imageResponse.arrayBuffer())
       const base64Image = imageBuffer.toString('base64')
 
+      // 선택된 프롬프트 또는 기본 프롬프트 사용
+      const selectedPrompt = promptId && promptId !== 'default'
+        ? getPalmPrompt(promptId as PalmPromptId)?.promptTemplate ?? PALM_READING_PROMPT
+        : PALM_READING_PROMPT
+
       // Vision API 호출 — provider 분기
       const visionOptions = {
         featureType: 'palm_analysis' as const,
         teacherId: session.userId,
         imageBase64: base64Image,
         mimeType: 'image/jpeg' as const,
-        prompt: PALM_READING_PROMPT,
+        prompt: selectedPrompt,
         maxOutputTokens: 2048,
       }
 

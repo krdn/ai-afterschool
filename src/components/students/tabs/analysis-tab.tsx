@@ -41,7 +41,10 @@ export default function AnalysisTab({ studentId }: { studentId: string }) {
     enabledProviders: ProviderName[]
     lastUsedProvider: string | null
     lastUsedModel: string | null
-  }>({ student: null, faceAnalysis: null, palmAnalysis: null, mbtiAnalysis: null, enabledProviders: [], lastUsedProvider: null, lastUsedModel: null })
+    facePromptOptions: Array<{ id: string; name: string; shortDescription: string; target: string; levels: string; purpose: string; recommendedTiming: string; tags: string[] }>
+    palmPromptOptions: Array<{ id: string; name: string; shortDescription: string; target: string; levels: string; purpose: string; recommendedTiming: string; tags: string[] }>
+    mbtiPromptOptions: Array<{ id: string; name: string; shortDescription: string; target: string; levels: string; purpose: string; recommendedTiming: string; tags: string[] }>
+  }>({ student: null, faceAnalysis: null, palmAnalysis: null, mbtiAnalysis: null, enabledProviders: [], lastUsedProvider: null, lastUsedModel: null, facePromptOptions: [], palmPromptOptions: [], mbtiPromptOptions: [] })
   const [loading, setLoading] = useState(true)
 
   // History dialog states
@@ -189,6 +192,7 @@ export default function AnalysisTab({ studentId }: { studentId: string }) {
             analysis={data.faceAnalysis}
             faceImageUrl={faceImageUrl}
             enabledProviders={data.enabledProviders}
+            promptOptions={data.facePromptOptions}
           />
         </TabsContent>
 
@@ -198,6 +202,7 @@ export default function AnalysisTab({ studentId }: { studentId: string }) {
             analysis={data.palmAnalysis}
             palmImageUrl={palmImageUrl}
             enabledProviders={data.enabledProviders}
+            promptOptions={data.palmPromptOptions}
           />
         </TabsContent>
 
@@ -207,6 +212,7 @@ export default function AnalysisTab({ studentId }: { studentId: string }) {
             studentName={data.student.name}
             analysis={data.mbtiAnalysis}
             enabledProviders={data.enabledProviders}
+            promptOptions={data.mbtiPromptOptions}
           />
         </TabsContent>
       </Tabs>

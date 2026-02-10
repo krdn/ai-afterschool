@@ -7,6 +7,9 @@ import { analyzePalmImage } from "@/lib/actions/ai-image-analysis"
 import { DISCLAIMER_TEXT } from "@/lib/ai/prompts"
 import type { ProviderName } from "@/lib/ai/providers/types"
 import { ProviderSelector } from "@/components/students/provider-selector"
+import { PromptSelector } from "@/components/students/prompt-selector"
+import type { GenericPromptMeta } from "@/components/students/prompt-selector"
+import { PalmHelpDialog } from "@/components/students/palm-help-dialog"
 import { Button } from "@/components/ui/button"
 
 type PalmAnalysis = {
@@ -23,13 +26,15 @@ type Props = {
   analysis: PalmAnalysis
   palmImageUrl: string | null
   enabledProviders?: ProviderName[]
+  promptOptions?: GenericPromptMeta[]
 }
 
 export function PalmAnalysisPanel({
   studentId,
   analysis,
   palmImageUrl,
-  enabledProviders = []
+  enabledProviders = [],
+  promptOptions = []
 }: Props) {
   const [, startTransition] = useTransition()
   const [localStatus, setLocalStatus] = useState<'idle' | 'analyzing'>('idle')
@@ -38,6 +43,7 @@ export function PalmAnalysisPanel({
   )
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [selectedProvider, setSelectedProvider] = useState('auto')
+  const [selectedPromptId, setSelectedPromptId] = useState('default')
 
   const handleAnalyze = () => {
     if (!palmImageUrl) {
@@ -48,7 +54,7 @@ export function PalmAnalysisPanel({
     setLocalStatus('analyzing')
     setErrorMessage(null)
     startTransition(async () => {
-      const result = await analyzePalmImage(studentId, palmImageUrl, selectedHand, selectedProvider)
+      const result = await analyzePalmImage(studentId, palmImageUrl, selectedHand, selectedProvider, selectedPromptId)
       if (result.success) {
         window.location.reload()
       } else {
@@ -70,14 +76,25 @@ export function PalmAnalysisPanel({
             <Hand className="w-5 h-5 text-purple-600" />
           </div>
           <h2 className="text-lg font-semibold">AI 손금 분석</h2>
+          <PalmHelpDialog />
         </div>
-        <ProviderSelector
-          selectedProvider={selectedProvider}
-          onProviderChange={setSelectedProvider}
-          availableProviders={enabledProviders}
-          requiresVision
-          disabled={isAnalyzing}
-        />
+        <div className="flex items-center gap-3 flex-wrap">
+          {promptOptions.length > 0 && (
+            <PromptSelector
+              selectedPromptId={selectedPromptId}
+              onPromptChange={setSelectedPromptId}
+              promptOptions={promptOptions}
+              disabled={isAnalyzing}
+            />
+          )}
+          <ProviderSelector
+            selectedProvider={selectedProvider}
+            onProviderChange={setSelectedProvider}
+            availableProviders={enabledProviders}
+            requiresVision
+            disabled={isAnalyzing}
+          />
+        </div>
       </div>
 
       {/* Content */}

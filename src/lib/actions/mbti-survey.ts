@@ -13,6 +13,7 @@ import {
 } from "@/lib/db/mbti-analysis"
 import { generateWithProvider, generateWithSpecificProvider } from "@/lib/ai/router"
 import { MBTI_INTERPRETATION_PROMPT } from "@/lib/ai/prompts"
+import { getMbtiPrompt, type MbtiPromptId } from "@/lib/ai/mbti-prompts"
 import type { ProviderName } from "@/lib/ai/providers/types"
 import questions from "@/data/mbti/questions.json"
 import descriptions from "@/data/mbti/descriptions.json"
@@ -251,7 +252,8 @@ ${typeDescription.famousPeople.join(", ")}
  */
 export async function generateMbtiLLMInterpretation(
   studentId: string,
-  provider?: string
+  provider?: string,
+  promptId?: string
 ) {
   const session = await verifySession()
   await ensureStudentAccess(studentId, session.userId)
@@ -263,7 +265,17 @@ export async function generateMbtiLLMInterpretation(
   }
 
   const percentages = analysis.percentages as Record<string, number>
-  const prompt = MBTI_INTERPRETATION_PROMPT(analysis.mbtiType, percentages)
+
+  // 선택된 프롬프트가 있으면 해당 프롬프트의 buildPrompt 사용
+  let prompt: string
+  if (promptId && promptId !== 'default') {
+    const mbtiPromptDef = getMbtiPrompt(promptId as MbtiPromptId)
+    prompt = mbtiPromptDef
+      ? mbtiPromptDef.buildPrompt(analysis.mbtiType, percentages)
+      : MBTI_INTERPRETATION_PROMPT(analysis.mbtiType, percentages)
+  } else {
+    prompt = MBTI_INTERPRETATION_PROMPT(analysis.mbtiType, percentages)
+  }
 
   const llmResult = (!provider || provider === 'auto')
     ? await generateWithProvider({
