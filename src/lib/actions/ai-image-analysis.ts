@@ -21,10 +21,10 @@ import type { ProviderName } from "@/lib/ai/providers/types"
 export async function analyzeFaceImage(studentId: string, imageUrl: string, provider?: string, promptId?: string) {
   const session = await verifySession()
 
-  // 학생 접근 권한 확인
-  const student = await db.student.findFirst({
-    where: { id: studentId, teacherId: session.userId }
-  })
+  // 학생 접근 권한 확인 (TEACHER는 본인 학생만, DIRECTOR/ADMIN은 전체)
+  const where: { id: string; teacherId?: string } = { id: studentId }
+  if (session.role === 'TEACHER') where.teacherId = session.userId
+  const student = await db.student.findFirst({ where })
 
   if (!student) {
     return { success: false, error: "학생을 찾을 수 없어요." }
@@ -123,9 +123,10 @@ export async function analyzePalmImage(
 ) {
   const session = await verifySession()
 
-  const student = await db.student.findFirst({
-    where: { id: studentId, teacherId: session.userId }
-  })
+  // 학생 접근 권한 확인 (TEACHER는 본인 학생만, DIRECTOR/ADMIN은 전체)
+  const where: { id: string; teacherId?: string } = { id: studentId }
+  if (session.role === 'TEACHER') where.teacherId = session.userId
+  const student = await db.student.findFirst({ where })
 
   if (!student) {
     return { success: false, error: "학생을 찾을 수 없어요." }
@@ -222,7 +223,9 @@ export async function getFaceAnalysis(studentId: string) {
     }
   })
 
-  if (!analysis || analysis.student.teacherId !== session.userId) {
+  if (!analysis) return null
+  // TEACHER는 본인 학생만, DIRECTOR/ADMIN은 전체 접근
+  if (session.role === 'TEACHER' && analysis.student.teacherId !== session.userId) {
     return null
   }
 
@@ -244,7 +247,9 @@ export async function getPalmAnalysis(studentId: string) {
     }
   })
 
-  if (!analysis || analysis.student.teacherId !== session.userId) {
+  if (!analysis) return null
+  // TEACHER는 본인 학생만, DIRECTOR/ADMIN은 전체 접근
+  if (session.role === 'TEACHER' && analysis.student.teacherId !== session.userId) {
     return null
   }
 

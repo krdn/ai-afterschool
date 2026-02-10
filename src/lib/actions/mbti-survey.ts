@@ -19,14 +19,22 @@ import questions from "@/data/mbti/questions.json"
 import descriptions from "@/data/mbti/descriptions.json"
 
 /**
+ * 역할에 따른 teacherId 반환 (TEACHER만 본인 학생으로 제한)
+ */
+function ownerTeacherId(session: { userId: string; role: string }): string | null {
+  return session.role === 'TEACHER' ? session.userId : null
+}
+
+/**
  * 학생 접근 권한 확인
  */
-async function ensureStudentAccess(studentId: string, teacherId: string) {
+async function ensureStudentAccess(studentId: string, session: { userId: string; role: string }) {
+  const where: { id: string; teacherId?: string } = { id: studentId }
+  const tid = ownerTeacherId(session)
+  if (tid) where.teacherId = tid
+
   const student = await db.student.findFirst({
-    where: {
-      id: studentId,
-      teacherId,
-    },
+    where,
     select: { id: true },
   })
 
@@ -40,7 +48,7 @@ async function ensureStudentAccess(studentId: string, teacherId: string) {
  */
 export async function getMbtiDraft(studentId: string) {
   const session = await verifySession()
-  await ensureStudentAccess(studentId, session.userId)
+  await ensureStudentAccess(studentId, session)
 
   const draft = await getMbtiDraftDb(studentId)
   return draft
@@ -54,7 +62,7 @@ export async function saveMbtiDraft(
   responses: Record<string, number>
 ) {
   const session = await verifySession()
-  await ensureStudentAccess(studentId, session.userId)
+  await ensureStudentAccess(studentId, session)
 
   // 진행도 계산
   const progress = calculateProgress(responses, 60)
@@ -76,7 +84,7 @@ export async function submitMbtiSurvey(
   responses: Record<string, number>
 ) {
   const session = await verifySession()
-  await ensureStudentAccess(studentId, session.userId)
+  await ensureStudentAccess(studentId, session)
 
   // 60문항 모두 응답했는지 검증
   const progress = calculateProgress(responses, 60)
@@ -149,7 +157,7 @@ ${typeDescription.famousPeople.join(", ")}
  */
 export async function getMbtiAnalysis(studentId: string) {
   const session = await verifySession()
-  await ensureStudentAccess(studentId, session.userId)
+  await ensureStudentAccess(studentId, session)
 
   const analysis = await getMbtiAnalysisDb(studentId)
   return analysis
@@ -175,7 +183,7 @@ export async function saveMbtiDirectInput(
   }
 ) {
   const session = await verifySession()
-  await ensureStudentAccess(studentId, session.userId)
+  await ensureStudentAccess(studentId, session)
 
   // 유형 설명 로드
   const typeDescription = descriptions[data.mbtiType as keyof typeof descriptions]
@@ -256,7 +264,7 @@ export async function generateMbtiLLMInterpretation(
   promptId?: string
 ) {
   const session = await verifySession()
-  await ensureStudentAccess(studentId, session.userId)
+  await ensureStudentAccess(studentId, session)
 
   // 기존 MBTI 결과 조회
   const analysis = await getMbtiAnalysisDb(studentId)
