@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useEffect } from "react"
 import {
   Dialog,
   DialogContent,
@@ -11,7 +11,8 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { getPromptPreviewText, type AnalysisPromptMeta, type AnalysisPromptId } from "@/lib/ai/saju-prompts"
+import { getPromptPreviewAction } from "@/app/(dashboard)/students/[id]/saju/actions"
+import type { AnalysisPromptMeta } from "@/lib/ai/saju-prompts"
 
 type Props = {
   open: boolean
@@ -21,11 +22,19 @@ type Props = {
 
 export function PromptPreviewDialog({ open, onOpenChange, prompt }: Props) {
   const [view, setView] = useState<"info" | "prompt">("info")
+  const [previewText, setPreviewText] = useState("")
+  const [previewLoading, setPreviewLoading] = useState(false)
 
-  const previewText = useMemo(() => {
-    if (!prompt) return ""
-    return getPromptPreviewText(prompt.id as AnalysisPromptId)
-  }, [prompt])
+  // DB에서 프롬프트 미리보기 로드
+  useEffect(() => {
+    if (open && view === "prompt" && prompt) {
+      setPreviewLoading(true)
+      getPromptPreviewAction(prompt.id)
+        .then(setPreviewText)
+        .catch(() => setPreviewText("미리보기를 불러올 수 없습니다."))
+        .finally(() => setPreviewLoading(false))
+    }
+  }, [open, view, prompt])
 
   if (!prompt) return null
 
@@ -80,12 +89,20 @@ export function PromptPreviewDialog({ open, onOpenChange, prompt }: Props) {
           </div>
         ) : (
           <ScrollArea className="h-[400px]">
-            <pre className="text-xs leading-5 text-gray-700 whitespace-pre-wrap break-words font-mono bg-gray-50 rounded-md p-3 border">
-              {previewText}
-            </pre>
-            <p className="text-xs text-gray-400 mt-2">
-              * 샘플 사주 데이터가 적용된 미리보기입니다. 실제 분석 시 학생의 사주 데이터로 대체됩니다.
-            </p>
+            {previewLoading ? (
+              <div className="flex items-center justify-center h-32 text-gray-400 text-sm">
+                미리보기 로딩 중...
+              </div>
+            ) : (
+              <>
+                <pre className="text-xs leading-5 text-gray-700 whitespace-pre-wrap break-words font-mono bg-gray-50 rounded-md p-3 border">
+                  {previewText}
+                </pre>
+                <p className="text-xs text-gray-400 mt-2">
+                  * DB에 저장된 프롬프트 원문입니다. 실제 분석 시 {"{학생정보}"}, {"{사주데이터}"} 부분이 학생 데이터로 치환됩니다.
+                </p>
+              </>
+            )}
           </ScrollArea>
         )}
       </DialogContent>

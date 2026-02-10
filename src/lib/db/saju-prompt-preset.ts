@@ -119,6 +119,49 @@ export async function deletePreset(id: string): Promise<void> {
   }
 }
 
+/** 코드 기본 프롬프트를 DB에 upsert (없으면 생성, 있으면 스킵) */
+export async function seedBuiltInPresets(
+  definitions: Array<{
+    promptKey: string
+    name: string
+    shortDescription: string
+    target: string
+    levels: string
+    purpose: string
+    recommendedTiming: string
+    tags: string[]
+    promptTemplate: string
+    sortOrder: number
+  }>,
+): Promise<number> {
+  let created = 0
+  for (const def of definitions) {
+    const existing = await db.sajuPromptPreset.findUnique({
+      where: { promptKey: def.promptKey },
+    })
+    if (!existing) {
+      await db.sajuPromptPreset.create({
+        data: {
+          promptKey: def.promptKey,
+          name: def.name,
+          shortDescription: def.shortDescription,
+          target: def.target,
+          levels: def.levels,
+          purpose: def.purpose,
+          recommendedTiming: def.recommendedTiming,
+          tags: def.tags,
+          promptTemplate: def.promptTemplate,
+          isBuiltIn: true,
+          isActive: true,
+          sortOrder: def.sortOrder,
+        },
+      })
+      created++
+    }
+  }
+  return created
+}
+
 // JSON tags → string[] 변환
 function normalizeRow(row: {
   id: string

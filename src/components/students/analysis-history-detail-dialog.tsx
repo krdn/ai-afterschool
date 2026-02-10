@@ -3,6 +3,7 @@
 import { format } from "date-fns"
 import { ko } from "date-fns/locale"
 import { Clock, X } from "lucide-react"
+import { MarkdownRenderer } from "@/components/ui/markdown-renderer"
 import {
   Dialog,
   DialogContent,
@@ -165,7 +166,7 @@ function SajuDetailContent({ item }: { item: AnalysisHistoryItem }) {
       {item.interpretation && (
         <div>
           <h4 className="text-sm font-semibold mb-2">해석</h4>
-          <p className="text-sm text-gray-700 whitespace-pre-wrap">{item.interpretation}</p>
+          <MarkdownRenderer content={item.interpretation} />
         </div>
       )}
     </div>

@@ -27,7 +27,8 @@ import { AuditTab } from '@/components/admin/tabs/audit-tab'
 
 // 사주 프롬프트 관리
 import { SajuPromptsTab } from '@/components/admin/tabs/saju-prompts-tab'
-import { getAllPresets } from '@/lib/db/saju-prompt-preset'
+import { getAllPresets, seedBuiltInPresets } from '@/lib/db/saju-prompt-preset'
+import { getBuiltInSeedData } from '@/lib/ai/saju-prompts'
 
 export const metadata = {
   title: '관리자 | AI AfterSchool',
@@ -170,7 +171,7 @@ export default async function AdminPage() {
     getDailyUsageData(),
     getProviderUsageData(),
     getFeatureUsageData(),
-    getAllPresets(),
+    seedBuiltInPresets(getBuiltInSeedData()).then(() => getAllPresets()),
   ])
 
   const enabledProviders = llmConfigs

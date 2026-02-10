@@ -595,9 +595,60 @@ export function buildPromptFromTemplate(
   return appendAdditionalRequest(filled.trim(), additionalRequest)
 }
 
-/** 프롬프트 미리보기 텍스트 (샘플 사주 데이터 적용) */
-export function getPromptPreviewText(id: AnalysisPromptId): string {
-  const sampleSaju: SajuResult = {
+/**
+ * DB seed용: 코드 기본 프롬프트의 메타 + 템플릿 데이터를 반환합니다.
+ * 각 프롬프트의 buildPrompt에서 사용하는 템플릿을 {학생정보}, {사주데이터} 플레이스홀더 방식으로 추출합니다.
+ */
+export function getBuiltInSeedData(): Array<{
+  promptKey: string
+  name: string
+  shortDescription: string
+  target: string
+  levels: string
+  purpose: string
+  recommendedTiming: string
+  tags: string[]
+  promptTemplate: string
+  sortOrder: number
+}> {
+  // default 프롬프트 템플릿 (SAJU_INTERPRETATION_PROMPT 기반)
+  const defaultTemplate = `역할:
+너는 한국 전통 사주명리학 전문가야. 아래 사주 데이터를 바탕으로 학생에게 도움이 되는 해석을 제공해줘.
+
+[학생 정보]
+─────────────────
+{학생정보}
+─────────────────
+
+[학생 사주 데이터]
+─────────────────
+{사주데이터}
+─────────────────
+
+다음 항목을 포함하여 해석해주세요:
+
+1. **일주 분석**: 일간(日干)의 특성과 기본 성격
+2. **오행 균형**: 강한 오행과 부족한 오행, 그에 따른 성향
+3. **십성 해석**: 십성 관계가 나타내는 대인관계 및 적성
+4. **학업/진로**: 사주에서 읽을 수 있는 학업 적성과 진로 방향
+5. **종합 조언**: 학생에게 도움이 될 수 있는 격려의 말
+
+**중요:**
+- 과학적 근거가 없는 전통 해석임을 명시
+- 긍정적이고 격려하는 톤 유지
+- 학생의 자존감을 해칠 수 있는 내용 제외
+- 마크다운 형식으로 작성`
+
+  // 나머지 프롬프트: buildPrompt 함수에서 실제 템플릿 추출
+  // 더미 데이터로 호출 후 {학생정보}, {사주데이터}를 다시 플레이스홀더로 치환
+  const STUDENT_PLACEHOLDER = "{학생정보}"
+  const SAJU_PLACEHOLDER = "{사주데이터}"
+
+  const dummyStudent: StudentInfo = {
+    birthDate: "___BIRTH_DATE___",
+    birthTime: "___BIRTH_TIME___",
+  }
+  const dummySaju: SajuResult = {
     pillars: {
       year: { stem: "갑", branch: "자" },
       month: { stem: "병", branch: "인" },
@@ -607,25 +658,74 @@ export function getPromptPreviewText(id: AnalysisPromptId): string {
     elements: { "목": 2, "화": 3, "토": 1, "금": 1, "수": 1 },
     tenGods: { year: "편재", month: "편인", hour: "식신" },
     meta: {
-      solarYear: 2008,
-      solarTerm: "소한",
-      solarTermIndex: 0,
-      monthIndex: 0,
-      dayIndex: 0,
-      timeKnown: true,
-      kstTimestamp: "2008-01-10T06:30:00+09:00",
-      correctedTimestamp: "2008-01-10T06:30:00+09:00",
-      longitude: 127.0,
-      solarCorrectionMinutes: 0,
-      dstAdjusted: false,
+      solarYear: 2008, solarTerm: "소한", solarTermIndex: 0,
+      monthIndex: 0, dayIndex: 0, timeKnown: true,
+      kstTimestamp: "", correctedTimestamp: "", longitude: 127.0,
+      solarCorrectionMinutes: 0, dstAdjusted: false,
     },
   }
-  const sampleStudent: StudentInfo = {
-    birthDate: "2008-01-10",
-    birthTime: "06:30",
-    gender: "남",
-    grade: 11,
-    school: "OO고등학교",
+
+  const dummyStudentStr = formatStudentInfo(dummyStudent)
+  const dummySajuStr = formatSajuData(dummySaju)
+
+  function extractTemplate(id: AnalysisPromptId): string {
+    if (id === "default") return defaultTemplate
+    const rendered = PROMPT_DEFINITIONS[id].buildPrompt(dummySaju, dummyStudent)
+    return rendered
+      .replaceAll(dummyStudentStr, STUDENT_PLACEHOLDER)
+      .replaceAll(dummySajuStr, SAJU_PLACEHOLDER)
   }
-  return getPromptDefinition(id).buildPrompt(sampleSaju, sampleStudent)
+
+  const ids: AnalysisPromptId[] = ["default", "learning-dna", "exam-slump", "career-navi", "mental-energy", "subject-strategy"]
+  return ids.map((id, index) => {
+    const meta = PROMPT_DEFINITIONS[id].meta
+    return {
+      promptKey: id,
+      name: meta.name,
+      shortDescription: meta.shortDescription,
+      target: meta.target,
+      levels: meta.levels,
+      purpose: meta.purpose,
+      recommendedTiming: meta.recommendedTiming,
+      tags: meta.tags,
+      promptTemplate: extractTemplate(id),
+      sortOrder: index,
+    }
+  })
+}
+
+/** 샘플 데이터 (미리보기용) */
+const SAMPLE_SAJU: SajuResult = {
+  pillars: {
+    year: { stem: "갑", branch: "자" },
+    month: { stem: "병", branch: "인" },
+    day: { stem: "무", branch: "오" },
+    hour: { stem: "경", branch: "신" },
+  },
+  elements: { "목": 2, "화": 3, "토": 1, "금": 1, "수": 1 },
+  tenGods: { year: "편재", month: "편인", hour: "식신" },
+  meta: {
+    solarYear: 2008, solarTerm: "소한", solarTermIndex: 0,
+    monthIndex: 0, dayIndex: 0, timeKnown: true,
+    kstTimestamp: "2008-01-10T06:30:00+09:00",
+    correctedTimestamp: "2008-01-10T06:30:00+09:00",
+    longitude: 127.0, solarCorrectionMinutes: 0, dstAdjusted: false,
+  },
+}
+const SAMPLE_STUDENT: StudentInfo = {
+  birthDate: "2008-01-10",
+  birthTime: "06:30",
+  gender: "남",
+  grade: 11,
+  school: "OO고등학교",
+}
+
+/** 프롬프트 미리보기 텍스트 (샘플 사주 데이터 적용) — 코드 기본 프롬프트용 */
+export function getPromptPreviewText(id: AnalysisPromptId): string {
+  return getPromptDefinition(id).buildPrompt(SAMPLE_SAJU, SAMPLE_STUDENT)
+}
+
+/** DB 템플릿 기반 미리보기 텍스트 */
+export function getTemplatePreviewText(template: string): string {
+  return buildPromptFromTemplate(template, SAMPLE_SAJU, SAMPLE_STUDENT)
 }
