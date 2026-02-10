@@ -32,6 +32,8 @@ const PROVIDER_COLORS: Record<ProviderName, string> = {
   mistral: 'bg-amber-100 text-amber-700 border-amber-200',
   cohere: 'bg-rose-100 text-rose-700 border-rose-200',
   xai: 'bg-slate-100 text-slate-700 border-slate-200',
+  zhipu: 'bg-indigo-100 text-indigo-700 border-indigo-200',
+  moonshot: 'bg-violet-100 text-violet-700 border-violet-200',
 };
 
 export function ProviderCard({ provider, config, savedConfig }: ProviderCardProps) {

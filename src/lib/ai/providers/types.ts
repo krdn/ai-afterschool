@@ -1,4 +1,4 @@
-export type ProviderName = 'anthropic' | 'openai' | 'google' | 'ollama' | 'deepseek' | 'mistral' | 'cohere' | 'xai';
+export type ProviderName = 'anthropic' | 'openai' | 'google' | 'ollama' | 'deepseek' | 'mistral' | 'cohere' | 'xai' | 'zhipu' | 'moonshot';
 
 export type FeatureType =
   | 'learning_analysis'   // 학습 분석
@@ -94,6 +94,22 @@ export const PROVIDER_CONFIGS: Record<ProviderName, ProviderConfig> = {
     defaultModel: 'grok-3',
     models: ['grok-3', 'grok-3-mini'],
   },
+  zhipu: {
+    name: 'zhipu',
+    displayName: 'GLM (Z.ai)',
+    requiresApiKey: true,
+    supportsVision: true,
+    defaultModel: 'glm-4v-plus',
+    models: ['glm-4v-plus', 'glm-4-plus', 'glm-4-flash'],
+  },
+  moonshot: {
+    name: 'moonshot',
+    displayName: 'Kimi',
+    requiresApiKey: true,
+    supportsVision: false,
+    defaultModel: 'kimi-k2.5-preview',
+    models: ['kimi-k2.5-preview', 'kimi-k2-preview', 'moonshot-v1-128k'],
+  },
 };
 
 // 비용 per 1M tokens (USD, 2026 기준)
@@ -106,4 +122,6 @@ export const COST_PER_MILLION_TOKENS: Record<ProviderName, { input: number; outp
   mistral: { input: 2.0, output: 6.0 },        // Mistral Large
   cohere: { input: 2.5, output: 10.0 },        // Command R+
   xai: { input: 3.0, output: 15.0 },           // Grok-3
+  zhipu: { input: 0.35, output: 1.40 },         // GLM-4-Plus
+  moonshot: { input: 1.0, output: 4.0 },         // Kimi K2.5
 };

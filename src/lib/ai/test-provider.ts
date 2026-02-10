@@ -6,6 +6,8 @@ import { createDeepSeek } from '@ai-sdk/deepseek';
 import { createMistral } from '@ai-sdk/mistral';
 import { createCohere } from '@ai-sdk/cohere';
 import { createXai } from '@ai-sdk/xai';
+import { createZhipu } from 'zhipu-ai-provider';
+import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { testOllamaGeneration } from './providers/ollama';
 import type { ProviderName } from './providers';
 
@@ -80,6 +82,20 @@ export async function testProviderConnection(
       case 'xai': {
         const xaiProvider = createXai({ apiKey });
         model = xaiProvider('grok-3-mini');
+        break;
+      }
+      case 'zhipu': {
+        const zhipuProvider = createZhipu({ apiKey });
+        model = zhipuProvider('glm-4-flash');
+        break;
+      }
+      case 'moonshot': {
+        const moonshotProvider = createOpenAICompatible({
+          name: 'moonshot',
+          baseURL: 'https://api.moonshot.ai/v1',
+          apiKey,
+        });
+        model = moonshotProvider.chatModel('moonshot-v1-128k');
         break;
       }
       default:

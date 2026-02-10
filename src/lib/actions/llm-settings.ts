@@ -126,7 +126,7 @@ export async function setDefaultProviderAction(provider: ProviderName) {
   const visionFeatures: FeatureType[] = ['face_analysis', 'palm_analysis'];
   const supportsVision = PROVIDER_CONFIGS[provider].supportsVision;
 
-  const allProviders: ProviderName[] = ['ollama', 'anthropic', 'openai', 'google', 'deepseek', 'mistral', 'cohere', 'xai'];
+  const allProviders: ProviderName[] = ['ollama', 'anthropic', 'openai', 'google', 'deepseek', 'mistral', 'cohere', 'xai', 'zhipu', 'moonshot'];
   const fallback = allProviders.filter((p) => p !== provider);
 
   for (const feature of allFeatures) {

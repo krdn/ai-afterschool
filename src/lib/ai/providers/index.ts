@@ -5,8 +5,15 @@ import { deepseek } from '@ai-sdk/deepseek';
 import { mistral } from '@ai-sdk/mistral';
 import { cohere } from '@ai-sdk/cohere';
 import { xai } from '@ai-sdk/xai';
+import { zhipu } from 'zhipu-ai-provider';
+import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { createOllamaInstance } from './ollama';
 import type { ProviderName } from './types';
+
+const moonshotProvider = createOpenAICompatible({
+  name: 'moonshot',
+  baseURL: 'https://api.moonshot.ai/v1',
+});
 
 export const providers = {
   anthropic: (model?: string) => anthropic(model || 'claude-sonnet-4-5'),
@@ -20,6 +27,8 @@ export const providers = {
   mistral: (model?: string) => mistral(model || 'mistral-large-latest'),
   cohere: (model?: string) => cohere(model || 'command-r-plus'),
   xai: (model?: string) => xai(model || 'grok-3'),
+  zhipu: (model?: string) => zhipu(model || 'glm-4v-plus'),
+  moonshot: (model?: string) => moonshotProvider.chatModel(model || 'kimi-k2.5-preview'),
 } as const;
 
 export function getProvider(name: ProviderName, model?: string) {

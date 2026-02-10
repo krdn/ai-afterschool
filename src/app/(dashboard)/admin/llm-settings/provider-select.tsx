@@ -11,7 +11,7 @@ interface ProviderSelectProps {
   currentDefault: ProviderName | null
 }
 
-const ALL_PROVIDERS: ProviderName[] = ['ollama', 'anthropic', 'openai', 'google', 'deepseek', 'mistral', 'cohere', 'xai']
+const ALL_PROVIDERS: ProviderName[] = ['ollama', 'anthropic', 'openai', 'google', 'deepseek', 'mistral', 'cohere', 'xai', 'zhipu', 'moonshot']
 
 const PROVIDER_ICONS: Record<ProviderName, string> = {
   ollama: 'O',
@@ -22,6 +22,8 @@ const PROVIDER_ICONS: Record<ProviderName, string> = {
   mistral: 'M',
   cohere: 'C',
   xai: 'X',
+  zhipu: 'Z',
+  moonshot: 'K',
 }
 
 const PROVIDER_COLORS: Record<ProviderName, { bg: string; selected: string }> = {
@@ -33,6 +35,8 @@ const PROVIDER_COLORS: Record<ProviderName, { bg: string; selected: string }> = 
   mistral: { bg: 'bg-amber-50 border-amber-200 hover:bg-amber-100', selected: 'bg-amber-100 border-amber-500 ring-2 ring-amber-300' },
   cohere: { bg: 'bg-rose-50 border-rose-200 hover:bg-rose-100', selected: 'bg-rose-100 border-rose-500 ring-2 ring-rose-300' },
   xai: { bg: 'bg-slate-50 border-slate-200 hover:bg-slate-100', selected: 'bg-slate-100 border-slate-500 ring-2 ring-slate-300' },
+  zhipu: { bg: 'bg-indigo-50 border-indigo-200 hover:bg-indigo-100', selected: 'bg-indigo-100 border-indigo-500 ring-2 ring-indigo-300' },
+  moonshot: { bg: 'bg-violet-50 border-violet-200 hover:bg-violet-100', selected: 'bg-violet-100 border-violet-500 ring-2 ring-violet-300' },
 }
 
 export function ProviderSelect({ enabledProviders, currentDefault }: ProviderSelectProps) {
@@ -73,7 +77,7 @@ export function ProviderSelect({ enabledProviders, currentDefault }: ProviderSel
         )}
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         {ALL_PROVIDERS.map((provider) => {
           const config = PROVIDER_CONFIGS[provider]
           const isSelected = selected === provider
