@@ -31,6 +31,8 @@ export type StudentFormState = {
     targetUniversity?: string[]
     targetMajor?: string[]
     bloodType?: string[]
+    parentName?: string[]
+    parentPhone?: string[]
     _form?: string[]
   }
   message?: string
@@ -163,6 +165,8 @@ export async function createStudent(
     targetUniversity: formData.get("targetUniversity") || undefined,
     targetMajor: formData.get("targetMajor") || undefined,
     bloodType: formData.get("bloodType") || null,
+    parentName: formData.get("parentName") || undefined,
+    parentPhone: formData.get("parentPhone") || undefined,
   })
 
   if (!validatedFields.success) {
@@ -192,8 +196,13 @@ export async function createStudent(
   }
 
   let studentId: string
-  const { birthTimeHour, birthTimeMinute, ...studentData } =
-    validatedFields.data
+  const {
+    birthTimeHour,
+    birthTimeMinute,
+    parentName,
+    parentPhone,
+    ...studentData
+  } = validatedFields.data
   const birthTime = normalizeBirthTimeInput(birthTimeHour, birthTimeMinute)
 
   try {
@@ -208,6 +217,18 @@ export async function createStudent(
     })
 
     studentId = student.id
+
+    if (parentName) {
+      await db.parent.create({
+        data: {
+          studentId,
+          name: parentName,
+          phone: parentPhone || "",
+          relation: "MOTHER",
+          isPrimary: true,
+        },
+      })
+    }
 
     for (const imagePayload of imagePayloads.images) {
       const imageResult = await setStudentImage(studentId, imagePayload)
@@ -267,6 +288,8 @@ export async function updateStudent(
     targetUniversity: formData.get("targetUniversity") || undefined,
     targetMajor: formData.get("targetMajor") || undefined,
     bloodType: formData.get("bloodType") || null,
+    parentName: formData.get("parentName") || undefined,
+    parentPhone: formData.get("parentPhone") || undefined,
   })
 
   if (!validatedFields.success) {
@@ -302,6 +325,8 @@ export async function updateStudent(
     const {
       birthTimeHour: _birthTimeHour,
       birthTimeMinute: _birthTimeMinute,
+      parentName,
+      parentPhone,
       ...updateData
     } = validatedFields.data
     const shouldMarkRecalculation = Boolean(
@@ -338,6 +363,32 @@ export async function updateStudent(
             ? "학생 한자 정보 변경"
             : "학생 기본 정보 변경"
       )
+    }
+
+    if (parentName) {
+      const existingParent = await db.parent.findFirst({
+        where: { studentId, isPrimary: true },
+      })
+
+      if (existingParent) {
+        await db.parent.update({
+          where: { id: existingParent.id },
+          data: {
+            name: parentName,
+            phone: parentPhone || "",
+          },
+        })
+      } else {
+        await db.parent.create({
+          data: {
+            studentId,
+            name: parentName,
+            phone: parentPhone || "",
+            relation: "MOTHER",
+            isPrimary: true,
+          },
+        })
+      }
     }
 
     for (const imagePayload of imagePayloads.images) {
