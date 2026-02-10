@@ -105,7 +105,7 @@ export async function getAnalysis(studentId: string) {
  */
 export async function getAnalysisHistory(
     studentId: string,
-    type: 'saju' | 'face' | 'palm' | 'mbti'
+    type: 'saju' | 'face' | 'palm' | 'mbti' | 'vark' | 'name' | 'zodiac'
 ) {
     try {
         let historyItem = null
@@ -189,6 +189,55 @@ export async function getAnalysisHistory(
                             mbtiType: mbtiAnalysis.mbtiType,
                             percentages: mbtiAnalysis.percentages,
                             scores: mbtiAnalysis.scores
+                        }
+                    }
+                }
+                break
+            case 'vark':
+                const varkAnalysis = await prisma.varkAnalysis.findUnique({
+                    where: { studentId }
+                })
+                if (varkAnalysis) {
+                    historyItem = {
+                        id: varkAnalysis.id,
+                        calculatedAt: varkAnalysis.calculatedAt,
+                        summary: `VARK: ${varkAnalysis.varkType}`,
+                        result: {
+                            varkType: varkAnalysis.varkType,
+                            percentages: varkAnalysis.percentages,
+                            scores: varkAnalysis.scores
+                        }
+                    }
+                }
+                break
+            case 'name':
+                const nameAnalysis = await prisma.nameAnalysis.findUnique({
+                    where: { studentId }
+                })
+                if (nameAnalysis) {
+                    historyItem = {
+                        id: nameAnalysis.id,
+                        calculatedAt: nameAnalysis.calculatedAt,
+                        summary: `이름풀이 - ${nameAnalysis.interpretation?.slice(0, 50) || '분석 완료'}...`,
+                        result: nameAnalysis.result,
+                        interpretation: nameAnalysis.interpretation
+                    }
+                }
+                break
+            case 'zodiac':
+                const zodiacAnalysis = await prisma.zodiacAnalysis.findUnique({
+                    where: { studentId }
+                })
+                if (zodiacAnalysis) {
+                    historyItem = {
+                        id: zodiacAnalysis.id,
+                        calculatedAt: zodiacAnalysis.calculatedAt,
+                        summary: `별자리: ${zodiacAnalysis.zodiacName}`,
+                        result: {
+                            zodiacSign: zodiacAnalysis.zodiacSign,
+                            zodiacName: zodiacAnalysis.zodiacName,
+                            element: zodiacAnalysis.element,
+                            traits: zodiacAnalysis.traits
                         }
                     }
                 }

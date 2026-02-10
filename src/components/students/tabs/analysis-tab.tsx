@@ -8,43 +8,36 @@ import { SajuAnalysisPanel } from "@/components/students/saju-analysis-panel"
 import { FaceAnalysisPanel } from "@/components/students/face-analysis-panel"
 import { PalmAnalysisPanel } from "@/components/students/palm-analysis-panel"
 import { MbtiAnalysisPanel } from "@/components/students/mbti-analysis-panel"
+import { VarkAnalysisPanel } from "@/components/students/vark-analysis-panel"
+import { NameAnalysisPanel } from "@/components/students/name-analysis-panel"
+import { ZodiacAnalysisPanel } from "@/components/students/zodiac-analysis-panel"
 import { AnalysisHistoryDialog } from "@/components/students/analysis-history-dialog"
 import { AnalysisHistoryDetailDialog } from "@/components/students/analysis-history-detail-dialog"
 import { getStudentAnalysisData } from "@/lib/actions/student-analysis-tab"
 import { getAnalysisHistory } from "@/lib/actions/analysis"
 import type { AnalysisHistoryItem } from "@/components/students/analysis-history-dialog"
-import type { ProviderName } from "@/lib/ai/providers/types"
+import type { StudentAnalysisData } from "@/lib/actions/student-analysis-tab"
 
 export default function AnalysisTab({ studentId }: { studentId: string }) {
   const [subTab, setSubTab] = useState("saju")
-  const [data, setData] = useState<{
-    student: {
-      id: string
-      name: string
-      birthDate: Date | string
-      birthTimeHour: number | null
-      birthTimeMinute: number | null
-      sajuAnalysis: {
-        result: unknown
-        interpretation: string | null
-        calculatedAt: Date | string
-      } | null
-      images: Array<{
-        type: string
-        originalUrl: string
-        resizedUrl: string
-      }> | null
-    } | null
-    faceAnalysis: any
-    palmAnalysis: any
-    mbtiAnalysis: any
-    enabledProviders: ProviderName[]
-    lastUsedProvider: string | null
-    lastUsedModel: string | null
-    facePromptOptions: Array<{ id: string; name: string; shortDescription: string; target: string; levels: string; purpose: string; recommendedTiming: string; tags: string[] }>
-    palmPromptOptions: Array<{ id: string; name: string; shortDescription: string; target: string; levels: string; purpose: string; recommendedTiming: string; tags: string[] }>
-    mbtiPromptOptions: Array<{ id: string; name: string; shortDescription: string; target: string; levels: string; purpose: string; recommendedTiming: string; tags: string[] }>
-  }>({ student: null, faceAnalysis: null, palmAnalysis: null, mbtiAnalysis: null, enabledProviders: [], lastUsedProvider: null, lastUsedModel: null, facePromptOptions: [], palmPromptOptions: [], mbtiPromptOptions: [] })
+  const [data, setData] = useState<StudentAnalysisData>({
+    student: null,
+    faceAnalysis: null,
+    palmAnalysis: null,
+    mbtiAnalysis: null,
+    varkAnalysis: null,
+    nameAnalysis: null,
+    zodiacAnalysis: null,
+    enabledProviders: [],
+    lastUsedProvider: null,
+    lastUsedModel: null,
+    facePromptOptions: [],
+    palmPromptOptions: [],
+    mbtiPromptOptions: [],
+    varkPromptOptions: [],
+    namePromptOptions: [],
+    zodiacPromptOptions: [],
+  })
   const [loading, setLoading] = useState(true)
 
   // History dialog states
@@ -61,6 +54,9 @@ export default function AnalysisTab({ studentId }: { studentId: string }) {
     face: "관상",
     palm: "손금",
     mbti: "MBTI",
+    vark: "학습유형",
+    name: "이름",
+    zodiac: "별자리",
   }
 
   // Fetch history when dialog opens
@@ -71,7 +67,7 @@ export default function AnalysisTab({ studentId }: { studentId: string }) {
         try {
           const result = await getAnalysisHistory(
             studentId,
-            subTab as 'saju' | 'face' | 'palm' | 'mbti'
+            subTab as 'saju' | 'face' | 'palm' | 'mbti' | 'vark' | 'name' | 'zodiac'
           )
           if (result.success) {
             setHistoryItems(result.history)
@@ -149,23 +145,61 @@ export default function AnalysisTab({ studentId }: { studentId: string }) {
   return (
     <>
       <Tabs value={subTab} onValueChange={setSubTab} data-testid="analysis-sub-tabs">
-        <div className="flex items-center justify-between mb-4">
-          <TabsList className="grid w-full max-w-md grid-cols-4">
-            <TabsTrigger value="saju" data-testid="saju-tab">사주</TabsTrigger>
-            <TabsTrigger value="face" data-testid="face-tab">관상</TabsTrigger>
-            <TabsTrigger value="palm" data-testid="palm-tab">손금</TabsTrigger>
-            <TabsTrigger value="mbti" data-testid="mbti-tab">MBTI</TabsTrigger>
+        <div className="flex items-center justify-between mb-4 gap-2">
+          <TabsList className="flex overflow-x-auto whitespace-nowrap flex-1 max-w-2xl">
+            <TabsTrigger value="saju" data-testid="saju-tab" className="flex-shrink-0">
+              사주
+              {data.student?.sajuAnalysis && (
+                <span className="ml-1.5 inline-block w-1.5 h-1.5 rounded-full bg-green-500" />
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="face" data-testid="face-tab" className="flex-shrink-0">
+              관상
+              {data.faceAnalysis?.status === "complete" && (
+                <span className="ml-1.5 inline-block w-1.5 h-1.5 rounded-full bg-green-500" />
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="palm" data-testid="palm-tab" className="flex-shrink-0">
+              손금
+              {data.palmAnalysis?.status === "complete" && (
+                <span className="ml-1.5 inline-block w-1.5 h-1.5 rounded-full bg-green-500" />
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="mbti" data-testid="mbti-tab" className="flex-shrink-0">
+              MBTI
+              {data.mbtiAnalysis && (
+                <span className="ml-1.5 inline-block w-1.5 h-1.5 rounded-full bg-green-500" />
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="vark" data-testid="vark-tab" className="flex-shrink-0">
+              학습유형
+              {data.varkAnalysis && (
+                <span className="ml-1.5 inline-block w-1.5 h-1.5 rounded-full bg-green-500" />
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="name" data-testid="name-tab" className="flex-shrink-0">
+              이름
+              {data.nameAnalysis && (
+                <span className="ml-1.5 inline-block w-1.5 h-1.5 rounded-full bg-green-500" />
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="zodiac" data-testid="zodiac-tab" className="flex-shrink-0">
+              별자리
+              {data.zodiacAnalysis && (
+                <span className="ml-1.5 inline-block w-1.5 h-1.5 rounded-full bg-green-500" />
+              )}
+            </TabsTrigger>
           </TabsList>
 
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setShowHistory(true)}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 flex-shrink-0"
             data-testid="history-button"
           >
             <History className="w-4 h-4" />
-            이력 보기
+            <span className="hidden sm:inline">이력 보기</span>
           </Button>
         </div>
 
@@ -213,6 +247,41 @@ export default function AnalysisTab({ studentId }: { studentId: string }) {
             analysis={data.mbtiAnalysis}
             enabledProviders={data.enabledProviders}
             promptOptions={data.mbtiPromptOptions}
+            onDataChange={refreshData}
+          />
+        </TabsContent>
+
+        <TabsContent value="vark" className="mt-6">
+          <VarkAnalysisPanel
+            studentId={studentId}
+            studentName={data.student.name}
+            analysis={data.varkAnalysis}
+            enabledProviders={data.enabledProviders}
+            promptOptions={data.varkPromptOptions}
+            onDataChange={refreshData}
+          />
+        </TabsContent>
+
+        <TabsContent value="name" className="mt-6">
+          <NameAnalysisPanel
+            student={{
+              id: data.student.id,
+              name: data.student.name,
+              nameHanja: data.student.nameHanja,
+            }}
+            analysis={data.nameAnalysis}
+            enabledProviders={data.enabledProviders}
+            promptOptions={data.namePromptOptions}
+            onDataChange={refreshData}
+          />
+        </TabsContent>
+
+        <TabsContent value="zodiac" className="mt-6">
+          <ZodiacAnalysisPanel
+            studentId={studentId}
+            analysis={data.zodiacAnalysis}
+            enabledProviders={data.enabledProviders}
+            promptOptions={data.zodiacPromptOptions}
             onDataChange={refreshData}
           />
         </TabsContent>

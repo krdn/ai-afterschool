@@ -88,6 +88,9 @@ model Student {
   teacher                        Teacher                       @relation(fields: [teacherId], references: [id])
   team                           Team?                         @relation(fields: [teamId], references: [id])
   images                         StudentImage[]
+  varkAnalysis                   VarkAnalysis?
+  varkSurveyDraft                VarkSurveyDraft?
+  zodiacAnalysis                 ZodiacAnalysis?
   studentSatisfactions           StudentSatisfaction[]
 
   @@index([teacherId])
@@ -690,4 +693,49 @@ model SystemLog {
   @@index([level])
   @@index([timestamp(sort: Desc)])
   @@map("system_logs")
+}
+
+// VARK 학습유형 분석 결과
+model VarkAnalysis {
+  id             String   @id @default(cuid())
+  studentId      String   @unique
+  responses      Json     // { "1": 3, "2": 5, ... }
+  scores         Json     // { v: 45, a: 30, r: 25, k: 50 }
+  varkType       String   // 우세 유형: "V", "VK" 등
+  percentages    Json     // { V: 30, A: 20, R: 17, K: 33 }
+  interpretation String?
+  version        Int      @default(1)
+  calculatedAt   DateTime
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  student        Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+}
+
+// VARK 설문 임시 저장
+model VarkSurveyDraft {
+  id        String   @id @default(cuid())
+  studentId String   @unique
+  responses Json
+  progress  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+}
+
+// 별자리 운세 분석 결과
+model ZodiacAnalysis {
+  id             String   @id @default(cuid())
+  studentId      String   @unique
+  zodiacSign     String   // "aries" 등 영문 키
+  zodiacName     String   // "양자리" 한글명
+  element        String   // "fire", "earth", "air", "water"
+  traits         Json     // 기본 성격/특성
+  interpretation String?
+  version        Int      @default(1)
+  calculatedAt   DateTime
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  student        Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
 }

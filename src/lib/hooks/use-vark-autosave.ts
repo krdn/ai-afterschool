@@ -4,7 +4,7 @@ import { useEffect, useRef, useCallback } from "react"
 import { useDebounce } from "use-debounce"
 import type { UseFormWatch } from "react-hook-form"
 
-export function useMbtiAutosave(
+export function useVarkAutosave(
   studentId: string,
   onSave: (responses: Record<string, number>) => Promise<void>,
   watch: UseFormWatch<{ responses: Record<string, number> }>,
