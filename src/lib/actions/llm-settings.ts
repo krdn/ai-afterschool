@@ -120,13 +120,13 @@ export async function setDefaultProviderAction(provider: ProviderName) {
   const allFeatures: FeatureType[] = [
     'learning_analysis', 'counseling_suggest', 'report_generate',
     'face_analysis', 'palm_analysis', 'personality_summary',
-    'saju_analysis', 'mbti_analysis',
+    'saju_analysis', 'mbti_analysis', 'vark_analysis', 'name_analysis', 'zodiac_analysis',
   ];
 
   const visionFeatures: FeatureType[] = ['face_analysis', 'palm_analysis'];
   const supportsVision = PROVIDER_CONFIGS[provider].supportsVision;
 
-  const allProviders: ProviderName[] = ['ollama', 'anthropic', 'openai', 'google'];
+  const allProviders: ProviderName[] = ['ollama', 'anthropic', 'openai', 'google', 'deepseek', 'mistral', 'cohere', 'xai'];
   const fallback = allProviders.filter((p) => p !== provider);
 
   for (const feature of allFeatures) {
