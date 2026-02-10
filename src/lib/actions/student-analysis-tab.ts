@@ -46,6 +46,8 @@ export type StudentAnalysisData = {
     calculatedAt: Date
   } | null
   enabledProviders: ProviderName[]
+  lastUsedProvider: string | null
+  lastUsedModel: string | null
 }
 
 export async function getStudentAnalysisData(studentId: string): Promise<StudentAnalysisData> {
@@ -68,15 +70,22 @@ export async function getStudentAnalysisData(studentId: string): Promise<Student
         faceAnalysis: null,
         palmAnalysis: null,
         mbtiAnalysis: null,
-        enabledProviders
+        enabledProviders,
+        lastUsedProvider: null,
+        lastUsedModel: null
       }
     }
 
-    // Fetch face, palm, mbti analysis in parallel
-    const [faceAnalysis, palmAnalysis, mbtiAnalysis] = await Promise.all([
+    // Fetch face, palm, mbti analysis, and latest saju history in parallel
+    const [faceAnalysis, palmAnalysis, mbtiAnalysis, sajuHistory] = await Promise.all([
       getFaceAnalysisByStudentId(studentId),
       getPalmAnalysisByStudentId(studentId),
-      getMbtiAnalysis(studentId)
+      getMbtiAnalysis(studentId),
+      db.sajuAnalysisHistory.findFirst({
+        where: { studentId },
+        orderBy: { createdAt: 'desc' },
+        select: { usedProvider: true, usedModel: true }
+      })
     ])
 
     return {
@@ -96,7 +105,9 @@ export async function getStudentAnalysisData(studentId: string): Promise<Student
         percentages: mbtiAnalysis.percentages as Record<string, number>,
         calculatedAt: mbtiAnalysis.calculatedAt
       } : null,
-      enabledProviders
+      enabledProviders,
+      lastUsedProvider: sajuHistory?.usedProvider ?? null,
+      lastUsedModel: sajuHistory?.usedModel ?? null
     }
   } catch (error) {
     console.error("Failed to load analysis data:", error)
@@ -105,7 +116,9 @@ export async function getStudentAnalysisData(studentId: string): Promise<Student
       faceAnalysis: null,
       palmAnalysis: null,
       mbtiAnalysis: null,
-      enabledProviders: []
+      enabledProviders: [],
+      lastUsedProvider: null,
+      lastUsedModel: null
     }
   }
 }
