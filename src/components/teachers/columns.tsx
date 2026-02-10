@@ -14,6 +14,7 @@ export type Teacher = {
   teamId: string | null
   team: { id: string; name: string } | null
   createdAt: Date
+  _count: { students: number }
 }
 
 const roleLabels: Record<Teacher['role'], string> = {
@@ -82,6 +83,14 @@ export function getColumns({ currentUserId, currentRole }: ColumnOptions): Colum
       cell: ({ row }) => {
         const team = row.original.team
         return team ? team.name : '-'
+      },
+    },
+    {
+      id: 'studentCount',
+      header: '담당 학생',
+      cell: ({ row }) => {
+        const count = row.original._count.students
+        return count > 0 ? `${count}명` : '-'
       },
     },
     {

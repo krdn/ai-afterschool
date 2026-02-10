@@ -4,13 +4,13 @@ import { getSession } from "@/lib/session"
 import { createUploadSignature } from "@/lib/cloudinary"
 
 const FolderPattern =
-  /^students\/(?:drafts\/[a-zA-Z0-9-_]+|[a-zA-Z0-9-_]+)\/(profile|face|palm)$/
+  /^(?:students\/(?:drafts\/[a-zA-Z0-9-_]+|[a-zA-Z0-9-_]+)|teachers\/(?:new|[a-zA-Z0-9-_]+))\/(profile|face|palm)$/
 
 const ParamsToSignSchema = z
   .object({
     folder: z
       .string()
-      .regex(FolderPattern, "Folder must match students/{id}/type"),
+      .regex(FolderPattern, "Folder must match students/{id}/type or teachers/{id}/type"),
     timestamp: z.preprocess(
       (value) => {
         if (typeof value === "string" && value.trim() !== "") {

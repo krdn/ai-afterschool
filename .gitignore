@@ -68,3 +68,6 @@ obsidian/
 
 # screenshots
 prompt-preview-*.png
+
+# uploaded files
+/public/uploads

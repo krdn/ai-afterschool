@@ -24,6 +24,8 @@ export default async function EditTeacherPage({ params }: PageProps) {
       nameHanja: true,
       birthTimeHour: true,
       birthTimeMinute: true,
+      profileImage: true,
+      profileImagePublicId: true,
     },
   })
 

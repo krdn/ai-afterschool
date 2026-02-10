@@ -1,12 +1,16 @@
 "use client"
 
-import { startTransition, useActionState, useEffect, useRef, type FormEvent } from "react"
+import { startTransition, useActionState, useEffect, useRef, useState, type FormEvent } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { toast } from "sonner"
 import { createTeacher, updateTeacher, type TeacherFormState } from "@/lib/actions/teachers"
 import { TeacherSchema } from "@/lib/validations/teachers"
+import {
+  StudentImageUploader,
+  type StudentImagePayload,
+} from "@/components/students/student-image-uploader"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -30,6 +34,8 @@ type TeacherData = {
   nameHanja: string | null
   birthTimeHour: number | null
   birthTimeMinute: number | null
+  profileImage: string | null
+  profileImagePublicId: string | null
 }
 
 type TeacherFormProps = {
@@ -43,6 +49,16 @@ type TeacherFormValues = z.infer<typeof TeacherSchema>
 export function TeacherForm({ teams = [], teacher, currentRole }: TeacherFormProps) {
   const isEdit = !!teacher
   const showRoleFields = currentRole === 'DIRECTOR'
+
+  const [profileImage, setProfileImage] = useState<StudentImagePayload | null>(
+    teacher?.profileImage && teacher?.profileImagePublicId
+      ? {
+          type: "profile",
+          originalUrl: teacher.profileImage,
+          publicId: teacher.profileImagePublicId,
+        }
+      : null
+  )
 
   const formRef = useRef<HTMLFormElement>(null)
 
@@ -111,6 +127,10 @@ export function TeacherForm({ teams = [], teacher, currentRole }: TeacherFormPro
     })()
   }
 
+  const uploadFolder = teacher?.id
+    ? `teachers/${teacher.id}/profile`
+    : `teachers/new/profile`
+
   return (
     <Card>
       <CardHeader>
@@ -129,6 +149,23 @@ export function TeacherForm({ teams = [], teacher, currentRole }: TeacherFormPro
               기본 비밀번호(afterschool2026!)가 자동 설정됩니다. 첫 로그인 후 변경해주세요.
             </div>
           )}
+
+          {/* 프로필 사진 - 학생과 동일한 Cloudinary 업로더 */}
+          <div className="space-y-4">
+            <input type="hidden" name="profileImage" value={profileImage?.originalUrl ?? ""} />
+            <input type="hidden" name="profileImagePublicId" value={profileImage?.publicId ?? ""} />
+
+            <StudentImageUploader
+              type="profile"
+              label="프로필 사진"
+              description="선생님의 프로필 사진을 업로드해주세요"
+              folder={uploadFolder}
+              previewUrl={teacher?.profileImage}
+              value={profileImage}
+              onChange={setProfileImage}
+              studentName={teacher?.name}
+            />
+          </div>
 
           <div className="space-y-4">
             <h3 className="text-lg font-medium">기본 정보</h3>

@@ -20,6 +20,8 @@ model Teacher {
   birthDate                  DateTime?
   birthTimeHour              Int?
   birthTimeMinute            Int?
+  profileImage               String?
+  profileImagePublicId       String?
   assignmentProposalsCreated AssignmentProposal[]          @relation("ProposedBy")
   auditLogs                  AuditLog[]
   compatibilityResults       CompatibilityResult[]
