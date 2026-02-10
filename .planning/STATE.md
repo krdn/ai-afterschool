@@ -11,7 +11,7 @@ See: .planning/PROJECT.md (updated 2026-02-07)
 
 Milestone: v2.1.1 E2E Test Compliance
 Status: COMPLETE ✓ (2026-02-07)
-Last activity: 2026-02-10 - Completed quick task 002: 사주 해석 쉽게 풀이 기능
+Last activity: 2026-02-10 - Completed quick task 003: 관상/손금/MBTI 프롬프트 관리 시스템 추가
 
 Progress: [████████████████████████] 100%
 
@@ -261,6 +261,7 @@ None yet.
 |---|-------------|------|--------|-----------|
 | 001 | 사주 해석 결과에 사용 모델 정보 영구 표시 | 2026-02-10 | e337201 | [001-saju-model-display](./quick/001-saju-model-display/) |
 | 002 | 사주 해석 쉽게 풀이 기능 (AI 텍스트 변환 토글) | 2026-02-10 | 47aa096 | [002-saju-easy-explanation](./quick/002-saju-easy-explanation/) |
+| 003 | 관상/손금/MBTI 프롬프트 관리 시스템 추가 | 2026-02-10 | 28375bf | [003-face-palm-mbti](./quick/003-face-palm-mbti/) |
 
 ### Blockers/Concerns
 
