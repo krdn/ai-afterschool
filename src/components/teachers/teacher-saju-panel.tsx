@@ -1,36 +1,64 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useState, useTransition, useEffect } from "react"
 import { format } from "date-fns"
 import { ko } from "date-fns/locale"
-import { Calendar, RefreshCw } from "lucide-react"
-import { runTeacherSajuAnalysis } from "@/lib/actions/teacher-analysis"
-import { useRouter } from "next/navigation"
+import { Loader2, RefreshCw, Sparkles } from "lucide-react"
+import { runTeacherSajuAnalysis, simplifyTeacherInterpretation } from "@/lib/actions/teacher-analysis"
 import type { SajuResult } from "@/lib/analysis/saju"
+import type { ProviderName } from "@/lib/ai/providers/types"
+import type { AnalysisPromptMeta } from "@/lib/ai/saju-prompts"
+import { MarkdownRenderer } from "@/components/ui/markdown-renderer"
+import { ProviderSelector } from "@/components/students/provider-selector"
+import { PromptSelector } from "@/components/students/prompt-selector"
+import { SajuHelpDialog } from "@/components/students/saju-help-dialog"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Textarea } from "@/components/ui/textarea"
 
 type TeacherSajuAnalysis = {
-  result: SajuResult
+  result: unknown
   interpretation: string | null
-  calculatedAt: Date
+  calculatedAt: Date | string
 } | null
 
 type Props = {
   teacherId: string
   teacherName: string
   analysis: TeacherSajuAnalysis
-  teacherBirthDate?: Date | null
+  teacherBirthDate?: Date | string | null
   teacherBirthTimeHour?: number | null
   teacherBirthTimeMinute?: number | null
+  enabledProviders?: ProviderName[]
+  onAnalysisComplete?: () => void
+  lastUsedProvider?: string | null
+  lastUsedModel?: string | null
 }
 
 function toDate(value: Date | string) {
   return value instanceof Date ? value : new Date(value)
 }
 
-function formatBirthTime(hour: number | null, minute: number | null) {
-  if (hour === null) {
-    return "미상"
-  }
+const HANJA_MAP: Record<string, string> = {
+  갑: "甲", 을: "乙", 병: "丙", 정: "丁", 무: "戊",
+  기: "己", 경: "庚", 신: "辛", 임: "壬", 계: "癸",
+  자: "子", 축: "丑", 인: "寅", 묘: "卯", 진: "辰", 사: "巳",
+  오: "午", 미: "未", 유: "酉", 술: "戌", 해: "亥",
+}
+
+const BRANCH_HANJA: Record<string, string> = {
+  자: "子", 축: "丑", 인: "寅", 묘: "卯", 진: "辰", 사: "巳",
+  오: "午", 미: "未", 신: "申", 유: "酉", 술: "戌", 해: "亥",
+}
+
+function hanjaLabel(stem: string, branch: string) {
+  const stemHanja = HANJA_MAP[stem] ?? stem
+  const branchHanja = BRANCH_HANJA[branch] ?? branch
+  return `${stemHanja}${branchHanja}(${stem}${branch})`
+}
+
+function formatBirthTime(hour: number | null | undefined, minute: number | null | undefined) {
+  if (hour === null || hour === undefined) return "미상"
   const safeMinute = minute ?? 0
   return `${String(hour).padStart(2, "0")}:${String(safeMinute).padStart(2, "0")}`
 }
@@ -41,102 +69,208 @@ export function TeacherSajuPanel({
   analysis,
   teacherBirthDate,
   teacherBirthTimeHour,
-  teacherBirthTimeMinute
+  teacherBirthTimeMinute,
+  enabledProviders = [],
+  onAnalysisComplete,
+  lastUsedProvider,
+  lastUsedModel,
 }: Props) {
   const [isPending, startTransition] = useTransition()
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const router = useRouter()
-  const result = analysis?.result
+  const [selectedProvider, setSelectedProvider] = useState('built-in')
+  const [selectedPromptId, setSelectedPromptId] = useState<string>('default')
+  const [additionalRequest, setAdditionalRequest] = useState('')
+  const [providerLabel, setProviderLabel] = useState<string | null>(() => {
+    if (!lastUsedProvider) return null
+    const model = lastUsedModel && lastUsedModel !== 'default' ? ` (${lastUsedModel})` : ''
+    return `${lastUsedProvider}${model}`
+  })
+  const [promptLabel, setPromptLabel] = useState<string | null>(null)
+  const [viewMode, setViewMode] = useState<"markdown" | "rendered">("rendered")
+  const [promptOptions, setPromptOptions] = useState<AnalysisPromptMeta[]>([])
+  const [simplifiedText, setSimplifiedText] = useState<string | null>(null)
+  const [isSimplifying, setIsSimplifying] = useState(false)
+  const [showSimplified, setShowSimplified] = useState(false)
+  const [simplifyError, setSimplifyError] = useState<string | null>(null)
 
-  const calculatedAt = analysis?.calculatedAt
-    ? toDate(analysis.calculatedAt)
-    : null
+  // DB에서 프롬프트 옵션 실시간 로드
+  useEffect(() => {
+    import("../../app/(dashboard)/students/[id]/saju/actions")
+      .then(mod => mod.getMergedPromptOptionsAction())
+      .then(setPromptOptions)
+      .catch(console.error)
+  }, [])
 
+  const result = analysis?.result as SajuResult | undefined
+  const isLLM = selectedProvider !== 'built-in'
   const canAnalyze = Boolean(teacherBirthDate)
+
+  const handleSimplify = async () => {
+    if (!analysis?.interpretation) return
+    if (simplifiedText) {
+      setShowSimplified(!showSimplified)
+      return
+    }
+    setIsSimplifying(true)
+    setSimplifyError(null)
+    try {
+      const res = await simplifyTeacherInterpretation(
+        analysis.interpretation,
+        selectedProvider === 'built-in' ? 'auto' : selectedProvider
+      )
+      setSimplifiedText(res.text)
+      setShowSimplified(true)
+    } catch {
+      setSimplifyError('쉽게 풀이 생성에 실패했습니다. 다시 시도해주세요.')
+    } finally {
+      setIsSimplifying(false)
+    }
+  }
 
   const handleRunAnalysis = () => {
     startTransition(async () => {
       setErrorMessage(null)
+      setProviderLabel(null)
+      setPromptLabel(null)
+      setSimplifiedText(null)
+      setShowSimplified(false)
+      setSimplifyError(null)
       try {
-        await runTeacherSajuAnalysis(teacherId)
-        router.refresh()
+        const promptId = isLLM ? selectedPromptId : 'default'
+        const extra = isLLM ? additionalRequest.trim() || undefined : undefined
+        const res = await runTeacherSajuAnalysis(teacherId, selectedProvider, promptId, extra)
+        if (res.llmFailed) {
+          setErrorMessage(`내장 알고리즘으로 대체 해석했습니다. ${res.llmError || 'LLM 설정을 확인해주세요.'}`)
+          setProviderLabel('내장 알고리즘')
+        } else {
+          const model = res.usedModel && res.usedModel !== 'default' ? ` (${res.usedModel})` : ''
+          setProviderLabel(`${res.usedProvider}${model}`)
+        }
+        if (promptId !== 'default') {
+          const meta = promptOptions.find((p) => p.id === promptId)
+          if (meta) setPromptLabel(meta.name)
+        }
+        onAnalysisComplete?.()
       } catch (error) {
         console.error("Failed to run saju analysis", error)
-        setErrorMessage(error instanceof Error ? error.message : "사주 분석 실행에 실패했어요. 다시 시도해주세요.")
+        setErrorMessage(`사주 분석에 실패했습니다. (원인: ${error instanceof Error ? error.message : '알 수 없는 오류'}) 다시 시도해주세요.`)
       }
     })
   }
 
+  const calculatedAt = analysis?.calculatedAt ? toDate(analysis.calculatedAt) : null
+
   return (
-    <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-      <div className="px-6 py-4 border-b flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-amber-100 rounded-lg">
-            <Calendar className="w-5 h-5 text-amber-600" />
-          </div>
-          <h2 className="text-lg font-semibold">사주 성향 분석</h2>
+    <Card>
+      <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2">
+          <CardTitle>사주 분석</CardTitle>
+          <SajuHelpDialog />
         </div>
         <div className="text-xs text-gray-500">
           {calculatedAt
-            ? `최근 계산: ${format(calculatedAt, "yyyy.MM.dd HH:mm", {
-                locale: ko,
-              })}`
+            ? `최근 계산: ${format(calculatedAt, "yyyy.MM.dd HH:mm", { locale: ko })}`
             : "아직 분석되지 않았어요."}
         </div>
-      </div>
-
-      <div className="p-6 space-y-6">
-        {/* 기본 정보 및 실행 버튼 */}
-        <div className="space-y-2">
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="space-y-3">
           <h3 className="text-sm font-semibold text-gray-600">1. 기본 정보</h3>
           <div className="rounded-md bg-gray-50 p-4 text-sm text-gray-700">
             <p>선생님: {teacherName}</p>
             {teacherBirthDate ? (
               <>
                 <p>
-                  생년월일: {format(toDate(teacherBirthDate), "yyyy년 M월 d일", {
-                    locale: ko,
-                  })}
+                  생년월일: {format(toDate(teacherBirthDate), "yyyy년 M월 d일", { locale: ko })}
                 </p>
                 <p>
-                  출생 시간: {formatBirthTime(teacherBirthTimeHour ?? null, teacherBirthTimeMinute ?? null)}
-                  {teacherBirthTimeHour === null ? " (시주 계산 제외)" : ""}
+                  출생 시간: {formatBirthTime(teacherBirthTimeHour, teacherBirthTimeMinute)}
+                  {(teacherBirthTimeHour === null || teacherBirthTimeHour === undefined) ? " (시주 계산 제외)" : ""}
                 </p>
               </>
             ) : (
               <p className="text-amber-600">생년월일 정보가 없어 분석을 실행할 수 없어요.</p>
             )}
           </div>
-          <div className="flex gap-2">
-            <button
-              onClick={handleRunAnalysis}
+
+          {/* 분석 설정 영역 */}
+          <div className="rounded-md border border-gray-200 p-4 space-y-3">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 flex-wrap">
+              <ProviderSelector
+                selectedProvider={selectedProvider}
+                onProviderChange={setSelectedProvider}
+                availableProviders={enabledProviders}
+                showBuiltIn
+                disabled={isPending}
+              />
+              {isLLM && (
+                <PromptSelector
+                  selectedPromptId={selectedPromptId}
+                  onPromptChange={setSelectedPromptId}
+                  promptOptions={promptOptions}
+                  disabled={isPending}
+                  showInfoCard
+                />
+              )}
+            </div>
+
+            {isLLM && (
+              <div className="space-y-1">
+                <label className="text-xs text-gray-500">
+                  추가 요청 / 특이사항 (선택)
+                </label>
+                <Textarea
+                  placeholder="예: 최근 스트레스가 많습니다. 건강 운세를 중점적으로 부탁드립니다."
+                  value={additionalRequest}
+                  onChange={(e) => setAdditionalRequest(e.target.value)}
+                  disabled={isPending}
+                  rows={2}
+                  className="text-sm resize-none"
+                  maxLength={500}
+                />
+                <p className="text-[10px] text-gray-400 text-right">
+                  {additionalRequest.length}/500
+                </p>
+              </div>
+            )}
+
+            <Button
+              type="button"
               disabled={isPending || !canAnalyze}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              onClick={handleRunAnalysis}
+              className="w-full sm:w-auto"
             >
               {isPending ? (
                 <>
-                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  <Loader2 className="w-4 h-4 animate-spin mr-1" />
                   분석 중...
                 </>
               ) : (
-                <>
-                  <Calendar className="w-4 h-4" />
-                  {analysis ? "재분석" : "사주 분석 시작"}
-                </>
+                "사주 분석 실행"
               )}
-            </button>
+            </Button>
           </div>
+
           {!canAnalyze && (
             <p className="text-xs text-amber-600">
               생년월일 정보를 먼저 입력해주세요. (선생님 정보 수정)
             </p>
           )}
+
           {errorMessage && (
-            <p className="text-sm text-red-600">{errorMessage}</p>
+            <div className="flex items-center justify-between gap-4 mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-700">{errorMessage}</p>
+              <Button onClick={handleRunAnalysis} disabled={isPending} variant="outline" size="sm">
+                {isPending ? (
+                  <><Loader2 className="w-4 h-4 animate-spin mr-1" />재시도 중...</>
+                ) : (
+                  <><RefreshCw className="w-4 h-4 mr-1" />다시 시도</>
+                )}
+              </Button>
+            </div>
           )}
         </div>
 
-        {/* 사주 구조 */}
         <div className="space-y-2">
           <h3 className="text-sm font-semibold text-gray-600">2. 사주 구조</h3>
           {result ? (
@@ -145,29 +279,26 @@ export function TeacherSajuPanel({
                 <div>
                   <p className="text-xs text-gray-500">연주</p>
                   <p className="font-medium">
-                    {result.pillars.year.stem}
-                    {result.pillars.year.branch}
+                    {hanjaLabel(result.pillars.year.stem, result.pillars.year.branch)}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500">월주</p>
                   <p className="font-medium">
-                    {result.pillars.month.stem}
-                    {result.pillars.month.branch}
+                    {hanjaLabel(result.pillars.month.stem, result.pillars.month.branch)}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500">일주</p>
                   <p className="font-medium">
-                    {result.pillars.day.stem}
-                    {result.pillars.day.branch}
+                    {hanjaLabel(result.pillars.day.stem, result.pillars.day.branch)}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500">시주</p>
                   <p className="font-medium">
                     {result.pillars.hour
-                      ? `${result.pillars.hour.stem}${result.pillars.hour.branch}`
+                      ? hanjaLabel(result.pillars.hour.stem, result.pillars.hour.branch)
                       : "미상"}
                   </p>
                 </div>
@@ -183,20 +314,87 @@ export function TeacherSajuPanel({
           )}
         </div>
 
-        {/* 해석 */}
         <div className="space-y-2">
-          <h3 className="text-sm font-semibold text-gray-600">3. 해석</h3>
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-gray-600">3. 해석</h3>
+            {providerLabel && (
+              <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-200">
+                {providerLabel}
+              </span>
+            )}
+            {promptLabel && (
+              <span className="text-xs px-2 py-0.5 rounded-full bg-purple-50 text-purple-600 border border-purple-200">
+                {promptLabel}
+              </span>
+            )}
+            {analysis?.interpretation && selectedProvider !== 'built-in' && (
+              <button
+                type="button"
+                disabled={isSimplifying}
+                onClick={handleSimplify}
+                className={`inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded-full border transition-colors ${
+                  showSimplified
+                    ? 'bg-amber-100 text-amber-700 border-amber-300'
+                    : 'bg-white text-gray-500 border-gray-200 hover:bg-amber-50 hover:text-amber-600 hover:border-amber-200'
+                }`}
+              >
+                {isSimplifying ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : (
+                  <Sparkles className="h-3 w-3" />
+                )}
+                쉽게 풀이
+              </button>
+            )}
+            {analysis?.interpretation && (
+              <div className="ml-auto flex rounded-md border border-gray-200 text-xs overflow-hidden">
+                <button
+                  type="button"
+                  className={`px-2.5 py-1 transition-colors ${viewMode === "rendered" ? "bg-gray-800 text-white" : "bg-white text-gray-500 hover:bg-gray-50"}`}
+                  onClick={() => setViewMode("rendered")}
+                >
+                  미리보기
+                </button>
+                <button
+                  type="button"
+                  className={`px-2.5 py-1 border-l border-gray-200 transition-colors ${viewMode === "markdown" ? "bg-gray-800 text-white" : "bg-white text-gray-500 hover:bg-gray-50"}`}
+                  onClick={() => setViewMode("markdown")}
+                >
+                  원문
+                </button>
+              </div>
+            )}
+          </div>
           {analysis?.interpretation ? (
-            <div className="rounded-md border border-gray-200 bg-white p-4 text-sm leading-6 text-gray-700 whitespace-pre-wrap">
-              {analysis.interpretation}
-            </div>
+            <>
+              {showSimplified && simplifiedText && (
+                <div className="flex items-center gap-1 mb-2">
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 border border-amber-200">
+                    <Sparkles className="inline h-3 w-3 mr-0.5" />
+                    쉽게 풀이 보기 중
+                  </span>
+                </div>
+              )}
+              {viewMode === "rendered" ? (
+                <div className="rounded-md border border-gray-200 bg-white p-4">
+                  <MarkdownRenderer content={showSimplified && simplifiedText ? simplifiedText : analysis.interpretation} />
+                </div>
+              ) : (
+                <div className="rounded-md border border-gray-200 bg-gray-50 p-4 text-sm leading-6 text-gray-700 whitespace-pre-wrap font-mono">
+                  {showSimplified && simplifiedText ? simplifiedText : analysis.interpretation}
+                </div>
+              )}
+              {simplifyError && (
+                <p className="text-xs text-red-500 mt-1">{simplifyError}</p>
+              )}
+            </>
           ) : (
             <div className="rounded-md bg-gray-50 p-4 text-sm text-gray-500">
               사주 해석이 아직 생성되지 않았어요.
             </div>
           )}
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   )
 }

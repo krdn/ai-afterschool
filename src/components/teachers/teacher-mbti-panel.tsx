@@ -1,12 +1,18 @@
 "use client"
 
 import { useState } from "react"
-import { Brain, Edit3 } from "lucide-react"
+import { Brain, Edit3, Sparkles, AlertCircle } from "lucide-react"
 import { MbtiResultsDisplay } from "@/components/mbti/results-display"
-import { runTeacherMbtiAnalysis } from "@/lib/actions/teacher-analysis"
-import { useRouter } from "next/navigation"
+import { MbtiDirectInputModal } from "@/components/students/mbti-direct-input-modal"
+import { saveTeacherMbtiDirectInput, generateTeacherMbtiLLMInterpretation } from "@/lib/actions/teacher-analysis"
+import type { ProviderName } from "@/lib/ai/providers/types"
+import { ProviderSelector } from "@/components/students/provider-selector"
+import { PromptSelector } from "@/components/students/prompt-selector"
+import type { GenericPromptMeta } from "@/components/students/prompt-selector"
+import { MbtiHelpDialog } from "@/components/students/mbti-help-dialog"
+import { Button } from "@/components/ui/button"
 
-type TeacherMbtiAnalysis = {
+type MbtiAnalysis = {
   mbtiType: string
   percentages: Record<string, number>
   calculatedAt: Date
@@ -15,34 +21,43 @@ type TeacherMbtiAnalysis = {
 type Props = {
   teacherId: string
   teacherName: string
-  analysis: TeacherMbtiAnalysis
+  analysis: MbtiAnalysis
+  enabledProviders?: ProviderName[]
+  promptOptions?: GenericPromptMeta[]
+  onDataChange?: () => void
 }
 
-export function TeacherMbtiPanel({ teacherId, teacherName, analysis }: Props) {
+export function TeacherMbtiPanel({ teacherId, teacherName, analysis, enabledProviders = [], promptOptions = [], onDataChange }: Props) {
   const [showDirectInput, setShowDirectInput] = useState(false)
-  const [isAnalyzing, setIsAnalyzing] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const router = useRouter()
+  const [isSaving, setIsSaving] = useState(false)
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [selectedProvider, setSelectedProvider] = useState('auto')
+  const [selectedPromptId, setSelectedPromptId] = useState('default')
 
-  const handleAnalysisStart = async () => {
-    setIsAnalyzing(true)
-    setError(null)
-
+  const handleDirectInputSave = async (data: {
+    mbtiType: string
+    percentages: {
+      E: number; I: number
+      S: number; N: number
+      T: number; F: number
+      J: number; P: number
+    }
+  }) => {
+    setIsSaving(true)
+    setErrorMessage(null)
     try {
-      // TODO: 실제 설문 폼 페이지 구현 후 /teachers/${id}/mbti 링크로 대체
-      // 현재는 모의 응답으로 테스트
-      const mockResponses: Record<string, number> = {}
-      for (let i = 1; i <= 60; i++) {
-        // 모의 응답: 랜덤 점수 (1-5)
-        mockResponses[String(i)] = Math.floor(Math.random() * 5) + 1
+      const result = await saveTeacherMbtiDirectInput(teacherId, data)
+      if (result.success) {
+        setShowDirectInput(false)
+        onDataChange?.()
+      } else {
+        setErrorMessage("MBTI 저장에 실패했습니다. 다시 시도해주세요.")
       }
-
-      await runTeacherMbtiAnalysis(teacherId, mockResponses)
-      router.refresh()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "분석 실행에 실패했어요")
+    } catch (error) {
+      setErrorMessage(`MBTI 저장에 실패했습니다. (원인: ${error instanceof Error ? error.message : '알 수 없는 오류'})`)
     } finally {
-      setIsAnalyzing(false)
+      setIsSaving(false)
     }
   }
 
@@ -54,6 +69,7 @@ export function TeacherMbtiPanel({ teacherId, teacherName, analysis }: Props) {
             <Brain className="w-5 h-5 text-purple-600" />
           </div>
           <h2 className="text-lg font-semibold">MBTI 성향 분석</h2>
+          <MbtiHelpDialog />
         </div>
         {analysis && (
           <button
@@ -67,7 +83,63 @@ export function TeacherMbtiPanel({ teacherId, teacherName, analysis }: Props) {
         )}
       </div>
 
-      <div className="p-6">
+      <div className="p-6 space-y-6">
+        {errorMessage && (
+          <div className="bg-red-50 border-l-4 border-red-400 p-4">
+            <div className="flex">
+              <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0" />
+              <div className="ml-3">
+                <p className="text-sm text-red-800">{errorMessage}</p>
+                <Button onClick={() => setErrorMessage(null)} variant="outline" size="sm" className="mt-2">
+                  닫기
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* AI 해석 설정 영역 */}
+        {analysis && (
+          <div className="rounded-md border border-gray-200 p-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 flex-wrap">
+              <ProviderSelector
+                selectedProvider={selectedProvider}
+                onProviderChange={setSelectedProvider}
+                availableProviders={enabledProviders}
+                disabled={isGeneratingAI}
+              />
+              {promptOptions.length > 0 && (
+                <PromptSelector
+                  selectedPromptId={selectedPromptId}
+                  onPromptChange={setSelectedPromptId}
+                  promptOptions={promptOptions}
+                  disabled={isGeneratingAI}
+                />
+              )}
+              <Button
+                onClick={async () => {
+                  setIsGeneratingAI(true)
+                  setErrorMessage(null)
+                  try {
+                    await generateTeacherMbtiLLMInterpretation(teacherId, selectedProvider, selectedPromptId)
+                    onDataChange?.()
+                  } catch (error) {
+                    setErrorMessage(`AI 해석에 실패했습니다. (원인: ${error instanceof Error ? error.message : '알 수 없는 오류'})`)
+                  } finally {
+                    setIsGeneratingAI(false)
+                  }
+                }}
+                disabled={isGeneratingAI}
+                className="w-full sm:w-auto"
+              >
+                <Sparkles className="w-4 h-4 mr-1" />
+                {isGeneratingAI ? "AI 해석 중..." : "AI로 해석하기"}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* MBTI 결과 표시 */}
         {analysis ? (
           <MbtiResultsDisplay
             analysis={{
@@ -87,42 +159,40 @@ export function TeacherMbtiPanel({ teacherId, teacherName, analysis }: Props) {
             <p className="text-gray-500 mb-4">
               아직 MBTI 분석이 없습니다.
             </p>
-            {error && (
-              <p className="text-sm text-red-600 mb-4">{error}</p>
-            )}
             <div className="flex gap-3 justify-center">
               <button
-                onClick={handleAnalysisStart}
-                disabled={isAnalyzing}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                onClick={() => setShowDirectInput(true)}
+                className="inline-flex items-center gap-2 px-4 py-2 border border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 transition-colors"
               >
-                <Brain className="w-4 h-4" />
-                {isAnalyzing ? "분석 중..." : "분석 시작"}
+                <Edit3 className="w-4 h-4" />
+                직접 입력
               </button>
             </div>
-            <p className="text-xs text-gray-400 mt-4">
-              참고: 현재 모의 응답으로 테스트 중입니다. 실제 설문 폼은 다음 plan에서 구현 예정입니다.
-            </p>
           </div>
         )}
       </div>
 
-      {/* 직접 입력 모달 - TODO: 나중에 구현 */}
+      {/* 직접 입력 모달 */}
       {showDirectInput && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold mb-4">MBTI 직접 입력</h3>
-            <p className="text-sm text-gray-600 mb-4">
-              이 기능은 다음 plan에서 구현될 예정입니다.
-            </p>
-            <button
-              onClick={() => setShowDirectInput(false)}
-              className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
-            >
-              닫기
-            </button>
-          </div>
-        </div>
+        <MbtiDirectInputModal
+          studentId={teacherId}
+          studentName={teacherName}
+          existingData={analysis ? {
+            mbtiType: analysis.mbtiType,
+            percentages: analysis.percentages as {
+              E: number; I: number
+              S: number; N: number
+              T: number; F: number
+              J: number; P: number
+            }
+          } : undefined}
+          onSave={handleDirectInputSave}
+          onCancel={() => {
+            setShowDirectInput(false)
+            setErrorMessage(null)
+          }}
+          isSaving={isSaving}
+        />
       )}
     </div>
   )
