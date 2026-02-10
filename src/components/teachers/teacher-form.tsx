@@ -60,6 +60,9 @@ export function TeacherForm({ teams = [], teacher, currentRole }: TeacherFormPro
       : null
   )
 
+  const [profileRemoved, setProfileRemoved] = useState(false)
+  const [showPasswordChange, setShowPasswordChange] = useState(false)
+
   const formRef = useRef<HTMLFormElement>(null)
 
   const action = isEdit
@@ -160,10 +163,19 @@ export function TeacherForm({ teams = [], teacher, currentRole }: TeacherFormPro
               label="프로필 사진"
               description="선생님의 프로필 사진을 업로드해주세요"
               folder={uploadFolder}
-              previewUrl={teacher?.profileImage}
+              previewUrl={profileRemoved ? undefined : (profileImage ? undefined : teacher?.profileImage)}
               value={profileImage}
-              onChange={setProfileImage}
+              onChange={(payload) => {
+                if (payload === null) {
+                  setProfileImage(null)
+                  setProfileRemoved(true)
+                } else {
+                  setProfileImage(payload)
+                  setProfileRemoved(false)
+                }
+              }}
               studentName={teacher?.name}
+              removable
             />
           </div>
 
@@ -318,6 +330,35 @@ export function TeacherForm({ teams = [], teacher, currentRole }: TeacherFormPro
                   <p className="text-sm text-red-600">{state.errors.teamId[0]}</p>
                 )}
               </div>
+            </div>
+          )}
+
+          {isEdit && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-medium">비밀번호 변경</h3>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowPasswordChange(!showPasswordChange)}
+                >
+                  {showPasswordChange ? "취소" : "변경하기"}
+                </Button>
+              </div>
+              {showPasswordChange && (
+                <div className="space-y-2">
+                  <Label htmlFor="password">새 비밀번호</Label>
+                  <Input
+                    id="password"
+                    name="password"
+                    type="password"
+                    placeholder="새 비밀번호를 입력하세요"
+                    minLength={8}
+                  />
+                  <p className="text-xs text-muted-foreground">8자 이상 입력해주세요. 비워두면 변경되지 않습니다.</p>
+                </div>
+              )}
             </div>
           )}
 

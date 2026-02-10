@@ -160,6 +160,7 @@ export function StudentDetail({ student, analysisStatus }: StudentDetailProps) {
                   : null
               }
               onChange={(payload) => {
+                if (!payload) return
                 startTransition(async () => {
                   const result = await setStudentImage(student.id, payload)
 

@@ -10,6 +10,9 @@ import {
   Calendar,
   Users,
   Shield,
+  Cake,
+  Clock,
+  GraduationCap,
 } from 'lucide-react'
 import { TeacherDeleteDialog } from './teacher-delete-dialog'
 
@@ -22,10 +25,15 @@ type TeacherDetailProps = {
     teamId: string | null
     team: { id: string; name: string } | null
     phone: string | null
+    birthDate: Date | null
+    nameHanja: string | null
+    birthTimeHour: number | null
+    birthTimeMinute: number | null
     profileImage: string | null
     profileImagePublicId: string | null
     createdAt: Date
     updatedAt: Date
+    _count: { students: number }
   }
   currentRole: 'DIRECTOR' | 'TEAM_LEADER' | 'MANAGER' | 'TEACHER'
   currentUserId: string
@@ -99,7 +107,12 @@ export function TeacherDetail({ teacher, currentRole, currentUserId, currentTeam
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <p className="text-sm text-gray-500">이름</p>
-              <p className="font-medium">{teacher.name}</p>
+              <p className="font-medium">
+                {teacher.name}
+                {teacher.nameHanja && (
+                  <span className="ml-1 text-gray-400">({teacher.nameHanja})</span>
+                )}
+              </p>
             </div>
             <div className="space-y-1">
               <p className="text-sm text-gray-500">역할</p>
@@ -128,16 +141,51 @@ export function TeacherDetail({ teacher, currentRole, currentUserId, currentTeam
             </div>
           )}
 
-          <div className="space-y-1">
-            <p className="text-sm text-gray-500">소속 팀</p>
-            {teacher.team ? (
-              <div className="flex items-center gap-2">
-                <Users className="h-4 w-4 text-gray-400" />
-                <p className="font-medium">{teacher.team.name}</p>
+          <div className="grid grid-cols-2 gap-4">
+            {teacher.birthDate && (
+              <div className="space-y-1">
+                <p className="text-sm text-gray-500">생년월일</p>
+                <div className="flex items-center gap-2">
+                  <Cake className="h-4 w-4 text-gray-400" />
+                  <p className="font-medium">{formatDate(teacher.birthDate)}</p>
+                </div>
               </div>
-            ) : (
-              <p className="text-gray-400">미배정</p>
             )}
+            {teacher.birthTimeHour !== null && (
+              <div className="space-y-1">
+                <p className="text-sm text-gray-500">태어난 시간</p>
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-gray-400" />
+                  <p className="font-medium">
+                    {String(teacher.birthTimeHour).padStart(2, '0')}시
+                    {teacher.birthTimeMinute !== null && ` ${String(teacher.birthTimeMinute).padStart(2, '0')}분`}
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <p className="text-sm text-gray-500">소속 팀</p>
+              {teacher.team ? (
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4 text-gray-400" />
+                  <p className="font-medium">{teacher.team.name}</p>
+                </div>
+              ) : (
+                <p className="text-gray-400">미배정</p>
+              )}
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm text-gray-500">담당 학생</p>
+              <div className="flex items-center gap-2">
+                <GraduationCap className="h-4 w-4 text-gray-400" />
+                <p className="font-medium">
+                  {teacher._count.students > 0 ? `${teacher._count.students}명` : '없음'}
+                </p>
+              </div>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
