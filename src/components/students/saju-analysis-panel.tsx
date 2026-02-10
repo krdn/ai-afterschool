@@ -1,13 +1,14 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useState, useTransition, useEffect } from "react"
 import { format } from "date-fns"
 import { ko } from "date-fns/locale"
 import { Loader2, RefreshCw, History } from "lucide-react"
-import { runSajuAnalysisAction } from "../../app/(dashboard)/students/[id]/saju/actions"
+import { runSajuAnalysisAction, getMergedPromptOptionsAction } from "../../app/(dashboard)/students/[id]/saju/actions"
 import type { SajuResult } from "@/lib/analysis/saju"
 import type { ProviderName } from "@/lib/ai/providers/types"
-import { getPromptOptions, type AnalysisPromptMeta } from "@/lib/ai/saju-prompts"
+import type { AnalysisPromptMeta } from "@/lib/ai/saju-prompts"
+import { MarkdownRenderer } from "@/components/ui/markdown-renderer"
 import { ProviderSelector } from "@/components/students/provider-selector"
 import { PromptSelector } from "@/components/students/prompt-selector"
 import { SajuHelpDialog } from "@/components/students/saju-help-dialog"
@@ -72,7 +73,14 @@ export function SajuAnalysisPanel({ student, analysis, enabledProviders = [], on
   const [providerLabel, setProviderLabel] = useState<string | null>(null)
   const [promptLabel, setPromptLabel] = useState<string | null>(null)
   const [showHistory, setShowHistory] = useState(false)
-  const promptOptions = getPromptOptions()
+  const [viewMode, setViewMode] = useState<"markdown" | "rendered">("rendered")
+  const [promptOptions, setPromptOptions] = useState<AnalysisPromptMeta[]>([])
+
+  // DB에서 프롬프트 옵션 실시간 로드
+  useEffect(() => {
+    getMergedPromptOptionsAction().then(setPromptOptions).catch(console.error)
+  }, [])
+
   const result = analysis?.result as SajuResult | undefined
   const isLLM = selectedProvider !== 'built-in'
 
@@ -297,11 +305,35 @@ export function SajuAnalysisPanel({ student, analysis, enabledProviders = [], on
                 {promptLabel}
               </span>
             )}
+            {analysis?.interpretation && (
+              <div className="ml-auto flex rounded-md border border-gray-200 text-xs overflow-hidden">
+                <button
+                  type="button"
+                  className={`px-2.5 py-1 transition-colors ${viewMode === "rendered" ? "bg-gray-800 text-white" : "bg-white text-gray-500 hover:bg-gray-50"}`}
+                  onClick={() => setViewMode("rendered")}
+                >
+                  미리보기
+                </button>
+                <button
+                  type="button"
+                  className={`px-2.5 py-1 border-l border-gray-200 transition-colors ${viewMode === "markdown" ? "bg-gray-800 text-white" : "bg-white text-gray-500 hover:bg-gray-50"}`}
+                  onClick={() => setViewMode("markdown")}
+                >
+                  원문
+                </button>
+              </div>
+            )}
           </div>
           {analysis?.interpretation ? (
-            <div className="rounded-md border border-gray-200 bg-white p-4 text-sm leading-6 text-gray-700 whitespace-pre-wrap">
-              {analysis.interpretation}
-            </div>
+            viewMode === "rendered" ? (
+              <div className="rounded-md border border-gray-200 bg-white p-4">
+                <MarkdownRenderer content={analysis.interpretation} />
+              </div>
+            ) : (
+              <div className="rounded-md border border-gray-200 bg-gray-50 p-4 text-sm leading-6 text-gray-700 whitespace-pre-wrap font-mono">
+                {analysis.interpretation}
+              </div>
+            )
           ) : (
             <div className="rounded-md bg-gray-50 p-4 text-sm text-gray-500">
               사주 해석이 아직 생성되지 않았어요.
