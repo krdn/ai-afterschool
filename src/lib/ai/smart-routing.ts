@@ -46,7 +46,7 @@ export function optimizeProviderOrder(
 ): ProviderName[] {
   // 비전 기능은 비전 지원 제공자만 허용
   const VISION_FEATURES: FeatureType[] = ['face_analysis', 'palm_analysis'];
-  const VISION_PROVIDERS: ProviderName[] = ['anthropic', 'openai', 'google'];
+  const VISION_PROVIDERS: ProviderName[] = ['anthropic', 'openai', 'google', 'xai'];
 
   let filteredProviders = enabledProviders;
 

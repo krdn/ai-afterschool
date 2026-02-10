@@ -2,6 +2,10 @@ import { generateText } from 'ai';
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { createOpenAI } from '@ai-sdk/openai';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
+import { createDeepSeek } from '@ai-sdk/deepseek';
+import { createMistral } from '@ai-sdk/mistral';
+import { createCohere } from '@ai-sdk/cohere';
+import { createXai } from '@ai-sdk/xai';
 import { testOllamaGeneration } from './providers/ollama';
 import type { ProviderName } from './providers';
 
@@ -56,6 +60,26 @@ export async function testProviderConnection(
       case 'google': {
         const googleProvider = createGoogleGenerativeAI({ apiKey });
         model = googleProvider('gemini-2.0-flash');
+        break;
+      }
+      case 'deepseek': {
+        const deepseekProvider = createDeepSeek({ apiKey });
+        model = deepseekProvider('deepseek-chat');
+        break;
+      }
+      case 'mistral': {
+        const mistralProvider = createMistral({ apiKey });
+        model = mistralProvider('mistral-small-latest');
+        break;
+      }
+      case 'cohere': {
+        const cohereProvider = createCohere({ apiKey });
+        model = cohereProvider('command-r');
+        break;
+      }
+      case 'xai': {
+        const xaiProvider = createXai({ apiKey });
+        model = xaiProvider('grok-3-mini');
         break;
       }
       default:
