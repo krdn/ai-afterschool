@@ -32,6 +32,9 @@ import { getBuiltInSeedData as getSajuSeedData } from '@/lib/ai/saju-prompts'
 import { getBuiltInSeedData as getFaceSeedData } from '@/lib/ai/face-prompts'
 import { getBuiltInSeedData as getPalmSeedData } from '@/lib/ai/palm-prompts'
 import { getBuiltInSeedData as getMbtiSeedData } from '@/lib/ai/mbti-prompts'
+import { getBuiltInSeedData as getVarkSeedData } from '@/lib/ai/vark-prompts'
+import { getBuiltInSeedData as getNameSeedData } from '@/lib/ai/name-prompts'
+import { getBuiltInSeedData as getZodiacSeedData } from '@/lib/ai/zodiac-prompts'
 
 export const metadata = {
   title: '관리자 | AI AfterSchool',
@@ -181,6 +184,9 @@ export default async function AdminPage() {
     seedBuiltInPresets(getFaceSeedData()),
     seedBuiltInPresets(getPalmSeedData()),
     seedBuiltInPresets(getMbtiSeedData()),
+    seedBuiltInPresets(getVarkSeedData()),
+    seedBuiltInPresets(getNameSeedData()),
+    seedBuiltInPresets(getZodiacSeedData()),
   ])
 
   const analysisPromptPresets = {
@@ -188,6 +194,9 @@ export default async function AdminPage() {
     face: await getAllPresetsByType('face'),
     palm: await getAllPresetsByType('palm'),
     mbti: await getAllPresetsByType('mbti'),
+    vark: await getAllPresetsByType('vark'),
+    name: await getAllPresetsByType('name'),
+    zodiac: await getAllPresetsByType('zodiac'),
   }
 
   const enabledProviders = llmConfigs

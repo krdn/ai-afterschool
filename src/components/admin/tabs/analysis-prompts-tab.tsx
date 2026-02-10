@@ -86,6 +86,9 @@ const typeColors: Record<AnalysisType, string> = {
   face: "blue",
   palm: "purple",
   mbti: "green",
+  vark: "teal",
+  name: "orange",
+  zodiac: "indigo",
 }
 
 const typeBadgeVariants: Record<AnalysisType, "default" | "secondary" | "outline"> = {
@@ -93,6 +96,9 @@ const typeBadgeVariants: Record<AnalysisType, "default" | "secondary" | "outline
   face: "default",
   palm: "default",
   mbti: "default",
+  vark: "default",
+  name: "secondary",
+  zodiac: "secondary",
 }
 
 // 플레이스홀더 안내 메시지
@@ -101,6 +107,9 @@ const placeholderGuides: Record<AnalysisType, string> = {
   face: "사용 가능한 플레이스홀더: {학생정보}, {분석요청사항}",
   palm: "사용 가능한 플레이스홀더: {학생정보}, {손종류}, {분석요청사항}",
   mbti: "사용 가능한 플레이스홀더: {학생정보}, {MBTI유형}, {MBTI비율}",
+  vark: "사용 가능한 플레이스홀더: {학생정보}, {VARK유형}, {VARK비율}",
+  name: "사용 가능한 플레이스홀더: {학생정보}, {이름}, {한자}",
+  zodiac: "사용 가능한 플레이스홀더: {학생정보}, {별자리}, {원소}",
 }
 
 export function AnalysisPromptsTab({ initialPresets }: Props) {

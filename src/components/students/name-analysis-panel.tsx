@@ -3,7 +3,9 @@
 import { useState, useTransition } from "react"
 import { format } from "date-fns"
 import { ko } from "date-fns/locale"
+import { Sparkles, AlertCircle, Type } from "lucide-react"
 import { runNameAnalysisAction } from "../../app/(dashboard)/students/[id]/name/actions"
+import { runNameAnalysis, generateNameLLMInterpretation } from "@/lib/actions/name-interpretation"
 import type { NameNumerologyResult } from "@/lib/analysis/name-numerology"
 import {
   coerceHanjaSelections,
@@ -11,8 +13,13 @@ import {
   normalizeHanjaSelections,
   selectionsToHanjaName,
 } from "@/lib/analysis/hanja-strokes"
+import type { ProviderName } from "@/lib/ai/providers/types"
+import { ProviderSelector } from "@/components/students/provider-selector"
+import { PromptSelector } from "@/components/students/prompt-selector"
+import type { GenericPromptMeta } from "@/components/students/prompt-selector"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import ReactMarkdown from "react-markdown"
 
 type NameAnalysisPanelProps = {
   student: {
@@ -25,42 +32,106 @@ type NameAnalysisPanelProps = {
     interpretation: string | null
     calculatedAt: Date | string
   } | null
+  enabledProviders?: ProviderName[]
+  promptOptions?: GenericPromptMeta[]
+  onDataChange?: () => void
 }
 
 function toDate(value: Date | string) {
   return value instanceof Date ? value : new Date(value)
 }
 
-export function NameAnalysisPanel({ student, analysis }: NameAnalysisPanelProps) {
+export function NameAnalysisPanel({ student, analysis, enabledProviders = [], promptOptions = [], onDataChange }: NameAnalysisPanelProps) {
   const [isPending, startTransition] = useTransition()
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [selectedProvider, setSelectedProvider] = useState("auto")
+  const [selectedPromptId, setSelectedPromptId] = useState("default")
+
   const selections = normalizeHanjaSelections(
     student.name,
     coerceHanjaSelections(student.nameHanja)
   )
   const hanjaName = selectionsToHanjaName(selections)
-  const canAnalyze = selections.length > 0 && selections.every((s) => s.hanja)
+  const canAnalyzeHanja = selections.length > 0 && selections.every((s) => s.hanja)
   const result = analysis?.result as NameNumerologyResult | undefined
 
   const calculatedAt = analysis?.calculatedAt
     ? toDate(analysis.calculatedAt)
     : null
 
+  // 한자 기반 분석 실행
+  const handleHanjaAnalysis = () => {
+    startTransition(async () => {
+      setErrorMessage(null)
+      try {
+        await runNameAnalysisAction(student.id)
+        onDataChange?.()
+      } catch (error) {
+        console.error("Failed to run name analysis", error)
+        setErrorMessage("성명학 분석 실행에 실패했어요. 한자 선택을 확인해주세요.")
+      }
+    })
+  }
+
+  // 한글 이름 기반 분석 (한자 없이도 가능)
+  const handleNameAnalysis = async () => {
+    setErrorMessage(null)
+    try {
+      await runNameAnalysis(student.id)
+      onDataChange?.()
+    } catch (error) {
+      setErrorMessage(`이름 분석에 실패했습니다. (${error instanceof Error ? error.message : "알 수 없는 오류"})`)
+    }
+  }
+
+  // LLM 해석
+  const handleLLMInterpretation = async () => {
+    setIsGeneratingAI(true)
+    setErrorMessage(null)
+    try {
+      await generateNameLLMInterpretation(student.id, selectedProvider, selectedPromptId)
+      onDataChange?.()
+    } catch (error) {
+      setErrorMessage(`AI 해석에 실패했습니다. (${error instanceof Error ? error.message : "알 수 없는 오류"})`)
+    } finally {
+      setIsGeneratingAI(false)
+    }
+  }
+
   return (
     <Card data-testid="name-tab">
       <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <CardTitle>성명학 분석</CardTitle>
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-amber-100 rounded-lg">
+            <Type className="w-5 h-5 text-amber-600" />
+          </div>
+          <CardTitle>이름풀이</CardTitle>
+        </div>
         <div className="text-xs text-gray-500">
           {calculatedAt
-            ? `최근 계산: ${format(calculatedAt, "yyyy.MM.dd HH:mm", {
-                locale: ko,
-              })}`
+            ? `최근 분석: ${format(calculatedAt, "yyyy.MM.dd HH:mm", { locale: ko })}`
             : "아직 분석되지 않았어요."}
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
+        {errorMessage && (
+          <div className="bg-red-50 border-l-4 border-red-400 p-4">
+            <div className="flex">
+              <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0" />
+              <div className="ml-3">
+                <p className="text-sm text-red-800">{errorMessage}</p>
+                <Button onClick={() => setErrorMessage(null)} variant="outline" size="sm" className="mt-2">
+                  닫기
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 한자 선택 및 성명학 분석 */}
         <div className="space-y-2">
-          <h3 className="text-sm font-semibold text-gray-600">1. 한자 선택</h3>
+          <h3 className="text-sm font-semibold text-gray-600">1. 한자 기반 성명학</h3>
           <div className="rounded-md bg-gray-50 p-4 text-sm text-gray-700">
             <p>학생: {student.name}</p>
             <p>선택 한자: {hanjaName ?? "미선택"}</p>
@@ -82,38 +153,35 @@ export function NameAnalysisPanel({ student, analysis }: NameAnalysisPanelProps)
               ))}
             </div>
           </div>
-          <Button
-            type="button"
-            disabled={isPending || !canAnalyze}
-            onClick={() => {
-              startTransition(async () => {
-                setErrorMessage(null)
-                try {
-                  await runNameAnalysisAction(student.id)
-                } catch (error) {
-                  console.error("Failed to run name analysis", error)
-                  setErrorMessage(
-                    "성명학 분석 실행에 실패했어요. 한자 선택을 확인해주세요."
-                  )
-                }
-              })
-            }}
-          >
-            {isPending ? "분석 중..." : "성명학 분석 실행"}
-          </Button>
-          {!canAnalyze ? (
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              disabled={isPending || !canAnalyzeHanja}
+              onClick={handleHanjaAnalysis}
+              variant="outline"
+            >
+              {isPending ? "분석 중..." : "성명학 수리 분석"}
+            </Button>
+            {!analysis && (
+              <Button
+                type="button"
+                onClick={handleNameAnalysis}
+              >
+                한글 이름풀이
+              </Button>
+            )}
+          </div>
+          {!canAnalyzeHanja && (
             <p className="text-xs text-amber-600">
-              모든 글자에 한자를 선택해야 분석을 실행할 수 있습니다.
+              한자 수리 분석은 모든 글자에 한자를 선택해야 가능합니다. 한글 이름풀이는 바로 실행 가능합니다.
             </p>
-          ) : null}
-          {errorMessage ? (
-            <p className="text-sm text-red-600">{errorMessage}</p>
-          ) : null}
+          )}
         </div>
 
+        {/* 수리 격국 */}
         <div className="space-y-2">
           <h3 className="text-sm font-semibold text-gray-600">2. 수리 격국</h3>
-          {result ? (
+          {result?.grids ? (
             <div className="grid gap-3 rounded-md border border-gray-200 bg-white p-4 text-sm">
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 <div>
@@ -139,20 +207,48 @@ export function NameAnalysisPanel({ student, analysis }: NameAnalysisPanelProps)
             </div>
           ) : (
             <div className="rounded-md bg-gray-50 p-4 text-sm text-gray-500">
-              아직 계산된 성명학 결과가 없습니다.
+              한자가 선택되지 않아 수리 분석이 없습니다.
             </div>
           )}
         </div>
 
+        {/* AI 해석 설정 */}
+        {analysis && (
+          <div className="rounded-md border border-gray-200 p-4">
+            <h3 className="text-sm font-semibold text-gray-600 mb-3">3. AI 해석</h3>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 flex-wrap">
+              <ProviderSelector
+                selectedProvider={selectedProvider}
+                onProviderChange={setSelectedProvider}
+                availableProviders={enabledProviders}
+                disabled={isGeneratingAI}
+              />
+              {promptOptions.length > 0 && (
+                <PromptSelector
+                  selectedPromptId={selectedPromptId}
+                  onPromptChange={setSelectedPromptId}
+                  promptOptions={promptOptions}
+                  disabled={isGeneratingAI}
+                />
+              )}
+              <Button onClick={handleLLMInterpretation} disabled={isGeneratingAI} className="w-full sm:w-auto">
+                <Sparkles className="w-4 h-4 mr-1" />
+                {isGeneratingAI ? "AI 해석 중..." : "AI로 해석하기"}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* 해석 결과 */}
         <div className="space-y-2">
-          <h3 className="text-sm font-semibold text-gray-600">3. 해석</h3>
+          <h3 className="text-sm font-semibold text-gray-600">{analysis ? "4. 해석 결과" : "3. 해석"}</h3>
           {analysis?.interpretation ? (
-            <div className="rounded-md border border-gray-200 bg-white p-4 text-sm leading-6 text-gray-700 whitespace-pre-wrap">
-              {analysis.interpretation}
+            <div className="prose prose-sm max-w-none rounded-md border border-gray-200 bg-white p-4">
+              <ReactMarkdown>{analysis.interpretation}</ReactMarkdown>
             </div>
           ) : (
             <div className="rounded-md bg-gray-50 p-4 text-sm text-gray-500">
-              성명학 해석이 아직 생성되지 않았어요.
+              이름풀이 해석이 아직 생성되지 않았어요.
             </div>
           )}
         </div>

@@ -8,7 +8,10 @@ export type FeatureType =
   | 'palm_analysis'       // 손금 분석
   | 'personality_summary' // 통합 성향 분석
   | 'saju_analysis'       // 사주 해석
-  | 'mbti_analysis';      // MBTI 해석
+  | 'mbti_analysis'       // MBTI 해석
+  | 'vark_analysis'       // VARK 학습유형 해석
+  | 'name_analysis'       // 이름풀이 해석
+  | 'zodiac_analysis';    // 별자리 운세 해석
 
 export interface ProviderConfig {
   name: ProviderName;

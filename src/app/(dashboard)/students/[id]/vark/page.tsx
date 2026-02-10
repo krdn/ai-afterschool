@@ -3,9 +3,9 @@ import Link from "next/link"
 import { ChevronLeft } from "lucide-react"
 import { verifySession } from "@/lib/dal"
 import { db } from "@/lib/db"
-import { MbtiSurveyForm } from "@/components/mbti/survey-form"
+import { VarkSurveyForm } from "@/components/vark/survey-form"
 
-export default async function MbtiSurveyPage({
+export default async function VarkSurveyPage({
   params,
 }: {
   params: Promise<{ id: string }>
@@ -30,14 +30,14 @@ export default async function MbtiSurveyPage({
     notFound()
   }
 
-  const existingAnalysis = await db.mbtiAnalysis.findUnique({
+  const existingAnalysis = await db.varkAnalysis.findUnique({
     where: { studentId: id },
-    select: { id: true }
+    select: { id: true },
   })
 
-  const draft = await db.mbtiSurveyDraft.findUnique({
+  const draft = await db.varkSurveyDraft.findUnique({
     where: { studentId: id },
-    select: { responses: true }
+    select: { responses: true },
   })
 
   const initialResponses = (draft?.responses as Record<string, number>) ||
@@ -56,9 +56,12 @@ export default async function MbtiSurveyPage({
       </div>
 
       <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-        <h1 className="text-2xl font-bold mb-2">MBTI 성향 검사</h1>
+        <h1 className="text-2xl font-bold mb-2">VARK 학습유형 검사</h1>
         <p className="text-gray-600">
-          {student.name} 학생의 MBTI 성향을 검사합니다. 60개 문항에 답변해 주세요.
+          {student.name} 학생의 학습 유형을 검사합니다. 28개 문항에 답변해 주세요.
+        </p>
+        <p className="text-sm text-gray-500 mt-1">
+          각 문항에 대해 자신에게 얼마나 해당되는지 1(전혀 아님)~5(매우 그러함)로 답해주세요.
         </p>
         {existingAnalysis && (
           <p className="text-sm text-amber-600 mt-2">
@@ -68,16 +71,16 @@ export default async function MbtiSurveyPage({
       </div>
 
       <div className="bg-white rounded-lg shadow-sm p-6">
-        <MbtiSurveyForm studentId={student.id} initialDraft={initialResponses} />
+        <VarkSurveyForm studentId={student.id} initialDraft={initialResponses} />
       </div>
     </div>
   )
 }
 
 async function loadAnalysisResponses(studentId: string) {
-  const analysis = await db.mbtiAnalysis.findUnique({
+  const analysis = await db.varkAnalysis.findUnique({
     where: { studentId },
-    select: { responses: true }
+    select: { responses: true },
   })
   return (analysis?.responses as Record<string, number>) || {}
 }

@@ -39,7 +39,8 @@ export function MbtiSurveyForm({ studentId, initialDraft }: {
     studentId,
     async (responses) => {
       await saveMbtiDraft(studentId, responses)
-    }
+    },
+    methods.watch
   )
 
   useEffect(() => {
