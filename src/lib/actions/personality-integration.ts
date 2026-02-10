@@ -12,6 +12,7 @@ import {
 import { generateWithProvider, FailoverError } from "@/lib/ai/router"
 import { buildLearningStrategyPrompt, buildCareerGuidancePrompt } from "@/lib/ai/integration-prompts"
 import { LearningStrategySchema, CareerGuidanceSchema } from "@/lib/validations/personality"
+import { extractJsonFromLLM } from "@/lib/utils/extract-json"
 
 /**
  * AI 기반 학습 전략 생성 Server Action (통합 LLM 라우터 사용)
@@ -101,8 +102,8 @@ export async function generateLearningStrategy(studentId: string) {
         )
       }
 
-      // JSON 파싱
-      const result = JSON.parse(response.text)
+      // JSON 파싱 (마크다운 코드블록 등 LLM 응답 형식 대응)
+      const result = extractJsonFromLLM(response.text)
 
       // Zod 스키마 검증
       const validatedResult = LearningStrategySchema.parse(result)
@@ -233,8 +234,8 @@ export async function generateCareerGuidance(studentId: string) {
         )
       }
 
-      // JSON 파싱
-      const result = JSON.parse(response.text)
+      // JSON 파싱 (마크다운 코드블록 등 LLM 응답 형식 대응)
+      const result = extractJsonFromLLM(response.text)
 
       // Zod 스키마 검증
       const validatedResult = CareerGuidanceSchema.parse(result)

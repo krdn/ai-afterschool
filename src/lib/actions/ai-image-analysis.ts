@@ -8,6 +8,7 @@ import { getFacePrompt, type FacePromptId } from "@/lib/ai/face-prompts"
 import { getPalmPrompt, type PalmPromptId } from "@/lib/ai/palm-prompts"
 import { verifySession } from "@/lib/dal"
 import { db } from "@/lib/db"
+import { extractJsonFromLLM } from "@/lib/utils/extract-json"
 import { upsertFaceAnalysis } from "@/lib/db/face-analysis"
 import { upsertPalmAnalysis } from "@/lib/db/palm-analysis"
 import type { ProviderName } from "@/lib/ai/providers/types"
@@ -57,8 +58,8 @@ export async function analyzeFaceImage(studentId: string, imageUrl: string, prov
         ? await generateVisionWithSpecificProvider(provider as ProviderName, visionOptions)
         : await generateWithVision(visionOptions)
 
-      // JSON 응답 파싱
-      const result = JSON.parse(response.text)
+      // JSON 응답 파싱 (마크다운 코드블록 등 LLM 응답 형식 대응)
+      const result = extractJsonFromLLM(response.text)
 
       // 폴백 발생 시 로깅
       if (response.wasFailover) {
@@ -157,7 +158,7 @@ export async function analyzePalmImage(
         ? await generateVisionWithSpecificProvider(provider as ProviderName, visionOptions)
         : await generateWithVision(visionOptions)
 
-      const result = JSON.parse(response.text)
+      const result = extractJsonFromLLM(response.text)
 
       // 폴백 발생 시 로깅
       if (response.wasFailover) {

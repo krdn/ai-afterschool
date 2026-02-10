@@ -16,14 +16,13 @@ model Teacher {
   phone                      String?
   role                       Role                          @default(TEACHER)
   teamId                     String?
-  nameHanja                  String?
+  nameHanja                  Json?
   birthDate                  DateTime?
   birthTimeHour              Int?
   birthTimeMinute            Int?
   profileImage               String?
   profileImagePublicId       String?
   assignmentProposalsCreated AssignmentProposal[]          @relation("ProposedBy")
-  auditLogs                  AuditLog[]
   compatibilityResults       CompatibilityResult[]
   counselingSessions         CounselingSession[]
   gradeHistoryTaught         GradeHistory[]
@@ -37,6 +36,7 @@ model Teacher {
   teacherNameAnalysis        TeacherNameAnalysis?
   teacherPalmAnalysis        TeacherPalmAnalysis?
   teacherSajuAnalysis        TeacherSajuAnalysis?
+  auditLogs                  AuditLog[]
 }
 
 model Team {
@@ -56,7 +56,6 @@ model Student {
   phone                          String?
   school                         String
   grade                          Int
-  nationality                    String?    @default("한국")
   targetUniversity               String?
   targetMajor                    String?
   bloodType                      BloodType?
@@ -75,6 +74,7 @@ model Student {
   initialGradeLevel              String?
   priorAcademicPerformance       Json?
   primaryParentId                String?
+  nationality                    String?                       @default("한국")
   compatibilityResults           CompatibilityResult[]
   counselingSessions             CounselingSession[]
   faceAnalysis                   FaceAnalysis?
@@ -91,10 +91,10 @@ model Student {
   teacher                        Teacher                       @relation(fields: [teacherId], references: [id])
   team                           Team?                         @relation(fields: [teamId], references: [id])
   images                         StudentImage[]
+  studentSatisfactions           StudentSatisfaction[]
   varkAnalysis                   VarkAnalysis?
   varkSurveyDraft                VarkSurveyDraft?
   zodiacAnalysis                 ZodiacAnalysis?
-  studentSatisfactions           StudentSatisfaction[]
 
   @@index([teacherId])
   @@index([name])
@@ -344,7 +344,6 @@ model PersonalitySummary {
   id               String    @id @default(cuid())
   studentId        String    @unique
   coreTraits       String?
-  scores           Json?
   learningStrategy Json?
   careerGuidance   Json?
   status           String    @default("none")
@@ -353,6 +352,7 @@ model PersonalitySummary {
   generatedAt      DateTime?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
+  scores           Json?
   student          Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@index([studentId])
@@ -591,6 +591,102 @@ model LLMBudget {
   updatedAt          DateTime  @updatedAt
 }
 
+model AnalysisPromptPreset {
+  id                String   @id @default(cuid())
+  promptKey         String
+  name              String
+  shortDescription  String
+  target            String
+  levels            String   @default("★★★☆☆")
+  purpose           String
+  recommendedTiming String
+  tags              Json     @default("[]")
+  promptTemplate    String
+  isBuiltIn         Boolean  @default(false)
+  isActive          Boolean  @default(true)
+  sortOrder         Int      @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  analysisType      String   @default("saju")
+
+  @@unique([promptKey, analysisType])
+  @@index([analysisType, isActive])
+  @@index([sortOrder])
+  @@map("analysis_prompt_presets")
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  teacherId  String
+  action     String
+  entityType String
+  entityId   String?
+  changes    Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+  teacher    Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@index([teacherId])
+  @@index([entityType, entityId])
+  @@index([createdAt(sort: Desc)])
+  @@map("audit_logs")
+}
+
+model SystemLog {
+  id        String   @id @default(cuid())
+  level     String
+  message   String
+  context   Json?
+  timestamp DateTime @default(now())
+
+  @@index([level])
+  @@index([timestamp(sort: Desc)])
+  @@map("system_logs")
+}
+
+model VarkAnalysis {
+  id             String   @id @default(cuid())
+  studentId      String   @unique
+  responses      Json
+  scores         Json
+  varkType       String
+  percentages    Json
+  interpretation String?
+  version        Int      @default(1)
+  calculatedAt   DateTime
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  student        Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+}
+
+model VarkSurveyDraft {
+  id        String   @id @default(cuid())
+  studentId String   @unique
+  responses Json
+  progress  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+}
+
+model ZodiacAnalysis {
+  id             String   @id @default(cuid())
+  studentId      String   @unique
+  zodiacSign     String
+  zodiacName     String
+  element        String
+  traits         Json
+  interpretation String?
+  version        Int      @default(1)
+  calculatedAt   DateTime
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  student        Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+}
+
 enum Role {
   DIRECTOR
   TEAM_LEADER
@@ -638,107 +734,4 @@ enum StudentImageType {
   profile
   face
   palm
-}
-
-// 분석 프롬프트 프리셋 (사주, 관상, 손금, MBTI 등 모든 분석 유형 지원)
-model AnalysisPromptPreset {
-  id                 String   @id @default(cuid())
-  analysisType       String   @default("saju") // "saju", "face", "palm", "mbti"
-  promptKey          String   // 프롬프트 식별자 (예: "learning-dna", "custom-1")
-  name               String   // 표시 이름
-  shortDescription   String   // 짧은 설명
-  target             String   // 상담 대상
-  levels             String   @default("★★★☆☆") // 분석 깊이
-  purpose            String   // 핵심 목적
-  recommendedTiming  String   // 추천 시기
-  tags               Json     @default("[]") // 태그 배열
-  promptTemplate     String   // 프롬프트 본문 템플릿
-  isBuiltIn          Boolean  @default(false) // 기본 내장 프롬프트 여부
-  isActive           Boolean  @default(true) // 활성 상태
-  sortOrder          Int      @default(0) // 정렬 순서
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-
-  @@unique([promptKey, analysisType])
-  @@index([analysisType, isActive])
-  @@index([sortOrder])
-  @@map("analysis_prompt_presets")
-}
-
-// 감사 로그: 설정 변경 이력 추적
-model AuditLog {
-  id         String   @id @default(cuid())
-  teacherId  String
-  action     String // CREATE, UPDATE, DELETE 등
-  entityType String // Team, Teacher, Student, LLMConfig 등
-  entityId   String?
-  changes    Json? // 변경 전후 데이터
-  ipAddress  String?
-  userAgent  String?
-  createdAt  DateTime @default(now())
-
-  teacher Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
-
-  @@index([teacherId])
-  @@index([entityType, entityId])
-  @@index([createdAt(sort: Desc)])
-  @@map("audit_logs")
-}
-
-// 시스템 로그: 애플리케이션 로그 기록
-model SystemLog {
-  id        String   @id @default(cuid())
-  level     String // ERROR, WARN, INFO, DEBUG
-  message   String
-  context   Json? // 추가 컨텍스트 데이터
-  timestamp DateTime @default(now())
-
-  @@index([level])
-  @@index([timestamp(sort: Desc)])
-  @@map("system_logs")
-}
-
-// VARK 학습유형 분석 결과
-model VarkAnalysis {
-  id             String   @id @default(cuid())
-  studentId      String   @unique
-  responses      Json     // { "1": 3, "2": 5, ... }
-  scores         Json     // { v: 45, a: 30, r: 25, k: 50 }
-  varkType       String   // 우세 유형: "V", "VK" 등
-  percentages    Json     // { V: 30, A: 20, R: 17, K: 33 }
-  interpretation String?
-  version        Int      @default(1)
-  calculatedAt   DateTime
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  student        Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-}
-
-// VARK 설문 임시 저장
-model VarkSurveyDraft {
-  id        String   @id @default(cuid())
-  studentId String   @unique
-  responses Json
-  progress  Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-
-  @@index([studentId])
-}
-
-// 별자리 운세 분석 결과
-model ZodiacAnalysis {
-  id             String   @id @default(cuid())
-  studentId      String   @unique
-  zodiacSign     String   // "aries" 등 영문 키
-  zodiacName     String   // "양자리" 한글명
-  element        String   // "fire", "earth", "air", "water"
-  traits         Json     // 기본 성격/특성
-  interpretation String?
-  version        Int      @default(1)
-  calculatedAt   DateTime
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  student        Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
 }

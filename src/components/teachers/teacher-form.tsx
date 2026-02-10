@@ -11,6 +11,12 @@ import {
   StudentImageUploader,
   type StudentImagePayload,
 } from "@/components/students/student-image-uploader"
+import { HanjaPicker } from "@/components/students/hanja-picker"
+import {
+  coerceHanjaSelections,
+  normalizeHanjaSelections,
+  type HanjaSelection,
+} from "@/lib/analysis/hanja-strokes"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -31,7 +37,7 @@ type TeacherData = {
   teamId: string | null
   phone: string | null
   birthDate: Date | null
-  nameHanja: string | null
+  nameHanja: unknown
   birthTimeHour: number | null
   birthTimeMinute: number | null
   profileImage: string | null
@@ -62,6 +68,15 @@ export function TeacherForm({ teams = [], teacher, currentRole }: TeacherFormPro
 
   const [profileRemoved, setProfileRemoved] = useState(false)
   const [showPasswordChange, setShowPasswordChange] = useState(false)
+
+  // Initialize hanja selections from teacher data
+  const initialHanjaSelections = teacher?.name
+    ? normalizeHanjaSelections(
+        teacher.name,
+        coerceHanjaSelections(teacher.nameHanja)
+      )
+    : []
+  const [hanjaSelections, setHanjaSelections] = useState<HanjaSelection[]>(initialHanjaSelections)
 
   const formRef = useRef<HTMLFormElement>(null)
 
@@ -106,7 +121,7 @@ export function TeacherForm({ teams = [], teacher, currentRole }: TeacherFormPro
       teamId: teacher?.teamId ?? null,
       phone: teacher?.phone ?? "",
       birthDate: formatDate(teacher?.birthDate ?? null),
-      nameHanja: teacher?.nameHanja ?? "",
+      nameHanja: "",
     },
     mode: "onChange",
   })
@@ -120,6 +135,11 @@ export function TeacherForm({ teams = [], teacher, currentRole }: TeacherFormPro
       if (!formElement) return
 
       const formData = new FormData(formElement)
+
+      // nameHanja를 JSON으로 변환하여 추가
+      if (hanjaSelections.length > 0) {
+        formData.set("nameHanja", JSON.stringify(hanjaSelections))
+      }
 
       // 제출 시작 토스트 표시
       toast.loading(isEdit ? "수정 중..." : "선생님 등록 중...", { id: "teacher-form-submit" })
@@ -196,15 +216,15 @@ export function TeacherForm({ teams = [], teacher, currentRole }: TeacherFormPro
               )}
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="nameHanja">한자 이름</Label>
-              <Input
-                id="nameHanja"
-                placeholder="洪吉東"
-                {...form.register("nameHanja")}
-              />
-              <p className="text-xs text-muted-foreground">사주 및 이름 분석에 사용됩니다</p>
-            </div>
+            {teacher?.name && (
+              <div className="space-y-2">
+                <HanjaPicker
+                  name={teacher.name}
+                  value={hanjaSelections}
+                  onChange={setHanjaSelections}
+                />
+              </div>
+            )}
 
             <div className="space-y-2">
               <Label htmlFor="email">이메일 *</Label>
