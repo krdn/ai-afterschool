@@ -61,6 +61,7 @@ supabase/
 .playwright-mcp/
 obsidian/
 .claude/CLAUDE.md
+.claude/save-issue-trigger.json
 
 # todo backlog
 .todos/
