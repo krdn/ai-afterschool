@@ -122,7 +122,7 @@ export function TeacherNamePanel({ teacherId, teacherName, analysis, teacherName
         <div className="space-y-2">
           <h3 className="text-sm font-semibold text-gray-600">1. 한자 기반 성명학</h3>
           <div className="rounded-md bg-gray-50 p-4 text-sm text-gray-700">
-            <p>선생님: {teacherName}</p>
+            <p>이름: {teacherName}</p>
             <p>선택 한자: {hanjaName ?? "미선택"}</p>
             <div className="mt-2 grid gap-2 sm:grid-cols-2">
               {selections.map((selection, index) => (
