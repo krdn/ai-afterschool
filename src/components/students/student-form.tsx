@@ -15,11 +15,13 @@ interface StudentFormProps {
   student?: {
     id: string
     name: string
+    nameHanja: unknown
     birthDate: Date
     birthTimeHour: number | null
     birthTimeMinute: number | null
     grade: number | null
     school: string | null
+    nationality: string | null
     images?: Array<{
       id: string
       url?: string
@@ -38,6 +40,15 @@ interface StudentFormProps {
 
 const initialState: StudentFormState = {}
 
+function extractInitialHanjaText(raw: unknown): string {
+  if (Array.isArray(raw)) {
+    return raw
+      .map((entry) => (entry as { hanja?: string | null })?.hanja ?? "")
+      .join("")
+  }
+  return ""
+}
+
 export function StudentForm({ student }: StudentFormProps) {
   const isEdit = !!student
   const existingProfile = student?.images?.find(
@@ -48,6 +59,9 @@ export function StudentForm({ student }: StudentFormProps) {
     null
   )
   const [draftId] = useState(() => crypto.randomUUID())
+  const [nameHanjaText, setNameHanjaText] = useState(
+    () => student ? extractInitialHanjaText(student.nameHanja) : ""
+  )
 
   const action = isEdit
     ? updateStudent.bind(null, student.id)
@@ -58,6 +72,17 @@ export function StudentForm({ student }: StudentFormProps) {
   function handleSubmit(formData: FormData) {
     if (profileImage) {
       formData.set("profileImage", JSON.stringify(profileImage))
+    }
+    const name = formData.get("name") as string
+    const hanja = nameHanjaText.trim()
+    if (name && hanja) {
+      const syllables = Array.from(name.trim())
+      const hanjaChars = Array.from(hanja)
+      const selections = syllables.map((s, i) => ({
+        syllable: s,
+        hanja: hanjaChars[i] ?? null,
+      }))
+      formData.set("nameHanja", JSON.stringify(selections))
     }
     formAction(formData)
   }
@@ -91,6 +116,24 @@ export function StudentForm({ student }: StudentFormProps) {
         {state.errors?.name && (
           <p className="text-red-500 text-xs mt-1">{state.errors.name[0]}</p>
         )}
+      </div>
+
+      <div>
+        <label htmlFor="nameHanjaText" className="block text-sm font-medium">
+          한자 이름 <span className="text-gray-400 font-normal">(선택)</span>
+        </label>
+        <input
+          type="text"
+          id="nameHanjaText"
+          placeholder="洪吉東"
+          value={nameHanjaText}
+          onChange={(e) => setNameHanjaText(e.target.value)}
+          className="border p-2 w-full rounded"
+          data-testid="student-name-hanja-input"
+        />
+        <p className="text-xs text-gray-400 mt-1">
+          이름 분석에 사용됩니다
+        </p>
       </div>
 
       <div>
@@ -196,6 +239,45 @@ export function StudentForm({ student }: StudentFormProps) {
         />
         {state.errors?.school && (
           <p className="text-red-500 text-xs mt-1">{state.errors.school[0]}</p>
+        )}
+      </div>
+
+      <div>
+        <label htmlFor="nationality" className="block text-sm font-medium">
+          국적 <span className="text-gray-400 font-normal">(선택)</span>
+        </label>
+        <input
+          type="text"
+          name="nationality"
+          id="nationality"
+          list="nationality-options"
+          defaultValue={student?.nationality ?? "한국"}
+          placeholder="한국"
+          className="border p-2 w-full rounded"
+          data-testid="student-nationality-input"
+          onFocus={(e) => {
+            e.target.dataset.prev = e.target.value;
+            e.target.value = "";
+          }}
+          onBlur={(e) => {
+            if (!e.target.value) {
+              e.target.value = e.target.dataset.prev || "한국";
+            }
+          }}
+        />
+        <datalist id="nationality-options">
+          <option value="한국" />
+          <option value="중국" />
+          <option value="미국" />
+          <option value="일본" />
+          <option value="프랑스" />
+          <option value="독일" />
+          <option value="이탈리아" />
+        </datalist>
+        {state.errors?.nationality && (
+          <p className="text-red-500 text-xs mt-1">
+            {state.errors.nationality[0]}
+          </p>
         )}
       </div>
 

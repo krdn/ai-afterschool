@@ -1,3 +1,5 @@
+import { HANJA_STROKES_DATA } from "./hanja-strokes-data"
+
 export type HanjaSelection = {
   syllable: string
   hanja: string | null
@@ -9,38 +11,14 @@ export type HanjaCandidate = {
   strokes: number
 }
 
+// 자동 생성 데이터(547자) + 수동 보완 (자동 생성에 누락된 한자)
 const HANJA_STROKES: Record<string, number> = {
-  金: 8,
+  ...HANJA_STROKES_DATA,
+  // 기존 수동 등록 중 자동 생성에 없는 한자 보완
   今: 4,
-  哲: 10,
-  洪: 10,
-  弘: 5,
-  吉: 6,
-  桔: 10,
-  東: 8,
-  同: 6,
-  南: 9,
-  男: 7,
   宮: 10,
   弓: 3,
-  敏: 11,
-  珉: 9,
-  秀: 7,
-  洙: 10,
-  成: 7,
-  聖: 13,
-  炫: 9,
-  玹: 9,
-  美: 9,
   味: 8,
-  眞: 10,
-  珍: 9,
-  英: 8,
-  榮: 14,
-  玟: 9,
-  昊: 8,
-  承: 8,
-  昇: 8,
 }
 
 const HANJA_CANDIDATES: Record<string, { hanja: string; meaning: string }[]> = {
@@ -106,8 +84,44 @@ function splitSyllables(name: string) {
   return Array.from(name.trim())
 }
 
-export function getStrokeCount(hanja: string) {
-  return HANJA_STROKES[hanja] ?? null
+// CJK Unified Ideographs 범위 (U+4E00–U+9FFF)
+const CJK_START = 0x4e00
+const CJK_END = 0x9fff
+// CJK 한자의 평균 획수 (근사치, 폴백용)
+const CJK_FALLBACK_STROKES = 10
+
+export type StrokeResult = {
+  strokes: number
+  estimated: boolean
+}
+
+export function getStrokeCount(hanja: string): number | null {
+  // 1. 등록된 획수 반환
+  if (HANJA_STROKES[hanja] !== undefined) {
+    return HANJA_STROKES[hanja]
+  }
+
+  // 2. CJK 한자 범위인 경우 평균 획수로 추정
+  const code = hanja.charCodeAt(0)
+  if (code >= CJK_START && code <= CJK_END) {
+    return CJK_FALLBACK_STROKES
+  }
+
+  // 3. 한자가 아닌 경우
+  return null
+}
+
+export function getStrokeInfo(hanja: string): StrokeResult | null {
+  if (HANJA_STROKES[hanja] !== undefined) {
+    return { strokes: HANJA_STROKES[hanja], estimated: false }
+  }
+
+  const code = hanja.charCodeAt(0)
+  if (code >= CJK_START && code <= CJK_END) {
+    return { strokes: CJK_FALLBACK_STROKES, estimated: true }
+  }
+
+  return null
 }
 
 export function getHanjaCandidates(syllable: string): HanjaCandidate[] {

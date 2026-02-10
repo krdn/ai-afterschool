@@ -31,6 +31,7 @@ type StudentDetailProps = {
     grade: number
     targetUniversity: string | null
     targetMajor: string | null
+    nationality: string | null
     bloodType: "A" | "B" | "AB" | "O" | null
     createdAt: Date | string
     images?: StudentImageRecord[]
@@ -234,6 +235,12 @@ export function StudentDetail({ student, analysisStatus }: StudentDetailProps) {
               <dt className="text-sm text-gray-500">생년월일</dt>
               <dd className="mt-1 font-medium">
                 {format(birthDate, "yyyy년 M월 d일", { locale: ko })}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-sm text-gray-500">국적</dt>
+              <dd className="mt-1 font-medium">
+                {student.nationality || "한국"}
               </dd>
             </div>
             <div>

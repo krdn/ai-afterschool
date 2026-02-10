@@ -54,6 +54,7 @@ model Student {
   phone                          String?
   school                         String
   grade                          Int
+  nationality                    String?    @default("한국")
   targetUniversity               String?
   targetMajor                    String?
   bloodType                      BloodType?

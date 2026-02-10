@@ -4,6 +4,7 @@ import { useMemo } from "react"
 import {
   getHanjaCandidates,
   getStrokeCount,
+  getStrokeInfo,
   selectionsToHanjaName,
   type HanjaSelection,
 } from "@/lib/analysis/hanja-strokes"
@@ -58,8 +59,8 @@ export function HanjaPicker({ name, value, onChange }: HanjaPickerProps) {
             const selection = value[index]
             const candidates = getHanjaCandidates(syllable)
             const selectedValue = selection?.hanja ?? EMPTY_VALUE
-            const selectedStrokes = selection?.hanja
-              ? getStrokeCount(selection.hanja)
+            const selectedInfo = selection?.hanja
+              ? getStrokeInfo(selection.hanja)
               : null
 
             return (
@@ -96,7 +97,11 @@ export function HanjaPicker({ name, value, onChange }: HanjaPickerProps) {
                   </SelectContent>
                 </Select>
                 <div className="text-xs text-gray-500">
-                  {selectedStrokes ? `획수 ${selectedStrokes}` : "획수 정보 없음"}
+                  {selectedInfo
+                    ? selectedInfo.estimated
+                      ? `~${selectedInfo.strokes}획`
+                      : `획수 ${selectedInfo.strokes}`
+                    : "획수 정보 없음"}
                 </div>
                 {candidates.length === 0 ? (
                   <p className="text-xs text-amber-600 sm:col-span-3">

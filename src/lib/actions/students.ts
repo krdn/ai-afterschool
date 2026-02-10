@@ -27,6 +27,7 @@ export type StudentFormState = {
     phone?: string[]
     school?: string[]
     grade?: string[]
+    nationality?: string[]
     targetUniversity?: string[]
     targetMajor?: string[]
     bloodType?: string[]
@@ -158,6 +159,7 @@ export async function createStudent(
     phone: formData.get("phone") || undefined,
     school: formData.get("school"),
     grade: formData.get("grade"),
+    nationality: formData.get("nationality") || undefined,
     targetUniversity: formData.get("targetUniversity") || undefined,
     targetMajor: formData.get("targetMajor") || undefined,
     bloodType: formData.get("bloodType") || null,
@@ -261,6 +263,7 @@ export async function updateStudent(
     phone: formData.get("phone") || undefined,
     school: formData.get("school"),
     grade: formData.get("grade"),
+    nationality: formData.get("nationality") || undefined,
     targetUniversity: formData.get("targetUniversity") || undefined,
     targetMajor: formData.get("targetMajor") || undefined,
     bloodType: formData.get("bloodType") || null,
