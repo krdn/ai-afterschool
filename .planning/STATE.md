@@ -11,7 +11,7 @@ See: .planning/PROJECT.md (updated 2026-02-07)
 
 Milestone: v2.1.1 E2E Test Compliance
 Status: COMPLETE ✓ (2026-02-07)
-Last activity: 2026-02-07 — Phase 28-06 Quick Wins Complete
+Last activity: 2026-02-10 - Completed quick task 001: 사주 해석 결과에 사용 모델 정보 영구 표시
 
 Progress: [████████████████████████] 100%
 
@@ -254,6 +254,12 @@ Recent decisions affecting current work:
 ### Pending Todos
 
 None yet.
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 001 | 사주 해석 결과에 사용 모델 정보 영구 표시 | 2026-02-10 | e337201 | [001-saju-model-display](./quick/001-saju-model-display/) |
 
 ### Blockers/Concerns
 
