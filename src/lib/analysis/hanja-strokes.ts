@@ -156,8 +156,27 @@ export function normalizeHanjaSelections(
 }
 
 export function coerceHanjaSelections(value: unknown): HanjaSelection[] | null {
-  if (!Array.isArray(value)) return null
-  const selections = value
+  // Handle JSON object (not array)
+  let arrayValue = value
+  if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+    // If it's a JSON object, try to extract array or convert to array
+    const obj = value as Record<string, unknown>
+    // Check if it has an array property that looks like hanja selections
+    if ("selections" in obj && Array.isArray(obj.selections)) {
+      arrayValue = obj.selections
+    } else {
+      // Try to convert object to array of values
+      const values = Object.values(obj)
+      if (values.length > 0 && typeof values[0] === "object") {
+        arrayValue = values
+      } else {
+        return null
+      }
+    }
+  }
+
+  if (!Array.isArray(arrayValue)) return null
+  const selections = arrayValue
     .map((entry) => {
       if (!entry || typeof entry !== "object") return null
       const record = entry as { syllable?: unknown; hanja?: unknown }
