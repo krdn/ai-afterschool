@@ -1,6 +1,6 @@
 "use server"
 
-import { runSajuAnalysis } from "@/lib/actions/calculation-analysis"
+import { runSajuAnalysis, simplifyInterpretation } from "@/lib/actions/calculation-analysis"
 import { getAnalysisHistory } from "@/lib/actions/analysis"
 import { getSajuHistoryList } from "@/lib/db/student-analysis"
 import { getActivePresets, getPresetByKey, seedBuiltInPresets } from "@/lib/db/saju-prompt-preset"
@@ -51,6 +51,13 @@ export async function getPromptPreviewAction(promptKey: string): Promise<string>
   }
   // fallback: 코드 기본값 (샘플 데이터 적용)
   return getPromptPreviewText(promptKey as AnalysisPromptId)
+}
+
+export async function simplifyInterpretationAction(
+  interpretation: string,
+  provider: string
+) {
+  return simplifyInterpretation(interpretation, provider)
 }
 
 export { getAnalysisHistory }

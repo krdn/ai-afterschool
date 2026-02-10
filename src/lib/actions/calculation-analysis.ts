@@ -296,3 +296,45 @@ export async function runNameAnalysis(studentId: string) {
     interpretation,
   }
 }
+
+export async function simplifyInterpretation(
+  interpretation: string,
+  provider: string
+): Promise<{ text: string; usedProvider: string; usedModel?: string }> {
+  const session = await verifySession()
+
+  const SIMPLIFY_PROMPT = `아래 사주 해석을 초등학생~중학생도 이해할 수 있도록 쉽게 풀어주세요.
+
+규칙:
+- 사주 전문 용어(예: 오행, 천간, 지지, 상관, 편인 등) 대신 일상 언어를 사용하세요
+- 핵심 메시지 위주로 간결하게 정리하세요
+- 학생에게 도움이 되는 조언은 구체적이고 실천 가능하게 표현하세요
+- 마크다운 형식을 유지하되, 쉬운 표현으로 바꿔주세요
+- "~해요", "~이에요" 체를 사용하세요
+
+---
+${interpretation}`
+
+  let llmResult
+  if (provider === 'auto') {
+    llmResult = await generateWithProvider({
+      featureType: 'saju_analysis',
+      prompt: SIMPLIFY_PROMPT,
+      teacherId: session.userId,
+      maxOutputTokens: 2048,
+    })
+  } else {
+    llmResult = await generateWithSpecificProvider(provider as ProviderName, {
+      featureType: 'saju_analysis',
+      prompt: SIMPLIFY_PROMPT,
+      teacherId: session.userId,
+      maxOutputTokens: 2048,
+    })
+  }
+
+  return {
+    text: llmResult.text,
+    usedProvider: llmResult.provider,
+    usedModel: llmResult.model,
+  }
+}
