@@ -1,803 +1,1184 @@
-# Architecture Research
+# Architecture Research: Issue Management & Auto DevOps Integration
 
-**Domain:** 학원 학생 관리 시스템 with 선생님 관리, 다중 LLM, 궁합 분석
-**Researched:** 2026-01-27 (Updated: 2026-01-30 for v2.0 Teacher Management)
-**Confidence:** HIGH (Existing codebase analysis + verified patterns)
+**Domain:** Internal DevOps Tooling for School Management SaaS
+**Researched:** 2026-02-11
+**Confidence:** HIGH
 
 ## Executive Summary
 
-AI AfterSchool v2.0은 기존 Next.js 15 App Router + Prisma + PostgreSQL 아키텍처에 **선생님 관리, 다중 LLM 지원, 궁합 분석**을 통합합니다. 핵심은 **기존 아키텍처와 호환되는 방식으로 계층적 접근 제어(RBAC), LLM 추상화 계층, 선생님-학생 궁합 분석 모듈**을 추가하는 것입니다.
+This architecture integrates Issue Management and Auto DevOps pipeline features into the existing AI AfterSchool Next.js 15 application. The design follows the existing patterns (Server Actions for internal, API Routes for external) while adding GitHub integration, webhook handling, and automated deployment triggers.
 
-기존 Server Components + Server Actions 패턴을 유지하며, 새로운 Teacher 엔티티는 Student와 유사한 방식으로 분석 결과를 저장합니다. 다중 LLM은 **Provider Adapter 패턴**으로 통합하여 기존 Claude API 호출에 최소한의 변경만 필요하게 합니다.
+**Key Integration Points:**
+1. **Header UI**: Issue button in header navigation (Director-only)
+2. **GitHub Integration**: API routes for webhooks + Server Actions for CRUD
+3. **Database**: New Issue/IssueEvent models for local tracking
+4. **Sentry Hook**: beforeSend enhancement for auto-issue creation
+5. **GitHub Actions**: Conditional deployment based on issue labels
 
-**Core architectural principles (v1.x + v2.0 extensions):**
-1. **Student Data as Source of Truth** - 모든 분석과 제안은 학생 정보 기반 (기존)
-2. **Teacher as Analysis Subject** - 선생님도 성향 분석 대상, 학생과 동일한 모듈 재사용 (신규)
-3. **Modular AI Services** - 각 분석 기능은 독립적 모듈 (기존)
-4. **LLM Provider Abstraction** - 다중 LLM 지원, 실패 시 폴백 (신규)
-5. **Team-Based Data Isolation** - 팀 단위 데이터 접근 제어 (신규)
-6. **Server-Side Heavy** - 민감한 데이터와 AI 처리는 서버에서 (기존)
-7. **Feature-Based Organization** - 도메인별로 코드 구조화 (기존)
+**Complexity:** MEDIUM — Mostly integration work, not new architectural patterns.
 
 ## System Overview
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                              Presentation Layer                             │
-├─────────────────────────────────────────────────────────────────────────────┤
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌───────────────┐ │
-│  │Student Pages │  │Teacher Pages │  │Admin Pages   │  │Auth Pages     │ │
-│  │(기존)        │  │(v2.0 신규)   │  │(v2.0 신규)   │  │(기존)         │ │
-│  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘  └──────┬────────┘ │
-│         │                 │                 │                 │           │
-│         └─────────────────┴─────────────────┴─────────────────┘           │
-│                                  ↓                                         │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                           Server Actions Layer                             │
-├─────────────────────────────────────────────────────────────────────────────┤
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌───────────────┐│
-│  │ Student CRUD │  │ Teacher CRUD │  │Compatibility │  │   Settings    ││
-│  │(기존)        │  │(v2.0 신규)   │  │(v2.0 신규)   │  │(v2.0 신규)    ││
-│  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘  └──────┬────────┘│
-│         │                 │                 │                 │          │
-└─────────┴─────────────────┴─────────────────┴─────────────────┴──────────┘
-                                  ↓
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                            Business Logic Layer                             │
-├─────────────────────────────────────────────────────────────────────────────┤
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌───────────────┐│
-│  │   Analysis   │  │ Compatibility│  │  LLM Router  │  │  Access       ││
-│  │   Modules    │  │   Algorithm  │  │  (v2.0 신규) │  │  Control      ││
-│  │(기존)        │  │(v2.0 신규)   │  │              │  │(v2.0 신규)    ││
-│  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘  └──────┬────────┘│
-│         │                 │                 │                 │          │
-└─────────┴─────────────────┴─────────────────┴─────────────────┴──────────┘
-                                  ↓
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                            Data Access Layer                                │
-├─────────────────────────────────────────────────────────────────────────────┤
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌───────────────┐│
-│  │    Prisma    │  │  PostgreSQL  │  │   Cloudinary │  │   MinIO       ││
-│  │    ORM       │  │   Database   │  │   (Images)   │  │   (PDFs)      ││
-│  └──────────────┘  └──────────────┘  └──────────────┘  └───────────────┘│
-└─────────────────────────────────────────────────────────────────────────────┘
-                                  ↓
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                         External Services Layer                             │
-├─────────────────────────────────────────────────────────────────────────────┤
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌────────────┐│
-│  │  Claude  │  │  Ollama  │  │ Gemini   │  │ ChatGPT  │  │  etc.      ││
-│  │   API    │  │ (Local)  │  │   API    │  │   API    │  │            ││
-│  │(기존)    │  │(v2.0 신규)│  │(v2.0 신규)│  │(v2.0 신규)│  │            ││
-│  └──────────┘  └──────────┘  └──────────┘  └──────────┘  └────────────┘│
-└─────────────────────────────────────────────────────────────────────────────┘
-```
-
-## Component Responsibilities (v1.x + v2.0)
-
-| Component | Responsibility | Typical Implementation | Version |
-|-----------|----------------|------------------------|---------|
-| **Student Management** | 학생 CRUD, 검색, 팀 할당 | Server Actions + Prisma | v1.0 (확장 예정) |
-| **Teacher Management** | 선생님 CRUD, 계층 구조, 팀 접근 제어 | Server Actions + Prisma | v2.0 (신규) |
-| **LLM Provider Router** | 다중 LLM 제공자 선택 및 실패 시 폴백 | Adapter pattern with unified interface | v2.0 (신규) |
-| **Compatibility Analysis** | 선생님-학생 성향 궁합 계산 | Modular algorithm service | v2.0 (신규) |
-| **Access Control (RBAC)** | 팀 기반 데이터 접근 제어 | Middleware + Server Actions guard | v2.0 (신규) |
-| **Analysis Modules** | MBTI, 사주, 관상, 손금, 성명학 분석 | Reusable calculation functions | v1.0 (재사용) |
-| **PDF Storage** | 분석 보고서 PDF 저장 | MinIO/S3-compatible storage | v1.1 (기존) |
-| **Image Storage** | 학생/선생님 사진 저장 | Cloudinary | v1.0 (재사용) |
-
-## Recommended Project Structure (v2.0)
-
-```
-src/
-├── app/
-│   ├── (auth)/                    # 인증 관련 페이지 (기존 v1.0)
-│   ├── (dashboard)/
-│   │   ├── students/              # 학생 관리 (기존 v1.0)
-│   │   ├── teachers/              # 선생님 관리 (v2.0 신규)
-│   │   │   ├── page.tsx           # 선생님 목록
-│   │   │   ├── [id]/
-│   │   │   │   ├── page.tsx       # 선생님 상세
-│   │   │   │   ├── edit/          # 선생님 정보 수정
-│   │   │   │   ├── mbti/          # 선생님 MBTI 분석
-│   │   │   │   ├── compatibility/ # 궁합 분석 결과
-│   │   │   │   └── students/      # 배정된 학생 목록
-│   │   │   └── new/               # 선생님 등록
-│   │   ├── admin/                 # 원장 전용 관리 페이지 (v2.0 신규)
-│   │   │   ├── settings/          # LLM 설정, 팀 관리
-│   │   │   ├── teams/             # 팀 관리
-│   │   │   └── analytics/         # 성과 분석
-│   │   └── matching/              # 학생-선생님 매칭 (v2.0 신규)
-│   │       ├── page.tsx           # 매칭 대시보드
-│   │       └── [studentId]/       # 학생별 추천 선생님
-│   └── api/                       # API Routes (최소화, 기존)
-│
-├── lib/
-│   ├── actions/
-│   │   ├── students.ts            # 학생 Server Actions (기존 v1.0)
-│   │   ├── teachers.ts            # 선생님 Server Actions (v2.0 신규)
-│   │   ├── compatibility.ts       # 궁합 분석 Actions (v2.0 신규)
-│   │   ├── matching.ts            # 배정/매칭 Actions (v2.0 신규)
-│   │   └── settings.ts            # 설정 Actions (v2.0 신규)
-│   ├── ai/
-│   │   ├── claude.ts              # Claude API (기존 v1.0 → 리팩토링)
-│   │   ├── providers/             # LLM Provider Abstraction (v2.0 신규)
-│   │   │   ├── base.ts            # Base provider interface
-│   │   │   ├── claude.ts          # Claude adapter (래핑)
-│   │   │   ├── ollama.ts          # Ollama adapter
-│   │   │   ├── gemini.ts          # Gemini adapter
-│   │   │   ├── openai.ts          # ChatGPT adapter
-│   │   │   └── router.ts          # Provider router with fallback
-│   │   └── prompts/               # AI 프롬프트 (기존 v1.0 + 궁합 분석 프롬프트 추가)
-│   ├── analysis/
-│   │   ├── mbti-scoring.ts        # MBTI 계산 (기존 v1.0, 재사용)
-│   │   ├── saju.ts                # 사주 계산 (기존 v1.0, 재사용)
-│   │   ├── compatibility.ts       # 궁합 알고리즘 (v2.0 신규)
-│   │   └── team-balance.ts        # 팀 성향 밸런스 분석 (v2.0 신규)
-│   ├── db/
-│   │   ├── db.ts                  # Prisma client (기존 v1.0)
-│   │   ├── student-analysis.ts    # 학생 분석 DAL (기존 v1.0)
-│   │   ├── teacher-analysis.ts    # 선생님 분석 DAL (v2.0 신규)
-│   │   ├── compatibility.ts       # 궁합 분석 DAL (v2.0 신규)
-│   │   └── access-control.ts      # 팀 기반 접근 제어 (v2.0 신규)
-│   ├── middleware/
-│   │   ├── rbac.ts                # Role-Based Access Control (v2.0 신규)
-│   │   └── team-isolation.ts      # 팀 데이터 격리 (v2.0 신규)
-│   ├── session.ts                 # 세션 관리 (기존 v1.0, 역할/팀 정보 추가)
-│   └── dal.ts                     # Data Access Layer (기존 v1.0, 확장)
-│
-├── types/
-│   ├── teacher.ts                 # 선생님 타입 (v2.0 신규)
-│   ├── compatibility.ts           # 궁합 분석 타입 (v2.0 신규)
-│   └── llm.ts                     # LLM Provider 타입 (v2.0 신규)
-│
-└── middleware.ts                  # Next.js Middleware (기존 v1.0, /teachers, /admin 추가)
-```
-
-### Structure Rationale
-
-- **`lib/ai/providers/`**: LLM 제공자별 구현을 분리하여 단일 책임 원칙 준수. 새로운 제공자 추가 시 기존 코드 변경 최소화.
-- **`lib/actions/teachers.ts`**: 학생 Server Actions 패턴을 그대로 따라 일관성 유지. `verifySessionWithTeam()`으로 인증 + `teacherId` 또는 `teamId`로 접근 제어.
-- **`lib/middleware/rbac.ts`**: Middleware와 Server Actions 양쪽에서 사용하는 공통 권한 검증 로직. DRY 원칙 준수.
-- **`lib/db/teacher-analysis.ts`**: 학생 분석 DAL과 동일한 패턴으로 선생님 성향 분석 저장. 코드 재사용성 극대화.
-- **`app/(dashboard)/teachers/`**: 학생 페이지 구조와 유사하게 구성하여 사용자 경험 일관성 확보.
-
-## Architectural Patterns (v2.0 Extensions)
-
-### Pattern 1: LLM Provider Adapter (v2.0 신규)
-
-**What:** 다양한 LLM 제공자(Claude, Ollama, Gemini, ChatGPT)를 통합 인터페이스로 추상화하는 패턴.
-
-**When to use:**
-- 외부 API 의존성 최소화 (vendor lock-in 방지)
-- 비용 최적화 (싼 모델로 우선 시도, 실패 시 고품질 모델로 폴백)
-- 로컬/클라우드 하이브리드 (Ollama 로컬 우선, Claude 클라우드 폴백)
-
-**Trade-offs:**
-- ✅ 장점: 제공자 교체 용이, 실패 처리 유연, 비용 최적화 가능
-- ❌ 단점: 추상화 계층 추가로 복잡도 증가, 제공자별 고유 기능 사용 제한
-
-**Example:**
-```typescript
-// lib/ai/providers/base.ts
-export interface LLMProvider {
-  name: string;
-  generateText(params: GenerateTextParams): Promise<LLMResponse>;
-  generateImage(params: GenerateImageParams): Promise<LLMImageResponse>;
-  isAvailable(): Promise<boolean>;
-}
-
-export interface GenerateTextParams {
-  prompt: string;
-  maxTokens?: number;
-  model?: string;
-}
-
-// lib/ai/providers/router.ts
-export class LLMRouter {
-  private providers: LLMProvider[] = [];
-
-  constructor(config: LLMConfig) {
-    // Initialize providers based on config
-    if (config.ollama?.enabled) {
-      this.providers.push(new OllamaProvider(config.ollama));
-    }
-    if (config.gemini?.enabled) {
-      this.providers.push(new GeminiProvider(config.gemini));
-    }
-    if (config.openai?.enabled) {
-      this.providers.push(new OpenAIProvider(config.openai));
-    }
-    if (config.anthropic?.enabled) {
-      this.providers.push(new ClaudeProvider(config.anthropic));
-    }
-  }
-
-  async generateText(params: GenerateTextParams, preferredProvider?: string): Promise<LLMResponse> {
-    // Try preferred provider first, then fallback
-    const orderedProviders = this.orderProviders(preferredProvider);
-
-    for (const provider of orderedProviders) {
-      try {
-        if (await provider.isAvailable()) {
-          return await provider.generateText(params);
-        }
-      } catch (error) {
-        console.warn(`${provider.name} failed, trying next...`, error);
-        continue;
-      }
-    }
-
-    throw new Error('All LLM providers failed');
-  }
-
-  private orderProviders(preferred?: string): LLMProvider[] {
-    if (preferred) {
-      const provider = this.providers.find(p => p.name === preferred);
-      if (provider) {
-        return [provider, ...this.providers.filter(p => p.name !== preferred)];
-      }
-    }
-    return [...this.providers];
-  }
-}
-
-// 기존 코드와의 호환성 유지
-// lib/ai/claude.ts (기존) → lib/ai/providers/router.ts로 리팩토링
-export const llmRouter = new LLMRouter({
-  ollama: { baseUrl: process.env.OLLAMA_BASE_URL || 'http://192.168.0.5:11434', enabled: true },
-  gemini: { apiKey: process.env.GEMINI_API_KEY, enabled: false },
-  openai: { apiKey: process.env.OPENAI_API_KEY, enabled: false },
-  anthropic: { apiKey: process.env.ANTHROPIC_API_KEY, enabled: true },
-});
-
-// 기존 Claude API 호출을 router로 대체
-// Before: anthropic.messages.create(...)
-// After: llmRouter.generateText(...)
-```
-
-### Pattern 2: Team-Based Data Isolation (v2.0 신규)
-
-**What:** 팀(학원 조직) 단위로 데이터를 격리하는 패턴. 원장은 전체 접근, 팀장은 소속 팀만 접근.
-
-**When to use:**
-- 다중 사용자 시스템에서 데이터 프라이버시 보장
-- 계층적 조직 구조 (원장 > 팀장 > 매니저 > 선생님)
-- 단일 Prisma 데이터베이스에서 논리적 데이터 분리 필요
-
-**Trade-offs:**
-- ✅ 장점: 복잡한 데이터베이스 스키마 변경 불필요, 애플리케이션 레벨에서 유연한 제어
-- ❌ 단점: 모든 쿼리에 teamId 필터 필수, 실수로 데이터 누출 가능성
-
-**Example:**
-```typescript
-// prisma/schema.prisma (확장)
-model Teacher {
-  id              String        @id @default(cuid())
-  email           String        @unique
-  password        String
-  name            String
-  role            TeacherRole   @default(TEACHER)
-  teamId          String?       // 팀 소속 (null = 원장)
-  team            Team?         @relation(fields: [teamId], references: [id])
-  students        Student[]
-  // ... 기존 필드
-}
-
-model Team {
-  id          String    @id @default(cuid())
-  name        String
-  leaderId    String?   // 팀장 선생님 ID
-  leader      Teacher?  @relation(fields: [leaderId], references: [id])
-  teachers    Teacher[]
-  students    Student[]
-  createdAt   DateTime  @default(now())
-}
-
-model Student {
-  // ... 기존 필드
-  teamId      String?   // 팀 소속 (선생님 팀 따라감)
-  team        Team?     @relation(fields: [teamId], references: [id])
-}
-
-enum TeacherRole {
-  DIRECTOR    // 원장 (전체 접근)
-  TEAM_LEADER // 팀장 (소속 팀 + 하위 팀)
-  MANAGER     // 매니저 (소속 팀)
-  TEACHER     // 선생님 (본인 데이터만)
-}
-
-// lib/middleware/rbac.ts
-export async function verifySessionWithTeam() {
-  const session = await verifySession();
-  if (!session?.userId) return null;
-
-  const teacher = await db.teacher.findUnique({
-    where: { id: session.userId },
-    include: { team: true },
-  });
-
-  if (!teacher) return null;
-
-  return {
-    userId: session.userId,
-    role: teacher.role,
-    teamId: teacher.teamId,
-    canAccessAll: teacher.role === 'DIRECTOR',
-  };
-}
-
-// lib/db/access-control.ts
-export function buildTeamAccessFilter(session: SessionWithTeam) {
-  if (session.canAccessAll) {
-    return {}; // 원장은 전체 접근
-  }
-
-  // 팀장, 매니저, 선생님은 소속 팀만
-  return { teamId: session.teamId };
-}
-
-// Server Actions에서 적용
-export async function getTeachers() {
-  const session = await verifySessionWithTeam();
-  if (!session) throw new Error('Unauthorized');
-
-  return db.teacher.findMany({
-    where: buildTeamAccessFilter(session),
-    include: { team: true },
-  });
-}
-```
-
-### Pattern 3: Reusable Analysis Modules (v2.0 신규)
-
-**What:** 학생 성향 분석 모듈을 선생님 분석에 재사용하는 패턴. 동일한 계산 로직을 다른 엔티티에 적용.
-
-**When to use:**
-- 중복 코드 방지
-- 분석 로직 변경 시 일관성 유지
-- 선생님-학생 궁합 계산 시 동일한 기반 데이터 필요
-
-**Trade-offs:**
-- ✅ 장점: 코드 재사용성, 유지보수성 향상, 일관된 분석 결과
-- ❌ 단점: 과도한 추상화로 특정 엔티티 요구사항 반영 어려울 수 있음
-
-**Example:**
-```typescript
-// 기존 학생 분석 함수
-// lib/analysis/mbti-scoring.ts (기존, 변경 없음)
-export function calculateMBTIScores(responses: MBTIResponse[]): MBTIScores {
-  // ... MBTI 계산 로직
-}
-
-// lib/analysis/saju.ts (기존, 변경 없음)
-export function calculateSaju(birthDate: Date, birthTime: { hour: number; minute: number }): SajuResult {
-  // ... 사주 계산 로직
-}
-
-// 선생님 분석에서 재사용
-// lib/actions/teachers.ts
-export async function analyzeTeacherMBTI(teacherId: string, responses: MBTIResponse[]) {
-  const session = await verifySessionWithTeam();
-  // ... 권한 검증
-
-  // 기존 모듈 재사용
-  const scores = calculateMBTIScores(responses);
-  const mbtiType = determineMBTIType(scores);
-
-  // 선생님 분석 결과 저장
-  await db.teacherMBTIAnalysis.create({
-    data: {
-      teacherId,
-      responses,
-      scores,
-      mbtiType,
-      calculatedAt: new Date(),
-    },
-  });
-}
-
-// lib/actions/compatibility.ts
-export async function calculateCompatibility(studentId: string, teacherId: string) {
-  const session = await verifySessionWithTeam();
-
-  // 학생과 선생님 분석 데이터 조회
-  const [studentData, teacherData] = await Promise.all([
-    getUnifiedPersonalityData(studentId, session.userId),
-    getUnifiedTeacherPersonalityData(teacherId, session.userId),
-  ]);
-
-  // 궁합 알고리즘 (신규)
-  return calculatePersonalityCompatibility(studentData, teacherData);
-}
-
-// lib/analysis/compatibility.ts (신규)
-export function calculatePersonalityCompatibility(
-  student: PersonalityData,
-  teacher: PersonalityData
-): CompatibilityResult {
-  const mbtiCompatibility = compareMBTI(student.mbti, teacher.mbti);
-  const sajuCompatibility = compareSajuElements(student.saju, teacher.saju);
-
-  const overallScore = (
-    mbtiCompatibility.score * 0.4 +
-    sajuCompatibility.score * 0.3 +
-    // 다른 요소들...
-  );
-
-  return {
-    overallScore,
-    details: {
-      mbti: mbtiCompatibility,
-      saju: sajuCompatibility,
-    },
-    recommendation: generateRecommendation(overallScore),
-  };
-}
-```
-
-## Data Flow (v2.0 Updates)
-
-### Request Flow: 선생님 관리
-
-```
-[User: 선생님 목록 조회]
-    ↓
-[GET /teachers → Server Component]
-    ↓
-[Page Component → getTeachers() Server Action]
-    ↓
-[verifySessionWithTeam() → JWT 검증 + 팀 정보 조회]
-    ↓
-[buildTeamAccessFilter() → role 기반 필터 생성]
-    ↓
-[db.teacher.findMany({ where: { teamId: session.teamId } })]
-    ↓
-[Prisma → PostgreSQL 쿼리 실행]
-    ↓
-[Teachers → Page Component 렌더링]
-```
-
-### Request Flow: 궁합 분석
-
-```
-[User: 선생님-학생 궁합 분석 요청]
-    ↓
-[POST /compatibility → Server Action]
-    ↓
-[verifySessionWithTeam() → 권한 검증]
-    ↓
-[getUnifiedPersonalityData(studentId) → 학생 성향 조회]
-    ↓
-[getUnifiedTeacherPersonalityData(teacherId) → 선생님 성향 조회]
-    ↓
-[calculatePersonalityCompatibility() → 궁합 알고리즘 실행]
-    │
-    ├─→ compareMBTI() → MBTI 유형 비교
-    ├─→ compareSajuElements() → 사주 오행 조화 확인
-    └─→ [기타 비교 로직]
-    ↓
-[Compatibility Score + Recommendation 생성]
-    ↓
-[DB 저장 (선택사항)]
-    ↓
-[결과 반환 → UI 표시]
-```
-
-### Request Flow: 다중 LLM
-
-```
-[User: AI 분석 요청 (학습 전략 생성)]
-    ↓
-[Server Action: generateLearningStrategy()]
-    ↓
-[llmRouter.generateText(params, 'ollama')]
-    ↓
-[OllamaProvider → 로컬 Ollama API 호출]
-    │
-    ├─→ 성공 → 결과 반환
-    │
-    └─→ 실패 → 다음 제공자 시도
-         ↓
-         [GeminiProvider → Gemini API 호출]
-         │
-         ├─→ 성공 → 결과 반환
-         │
-         └─→ 실패 → 다음 제공자 시도
-              ↓
-              [ClaudeProvider → Claude API 호출 (기존)]
-              ↓
-              [결과 반환]
+┌─────────────────────────────────────────────────────────────────┐
+│                         PRESENTATION                             │
+├─────────────────────────────────────────────────────────────────┤
+│  ┌──────────┐  ┌──────────────┐  ┌────────────┐                 │
+│  │  Header  │  │ Issue Button │  │ Issue List │                 │
+│  │ (Layout) │  │  Component   │  │    Page    │                 │
+│  └────┬─────┘  └──────┬───────┘  └─────┬──────┘                 │
+│       │               │                 │                        │
+├───────┴───────────────┴─────────────────┴────────────────────────┤
+│                         APPLICATION LAYER                        │
+├─────────────────────────────────────────────────────────────────┤
+│  Server Actions               │  API Routes (External)           │
+│  ┌───────────────────────┐    │  ┌────────────────────────┐     │
+│  │ src/lib/actions/      │    │  │ src/app/api/github/    │     │
+│  │   issues.ts           │    │  │   issues/route.ts      │     │
+│  │ - createIssue()       │    │  │   webhooks/route.ts    │     │
+│  │ - listIssues()        │    │  │                        │     │
+│  │ - syncFromGitHub()    │    │  └────────────────────────┘     │
+│  └───────────────────────┘    │                                 │
+│                                │  Sentry Hooks                   │
+│                                │  ┌────────────────────────┐     │
+│                                │  │ sentry.*.config.ts     │     │
+│                                │  │ - beforeSend()         │     │
+│                                │  └────────────────────────┘     │
+├───────────────────────────────┴─────────────────────────────────┤
+│                         INTEGRATION LAYER                        │
+├─────────────────────────────────────────────────────────────────┤
+│  ┌────────────────┐  ┌────────────────┐  ┌──────────────────┐   │
+│  │ GitHub API     │  │ Sentry SDK     │  │ Prisma Client    │   │
+│  │ (Octokit)      │  │                │  │ (with RBAC ext)  │   │
+│  └────────────────┘  └────────────────┘  └──────────────────┘   │
+├─────────────────────────────────────────────────────────────────┤
+│                         PERSISTENCE                              │
+├─────────────────────────────────────────────────────────────────┤
+│  ┌────────────────────────────────────────────────────────┐      │
+│  │  PostgreSQL (Prisma)                                   │      │
+│  │  - Issue (local cache of GitHub issues)                │      │
+│  │  - IssueEvent (webhook events + activity log)          │      │
+│  └────────────────────────────────────────────────────────┘      │
+├─────────────────────────────────────────────────────────────────┤
+│                         EXTERNAL SYSTEMS                         │
+├─────────────────────────────────────────────────────────────────┤
+│  ┌─────────────┐  ┌──────────────┐  ┌──────────────────────┐    │
+│  │ GitHub API  │  │ GitHub       │  │ GitHub Actions       │    │
+│  │ (Issues)    │  │ Webhooks     │  │ (Deploy Workflow)    │    │
+│  └─────────────┘  └──────────────┘  └──────────────────────┘    │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ## Integration Points
 
-### External Services
+### 1. Header Navigation Integration
 
-| Service | Integration Pattern | Notes |
-|---------|---------------------|-------|
-| **Claude API** | LLMRouterAdapter | 기존 `anthropic` 클라이언트를 `ClaudeProvider`로 래핑. 환경변수 `ANTHROPIC_API_KEY` 사용 |
-| **Ollama** | HTTP fetch to `192.168.0.5:11434` | 로컬 서버 배포. 네트워크 접근 가능 확인 필요. 모델 사전 다운로드 필요 |
-| **Gemini API** | GoogleAuthAdapter | `@google/generative-ai` 패키지 사용. 환경변수 `GEMINI_API_KEY` |
-| **ChatGPT (OpenAI)** | OpenAIAdapter | `openai` 패키지 사용. 환경변수 `OPENAI_API_KEY` |
-| **Cloudinary** | 기존 통합 유지 | 선생님 프로필/사진 저장에 재사용 |
-| **MinIO** | 기존 통합 유지 | 선생님 분석 PDF 저장에 재사용 |
+**Existing Architecture:**
+```
+src/app/(dashboard)/layout.tsx
+  ├── Logo + Nav Links
+  ├── NotificationBell (Director only)
+  └── UserMenu (All roles)
+```
 
-### Internal Boundaries
+**New Integration:**
+```
+src/app/(dashboard)/layout.tsx
+  ├── Logo + Nav Links
+  ├── NotificationBell (Director only)
+  ├── IssueButton (Director only)     ← NEW
+  └── UserMenu (All roles)
+```
 
-| Boundary | Communication | Notes |
-|----------|---------------|-------|
-| **Student ↔ Teacher modules** | Direct function calls (Server Actions) | 궁합 분석 시 서로의 데이터 조회. Prisma relation으로 최적화 |
-| **LLM Router ↔ AI modules** | Provider interface | `generateText()` 통합 메서드. 각 AI 모듈은 LLM 제공자 무관 |
-| **Access Control ↔ All modules** | Guard functions | `verifySessionWithTeam()`을 모든 Server Action 시작에 호출. Middleware에서도 사용 |
-| **UI ↔ Server Actions** | `useActionState` / `useFormState` | React 19 Server Components와 통합. 폼 제출 후 자동 리다이렉트 |
+**Implementation Pattern:**
+- **Component:** `src/components/layout/issue-button.tsx` (Client Component)
+- **Location:** Between `NotificationBell` and `UserMenu` in header
+- **RBAC:** Show only to `teacher.role === "DIRECTOR"`
+- **Behavior:** Opens modal/drawer with issue form, not full-page navigation
 
-## New vs Modified Components (v2.0)
+**Rationale:**
+- Follows existing pattern (`NotificationBell` is also Director-only, same position)
+- Client Component needed for modal/drawer interactivity
+- No new route needed (modal-based UI)
 
-### New Components (v2.0)
+### 2. API Route Structure
 
-| Component | Type | Purpose |
-|-----------|------|---------|
-| `lib/ai/providers/` | Module | LLM 제공자 추상화 계층 |
-| `lib/actions/teachers.ts` | Server Actions | 선생님 CRUD, 분석, 배정 |
-| `lib/actions/compatibility.ts` | Server Actions | 궁합 분석, 매칭 |
-| `lib/actions/settings.ts` | Server Actions | LLM 설정, 팀 관리 |
-| `lib/analysis/compatibility.ts` | Algorithm | 선생님-학생 궁합 계산 |
-| `lib/middleware/rbac.ts` | Guard | 역할 기반 접근 제어 |
-| `lib/db/teacher-analysis.ts` | DAL | 선생님 분석 데이터 CRUD |
-| `lib/db/access-control.ts` | DAL | 팀 기반 데이터 필터 |
-| `app/(dashboard)/teachers/` | Pages | 선생님 관리 UI |
-| `app/(dashboard)/admin/` | Pages | 원장 전용 설정 UI |
+**Existing Pattern:**
+```
+src/app/api/
+├── health/route.ts           # System health check
+├── teams/route.ts            # GET/POST with session auth
+├── cloudinary/sign/route.ts  # External service integration
+└── students/[id]/report/route.ts  # Resource-specific operations
+```
 
-### Modified Components (v1.x → v2.0)
+**New GitHub Routes:**
+```
+src/app/api/github/
+├── issues/route.ts           # POST (create issue via GitHub API)
+├── webhooks/route.ts         # POST (receive GitHub webhook events)
+└── sync/route.ts             # POST (manual sync from GitHub)
+```
 
-| Component | Changes | Impact |
-|-----------|---------|--------|
-| `lib/session.ts` | `SessionPayload`에 `role`, `teamId` 추가 | 세션 크기 약간 증가, JWT claims 확장 |
-| `lib/ai/claude.ts` | `ClaudeProvider`로 리팩토링 | 기존 코드와 호환성 유지 (동일 API) |
-| `lib/dal.ts` | `verifySession()` → `verifySessionWithTeam()` 선택적 사용 | 기존 동작 유지, 새 함수는 추가 기능 |
-| `prisma/schema.prisma` | `TeacherRole` enum, `Team` 모델, `Teacher.teamId` 추가 | 마이그레이션 필요 |
-| `src/middleware.ts` | `protectedRoutes`에 `/teachers`, `/admin` 추가 | 라우트 보안 강화 |
+**Route Responsibilities:**
 
-### Unchanged Components (재사용)
+| Route | Method | Auth | Purpose | Response |
+|-------|--------|------|---------|----------|
+| `/api/github/issues` | POST | Session (Director) | Create GitHub issue via API, save to DB | `{ issue: Issue, githubUrl: string }` |
+| `/api/github/webhooks` | POST | Signature verification | Receive GitHub events (issue updates, comments) | `200 OK` or `400 Bad Request` |
+| `/api/github/sync` | POST | Session (Director) | Manually sync all issues from GitHub to local DB | `{ synced: number, errors: string[] }` |
 
-| Component | Reuse Context |
-|-----------|----------------|
-| `lib/analysis/mbti-scoring.ts` | 선생님 MBTI 분석에 그대로 재사용 |
-| `lib/analysis/saju.ts` | 선생님 사주 분석에 그대로 재사용 |
-| `lib/analysis/name-numerology.ts` | 선생님 성명학 분석에 그대로 재사용 |
-| `lib/actions/personality-integration.ts` | 선생님 성격 요약 생성에 재사용 (`after()` 패턴) |
-| `lib/pdf/generator.ts` | 선생님 분석 PDF 생성에 재사용 |
-| `lib/storage/factory.ts` | 선생님 이미지/PDF 저장에 재사용 |
+**Signature Verification Pattern (Critical for Webhooks):**
+```typescript
+// src/app/api/github/webhooks/route.ts
+import crypto from 'crypto'
 
-## Suggested Build Order (v2.0)
+export async function POST(req: Request) {
+  // 1. Get raw body for signature verification
+  const body = await req.text()
+  const signature = req.headers.get('x-hub-signature-256')
 
-### Phase 1: Database & Access Control (기반)
-1. **Prisma 스키마 확장** - `TeacherRole`, `Team`, `Teacher.teamId` 추가
-2. **마이그레이션 실행** - `prisma migrate dev`
-3. **RBAC 구현** - `lib/middleware/rbac.ts`, `lib/db/access-control.ts`
-4. **세션 확장** - `SessionPayload`에 `role`, `teamId` 추가
+  // 2. Verify signature
+  const expectedSignature = 'sha256=' + crypto
+    .createHmac('sha256', process.env.GITHUB_WEBHOOK_SECRET!)
+    .update(body)
+    .digest('hex')
 
-**Why first:** 모든 기능이 데이터 접근 제어에 의존. RBAC가 없으면 데이터 누출 위험.
+  if (signature !== expectedSignature) {
+    return new Response('Invalid signature', { status: 401 })
+  }
 
-### Phase 2: Teacher Management (핵심)
-1. **선생님 CRUD** - `lib/actions/teachers.ts`
-2. **선생님 목록/상세 페이지** - `app/(dashboard)/teachers/`
-3. **선생님 성향 분석** - 기존 분석 모듈 재사용
-4. **선생님 권한 검증** - 모든 Server Action에 `verifySessionWithTeam()` 추가
+  // 3. Process event
+  const event = JSON.parse(body)
+  await handleGitHubEvent(event)
 
-**Why second:** 학생-선생님 궁합 분석의 전제. 선생님 데이터가 없으면 비교 불가.
+  return new Response('OK', { status: 200 })
+}
+```
 
-### Phase 3: LLM Provider Abstraction (기술적 기반)
-1. **LLM Provider 인터페이스** - `lib/ai/providers/base.ts`
-2. **Claude 어댑터** - `lib/ai/providers/claude.ts` (기존 코드 래핑)
-3. **Ollama 어댑터** - `lib/ai/providers/ollama.ts`
-4. **Router 구현** - `lib/ai/providers/router.ts`
-5. **기존 Claude 호출 리팩토링** - `lib/ai/claude.ts` → router 사용
+**Rationale:**
+- API Routes used because GitHub webhooks are external, public-facing endpoints
+- Signature verification prevents forged webhook events
+- Session auth for user-initiated actions (create issue, manual sync)
 
-**Why third:** 다음 단계(궁합 분석)에서 AI 제안 생성 시 다양한 LLM 활용 가능. 기술 부채 방지.
+### 3. Server Actions for Internal Operations
 
-### Phase 4: Compatibility Analysis (차별화 기능)
-1. **궁합 알고리즘** - `lib/analysis/compatibility.ts`
-2. **궁합 분석 Server Actions** - `lib/actions/compatibility.ts`
-3. **AI 배정 제안** - LLM으로 최적 매칭 추천
-4. **궁합 결과 UI** - `app/(dashboard)/students/[id]/compatibility/`
+**Existing Pattern:**
+```typescript
+// src/lib/actions/[domain].ts
+"use server"
 
-**Why fourth:** 선생님 데이터 + LLM 기반이 준비된 후 실행. v2.0의 핵심 차별화 기능.
+export async function someAction(formData: FormData) {
+  const session = await verifySession() // Auth check
+  const db = await getRBACDB()          // RBAC-filtered DB client
 
-### Phase 5: Admin & Settings (관리 기능)
-1. **LLM 제공자 설정** - `lib/actions/settings.ts`
-2. **팀 관리** - 팀 생성, 팀장 배정
-3. **성과 분석 대시보드** - 선생님별 학생 성적 추적
-4. **Admin 페이지** - `app/(dashboard)/admin/`
+  // Business logic
 
-**Why last:** 핵심 기능 완료 후 관리 기능 추가. 원장 전용 기능이므로 우선순위 낮음.
+  return { success: true, data }
+}
+```
+
+**New Issue Actions:**
+```typescript
+// src/lib/actions/issues.ts
+"use server"
+
+import { verifySession, logAuditAction } from '@/lib/dal'
+import { db } from '@/lib/db'
+import { Octokit } from '@octokit/rest'
+
+export async function createIssue(data: IssueFormData) {
+  const session = await verifySession()
+
+  // RBAC: Only Directors can create issues
+  if (session.role !== 'DIRECTOR') {
+    return { error: 'Unauthorized' }
+  }
+
+  // Create GitHub issue via API
+  const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN })
+  const githubIssue = await octokit.issues.create({
+    owner: process.env.GITHUB_OWNER!,
+    repo: process.env.GITHUB_REPO!,
+    title: data.title,
+    body: data.body,
+    labels: data.labels,
+  })
+
+  // Save to local DB
+  const issue = await db.issue.create({
+    data: {
+      githubId: githubIssue.data.id,
+      githubNumber: githubIssue.data.number,
+      title: data.title,
+      body: data.body,
+      state: 'open',
+      createdByTeacherId: session.userId,
+      url: githubIssue.data.html_url,
+    },
+  })
+
+  // Audit log
+  await logAuditAction({
+    action: 'issue.created',
+    entityType: 'Issue',
+    entityId: issue.id,
+    changes: { title: data.title, githubNumber: githubIssue.data.number },
+  })
+
+  return { success: true, issue }
+}
+
+export async function listIssues(filters?: IssueFilters) {
+  const session = await verifySession()
+
+  if (session.role !== 'DIRECTOR') {
+    return { error: 'Unauthorized' }
+  }
+
+  const issues = await db.issue.findMany({
+    where: {
+      state: filters?.state,
+      labels: filters?.labels ? { hasSome: filters.labels } : undefined,
+    },
+    orderBy: { createdAt: 'desc' },
+    include: {
+      createdByTeacher: {
+        select: { name: true, email: true },
+      },
+    },
+  })
+
+  return { issues }
+}
+
+export async function syncIssuesFromGitHub() {
+  const session = await verifySession()
+
+  if (session.role !== 'DIRECTOR') {
+    return { error: 'Unauthorized' }
+  }
+
+  // Fetch all issues from GitHub
+  const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN })
+  const { data: githubIssues } = await octokit.issues.listForRepo({
+    owner: process.env.GITHUB_OWNER!,
+    repo: process.env.GITHUB_REPO!,
+    state: 'all',
+    per_page: 100,
+  })
+
+  // Upsert to local DB
+  for (const githubIssue of githubIssues) {
+    await db.issue.upsert({
+      where: { githubId: githubIssue.id },
+      create: {
+        githubId: githubIssue.id,
+        githubNumber: githubIssue.number,
+        title: githubIssue.title,
+        body: githubIssue.body || '',
+        state: githubIssue.state,
+        url: githubIssue.html_url,
+        labels: githubIssue.labels.map((l) => typeof l === 'string' ? l : l.name || ''),
+      },
+      update: {
+        title: githubIssue.title,
+        body: githubIssue.body || '',
+        state: githubIssue.state,
+        labels: githubIssue.labels.map((l) => typeof l === 'string' ? l : l.name || ''),
+      },
+    })
+  }
+
+  return { success: true, synced: githubIssues.length }
+}
+```
+
+**Rationale:**
+- Server Actions for user-initiated operations (create, list, sync)
+- Follows existing pattern: `verifySession()` → RBAC check → business logic
+- Integrates with existing audit logging (`logAuditAction`)
+
+### 4. Database Schema Integration
+
+**Existing Schema:**
+- `Teacher` model (role enum includes DIRECTOR)
+- `AuditLog` model (for tracking changes)
+- `SystemLog` model (for application events)
+
+**New Models:**
+```prisma
+// prisma/schema.prisma
+
+model Issue {
+  id                  String        @id @default(cuid())
+  githubId            BigInt        @unique // GitHub's issue ID
+  githubNumber        Int           // Issue number in repo (#123)
+  title               String
+  body                String        @db.Text
+  state               IssueState    @default(OPEN)
+  labels              String[]      // Array of label names
+  url                 String        // GitHub issue URL
+  createdByTeacherId  String?       // NULL if created by webhook/system
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  closedAt            DateTime?
+
+  createdByTeacher    Teacher?      @relation(fields: [createdByTeacherId], references: [id])
+  events              IssueEvent[]
+
+  @@index([state])
+  @@index([githubNumber])
+  @@index([createdByTeacherId])
+  @@index([createdAt(sort: Desc)])
+}
+
+model IssueEvent {
+  id          String          @id @default(cuid())
+  issueId     String
+  eventType   IssueEventType
+  payload     Json            // Full webhook payload or event data
+  source      EventSource     @default(WEBHOOK)
+  createdAt   DateTime        @default(now())
+
+  issue       Issue           @relation(fields: [issueId], references: [id], onDelete: Cascade)
+
+  @@index([issueId])
+  @@index([eventType])
+  @@index([createdAt(sort: Desc)])
+}
+
+enum IssueState {
+  OPEN
+  CLOSED
+}
+
+enum IssueEventType {
+  CREATED
+  UPDATED
+  CLOSED
+  REOPENED
+  LABELED
+  UNLABELED
+  COMMENTED
+}
+
+enum EventSource {
+  WEBHOOK      // From GitHub webhook
+  MANUAL_SYNC  // From manual sync action
+  SENTRY       // Auto-created from Sentry error
+}
+
+// Add to Teacher model:
+model Teacher {
+  // ... existing fields ...
+  createdIssues Issue[]
+}
+```
+
+**Migration Strategy:**
+```bash
+# 1. Add new models to schema.prisma
+# 2. Create migration
+npx prisma migrate dev --name add_issue_management
+
+# 3. Deploy to production
+npx prisma migrate deploy
+```
+
+**Rationale:**
+- `githubId` as unique identifier for sync operations
+- `githubNumber` indexed for quick lookup (#123 references)
+- `labels` as String array for filtering (no separate Label table needed for MVP)
+- `IssueEvent` captures full webhook payload for debugging/audit trail
+- Cascade delete on `Issue` → `IssueEvent` for cleanup
+
+### 5. Sentry Integration for Auto-Issue Creation
+
+**Existing Sentry Config:**
+```typescript
+// sentry.client.config.ts
+Sentry.init({
+  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+  beforeSend(event, hint) {
+    // Redact sensitive data
+    return event
+  },
+})
+```
+
+**Enhanced beforeSend Hook:**
+```typescript
+// sentry.client.config.ts
+import { createIssueFromSentry } from '@/lib/sentry-utils'
+
+Sentry.init({
+  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+  beforeSend(event, hint) {
+    // Redact sensitive data (existing logic)
+    if (event.request?.headers) {
+      const headers = { ...event.request.headers }
+      delete headers.authorization
+      delete headers.cookie
+      event.request.headers = headers
+    }
+
+    // Auto-create GitHub issue for critical errors
+    if (shouldCreateIssue(event)) {
+      // Non-blocking: don't await to avoid slowing down error reporting
+      createIssueFromSentry(event, hint).catch(console.error)
+    }
+
+    return event
+  },
+})
+
+function shouldCreateIssue(event: Sentry.Event): boolean {
+  // Create issue only for production errors with high severity
+  if (process.env.NODE_ENV !== 'production') return false
+  if (event.level !== 'error' && event.level !== 'fatal') return false
+
+  // Skip known errors (rate limiting, auth failures, etc.)
+  const knownErrors = ['RATE_LIMIT_EXCEEDED', 'UNAUTHORIZED']
+  if (event.exception?.values?.some(e =>
+    knownErrors.some(known => e.value?.includes(known))
+  )) {
+    return false
+  }
+
+  return true
+}
+```
+
+```typescript
+// src/lib/sentry-utils.ts
+import * as Sentry from '@sentry/nextjs'
+import { Octokit } from '@octokit/rest'
+import { db } from '@/lib/db'
+
+export async function createIssueFromSentry(
+  event: Sentry.Event,
+  hint?: Sentry.EventHint
+): Promise<void> {
+  try {
+    const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN })
+
+    // Format issue title
+    const errorMessage = event.exception?.values?.[0]?.value || event.message || 'Unknown error'
+    const title = `[Sentry] ${errorMessage.substring(0, 80)}`
+
+    // Format issue body
+    const body = formatSentryIssueBody(event, hint)
+
+    // Create GitHub issue
+    const githubIssue = await octokit.issues.create({
+      owner: process.env.GITHUB_OWNER!,
+      repo: process.env.GITHUB_REPO!,
+      title,
+      body,
+      labels: ['sentry', 'bug', 'auto-created'],
+    })
+
+    // Save to local DB
+    await db.issue.create({
+      data: {
+        githubId: githubIssue.data.id,
+        githubNumber: githubIssue.data.number,
+        title,
+        body,
+        state: 'open',
+        labels: ['sentry', 'bug', 'auto-created'],
+        url: githubIssue.data.html_url,
+        createdByTeacherId: null, // System-created
+      },
+    })
+
+    // Log event
+    await db.issueEvent.create({
+      data: {
+        issueId: githubIssue.data.id.toString(),
+        eventType: 'CREATED',
+        source: 'SENTRY',
+        payload: { sentryEventId: event.event_id, githubIssueNumber: githubIssue.data.number },
+      },
+    })
+  } catch (error) {
+    console.error('Failed to create issue from Sentry:', error)
+    // Don't throw - this is best-effort
+  }
+}
+
+function formatSentryIssueBody(event: Sentry.Event, hint?: Sentry.EventHint): string {
+  const sentryUrl = `https://sentry.io/organizations/${process.env.SENTRY_ORG}/issues/?query=${event.event_id}`
+
+  return `
+## Error Details
+
+**Event ID:** ${event.event_id}
+**Level:** ${event.level}
+**Environment:** ${event.environment}
+**Timestamp:** ${new Date(event.timestamp || Date.now()).toISOString()}
+
+## Exception
+
+\`\`\`
+${event.exception?.values?.[0]?.value || event.message || 'No exception message'}
+\`\`\`
+
+## Stack Trace
+
+\`\`\`
+${event.exception?.values?.[0]?.stacktrace?.frames?.slice(-5).map(f =>
+  `  at ${f.function} (${f.filename}:${f.lineno})`
+).join('\n') || 'No stack trace available'}
+\`\`\`
+
+## Request Context
+
+- **URL:** ${event.request?.url || 'N/A'}
+- **Method:** ${event.request?.method || 'N/A'}
+- **User Agent:** ${event.request?.headers?.['user-agent'] || 'N/A'}
+
+## View in Sentry
+
+[Open in Sentry Dashboard](${sentryUrl})
+
+---
+*Auto-created by Sentry integration*
+`.trim()
+}
+```
+
+**Rationale:**
+- `beforeSend` is non-blocking (fire-and-forget) to avoid slowing error reporting
+- Production-only to prevent spam during development
+- Filters known/expected errors (rate limits, auth failures)
+- Creates issues with `sentry` label for easy filtering
+- Links back to Sentry dashboard for full context
+
+### 6. GitHub Actions Workflow Enhancement
+
+**Existing Workflow:**
+```yaml
+# .github/workflows/deploy.yml
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          script: |
+            cd /home/gon/projects/ai/ai-afterschool
+            git pull origin main
+            ./scripts/deploy.sh --force --tag=${{ github.sha }}
+```
+
+**Enhanced Workflow with Issue-Based Auto-Deploy:**
+```yaml
+# .github/workflows/deploy.yml
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [closed]
+  workflow_dispatch:
+
+jobs:
+  # Job 1: Deploy on direct push to main
+  deploy-on-push:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy to server
+        id: deploy
+        uses: appleboy/ssh-action@v1.0.0
+        continue-on-error: true
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          port: ${{ secrets.SERVER_PORT }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/gon/projects/ai/ai-afterschool
+            git pull origin main
+            ./scripts/deploy.sh --force --tag=${{ github.sha }}
+
+      - name: Comment on related issues
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Find issues referenced in commit messages
+            const commits = await github.rest.repos.listCommits({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.sha,
+              per_page: 10,
+            })
+
+            const issueNumbers = new Set()
+            commits.data.forEach(commit => {
+              const matches = commit.commit.message.matchAll(/#(\d+)/g)
+              for (const match of matches) {
+                issueNumbers.add(parseInt(match[1]))
+              }
+            })
+
+            // Comment on each issue
+            for (const issueNumber of issueNumbers) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                body: `✅ Deployed to production in commit ${context.sha.substring(0, 7)}\n\nDeployment: https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              })
+            }
+
+      - name: Rollback on failure
+        if: failure() && steps.deploy.outcome == 'failure'
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          port: ${{ secrets.SERVER_PORT }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/gon/projects/ai/ai-afterschool
+            ./scripts/rollback.sh --force
+
+  # Job 2: Deploy when PR with 'auto-deploy' label is merged
+  deploy-on-pr-merge:
+    if: |
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.merged == true &&
+      contains(github.event.pull_request.labels.*.name, 'auto-deploy')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy to server
+        id: deploy
+        uses: appleboy/ssh-action@v1.0.0
+        continue-on-error: true
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          port: ${{ secrets.SERVER_PORT }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/gon/projects/ai/ai-afterschool
+            git pull origin main
+            ./scripts/deploy.sh --force --tag=${{ github.sha }}
+
+      - name: Comment on PR and linked issues
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Comment on the PR
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: `✅ Auto-deployed to production\n\nDeployment: https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+            })
+
+            // Find and close linked issues with 'closes #123' syntax
+            const prBody = context.payload.pull_request.body || ''
+            const closeMatches = prBody.matchAll(/(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)/gi)
+
+            for (const match of closeMatches) {
+              const issueNumber = parseInt(match[1])
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                body: `✅ Fixed and deployed in PR #${context.payload.pull_request.number}\n\nDeployment: https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              })
+            }
+
+      - name: Rollback on failure
+        if: failure() && steps.deploy.outcome == 'failure'
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          port: ${{ secrets.SERVER_PORT }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/gon/projects/ai/ai-afterschool
+            ./scripts/rollback.sh --force
+
+      - name: Notify on rollback
+        if: failure() && steps.deploy.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: `❌ Deployment failed and rolled back\n\nPlease check the logs: https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+            })
+```
+
+**Rationale:**
+- **Two deploy triggers:** Direct push to main (existing) + PR merge with `auto-deploy` label (new)
+- **Issue linking:** Automatically comments on issues referenced in commits (#123 syntax)
+- **PR-to-issue flow:** When PR with `closes #123` is merged, comments on linked issue
+- **Rollback notification:** Comments on PR/issues if deployment fails
+- Uses GitHub Script action for API calls (no separate webhook needed)
+
+### 7. Environment Variables
+
+**New Variables Required:**
+
+```bash
+# .env.example additions
+
+# =============================================================================
+# GitHub Integration
+# =============================================================================
+# GitHub Personal Access Token (PAT) with repo scope
+# Generate at: https://github.com/settings/tokens
+GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# Repository for issue tracking
+GITHUB_OWNER=your-org-or-username
+GITHUB_REPO=ai-afterschool
+
+# Webhook secret for signature verification
+# Generate with: openssl rand -hex 32
+GITHUB_WEBHOOK_SECRET=your-webhook-secret-here
+```
+
+**Security Considerations:**
+- `GITHUB_TOKEN`: Never commit, use GitHub Secrets in Actions
+- `GITHUB_WEBHOOK_SECRET`: Same secret in GitHub webhook config and .env
+- Store in server `.env` (192.168.0.5:/home/gon/projects/ai/ai-afterschool/.env)
+
+## Data Flow Patterns
+
+### Flow 1: User Creates Issue
+
+```
+[Director clicks "Report Issue" in header]
+    ↓
+[IssueButton opens modal/drawer]
+    ↓
+[User fills form: title, description, labels]
+    ↓
+[Submit triggers Server Action: createIssue()]
+    ↓ verifySession() + RBAC check
+    ↓
+[createIssue() calls GitHub API (Octokit)]
+    ↓
+[GitHub creates issue, returns githubId + number]
+    ↓
+[Server Action saves to local DB: Issue model]
+    ↓
+[logAuditAction() records creation]
+    ↓
+[Return success + issue URL to client]
+    ↓
+[Modal shows success + link to GitHub issue]
+```
+
+### Flow 2: GitHub Webhook Event
+
+```
+[GitHub fires webhook (issue updated/closed/commented)]
+    ↓
+[POST /api/github/webhooks]
+    ↓ Verify signature with GITHUB_WEBHOOK_SECRET
+    ↓
+[Parse event type: issue.updated, issue.closed, etc.]
+    ↓
+[Update local DB: Issue model (state, labels, closedAt)]
+    ↓
+[Create IssueEvent record (audit trail)]
+    ↓
+[Optional: Trigger notification to Directors]
+    ↓
+[Return 200 OK to GitHub]
+```
+
+### Flow 3: Sentry Error → Auto-Issue
+
+```
+[Error occurs in production]
+    ↓
+[Sentry SDK captures error]
+    ↓
+[beforeSend() hook executes]
+    ↓ shouldCreateIssue() checks: production + error level + not known error
+    ↓
+[createIssueFromSentry() fires (non-blocking)]
+    ↓
+[Format issue title + body from Sentry event]
+    ↓
+[Create GitHub issue with 'sentry' + 'bug' labels]
+    ↓
+[Save to local DB with source = 'SENTRY']
+    ↓
+[Create IssueEvent record]
+    ↓
+[Error continues to Sentry (not blocked)]
+```
+
+### Flow 4: PR Merge → Auto-Deploy → Issue Comment
+
+```
+[Developer merges PR with 'auto-deploy' label]
+    ↓
+[GitHub triggers workflow: pull_request.closed]
+    ↓
+[deploy-on-pr-merge job checks: merged == true + has 'auto-deploy' label]
+    ↓
+[SSH to server, run deploy.sh script]
+    ↓ If success:
+    ↓
+[GitHub Script finds issues in PR body: "closes #123"]
+    ↓
+[Comment on issue: "✅ Fixed and deployed in PR #456"]
+    ↓
+[Issue auto-closes (GitHub native behavior)]
+    ↓ If failure:
+    ↓
+[Rollback script executes]
+    ↓
+[Comment on PR: "❌ Deployment failed and rolled back"]
+```
+
+## Build Order & Dependencies
+
+### Phase 1: Database Foundation (No External Dependencies)
+1. **Add Prisma models** (`Issue`, `IssueEvent`, enums)
+2. **Create migration** (`npx prisma migrate dev --name add_issue_management`)
+3. **Update Prisma Client types** (auto-generated)
+
+**Validation:** Migration applies cleanly, no existing data affected.
+
+### Phase 2: GitHub API Integration (Depends on Phase 1)
+1. **Install dependencies** (`@octokit/rest`)
+2. **Add environment variables** (`.env.example` + server `.env`)
+3. **Create Server Action** (`src/lib/actions/issues.ts`)
+   - `createIssue()` — calls GitHub API, saves to DB
+   - `listIssues()` — reads from local DB
+   - `syncIssuesFromGitHub()` — batch sync from GitHub
+
+**Validation:** Can create issues via Server Action in test page.
+
+### Phase 3: UI Components (Depends on Phase 2)
+1. **Create IssueButton component** (`src/components/layout/issue-button.tsx`)
+2. **Create IssueForm modal** (`src/components/issues/issue-form.tsx`)
+3. **Update dashboard layout** (add IssueButton to header, Director-only)
+4. **Create issue list page** (`src/app/(dashboard)/issues/page.tsx`)
+
+**Validation:** Director can create issues from header, see list page.
+
+### Phase 4: Webhook Handler (Depends on Phase 1-2)
+1. **Create webhook API route** (`src/app/api/github/webhooks/route.ts`)
+2. **Implement signature verification**
+3. **Add webhook handlers for events** (issue updated, closed, labeled)
+4. **Configure webhook in GitHub repo settings**
+
+**Validation:** Manual webhook test (use GitHub "Redeliver" button), verify DB updates.
+
+### Phase 5: Sentry Integration (Depends on Phase 2)
+1. **Update Sentry config** (`sentry.client.config.ts`, `sentry.server.config.ts`)
+2. **Add `beforeSend` hook with `shouldCreateIssue()` logic**
+3. **Create `src/lib/sentry-utils.ts`** with `createIssueFromSentry()`
+4. **Test with forced error in production-like environment**
+
+**Validation:** Trigger test error, verify GitHub issue created with `sentry` label.
+
+### Phase 6: GitHub Actions Enhancement (Depends on Phase 2)
+1. **Update `.github/workflows/deploy.yml`**
+   - Add `pull_request.closed` trigger
+   - Add conditional for `auto-deploy` label
+   - Add GitHub Script steps for issue commenting
+2. **Test with PR** (create PR with `auto-deploy` label, merge, verify deploy + comments)
+
+**Validation:** PR merge triggers deploy, comments appear on linked issues.
+
+### Phase 7: Integration Testing & Documentation
+1. **E2E test:** Create issue → webhook updates → list page reflects change
+2. **Load test webhook handler** (simulate burst of GitHub events)
+3. **Update README** with setup instructions (GitHub webhook config, env vars)
+4. **Create runbook** for troubleshooting (webhook delivery failures, token expiry)
+
+**Dependency Graph:**
+```
+Phase 1 (DB)
+    ↓
+Phase 2 (GitHub API)
+    ↓ ↓ ↓
+Phase 3 (UI)  Phase 4 (Webhook)  Phase 5 (Sentry)
+    ↓             ↓                   ↓
+    └─────────────┴───────────────────┴─→ Phase 6 (Actions)
+                                               ↓
+                                           Phase 7 (Testing)
+```
+
+**Critical Path:** Phase 1 → 2 → 3 (user-facing feature works without webhooks/Sentry/Actions)
+
+## Architectural Patterns
+
+### Pattern 1: Dual-Layer Issue Tracking (Local DB + GitHub)
+
+**What:** Store GitHub issues in local PostgreSQL database as cache, sync via webhooks + manual sync action.
+
+**When to use:** When you need fast queries, custom filtering, or want to survive GitHub API rate limits.
+
+**Trade-offs:**
+- **Pro:** Fast queries without hitting GitHub API every time
+- **Pro:** Can add custom fields (e.g., `assignedToTeacherId`) not in GitHub
+- **Pro:** Works even if GitHub is down (read-only)
+- **Con:** Data can drift if webhook delivery fails
+- **Con:** Extra complexity (two sources of truth)
+
+**Example:**
+```typescript
+// Fast local query (no GitHub API call)
+const openIssues = await db.issue.findMany({
+  where: { state: 'OPEN', labels: { has: 'bug' } },
+  orderBy: { createdAt: 'desc' },
+})
+
+// Sync from GitHub when needed
+const { synced } = await syncIssuesFromGitHub()
+```
+
+**Mitigation for drift:** Run `syncIssuesFromGitHub()` on cron (daily) as fallback.
+
+### Pattern 2: Webhook Signature Verification
+
+**What:** Verify `x-hub-signature-256` header on incoming webhooks to prevent forgery.
+
+**When to use:** Always, for any public webhook endpoint.
+
+**Trade-offs:**
+- **Pro:** Prevents attackers from forging webhook events
+- **Pro:** Required by GitHub (delivery fails if secret is wrong)
+- **Con:** Requires storing secret securely (can't be in client code)
+
+**Example:** See [Integration Points → API Route Structure](#2-api-route-structure) above.
+
+### Pattern 3: Non-Blocking Sentry Hook
+
+**What:** Fire-and-forget GitHub issue creation in `beforeSend()` to avoid slowing error reporting.
+
+**When to use:** When side effects (like API calls) shouldn't block the main flow.
+
+**Trade-offs:**
+- **Pro:** Doesn't slow down Sentry error reporting
+- **Pro:** Failures in issue creation don't break error logging
+- **Con:** Can't show user feedback if issue creation fails
+- **Con:** Harder to debug (errors are swallowed)
+
+**Example:**
+```typescript
+beforeSend(event, hint) {
+  // Don't await — fire and forget
+  createIssueFromSentry(event, hint).catch(console.error)
+  return event
+}
+```
+
+### Pattern 4: GitHub Script Action for Issue Automation
+
+**What:** Use `actions/github-script` in workflows to comment on issues/PRs without separate webhook.
+
+**When to use:** For deployment notifications, auto-closing issues, etc.
+
+**Trade-offs:**
+- **Pro:** No need to set up separate API server for GitHub API calls
+- **Pro:** Authenticated automatically (no token management)
+- **Con:** Only runs in GitHub Actions context (can't use in app)
+- **Con:** Limited to workflow triggers
+
+**Example:** See [Integration Points → GitHub Actions](#6-github-actions-workflow-enhancement) above.
 
 ## Anti-Patterns to Avoid
 
-### Anti-Pattern 1: 직접 Prisma 쿼리에 teamId 하드코딩 (v2.0)
+### Anti-Pattern 1: Storing GitHub Token in Client Code
+
+**What people do:** Pass `GITHUB_TOKEN` to client components for direct API calls.
+
+**Why it's wrong:**
+- Token is exposed in browser (anyone can extract it)
+- Allows unauthorized issue creation/deletion
+- Violates security best practices
+
+**Do this instead:** Always call GitHub API from Server Actions or API Routes (server-side only).
+
+### Anti-Pattern 2: Blocking Sentry beforeSend with Await
 
 **What people do:**
 ```typescript
-// ❌ 나쁜 예
-export async function getStudents() {
-  const session = await verifySession();
-  return db.student.findMany({
-    where: { teamId: session.teamId }, // teamId 직접 사용
-  });
+beforeSend(event) {
+  await createIssueFromSentry(event) // WRONG: blocks error reporting
+  return event
 }
 ```
 
 **Why it's wrong:**
-- 원장(DIRECTOR)은 모든 팀 데이터를 봐야 하는데 필터링됨
-- 팀장은 하위 팀 데이터도 접근해야 하는데 불가능
-- 팀 변경 시 모든 쿼리 수정 필요
+- Slows down error reporting to Sentry
+- If GitHub API is slow/down, errors aren't logged at all
+- Defeats the purpose of fast error tracking
 
-**Do this instead:**
-```typescript
-// ✅ 좋은 예
-export async function getStudents() {
-  const session = await verifySessionWithTeam();
-  return db.student.findMany({
-    where: buildTeamAccessFilter(session), // 역할 기반 동적 필터
-  });
-}
-```
+**Do this instead:** Fire-and-forget (no await), log failures separately.
 
-### Anti-Pattern 2: LLM 제공자별 조건문 나열 (v2.0)
+### Anti-Pattern 3: No Signature Verification on Webhooks
 
-**What people do:**
-```typescript
-// ❌ 나쁜 예
-export async function generateAIAnalysis(prompt: string, provider: string) {
-  if (provider === 'claude') {
-    const response = await anthropic.messages.create({ ... });
-    return response.content[0].text;
-  } else if (provider === 'gemini') {
-    const response = await gemini.generateContent({ ... });
-    return response.response.text();
-  } else if (provider === 'ollama') {
-    const response = await fetch(`${OLLAMA_URL}/api/generate`, { ... });
-    return response.response;
-  }
-  // 새 제공자 추가할 때마다 if-else 추가...
-}
-```
+**What people do:** Accept webhook events without checking `x-hub-signature-256`.
 
 **Why it's wrong:**
-- 새 제공자 추가 시마다 함수 수정 필요 (OCP 위반)
-- 제공자별 에러 처리 중복
-- 테스트 어려움 (모든 제공자 mock 필요)
+- Allows attackers to forge webhook events
+- Could trigger malicious actions (close all issues, spam comments)
 
-**Do this instead:**
-```typescript
-// ✅ 좋은 예
-export async function generateAIAnalysis(prompt: string, preferredProvider?: string) {
-  return llmRouter.generateText({ prompt }, preferredProvider);
-}
+**Do this instead:** Always verify signature (see Pattern 2 above).
 
-// 새 제공자는 LLMProvider 인터페이스 구현으로만 추가
-class NewProvider implements LLMProvider {
-  async generateText(params: GenerateTextParams) {
-    // 구현
-  }
-}
-```
+### Anti-Pattern 4: Using OAuth App Instead of Personal Access Token (PAT)
 
-### Anti-Pattern 3: 선생님과 학생 분석 로직 중복 (v2.0)
-
-**What people do:**
-```typescript
-// ❌ 나쁜 예
-// lib/actions/students.ts
-export function calculateStudentMBTI(responses: Response[]) {
-  // 100줄의 MBTI 계산 로직
-}
-
-// lib/actions/teachers.ts
-export function calculateTeacherMBTI(responses: Response[]) {
-  // 동일한 100줄의 MBTI 계산 로직 복사
-}
-```
+**What people do:** Set up GitHub OAuth App for internal tool issue tracking.
 
 **Why it's wrong:**
-- 로직 변경 시 두 곳 모두 수정 (버그 위험)
-- 테스트 코드 중복
-- 가독성 저하
+- OAuth Apps require user authorization flow (unnecessary for server-to-server)
+- Tokens expire when user leaves org
+- More complex setup for single-repo operations
 
-**Do this instead:**
-```typescript
-// ✅ 좋은 예
-// lib/analysis/mbti-scoring.ts (공통)
-export function calculateMBTIScores(responses: Response[]) {
-  // 단일 구현
-}
+**Do this instead:** Use Personal Access Token (PAT) with `repo` scope for server-side automation. For multi-tenant SaaS, use GitHub App.
 
-// lib/actions/students.ts
-export function calculateStudentMBTI(responses: Response[]) {
-  return calculateMBTIScores(responses);
-}
-
-// lib/actions/teachers.ts
-export function calculateTeacherMBTI(responses: Response[]) {
-  return calculateMBTIScores(responses); // 재사용
-}
-```
-
-## Scalability Considerations
+## Scaling Considerations
 
 | Scale | Architecture Adjustments |
 |-------|--------------------------|
-| 1-10 선생님 (현재) | 모놀리식 Next.js 앱 충분. Prisma 연결 풀 기본 설정 (connection_limit=10) |
-| 10-50 선생님 | Prisma 연결 풀 증설 (connection_limit=20), 인덱스 최적화 (`teamId`, `teacherId` 복합 인덱스) |
-| 50+ 선생님 | 캐싱 계층 추가 (Redis 또는 Upstash Stasher), Server Components 캐싱 전략 |
+| **0-100 issues** | Current architecture (local DB cache + webhooks) is sufficient. Manual sync as fallback. |
+| **100-1k issues** | Add pagination to issue list page. Index `state` + `labels` columns for faster queries. Consider cron job for daily sync (catch webhook failures). |
+| **1k-10k issues** | Add full-text search on `title` + `body` (PostgreSQL `tsvector`). Consider archiving closed issues older than 1 year. Rate limit webhook handler (prevent spam). |
+| **10k+ issues** | Switch to dedicated issue tracking system (Linear, Jira) with bi-directional sync. Local DB becomes read-only cache. Add Redis for webhook deduplication. |
 
-### Scaling Priorities
+**First bottleneck:** Webhook delivery failures (GitHub retries 3x, then stops). Mitigation: Daily cron sync + monitoring.
 
-1. **First bottleneck:** Prisma N+1 쿼리 (해결됨: v1.1에서 `include` 사용으로 7쿼리 → 1쿼리 최적화)
-2. **Second bottleneck:** LLM API 레이턴시 (해결책: `after()` 비동기 패턴 + 프로그레스 인디케이터)
-3. **Third bottleneck:** 궁합 분석 계산 복잡도 (해결책: 사전 계산 + 캐싱)
+**Second bottleneck:** Issue list page load time (1k+ issues). Mitigation: Pagination + server-side filtering + caching.
+
+## New Files & Modified Files
+
+### New Files Created
+
+| Path | Purpose | Dependencies |
+|------|---------|--------------|
+| `prisma/migrations/XXX_add_issue_management.sql` | Database schema for Issue/IssueEvent models | Prisma schema changes |
+| `src/lib/actions/issues.ts` | Server Actions for issue CRUD + sync | `@octokit/rest`, `verifySession()` |
+| `src/app/api/github/issues/route.ts` | API route for creating issues (alternative to Server Action) | Session auth, Octokit |
+| `src/app/api/github/webhooks/route.ts` | Webhook receiver for GitHub events | Crypto (signature verification), Prisma |
+| `src/app/api/github/sync/route.ts` | Manual sync trigger endpoint | Session auth, Octokit |
+| `src/components/layout/issue-button.tsx` | Header button to open issue form | Client component, modal state |
+| `src/components/issues/issue-form.tsx` | Modal form for creating issues | Server Action binding, form validation |
+| `src/components/issues/issue-list.tsx` | List view for issues (with filters) | Server Component, fetch from DB |
+| `src/app/(dashboard)/issues/page.tsx` | Full-page issue list view | Server Component, RBAC check |
+| `src/lib/sentry-utils.ts` | Helper for creating issues from Sentry events | Octokit, Prisma, Sentry types |
+
+### Modified Files
+
+| Path | Changes | Rationale |
+|------|---------|-----------|
+| `prisma/schema.prisma` | Add `Issue`, `IssueEvent` models + enums | Database schema |
+| `src/app/(dashboard)/layout.tsx` | Add `<IssueButton />` component in header (Director-only) | UI integration point |
+| `sentry.client.config.ts` | Add `beforeSend` hook with `shouldCreateIssue()` logic | Sentry → GitHub integration |
+| `sentry.server.config.ts` | Same `beforeSend` hook (server-side errors) | Sentry → GitHub integration |
+| `.env.example` | Add `GITHUB_TOKEN`, `GITHUB_OWNER`, `GITHUB_REPO`, `GITHUB_WEBHOOK_SECRET` | Configuration template |
+| `.github/workflows/deploy.yml` | Add `pull_request.closed` trigger + GitHub Script steps | Auto-deploy on PR merge |
+| `package.json` | Add `@octokit/rest` dependency | GitHub API client |
+
+## Integration Testing Strategy
+
+### Test 1: Manual Issue Creation Flow
+1. Login as Director
+2. Click "Report Issue" in header
+3. Fill form: title, description, labels
+4. Submit → verify GitHub issue created
+5. Check local DB: `Issue` record exists with correct `githubId`
+6. Check `AuditLog`: creation event logged
+
+**Expected:** Issue appears in GitHub + local DB + audit log.
+
+### Test 2: Webhook Delivery
+1. Create issue manually in GitHub (not through app)
+2. GitHub fires `issue.created` webhook
+3. Verify webhook endpoint receives event (check logs)
+4. Verify signature verification passes
+5. Check local DB: `Issue` record created
+6. Check `IssueEvent` record exists with `source = 'WEBHOOK'`
+
+**Expected:** Local DB syncs automatically from GitHub webhook.
+
+### Test 3: Webhook Signature Rejection
+1. Send POST to `/api/github/webhooks` with invalid signature
+2. Verify returns 401 Unauthorized
+3. Verify no DB changes
+
+**Expected:** Invalid webhooks rejected, no side effects.
+
+### Test 4: Sentry Auto-Issue Creation
+1. Force error in production-like environment (e.g., throw in Server Action)
+2. Verify Sentry captures error
+3. Wait 5-10 seconds (fire-and-forget delay)
+4. Check GitHub: issue created with `sentry` label
+5. Check local DB: `Issue` record exists with `source = 'SENTRY'`
+
+**Expected:** Production errors auto-create GitHub issues.
+
+### Test 5: PR Merge → Deploy → Issue Comment
+1. Create PR with `auto-deploy` label
+2. Add "closes #123" in PR description
+3. Merge PR to main
+4. Verify deploy workflow triggers
+5. Verify deployment succeeds (check health endpoint)
+6. Verify comment appears on issue #123
+7. Verify issue auto-closes
+
+**Expected:** PR merge deploys, comments on linked issues, closes them.
+
+### Test 6: Manual Sync After Webhook Failure
+1. Simulate webhook failure (disable webhook in GitHub, create issue manually)
+2. Run `syncIssuesFromGitHub()` Server Action
+3. Verify local DB syncs missing issue
+4. Verify `IssueEvent` created with `source = 'MANUAL_SYNC'`
+
+**Expected:** Manual sync catches missed webhook events.
 
 ## Sources
 
-### Primary (HIGH confidence)
-
-**Official Documentation:**
-- [Next.js Multi-Tenant Guide](https://nextjs.org/docs/app/guides/multi-tenant) — Official patterns for multi-tenant Next.js applications (April 15, 2025)
-- [Next.js Documentation](https://nextjs.org/docs) — App Router, Server Actions, Authentication
-- [Prisma Documentation](https://www.prisma.io/docs) — ORM, multi-tenant patterns with row-level security
-- [Anthropic Claude API](https://docs.anthropic.com/) — Vision API, messages API
-
-**Existing Codebase Analysis:**
-- `/mnt/data/projects/ai/ai-afterschool/prisma/schema.prisma` — Current database schema
-- `/mnt/data/projects/ai/ai-afterschool/src/lib/actions/students.ts` — Server Actions pattern
-- `/mnt/data/projects/ai/ai-afterschool/src/lib/actions/personality-integration.ts` — AI integration pattern
-- `/mnt/data/projects/ai/ai-afterschool/src/lib/session.ts` — Session management pattern
-- `/mnt/data/projects/ai/ai-afterschool/src/middleware.ts` — Authentication middleware
-
-### Secondary (MEDIUM confidence)
-
-**Multi-LLM Architecture:**
-- [Swappable LLM Architectures: Building Flexible AI Systems](https://dmitrygolovach.com/swappable-llm-architectures/) — Adapter pattern for multiple LLM providers (January 5, 2026)
-- [Multi-Provider Chat App: LiteLLM, Ollama, Gemini](https://medium.com/@richardhightower/multi-provider-chat-app-litellm-streamlit-ollama-gemini-claude-perplexity-and-modern-llm-afd5218c7eab) — Practical multi-provider integration guide
-- [Use multiple models — Interconnects](https://www.interconnects.ai/p/use-multiple-models) — Analysis of using multiple LLM models (January 11, 2026)
-
-**Multi-Tenant Access Control:**
-- [Next.js Multi-Tenancy SaaS Template](https://supastarter.dev/nextjs-multi-tenancy-template) — Production-ready multi-tenant starter
-- [Building Centralized Action for Large-Scale SaaS](https://dev.to/jackfd120/building-a-centralized-action-for-large-scale-saas-with-nextjs-53p7) — Server Actions with RBAC (December 4, 2025)
-- [Multi-Tenant Apps with StackAuth Teams](https://zenstack.dev/blog/stackauth-multitenancy) — Team-based access control patterns (December 7, 2024)
-
-**Ollama Self-Hosted Integration:**
-- [Top 5 Local LLM Tools and Models in 2026](https://dev.to/lightningdev123/top-5-local-llm-tools-and-models-in-2026-1ch5) — Ollama as fastest path to local LLMs (January 29, 2026)
-- [Local LLM Hosting: Complete 2025 Guide](https://medium.com/@rosgluk/local-llm-hosting-complete-2025-guide-ollama-vllm-localai-jan-lm-studio-more-f98136ce7e4a) — Comprehensive self-hosted LLM comparison (November 2025)
-- [How To Run LLMs Locally With Ollama & Next.js](https://tech-multiverse.com/projects/how-to-run-llms-locally-with-ollama-next-js/) — Specific Next.js + Ollama tutorial
-
-### Tertiary (LOW confidence, needs validation)
-
-**Compatibility Analysis Patterns:**
-- Domain-specific research needed for Korean personality compatibility algorithms
-- Existing MBTI compatibility research is Western-centric
-- Saju element compatibility requires domain expert validation
-
-**Team-Based Analytics:**
-- [SaaS Architecture Patterns with Next.js](https://vladimirsed-yikh.com/blog/saas-architecture-patterns-nextjs) — General SaaS patterns (July 27, 2025)
-- [Next.js 16 Architecture Blueprint](https://medium.com/@sureshdotariya/next-js-16-architecture-blueprint-for-large-scale-applications-build-scalable-saas-multi-tenant-ab0efe9f2dad) — Large-scale patterns (November 2025)
+- [Next.js Route Handlers: The Complete Guide](https://makerkit.dev/blog/tutorials/nextjs-api-best-practices)
+- [GitHub Webhooks And NextJS](https://www.karimshehadeh.com/blog/posts/GithubWebhooksAndNextJS)
+- [Understanding Webhooks in Next.js](https://medium.com/@dorinelrushi8/understanding-webhooks-in-next-js-1691eab2395e)
+- [What Are Webhooks and How Can You Use Them in Next js 15](https://www.jigz.dev/blogs/what-are-webhooks-and-how-can-you-use-them-in-next-js-15)
+- [Differences between GitHub Apps and OAuth apps - GitHub Docs](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/differences-between-github-apps-and-oauth-apps)
+- [GitHub App vs. GitHub OAuth: When to Use Which?](https://nango.dev/blog/github-app-vs-github-oauth)
+- [GitHub Integration - Sentry Documentation](https://docs.sentry.io/organization/integrations/source-code-mgmt/github/)
+- [Automatically create new github issue - Sentry Forum](https://forum.sentry.io/t/automatically-create-new-github-issue/12203)
+- [Prisma Schema Overview](https://www.prisma.io/docs/orm/prisma-schema/overview)
+- [GitHub - prisma/database-schema-examples](https://github.com/prisma/database-schema-examples)
+- [Trigger workflow only on pull request MERGE](https://github.com/orgs/community/discussions/26724)
+- [GitHub Actions: How to autodeploy your app](https://blog.logrocket.com/github-actions-how-to-autodeploy-your-app/)
+- [Events that trigger workflows - GitHub Docs](https://docs.github.com/actions/learn-github-actions/events-that-trigger-workflows)
 
 ---
-
-**Confidence Level:** HIGH (기존 코드베이스 분석 기반 + 검증된 아키텍처 패턴)
-
-**Research Gaps:**
-1. **궁합 분석 알고리즘 정확도:** 한국 성향 분석(MBTI + 사주) 기반 궁합 계산의 학문적 검증 필요. Phase 4 계획 시 도메인 전문가 자문 권장.
-2. **Ollama 네트워크 접근:** 192.168.0.5 서버의 Ollama API가 Docker 컨테이너에서 접근 가능한지 검증 필요. Phase 3 실행 전 테스트 권장.
-3. **Prisma connection pool 최적화:** 선생님 수 증가에 따른 connection pool sizing 실측 필요. Phase 2 배포 후 모니터링.
-
-**Next Steps:**
-1. Phase 1: RBAC 구현 → 기존 학생 데이터에도 `teamId` 추가 필요성 검토
-2. Phase 3: Ollama API 연결 테스트 → 로컬/원격 서버 간 네트워크 확인
-3. Phase 4: 궁합 알고리즘 프로토타입 → 기존 학생-선생님 데이터로 소규모 테스트
-
----
-
-*Architecture research completed: 2026-01-30*
-*Ready for roadmap: yes*
+*Architecture research for: AI AfterSchool Issue Management & Auto DevOps Integration*
+*Researched: 2026-02-11*
+*Confidence: HIGH (official docs + existing codebase patterns)*

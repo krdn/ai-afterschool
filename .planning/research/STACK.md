@@ -1,418 +1,442 @@
 # Technology Stack
 
-**Project:** AI AfterSchool (학원 학생 관리 시스템)
-**Researched:** 2026-01-27
+**Project:** AI AfterSchool - Issue Management & Auto DevOps Features
+**Researched:** 2026-02-11
+
+## Executive Summary
+
+이 연구는 Issue Management 및 Auto DevOps 기능을 위한 **최소한의 타겟 스택 추가사항**을 식별합니다. 기존 Next.js 15 + Prisma + Sentry 스택은 이미 견고합니다. GitHub API 통합, 브라우저 스크린샷, 웹훅 처리를 위해 **단 4개의 새 의존성만 추가**합니다.
+
+**핵심 결정:** 단순성과 미래 대응성을 위해 `@octokit/rest`가 아닌 `octokit` 통합 SDK 사용.
 
 ## Recommended Stack
 
-### Core Framework
+### 1. GitHub API Integration
 
 | Technology | Version | Purpose | Why |
 |------------|---------|---------|-----|
-| Next.js | 15.x | Full-stack framework (App Router) | **HIGH confidence** - 이미 결정됨 (README 명시). 서버 컴포넌트와 서버 액션으로 API 엔드포인트 없이 데이터 처리 가능. SSR로 SEO와 초기 로딩 최적화. |
-| React | 19.x | UI 라이브러리 | **HIGH** - Next.js 15의 표준 React 버전. Server Components와 Server Actions 지원. |
-| JavaScript | ES2024 | 프로그래밍 언어 | **HIGH** - README에 명시된 기술 스택. TypeScript보다 러닝커브 낮음. |
-| Tailwind CSS | 3.4.x | 스타일링 | **HIGH** - 2026년 Next.js 프로젝트의 사실상 표준. 빠른 개발, 일관된 디자인 시스템 구축 용이. |
+| **octokit** | ^5.0.5 | GitHub API 클라이언트 (REST + GraphQL) | 올인원 SDK, TypeScript 네이티브, 하나의 패키지로 REST와 GraphQL 모두 지원 |
+| **@octokit/webhooks** | ^14.0.0 | 웹훅 이벤트 핸들링 | 타입 안전 웹훅 페이로드 파싱, 서명 검증 내장 |
+| **@octokit/auth-app** | ^8.0.0 | GitHub App 인증 | JWT + 설치 토큰 관리, App 기반 인증에 필수 |
 
-### Database & ORM
+**근거:**
+- **`octokit` vs `@octokit/rest`**: 통합 `octokit` 패키지(v5.0.5)는 REST API, GraphQL, 플러그인 지원을 포함합니다. `@octokit/rest`(v22.0.1)는 REST만 지원하며 웹훅/인증을 위한 수동 조합이 필요합니다.
+- **TypeScript 우선**: 모든 패키지가 네이티브 TypeScript 선언을 제공하므로 `@types/*` 패키지가 필요 없습니다.
+- **유지보수 활발**: 모든 패키지가 최근 3-5개월 내 퍼블리시되어 활발히 유지보수 중입니다.
+- **Next.js 15 호환**: App Router와 호환되며 특별한 어댑터가 필요 없습니다.
 
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| PostgreSQL | 16.x | 주 데이터베이스 | **HIGH** - 학생 정보는 구조화된 관계형 데이터. 성적, 상담 기록, 출석 등 복잡한 조인 필요. ACID 보장으로 데이터 무결성 중요. 50-200명 규모에 충분한 성능. Docker 컨테이너로 운영 서버(192.168.0.5)에 배포 용이. |
-| Prisma | 7.x | ORM | **MEDIUM** - 스키마 우선 접근으로 초보자 친화적. 타입 안전성 제공(JavaScript에서도 JSDoc으로 활용 가능). 마이그레이션 자동화. Drizzle보다 DX 우수하나 성능은 약간 떨어짐. 50-200명 규모에서는 성능 차이 무의미. |
-
-**Alternative considered:** Drizzle ORM - SQL에 가까운 접근, 성능 우수하나 러닝커브 높음. 서버리스 최적화는 이 프로젝트에 불필요.
-
-### Authentication & Authorization
-
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| Clerk | Latest | 인증 및 사용자 관리 | **MEDIUM** - 2026년 Next.js 멀티테넌트 인증의 추천 솔루션. Organization 기능으로 학원(조직) 내 다중 선생님 계정 관리 용이. 역할 기반 권한 관리 내장. Next.js App Router 네이티브 지원. 무료 티어로 시작 가능(월 10,000 MAU). |
-
-**Alternatives considered:**
-- NextAuth.js (Auth.js) - 무료 오픈소스지만 설정 복잡. 조직/역할 관리 직접 구현 필요.
-- WorkOS AuthKit - 엔터프라이즈 수준 기능, 과한 면 있음.
-
-### UI Component Library
-
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| shadcn/ui | Latest | UI 컴포넌트 | **HIGH** - 2026년 Next.js의 사실상 표준. npm 패키지가 아닌 코드 복사 방식으로 커스터마이징 용이. Radix UI 기반으로 접근성 우수. Tailwind CSS와 완벽 통합. Server Components 지원. |
-| Radix UI | Latest | Headless UI primitives | **HIGH** - shadcn/ui의 기반. Dialog, Dropdown, Select 등 인터랙티브 컴포넌트의 접근성과 키보드 내비게이션 자동 처리. |
-
-### Form Handling & Validation
-
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| React Hook Form | 7.x | 폼 상태 관리 | **HIGH** - 언컨트롤드 컴포넌트로 리렌더링 최소화. 성능 우수. shadcn/ui Form 컴포넌트와 통합. |
-| Zod | 3.x | 스키마 검증 | **HIGH** - TypeScript 기반이지만 JavaScript에서도 런타임 검증 가능. React Hook Form의 @hookform/resolvers로 통합. 에러 메시지 커스터마이징 용이. |
-
-### AI & Image Analysis
-
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| OpenAI API (GPT-4o) | gpt-4o | 관상/손금 이미지 분석, 학습 전략/진로 제안 | **HIGH** - Vision API로 이미지 분석 가능. $2.50/1M 입력 토큰, $10/1M 출력 토큰. 50-200명 학생 규모에서 비용 합리적. API로 쉽게 통합. |
-| OpenAI API (GPT-4o-mini) | gpt-4o-mini | 간단한 텍스트 분석, MBTI 해석 | **HIGH** - $0.15/1M 입력, $0.60/1M 출력. 비용 효율적. 성향 요약 등 가벼운 작업용. |
-
-**Why OpenAI:**
-- Vision API로 관상/손금 사진 분석 직접 가능
-- 프롬프트 엔지니어링으로 성향 분석 로직 구현 (모델 학습 불필요)
-- 한국어 지원 우수
-- API 호출로 간단 통합, 인프라 관리 불필요
-
-**Alternatives considered:**
-- Google Gemini - Vision 기능 있으나 한국 전통 해석(사주, 성명학) 이해도 낮을 수 있음
-- 자체 ML 모델 - 학습 데이터 확보 및 유지보수 부담. 50-200명 규모에 과함
-
-### File Upload & Storage
-
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| Cloudinary | Latest | 이미지 저장 및 변환 | **MEDIUM** - 학생 사진, 손금/관상 이미지 저장. 자동 리사이징, 포맷 변환, CDN 제공. 무료 티어 25GB 저장, 25GB 대역폭. Next.js 통합 라이브러리(next-cloudinary) 제공. URL만 DB 저장. |
-
-**Alternative considered:**
-- AWS S3 - 저렴하나 추가 설정 필요(CORS, Presigned URL). Cloudinary가 DX 우수.
-- 로컬 파일시스템 - Docker 볼륨 관리 복잡, 백업 어려움.
-
-### PDF Generation
-
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| @react-pdf/renderer | 4.x | 상담 보고서 PDF 생성 | **HIGH** - React 컴포넌트로 PDF 레이아웃 작성. Next.js 서버 액션에서 실행 가능. 2.6M 주간 다운로드. React 19 호환. JSX 기반으로 유지보수 용이. |
-| react-pdf-tailwind | Latest | Tailwind 스타일 PDF 적용 | **LOW** - Tailwind CSS를 @react-pdf/renderer에서 사용 가능하게 함. 선택적 사용. |
-
-**Alternative considered:**
-- jsPDF - 클라이언트 사이드 생성. DOM 기반으로 한글/복잡한 레이아웃 처리 어려울 수 있음.
-- Puppeteer - HTML을 PDF로 변환. 무겁고 Docker 이미지 크기 증가.
-
-### State Management
-
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| Zustand | 5.x | 클라이언트 상태 관리 | **MEDIUM** - 번들 사이즈 3KB. 보일러플레이트 최소. Next.js SSR 지원. 학생 목록 필터, UI 상태 등 간단한 전역 상태 관리. React Context보다 성능 우수. |
-
-**When to use:**
-- 학생 목록 필터 상태 (학년, 학교 등)
-- 사이드바/모달 UI 상태
-- 다중 탭 간 상태 공유
-
-**Not needed for:**
-- 서버 데이터 (React Query 또는 Next.js 서버 컴포넌트로 처리)
-- 폼 상태 (React Hook Form)
-
-**Alternative considered:**
-- Jotai - 아토믹 접근, 파인그레인 리렌더링 최적화. 이 프로젝트 규모에 과함.
-- Redux Toolkit - 강력하나 보일러플레이트 많음. 50-200명 규모에 불필요.
-
-### Data Fetching & Caching
-
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| TanStack Query (React Query) | 5.x | 서버 상태 관리 | **MEDIUM** - 캐싱, 리페칭, 낙관적 업데이트 자동화. Next.js 서버 컴포넌트와 병행 사용. 클라이언트 컴포넌트에서 데이터 페칭 시 사용. Prefetching으로 UX 향상. |
-
-**When to use:**
-- 클라이언트 사이드 데이터 페칭 (검색, 필터링)
-- 실시간성 필요한 데이터 (출석 현황)
-
-**When NOT to use:**
-- 정적 데이터는 Next.js 서버 컴포넌트로 직접 페칭
-
-### Special Purpose Libraries
-
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| date-fns | 4.x | 날짜 처리 | **HIGH** - 생년월일 파싱, 나이 계산, 사주 계산용 날짜 변환. Tree-shakable로 번들 작음. 한국 로케일 지원. |
-| @aharris02/bazi-calculator-by-alvamind | Latest | 사주팔자 계산 | **LOW** - npm 패키지로 사주 사주(Year/Month/Day/Hour) 계산. IANA 타임존 지원. 최근 업데이트(2026). **주의:** 교육용이므로 결과 검증 필요. 자체 로직 구현 고려. |
-| hangul-js | 0.2.x | 한글 처리 | **LOW** - 한글 초성/중성/종성 분리. 성명학 획수 계산 시 보조 도구. 6년 전 업데이트로 유지보수 우려. 필요 시 자체 구현 검토. |
-
-**Korean Name Hanja Stroke Count:**
-- **자체 구현 권장** - 전용 라이브러리 없음. [Korean-Name-Hanja-Charset](https://github.com/rutopio/Korean-Name-Hanja-Charset) 데이터셋 활용. 대법원 허용 한자 9,389자 포함. JSON으로 획수 매핑 테이블 구축.
-
-**MBTI Analysis:**
-- **자체 구현 또는 OpenAI API** - 별도 라이브러리 불필요. 16개 유형 분류는 설문 결과 점수 계산으로 처리. 해석은 OpenAI API로 생성.
-
-### Development Tools
-
-| Tool | Version | Purpose | Why |
-|------|---------|---------|-----|
-| ESLint | 9.x | 린터 | **HIGH** - Next.js 기본 설정. 코드 품질 유지. |
-| Prettier | 3.x | 코드 포매터 | **HIGH** - 일관된 코드 스타일. ESLint와 통합. |
-| Husky | 9.x | Git hooks | **MEDIUM** - 커밋 전 린트 검사. 코드 품질 자동화. |
-| Docker | 27.x | 컨테이너화 | **HIGH** - README 명시. 운영 서버(192.168.0.5) 배포. |
-| Docker Compose | 2.x | 멀티 컨테이너 관리 | **HIGH** - Next.js + PostgreSQL 통합 관리. |
-
-## Alternatives Considered
-
-| Category | Recommended | Alternative | Why Not |
-|----------|-------------|-------------|---------|
-| Database | PostgreSQL | MongoDB | 학생 정보는 구조화된 관계형 데이터. 복잡한 조인과 트랜잭션 필요. NoSQL 이점 없음. |
-| ORM | Prisma | Drizzle | Drizzle은 SQL 가까운 접근, 성능 우수. 하지만 Prisma의 DX가 초보자/유지보수에 유리. 50-200명 규모에서 성능 차이 미미. |
-| Authentication | Clerk | NextAuth.js | NextAuth는 무료지만 조직/역할 관리 직접 구현. Clerk의 Organization 기능이 멀티테넌트에 최적화. |
-| UI Components | shadcn/ui | Material-UI | Material-UI는 디자인 시스템 고정. shadcn/ui는 커스터마이징 용이, 코드 소유권, Tailwind 통합. |
-| State Management | Zustand | Redux Toolkit | Redux는 강력하나 보일러플레이트 많음. 이 규모에 과함. Zustand로 충분. |
-| AI Image Analysis | OpenAI Vision | Google Gemini | Gemini도 Vision 지원하나 한국 전통 해석 프롬프트 이해도 검증 필요. OpenAI가 한국어 지원 우수. |
-| File Storage | Cloudinary | AWS S3 | S3는 저렴하나 설정 복잡(CORS, Presigned URL). Cloudinary가 DX 우수, 변환 기능 내장. |
-| PDF Generation | @react-pdf/renderer | jsPDF | jsPDF는 클라이언트 사이드, DOM 기반. 한글 복잡 레이아웃 처리 어려움. @react-pdf/renderer는 React 컴포넌트로 레이아웃 작성, 서버 사이드 생성. |
-
-## What NOT to Use
-
-### 1. TypeScript
-- **이유:** README에 JavaScript 명시. 프로젝트 초기 결정 존중.
-- **대안:** JSDoc으로 타입 힌트 제공. Prisma가 자동 생성한 타입 활용.
-
-### 2. MongoDB
-- **이유:** 학생 정보는 구조화된 관계형 데이터. 성적, 출석, 상담 기록 간 관계 복잡. JOIN 필요. ACID 보장 중요.
-- **대안:** PostgreSQL
-
-### 3. NextAuth.js (Auth.js)
-- **이유:** 무료 오픈소스지만 멀티테넌트(조직/역할) 직접 구현. 설정 복잡. 학원 관리 시스템에 Clerk의 Organization 기능이 적합.
-- **단, 예산 제약 시 고려 가능**
-
-### 4. 자체 ML 모델 학습
-- **이유:** 관상/손금 이미지 분석용 모델 학습은 데이터 확보, 학습, 유지보수 부담. 50-200명 규모에 과함.
-- **대안:** OpenAI Vision API로 프롬프트 엔지니어링
-
-### 5. GraphQL
-- **이유:** Next.js App Router의 Server Actions로 API 엔드포인트 불필요. REST도 과함. 직접 서버 함수 호출.
-- **대안:** Server Actions (Server Components에서 직접 DB 쿼리)
-
-### 6. Redis
-- **이유:** 50-200명 규모에서 캐싱 레이어 불필요. Next.js 빌트인 캐싱과 React Query로 충분.
-- **나중에 고려:** 사용자 1,000명 이상 시 세션/캐싱용 검토.
-
-### 7. Microservices Architecture
-- **이유:** 모놀리식으로 시작. 복잡도 불필요. Next.js 단일 앱으로 충분.
-- **나중에 고려:** 기능 확장 시 모듈화된 서비스 분리.
-
-## Installation
-
-### 1. Core Dependencies
-
+**설치:**
 ```bash
-# Next.js 프로젝트 생성 (이미 존재)
-# npx create-next-app@latest --js --tailwind --app --eslint
-
-# Database & ORM
-npm install @prisma/client
-npm install -D prisma
-
-# Authentication
-npm install @clerk/nextjs
-
-# UI Components (shadcn/ui는 개별 설치)
-npx shadcn@latest init
-npx shadcn@latest add button input label card form dialog select
-
-# Form & Validation
-npm install react-hook-form zod @hookform/resolvers
-
-# State Management
-npm install zustand
-
-# Data Fetching
-npm install @tanstack/react-query
-
-# Date Utilities
-npm install date-fns
-
-# AI
-# OpenAI API는 서버 환경변수로 키 설정, fetch로 호출
-
-# File Upload
-npm install next-cloudinary
-
-# PDF Generation
-npm install @react-pdf/renderer
-
-# Optional: Saju Calculation
-npm install @aharris02/bazi-calculator-by-alvamind
-
-# Optional: Hangul Processing
-npm install hangul-js
+npm install octokit @octokit/webhooks @octokit/auth-app
 ```
 
-### 2. Dev Dependencies
+### 2. Browser Screenshot Capture
 
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| **modern-screenshot** | ^4.6.8 | 클라이언트 사이드 DOM-to-image 변환 | html-to-image의 활발히 유지보수되는 포크, html2canvas보다 빠름, TypeScript 네이티브 |
+
+**검토된 대안:**
+
+| Library | Version | Why Not |
+|---------|---------|---------|
+| **html2canvas** | ^1.4.1 | 느림, 번들 크기 큼, 오래된 코드베이스(2014) |
+| **dom-to-image** | ^2.6.0 | **피할 것**: 2018년 이후 유지보수 중단, 미해결 버그 |
+| **html-to-image** | ^1.11.13 | 좋지만, modern-screenshot이 성능 개선된 유지보수 포크 |
+
+**근거:**
+- **성능**: 벤치마크 결과 `modern-screenshot`이 큰 DOM 트리에서 렌더 속도와 메모리 사용 면에서 `html2canvas`를 능가합니다.
+- **최신성**: 11일 전(2026-01-31) 퍼블리시, 활발한 개발.
+- **출력 형식**: PNG, JPEG, SVG, Blob/Base64 변형 지원.
+- **번들 크기**: 경량 (~20KB gzipped vs html2canvas ~40KB).
+- **사용량**: 주간 다운로드 575,697회, npm 레지스트리에 64개 의존 패키지.
+
+**설치:**
 ```bash
-npm install -D eslint prettier eslint-config-prettier
-npm install -D husky lint-staged
+npm install modern-screenshot
 ```
 
-### 3. Database Setup
+**사용 예시:**
+```typescript
+import { domToBlob } from 'modern-screenshot';
 
-```bash
-# Prisma 초기화
-npx prisma init
-
-# 스키마 작성 후 마이그레이션
-npx prisma migrate dev --name init
-
-# Prisma Studio (DB GUI)
-npx prisma studio
+async function captureScreenshot(element: HTMLElement) {
+  const blob = await domToBlob(element, {
+    quality: 0.95,
+    scale: 2, // 레티나 디스플레이용 2배
+  });
+  return blob;
+}
 ```
 
-## Environment Variables (.env.local)
+### 3. Webhook Signature Verification (선택적 헬퍼)
 
-```bash
-# Database (운영 서버 192.168.0.5)
-DATABASE_URL="postgresql://user:password@192.168.0.5:5432/afterschool?schema=public"
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| **webhook-signature** | ^1.0.0 | 통합 웹훅 서명 검증 | 다중 제공자 지원(GitHub, Stripe, Slack), 보일러플레이트 감소 |
 
-# Clerk Authentication
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_...
-CLERK_SECRET_KEY=sk_...
-NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
-NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+**참고:** `@octokit/webhooks`가 이미 GitHub 서명 검증을 포함합니다. 이 라이브러리는 여러 제공자의 웹훅을 검증해야 할 경우(예: Stripe 결제 + GitHub 이벤트) **선택적**입니다.
 
-# OpenAI API
-OPENAI_API_KEY=sk-...
+**권장사항:** 현재는 **이 의존성을 건너뛰세요**. `@octokit/webhooks`의 내장 검증을 사용하세요. 나중에 추가 웹훅 제공자를 통합할 때만 `webhook-signature`를 추가하세요.
 
-# Cloudinary
-NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your-cloud-name
-CLOUDINARY_API_KEY=your-api-key
-CLOUDINARY_API_SECRET=your-api-secret
-```
+## GitHub Actions Enhancements
 
-## Docker Configuration
+**새 의존성 불필요.** 개선사항은 기존 GitHub Actions 기능을 활용합니다:
 
-### Dockerfile (Next.js)
+### 권장 워크플로우 개선사항
 
-```dockerfile
-FROM node:20-alpine
+| Enhancement | Implementation | Why |
+|-------------|----------------|-----|
+| **배포 환경** | 보호 규칙이 있는 GitHub Environments 사용 | 퍼블릭 저장소에서 무료, 추가 도구 없이 승인 게이트 |
+| **Docker Compose 배포** | `docker/setup-buildx-action@v3` + SSH 배포 | 이미 Docker Compose 사용 중, 기존 deploy.yml 확장 |
+| **머지 시 자동 태그** | GitHub Actions `github.ref` + `git tag` | 외부 도구 불필요, 네이티브 Git 작업 |
+| **배포 롤백** | 최근 N개 Docker 이미지 저장, 롤백 워크플로우 추가 | 기존 GitHub Container Registry 활용 |
 
-WORKDIR /app
-
-COPY package*.json ./
-RUN npm ci
-
-COPY . .
-RUN npx prisma generate
-RUN npm run build
-
-EXPOSE 3000
-
-CMD ["npm", "start"]
-```
-
-### docker-compose.yml
-
+**사용할 주요 Actions:**
 ```yaml
-version: '3.8'
-
-services:
-  web:
-    build: .
-    ports:
-      - "3000:3000"
-    environment:
-      - DATABASE_URL=postgresql://postgres:password@db:5432/afterschool
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
-      - CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
-    depends_on:
-      - db
-    volumes:
-      - ./data:/app/data
-
-  db:
-    image: postgres:16-alpine
-    environment:
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=afterschool
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-
-volumes:
-  pgdata:
+# .github/workflows/deploy.yml 개선사항
+- uses: docker/setup-buildx-action@v3
+- uses: docker/build-push-action@v5
+  with:
+    cache-from: type=gha
+    cache-to: type=gha,mode=max
 ```
 
-## Technology Versions (2026년 1월 기준)
+**환경 보호 규칙:**
+- Settings → Environments → Production으로 이동
+- 수동 승인 게이트를 위한 필수 리뷰어 추가
+- `main`만 허용하도록 브랜치 제한 설정
 
-| Technology | Recommended Version | Status |
-|------------|---------------------|--------|
-| Next.js | 15.1.x | **Stable** - App Router 성숙, React 19 지원 |
-| React | 19.0.x | **Stable** - Server Components, Actions 안정화 |
-| PostgreSQL | 16.6 | **Stable** - LTS 버전 |
-| Prisma | 7.2.x | **Stable** - PostgreSQL 16 완벽 지원 |
-| Clerk | 6.x | **Stable** - Next.js 15 지원 |
-| shadcn/ui | Latest | **Active** - 지속적 업데이트 |
-| Tailwind CSS | 3.4.x | **Stable** |
-| Zustand | 5.0.x | **Stable** |
-| TanStack Query | 5.62.x | **Stable** |
-| React Hook Form | 7.54.x | **Stable** |
-| Zod | 3.24.x | **Stable** |
-| @react-pdf/renderer | 4.2.x | **Stable** - React 19 호환 |
-| OpenAI API | gpt-4o, gpt-4o-mini | **Production** |
+## Sentry Integration Enhancements
 
-## Confidence Assessment
+**새 의존성 불필요.** `@sentry/nextjs` (v10.38.0)가 이미 설치되어 있으며 필요한 모든 기능을 제공합니다.
 
-| Category | Confidence | Rationale |
-|----------|------------|-----------|
-| Core Framework (Next.js, React, Tailwind) | **HIGH** | README 명시, 2026년 Next.js 표준 스택. 공식 문서 확인. |
-| Database (PostgreSQL) | **HIGH** | 관계형 데이터 요구사항, 다수 소스 일치. |
-| ORM (Prisma) | **MEDIUM** | Drizzle과 비교. DX 우선 선택. 성능은 규모에서 무의미. |
-| Authentication (Clerk) | **MEDIUM** | 2026년 추천 솔루션 확인. 무료 티어 제약 검증 필요. |
-| UI Components (shadcn/ui) | **HIGH** | 2026년 Next.js 사실상 표준. 공식 문서 확인. |
-| AI (OpenAI Vision) | **HIGH** | Vision API 공식 문서 확인. 가격 정책 최신. |
-| File Storage (Cloudinary) | **MEDIUM** | S3 대비 DX 우수. 무료 티어 제약 검증 필요. |
-| PDF (react-pdf/renderer) | **HIGH** | React 19 호환 확인. 활발한 커뮤니티. |
-| State Management (Zustand) | **MEDIUM** | 2026년 추천 솔루션. 프로젝트 규모 적합. |
-| Saju Library | **LOW** | npm 패키지 존재하나 최신성/정확도 검증 필요. 자체 구현 권장. |
-| Hanja Stroke Count | **LOW** | 전용 라이브러리 없음. 자체 구현 필요. |
+### 에러 집계 및 중복 제거
 
-## Special Considerations for Korean Traditional Analysis
+| Feature | Implementation | API |
+|---------|----------------|-----|
+| **커스텀 핑거프린팅** | 클라이언트 사이드 SDK 설정 | `beforeSend` 훅 |
+| **그룹핑 규칙** | Project Settings → Fingerprint Rules | 웹 UI 설정 |
+| **이슈 검색 API** | REST API `/api/0/projects/{org}/{project}/issues/` | HTTP GET with filters |
+| **이슈 생성 API** | REST API `/api/0/projects/{org}/{project}/issues/` | HTTP POST (필요시) |
 
-### 1. 사주팔자 (Saju - Four Pillars)
-- **라이브러리:** @aharris02/bazi-calculator-by-alvamind (교육용)
-- **주의사항:** 결과 정확도 검증 필요. 음력-양력 변환 정확성 중요.
-- **권장:** 자체 로직 구현 또는 OpenAI API로 전통 해석 보완
-- **타임존:** Asia/Seoul (KST) 필수
+**구현 전략:**
+1. **클라이언트 사이드 그룹핑**: `sentry.client.config.ts`에 `beforeSend` 훅 추가하여 에러 타입/컴포넌트 기반 커스텀 핑거프린트 설정.
+2. **서버 사이드 그룹핑**: Sentry UI에서 글로브 패턴을 사용하여 Fingerprint Rules 설정.
+3. **자동 이슈 생성**: GitHub 이슈 생성 전 Sentry REST API를 사용하여 이슈 존재 여부 확인(중복 제거).
 
-### 2. 성명학 (Name Analysis)
-- **한자 획수:** [Korean-Name-Hanja-Charset](https://github.com/rutopio/Korean-Name-Hanja-Charset) 데이터셋 활용
-- **구현:** JSON 매핑 테이블 자체 구축 (대법원 허용 9,389자)
-- **수리 계산:** 천격, 인격, 지격, 외격, 총격 로직 자체 구현
+**커스텀 핑거프린팅 예시:**
+```typescript
+// sentry.client.config.ts
+Sentry.init({
+  beforeSend(event, hint) {
+    // 모든 API 에러를 엔드포인트 + 상태 코드로 그룹화
+    if (event.exception?.values?.[0]?.type === 'APIError') {
+      const endpoint = event.contexts?.api?.endpoint;
+      const status = event.contexts?.api?.status;
+      event.fingerprint = ['api-error', endpoint, status];
+    }
+    return event;
+  },
+});
+```
 
-### 3. 관상/손금 (Face/Palm Reading)
-- **기술:** OpenAI Vision API (GPT-4o)
-- **방식:** 이미지 + 프롬프트로 성향 키워드 추출
-- **주의:** 전통적 해석은 프롬프트 엔지니어링 필요. 한국 관상/손금 전문가 자문 권장.
+**Sentry API 인증:**
+```typescript
+// 내부 통합 토큰 사용 (Settings → Developer Settings에서 생성)
+const SENTRY_AUTH_TOKEN = process.env.SENTRY_AUTH_TOKEN;
+const headers = {
+  'Authorization': `Bearer ${SENTRY_AUTH_TOKEN}`,
+};
+```
 
-### 4. MBTI
-- **라이브러리:** 불필요
-- **구현:** 16개 유형 설문 + 점수 계산
-- **해석:** OpenAI API로 맞춤형 해석 생성
+## Next.js API Route Considerations
+
+### 웹훅 핸들러 패턴 (App Router)
+
+**파일:** `app/api/github/webhooks/route.ts`
+
+**구현:**
+```typescript
+import { Webhooks } from '@octokit/webhooks';
+import { NextRequest, NextResponse } from 'next/server';
+
+const webhooks = new Webhooks({
+  secret: process.env.GITHUB_WEBHOOK_SECRET!,
+});
+
+// 이벤트 핸들러 등록
+webhooks.on('issues.opened', async ({ payload }) => {
+  // 이슈 오픈 이벤트 처리
+});
+
+export async function POST(request: NextRequest) {
+  const body = await request.text(); // 서명 검증용 원본 본문
+  const signature = request.headers.get('x-hub-signature-256');
+
+  if (!signature) {
+    return NextResponse.json({ error: 'Missing signature' }, { status: 401 });
+  }
+
+  try {
+    await webhooks.verifyAndReceive({
+      id: request.headers.get('x-github-delivery')!,
+      name: request.headers.get('x-github-event') as any,
+      signature,
+      payload: body,
+    });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
+  }
+}
+```
+
+**중요:** Next.js 15 App Router는 서명 검증을 위해 **원본 요청 본문**에 액세스해야 합니다. 검증 전에 `await request.json()`을 사용하지 마세요.
+
+## Existing Stack (변경 불필요)
+
+이 기존 의존성들은 이미 새 기능을 지원합니다:
+
+| Technology | Version | Used For |
+|------------|---------|----------|
+| **@sentry/nextjs** | ^10.38.0 | 에러 추적, 이미 통합됨 |
+| **next** | ^15.5.10 | 웹훅용 App Router API 라우트 |
+| **@prisma/client** | ^7.3.0 | GitHub 이슈 메타데이터, 배포 이력 저장 |
+| **zod** | ^4.3.6 | 웹훅 페이로드 검증 |
+| **pino** | ^10.3.0 | 웹훅 이벤트 구조화 로깅 |
+
+## Database Schema Additions
+
+**새 데이터베이스 기술 불필요.** 기존 PostgreSQL 스키마 확장:
+
+```prisma
+// prisma/schema.prisma 추가사항
+
+model GitHubIssue {
+  id            String   @id @default(cuid())
+  issueNumber   Int
+  issueUrl      String
+  title         String
+  state         String   // "open" | "closed"
+  createdBy     String   // "auto" | userId
+  sentryIssueId String?  // Sentry 이슈 링크
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([issueNumber])
+  @@index([sentryIssueId])
+}
+
+model Deployment {
+  id            String   @id @default(cuid())
+  version       String
+  commitSha     String
+  deployedBy    String   // GitHub 사용자명
+  status        String   // "pending" | "success" | "failed"
+  environment   String   // "production" | "staging"
+  deployedAt    DateTime @default(now())
+
+  @@index([commitSha])
+  @@index([environment, deployedAt])
+}
+```
+
+## Environment Variables Required
+
+`.env` 및 `.env.example`에 추가:
+
+```bash
+# GitHub Integration
+GITHUB_APP_ID=123456
+GITHUB_APP_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----\n..."
+GITHUB_APP_INSTALLATION_ID=78910
+GITHUB_WEBHOOK_SECRET=your_webhook_secret_here
+GITHUB_REPO_OWNER=your-org
+GITHUB_REPO_NAME=ai-afterschool
+
+# Sentry API (자동 이슈 생성용)
+SENTRY_AUTH_TOKEN=sntrys_your_token_here
+SENTRY_ORG=your-org
+SENTRY_PROJECT=ai-afterschool
+```
+
+## Installation Commands
+
+```bash
+# 핵심 GitHub 통합
+npm install octokit@^5.0.5 @octokit/webhooks@^14.0.0 @octokit/auth-app@^8.0.0
+
+# 브라우저 스크린샷
+npm install modern-screenshot@^4.6.8
+
+# 타입 정의 (필요시, 대부분 패키지가 타입 포함)
+# 추가 @types 패키지 불필요 - 모두 TypeScript 네이티브
+```
+
+## Anti-Recommendations
+
+### 추가하지 말 것
+
+| Technology | Why Not |
+|------------|---------|
+| **Probot** | 단순 웹훅 처리에 과함, Express.js 의존성 추가 |
+| **@octokit/rest** | 통합 `octokit` 패키지로 대체됨 |
+| **html2canvas** | 느림, 번들 크기 큼, 오래된 코드베이스 |
+| **dom-to-image** | 유지보수 중단, 알려진 버그 |
+| **GitHub GraphQL API (직접)** | `octokit`이 이미 GraphQL 지원 포함 |
+| **별도 웹훅 서버** | Next.js API 라우트가 네이티브로 웹훅 처리 |
+| **추가 CI/CD 도구** | 현재 요구사항에 GitHub Actions로 충분 |
+
+## Integration Points
+
+### 1. GitHub 이슈 생성 플로우
+```
+사용자가 "이슈 보고" 클릭
+→ 스크린샷 캡처 (modern-screenshot)
+→ Cloudinary에 업로드 (기존)
+→ GitHub 이슈 생성 (octokit)
+→ 메타데이터 저장 (Prisma)
+→ Sentry 이슈 링크 (선택)
+```
+
+### 2. Auto DevOps 플로우
+```
+PR이 main에 머지됨
+→ GitHub Actions 트리거
+→ Docker 이미지 빌드
+→ GHCR에 푸시
+→ 운영 서버에 배포 (SSH)
+→ 배포 기록 (Prisma)
+→ GitHub 이슈에 포스트 (octokit)
+```
+
+### 3. 에러-to-이슈 플로우
+```
+Sentry 에러 캡처
+→ 중복 확인을 위한 핑거프린트 체크 (Sentry API)
+→ 새 에러 타입인 경우:
+  → GitHub 이슈 생성 (octokit)
+  → Sentry 이슈 ID 링크 (Prisma)
+  → "auto-generated" 라벨 추가
+```
+
+## Migration Considerations
+
+### 단계별 롤아웃
+
+| Phase | Changes | Risk |
+|-------|---------|------|
+| **Phase 1** | 의존성 추가, 기본 GitHub API 통합 | 낮음 - 읽기 전용 작업 |
+| **Phase 2** | 웹훅 핸들러, 이슈 생성 | 중간 - 쓰기 작업 |
+| **Phase 3** | Auto DevOps 파이프라인 | 중간 - 배포 자동화 |
+| **Phase 4** | 에러-to-이슈 자동화 | 낮음 - 선택적 기능 |
+
+### 롤백 계획
+
+모든 새 기능은 **추가적**이며, 중단 변경이 아닙니다:
+- 의존성 제거: `npm uninstall octokit @octokit/webhooks @octokit/auth-app modern-screenshot`
+- 웹훅 엔드포인트 비활성화: 라우트 핸들러 주석 처리
+- GitHub Actions 개선사항 비활성화: 워크플로우 파일 되돌리기
+
+## Performance Considerations
+
+| Concern | Impact | Mitigation |
+|---------|--------|-----------|
+| **스크린샷 번들 크기** | +20KB gzipped | 코드 스플릿, "이슈 보고" 클릭 시에만 지연 로드 |
+| **GitHub API 레이트 제한** | 5,000 요청/시간 (인증됨) | 이슈 메타데이터 캐시, 업데이트는 웹훅 사용 |
+| **웹훅 처리 시간** | 이벤트당 <100ms | 비동기 처리, 즉시 200 반환 |
+| **Sentry API 호출** | <100 호출/일 | 중복 체크 배치, 핑거프린트 캐시 |
+
+## Security Considerations
+
+| Concern | Solution |
+|---------|----------|
+| **GitHub App 프라이빗 키** | 환경 변수에 저장, 절대 커밋하지 않음 |
+| **웹훅 시크릿 검증** | 처리 전 항상 서명 검증 |
+| **Sentry 인증 토큰** | 최소 범위의 내부 통합 토큰 사용 |
+| **스크린샷 데이터 노출** | 캡처 전 DOM 정제(민감 필드 제거) |
+
+## Testing Strategy
+
+| Component | Test Type | Tool |
+|-----------|-----------|------|
+| GitHub API 통합 | 단위 테스트 | Vitest + mocked Octokit |
+| 웹훅 핸들러 | 통합 테스트 | Playwright + webhook fixtures |
+| 스크린샷 캡처 | E2E 테스트 | Playwright (브라우저 컨텍스트) |
+| GitHub Actions 워크플로우 | 수동 테스트 | 스테이징 환경에서 먼저 테스트 |
+
+## Cost Analysis
+
+| Service | Current | New | Increase |
+|---------|---------|-----|----------|
+| **GitHub Actions** | 무료 (퍼블릭 저장소) | 무료 | $0 |
+| **GitHub API** | 무료 | 무료 | $0 |
+| **Sentry** | 현재 플랜 | 현재 플랜 | $0 |
+| **npm 패키지** | 무료 | 무료 | $0 |
+| **합계** | - | - | **$0** |
+
+**참고:** 모든 추가사항은 무료 티어 또는 기존 유료 서비스를 사용합니다.
+
+## Monitoring & Observability
+
+기존 Sentry/Pino 로깅에 추가:
+
+```typescript
+// GitHub API 호출 로깅
+logger.info({
+  action: 'github.issue.created',
+  issueNumber: issue.number,
+  issueUrl: issue.html_url,
+  userId: session.user.id,
+});
+
+// 웹훅 이벤트 로깅
+logger.info({
+  action: 'github.webhook.received',
+  event: event.name,
+  deliveryId: deliveryId,
+});
+
+// 배포 이벤트 로깅
+logger.info({
+  action: 'deployment.completed',
+  version: version,
+  environment: 'production',
+  duration: deploymentDuration,
+});
+```
 
 ## Sources
 
-### Official Documentation (HIGH Confidence)
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Prisma Documentation](https://www.prisma.io/docs)
-- [Clerk Documentation](https://clerk.com/docs)
-- [shadcn/ui Documentation](https://ui.shadcn.com/docs)
-- [OpenAI API Pricing](https://openai.com/api/pricing/)
-- [React Hook Form](https://react-hook-form.com/)
-- [Zod](https://zod.dev/)
+### 공식 문서
+- [Octokit SDK Documentation](https://github.com/octokit/octokit.js/) - HIGH 신뢰도
+- [@octokit/webhooks Documentation](https://github.com/octokit/webhooks.js) - HIGH 신뢰도
+- [modern-screenshot npm page](https://www.npmjs.com/package/modern-screenshot) - MEDIUM 신뢰도
+- [GitHub Actions Docker Documentation](https://docs.docker.com/build/ci/github-actions/) - HIGH 신뢰도
+- [Sentry Fingerprint Rules](https://docs.sentry.io/concepts/data-management/event-grouping/fingerprint-rules/) - HIGH 신뢰도
+- [GitHub Actions Deployment Environments](https://docs.github.com/actions/deployment/about-deployments/deploying-with-github-actions) - HIGH 신뢰도
 
-### Research & Comparisons (MEDIUM Confidence)
-- [Top 5 authentication solutions for Next.js 2026 — WorkOS](https://workos.com/blog/top-authentication-solutions-nextjs-2026)
-- [Prisma vs Drizzle ORM in 2026 — Medium](https://medium.com/@thebelcoder/prisma-vs-drizzle-orm-in-2026-what-you-really-need-to-know-9598cf4eaa7c)
-- [PostgreSQL vs MySQL vs MongoDB in 2026 — DEV](https://dev.to/pockit_tools/postgresql-vs-mysql-vs-mongodb-in-2026-the-honest-comparison-nobody-asked-for-5fkc)
-- [State Management in 2025: Context, Redux, Zustand, or Jotai](https://dev.to/hijazi313/state-management-in-2025-when-to-use-context-redux-zustand-or-jotai-2d2k)
-- [Top 6 Open-Source PDF Libraries for React](https://blog.react-pdf.dev/6-open-source-pdf-generation-and-modification-libraries-every-react-dev-should-know-in-2025)
+### 비교 및 분석
+- [Best HTML to Canvas Solutions in 2025](https://portalzine.de/best-html-to-canvas-solutions-in-2025/) - MEDIUM 신뢰도
+- [html2canvas vs modern-screenshot comparison](https://npm-compare.com/html2canvas,modern-screenshot,puppeteer,screenshot-desktop) - MEDIUM 신뢰도
+- [GitHub Actions Deployment Best Practices](https://codefresh.io/learn/github-actions/deployment-with-github-actions/) - MEDIUM 신뢰도
+- [Next.js GitHub Webhook Handler Guide](https://www.karimshehadeh.com/blog/posts/GithubWebhooksAndNextJS) - MEDIUM 신뢰도
 
-### Community Resources (MEDIUM Confidence)
-- [Next.js School Management System Template — GitHub](https://github.com/zxmodren/Nextjs-SchoolManagementSystem-Template)
-- [Best Practices of Next.js Development in 2026](https://www.serviots.com/blog/nextjs-development-best-practices)
-- [Cloudinary with Next.js](https://cloudinary.com/blog/next-js-cloudinary-upload-transform-moderate-images)
-
-### NPM Packages (Verified)
-- [@aharris02/bazi-calculator-by-alvamind](https://www.npmjs.com/package/@aharris02/bazi-calculator-by-alvamind)
-- [Korean-Name-Hanja-Charset — GitHub](https://github.com/rutopio/Korean-Name-Hanja-Charset)
+### 커뮤니티 리소스
+- [GitHub Actions Docker Compose Deployment](https://ecostack.dev/posts/automated-docker-compose-deployment-github-actions/) - MEDIUM 신뢰도
+- [Sentry Custom Fingerprints](https://blog.sentry.io/setting-up-custom-fingerprints/) - HIGH 신뢰도 (공식 블로그)
 
 ---
 
-**Last Updated:** 2026-01-27
-**Research Mode:** Ecosystem (Stack)
-**Overall Confidence:** MEDIUM-HIGH (핵심 스택 HIGH, 한국 전통 분석 라이브러리 LOW)
+## Confidence Assessment
+
+| Area | Level | Reason |
+|------|-------|--------|
+| GitHub API (octokit) | **HIGH** | 공식 문서, npm 패키지 검증, 버전 확인 |
+| Webhooks (@octokit/webhooks) | **HIGH** | 공식 패키지, 널리 사용됨(주간 다운로드 504K) |
+| Screenshot (modern-screenshot) | **MEDIUM** | npm 검증, 주간 다운로드 575K, 하지만 공식 문서 제한적 |
+| GitHub Actions 개선사항 | **HIGH** | 공식 GitHub 문서, 확립된 패턴 |
+| Sentry 통합 | **HIGH** | 이미 Sentry 사용 중, 공식 API 문서, 기존 통합 |
+
+**전체 평가:** HIGH 신뢰도. 모든 권장사항이 공식 패키지, 검증된 버전, 입증된 패턴을 사용합니다. 스크린샷 라이브러리만 커뮤니티 포크라는 이유로 MEDIUM 신뢰도이지만, 강력한 채택 지표와 활발한 유지보수를 보여줍니다.
