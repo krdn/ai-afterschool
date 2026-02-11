@@ -2,6 +2,8 @@
 
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import remarkBreaks from "remark-breaks"
+import rehypeRaw from "rehype-raw"
 import rehypeHighlight from "rehype-highlight"
 import type { Components } from "react-markdown"
 
@@ -95,10 +97,10 @@ type Props = {
 
 export function MarkdownRenderer({ content, className = "" }: Props) {
   return (
-    <div className={`markdown-rendered text-sm text-gray-700 leading-7 ${className}`}>
+    <div className={`markdown-rendered prose prose-sm max-w-none text-gray-700 ${className}`}>
       <ReactMarkdown 
-        remarkPlugins={[remarkGfm]} 
-        rehypePlugins={[rehypeHighlight]}
+        remarkPlugins={[remarkGfm, remarkBreaks]} 
+        rehypePlugins={[rehypeRaw, rehypeHighlight]}
         components={components}
       >
         {content}
