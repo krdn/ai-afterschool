@@ -7,6 +7,7 @@ import { Clock, ChevronDown, ChevronUp, MessageSquare } from "lucide-react"
 import { getSajuAnalysisHistoryAction } from "../../app/(dashboard)/students/[id]/saju/actions"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { MarkdownRenderer } from "@/components/ui/markdown-renderer"
 
 type HistoryItem = {
   id: string
@@ -155,8 +156,8 @@ export function SajuHistoryPanel({ studentId }: Props) {
                     {item.interpretation ? (
                       <div className="rounded-md border border-gray-200 bg-white p-3">
                         <p className="text-[10px] text-gray-400 font-medium mb-1">해석 결과</p>
-                        <div className="text-xs leading-5 text-gray-700 whitespace-pre-wrap max-h-[300px] overflow-y-auto">
-                          {item.interpretation}
+                        <div className="max-h-[300px] overflow-y-auto">
+                          <MarkdownRenderer content={item.interpretation} />
                         </div>
                       </div>
                     ) : (
