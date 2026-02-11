@@ -5,297 +5,115 @@
 See: .planning/PROJECT.md (updated 2026-02-11)
 
 **Core value:** 학생 정보 통합 관리를 기반으로 AI 성향 분석 및 맞춤형 학습/진로 제안 제공
-**Current focus:** v3.0 Issue Management & Auto DevOps Pipeline
+**Current focus:** v3.0 Issue Management & Auto DevOps Pipeline - Phase 29 (Database & GitHub API Foundation)
 
 ## Current Position
 
 Milestone: v3.0 Issue Management & Auto DevOps Pipeline
-Phase: Not started (defining requirements)
-Status: Defining requirements
-Last activity: 2026-02-11 — Milestone v3.0 started
+Phase: 29 of 34 (Database & GitHub API Foundation)
+Plan: Ready to plan Phase 29
+Status: Roadmap created, ready for planning
+Last activity: 2026-02-11 — v3.0 roadmap created with 6 phases (29-34)
 
-Progress: [░░░░░░░░░░░░░░░░░░░░░░░░] 0%
+Progress: [████████████████████████░░░░░░░░░░░░░░░░░░░░] 82.8% (162/195+ plans across v1.0-v3.0)
 
-**v2.1.1 E2E Test Compliance** ✓ COMPLETE (2026-02-07)
-- Phase 23: data-testid Infrastructure (✓ complete)
-- Phase 24: Missing Routes Creation (✓ complete)
-- Phase 25: Student, Analysis & Report UI Enhancement (✓ complete)
-- Phase 26: Counseling & Matching UI Enhancement (✓ complete)
-- Phase 27: RBAC, Auth & Error Handling (✓ complete)
-- Phase 28: Integration Verification & Test Alignment (✓ complete)
-  - 28-01: 테스트 실패 분석 (✓ complete)
-  - 28-02: data-testid 누락 보완 (✓ complete)
-  - 28-03: 테스트 안정성 개선 (✓ complete)
-  - 28-04: 테스트 인프라 확립 (✓ complete)
-  - 28-05-A: data-testid 셀렉터 추가 (✓ complete)
-  - 28-05-B: 테스트 전용 API 엔드포인트 구현 (✓ complete)
-  - 28-05-C: 타임아웃 최적화 및 테스트 실행 (✓ complete)
-  - 28-06: Quick Wins - 미구현 테스트 skip 처리 (✓ complete)
+**v3.0 Issue Management & Auto DevOps Pipeline** 🚧 IN PROGRESS
+- Phase 29: Database & GitHub API Foundation (ready to plan)
+- Phase 30: Issue UI & Screenshot (not started)
+- Phase 31: Sentry Error Auto-Collection (not started)
+- Phase 32: Webhook & Issue Sync (not started)
+- Phase 33: CI/CD Pipeline (not started)
+- Phase 34: Issue Dashboard & Integration Testing (not started)
 
-**Summary:**
-- Requirements: 34/34 (100%)
-- Phases: 6/6 complete
-- Plans: 27/27 complete
-- E2E Test Result: 16-21/40 passing (40-53% on implemented tests, 20-26% overall)
-- Tests Skipped: 40 (미구현 라우트/기능)
-- Matching data-testid Infrastructure: 9개 추가
-- Files: 254 modified, 28,600+ lines added
+**Coverage:**
+- Requirements: 31/31 (100%) mapped to phases
+- Phases: 6 phases (29-34)
+- Phase 29: 8 requirements (INFRA-01~05, GH-01~03)
+- Phase 30: 5 requirements (ISSUE-01~05)
+- Phase 31: 5 requirements (ERR-01~05)
+- Phase 32: 3 requirements (GH-04~06)
+- Phase 33: 5 requirements (CICD-01~05)
+- Phase 34: 5 requirements (DASH-01~05)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 154 (v1.0-v2.1)
-- Average duration: ~4.1 min
-- Total execution time: ~10.5 hours
+- Total plans completed: 162 (v1.0-v2.1.1)
+- Average duration: ~4.3 min
+- Total execution time: ~11.6 hours
 
-**By Phase:**
+**By Milestone:**
 
-| Phase | Plans | Total | Avg/Plan |
-|-------|-------|-------|----------|
-| 1-7 (v1.0) | 36 | 254 min | ~7 min |
-| 8-10 (v1.1) | 22 | ~102 min | ~5 min |
-| 11 (v2.0) | 7 | 26 min | ~4 min |
-| 12 (v2.0) | 8 | 20 min | ~2.5 min |
-| 13 (v2.0) | 8 | 13 min | ~1.6 min |
-| 14 (v2.0) | 9 | 25 min | ~2.8 min |
-| 15 (v2.0) | 8 | 35 min | ~4.4 min |
-| 16 (v2.1) | 1 | 2 min | ~2 min |
-| 17 (v2.1) | 4 | 8 min | ~2 min |
-| 18 (v2.1) | 5 | 14 min | ~3 min |
-| 19 (v2.1) | 3 | 22 min | ~7 min |
-| 20 (v2.1) | 3 | 7 min | ~2.3 min |
-| 21 (v2.1) | 7 | 109 min | ~15.6 min |
-| 22 (v2.1) | 7 | 27 min | ~4 min |
-| 23 (v2.1.1) | 2 | 5 min | ~2.5 min |
-| 24 (v2.1.1) | 4 | ~9 min | ~2.3 min |
-| 25 (v2.1.1) | 4 | ~25 min | ~6.3 min |
-| 26 (v2.1.1) | 4 | ~38 min | ~9.5 min |
-| 27 (v2.1.1) | 4 | ~17 min | ~4.3 min |
-| 28 (v2.1.1) | 7 | ~58 min | ~8.3 min |
+| Milestone | Plans | Total | Avg/Plan |
+|-----------|-------|-------|----------|
+| v1.0 MVP | 36 | 254 min | ~7 min |
+| v1.1 Production | 22 | ~102 min | ~5 min |
+| v2.0 Teacher Mgmt | 40 | ~119 min | ~3 min |
+| v2.1 Counseling | 30 | ~189 min | ~6.3 min |
+| v2.1.1 E2E Test | 34 | ~208 min | ~6.1 min |
+| v3.0 DevOps | 0 | 0 min | TBD |
 
 **Recent Trend:**
-- v2.0 complete: 40 plans in ~119 min (~3 min/plan average)
-- v2.1 complete: 30 plans in ~189 min (~6.3 min/plan average)
-- v2.1.1 complete: 32 plans in ~178 min (~5.6 min/plan average)
-- Velocity: v1.0 (7 min) → v2.0 (~3 min) → v2.1 (~6 min) → v2.1.1 (~5.6 min)
+- v2.0 velocity: ~3 min/plan (improved)
+- v2.1 velocity: ~6.3 min/plan (comprehensive features)
+- v2.1.1 velocity: ~6.1 min/plan (test infrastructure)
 
-*Updated after Phase 28-06 completion*
+*Updated after v3.0 roadmap creation*
 
 ## Accumulated Context
 
 ### Decisions
 
 Decisions are logged in PROJECT.md Key Decisions table.
-Recent decisions affecting current work:
+Recent decisions affecting v3.0:
 
-**v2.1.1 결정:**
-- [28-06] 40개 테스트 skip 처리로 실제 구현 기능 통과율 정확 측정: 40-53% (16-21/40 implemented) vs 기존 20-26% (16-21/80 total)
-- [28-06] 테스트 코드 삭제 없이 skip 처리: 향후 기능 구현 시 skip 제거로 즉시 활성화, 테스트 자산 보존
-- [28-06] Matching 컴포넌트 data-testid 선제 추가: 기능 미구현이지만 테스트 인프라 선제 구축으로 향후 개발 효율성 향상
-- [28-06] TEST-COVERAGE.md Phase 28-06 섹션 문서화: Skip 처리 내역, 예상 결과, 향후 개선 방향 명확히 기록
-- [28-04] auto_generated 테스트 제외: 문제 많은 자동 생성 테스트들을 testIgnore로 제외하여 메인 테스트에 집중
-- [28-04] E2E 테스트 커버리지 기준선 확립: 87개 테스트 중 18개 통과 (20.7%), 인증 모듈 80% 통과율 달성
-- [28-04] 테스트 실패 원인 분석 체계화: 셀렉터 누락 (35), 타임아웃 (15), API/라우트 부재 (5), 기타 (3)로 분류
-- [28-03] 조건부 요소 체크 패턴: count() > 0 확인 후 isVisible() 실행로 선택적 요소 처리
-- [28-03] 대체 선택자(Fallback) 패턴: data-testid 없을 때 role/text 기반 선택자 사용으로 호환성 유지
-- [28-03] seed 데이터 계정 일치: 테스트 계정을 prisma/seed.ts의 실제 계정(admin@afterschool.com, test@afterschool.com)과 정확히 일치
-- [28-03] 세션 쿠키 검증: 로그인 함수에서 session 쿠키 존재 확인으로 인증 상태 검증
-- [28-03] 건너뛴 테스트 우선순위 분류: 이메일 서비스(중) > 세션/레이트리미팅(하)로 재활성화 계획 수립
-- [28-02] data-tab 속성 추가: 학생 상세 탭에 data-tab 속성 추가로 탭 선택자 개선
-- [28-02] AdminTabsContent testid 매핑: 탭 값에 따른 동적 testid 할당으로 통합 admin 페이지 지원
-- [28-02] 통계 카드 testid 패턴: counseling-stat-card-{type} 패턴으로 일관성 유지
-- [28-02] 동적 매칭 ID: teacher-match-{id} 패턴으로 각 선생님 매칭 카드 식별
-- [28-01] E2E 테스트 실패 유형 체계적 분석: 120개 테스트 중 71개 실패를 5가지 카테고리(로그인/인증, 셀렉터, 타임아웃, API 응답, 내비게이션)로 분류
-- [28-01] 우선순위 기반 수정 순서: 로그인/인증(25개) > 셀렉터(18개) > 타임아웃(15개) > API(8개) > 내비게이션(5개)
-- [28-01] 포트 3000 필수 사용: 테스트가 localhost:3000으로 접속하므로 개발 서버가 반드시 포트 3000 사용해야 함
-- [27-01] AccessDeniedPage Client Component 패턴: Toast는 Client Component에서만 작동하므로 useEffect로 마운트 시 toast.error 호출
-- [27-01] Server Action 에러 반환 패턴: Promise<void> 대신 Promise<{ success?: boolean; error?: string }>로 명확한 에러 메시지 반환
-- [27-01] MANAGER/TEACHER 역할 접근 제어: Teachers 페이지 접근 차단, AccessDeniedPage로 UI 제공
-- [27-02] 공통 404 컴포넌트 구조: Search 아이콘과 회색 배경 사용, 향후 403/401/500 확장 가능한 유연한 구조 유지
-- [27-02] Admin 페이지 TEAM_LEADER 접근: 모든 Admin 탭 허용하되 getRBACPrisma()로 자신의 팀 데이터만 접근 가능 (CONTEXT.md 결정 준수)
-- [27-02] Server Action 레벨 RBAC: getSystemLogs, getAuditLogs, getBackupList에서 getRBACPrisma() 사용하여 자동 팀 필터링
-- [27-02] Next.js 15 not-found.js 패턴: 라우트 레벨 404 처리를 위해 not-found.tsx 파일 생성
-- [27-03] Result 타입 반환 패턴: Server Action에서 void 대신 { success: boolean; error?: string } 반환 타입 사용
-- [27-03] 10MB 파일 크기 제한 명시적 설정: Cloudinary CldUploadWidget의 maxFileSize 옵션과 클라이언트 검증으로 이중 제한
-- [27-03] Toast ID 패턴으로 E2E 테스트 지원: 모든 Toast에 id 옵션 추가로 E2E 테스트에서 특정 Toast 노출 검증 가능
-- [27-04] 토큰 부분 마스킹: 개인정보 보호를 위해 로그에 토큰 전체가 아닌 앞 8자리만 기록
-- [27-04] 로그 레벨 분리: 유효하지 않은 토큰은 WARN(의심스러운 활동), 만료/사용된 토큰은 INFO(일반적인 흐름)
-- [27-04] Inline 재발송 폼: 별도 페이지 이동 없이 같은 컴포넌트에서 이메일 입력 및 재발송 처리
-- [28-05-A] Admin/Analysis/Student/Counseling data-testid 추가: 로그 테이블, 탭 트리거, 모달 등 주요 요소에 testid 추가
-- [28-05-A] 테스트 셀렉터 data-testid 기반으로 변경: student.spec.ts, analysis.spec.ts의 text 기반 셀렉터를 data-testid로 변경, fallback 로직 유지
-- [28-05-B] 테스트 전용 API 엔드포인트 구현: /api/test/reset (POST), /api/teams (GET/POST)로 테스트 데이터 관리 및 팀 조회 기능 제공
-- [28-05-B] isTest 플래그 미구현 상태 인지: test/reset 엔드포인트 구조는 완성되어 있으나 실제 데이터 삭제는 향후 isTest 필드 추가 시 활용 가능하도록 설계됨
-- [28-05-C] 타임아웃 최적화는 주요 문제가 아님: 미구현 라우트/기능이 PRIMARY BLOCKER (30+ 테스트 실패 원인)
-- [28-05-C] 50% 통과율 목표 미달성: 현재 20-26% 통과율, 인증 모듈은 안정적(80%)
-- [28-05-C] 향후 개선 방향: testid 추가(Quick wins)와 라우트 구현(Medium effort)으로 50%+ 달성 가능
-- [v2.1.1] E2E 테스트 호환성 우선: 새 기능 추가 없이 기존 구현의 테스트 안정성 확보
-- [v2.1.1] data-testid 일괄 적용: 모든 주요 컴포넌트에 테스트 가능한 셀렉터 추가
-- [v2.1.1] data-testid 네이밍 컨벤션: kebab-case 사용 (예: student-name, analysis-learning)
-- [v2.1.1] data-testid 네이밍 패턴: [component]-[element] 형식 (예: calendar-view, counseling-modal)
-- [v2.1.1] 조건부 data-testid 사용: 동적 컨텐츠(MBTI/학습 스타일)에 조건부 testid 적용
-- [v2.1.1] 누락 라우트 생성: 테스트에서 참조하는 모든 페이지 구현
-- [23-01] 최소 변경 원칙: 기존 UI/스타일 변경 없이 data-testid 속성만 추가
-- [25-01] 이미지 alt 속성 패턴: '{사용자명}의 {이미지종류} 사진' 형식으로 접근성 향상
-- [25-01] 빈 상태 testid 패턴: data-testid='empty-{context}-result'로 E2E 테스트 지원
-- [25-01] Client-side 리다이렉트: Client Component에서 useRouter + toast로 사용자 피드백 제공
-- [25-02] 상태 기반 서브탭: URL 해시 없이 useState로 관리하여 URL 복잡도 최소화
-- [25-02] 통일된 에러 메시지: '{분석 유형} 분석에 실패했습니다. (원인: {error}) 다시 시도해주세요.'
-- [25-02] 재시도 버튼 스타일: Button 컴포넌트 + variant='outline' + RefreshCw/Loader2 아이콘
-- [25-02] 서버 액션 데이터 페칭: 클라이언트 컴포넌트에서 useEffect로 서버 액션 호출하여 데이터 조회
-- [25-04] Toast ID 패턴: toast.success/error에 id 옵션 추가로 E2E 테스트에서 노출 검증 가능
-- [25-03] 현재 스키마 제약사항으로 최신 분석 1개만 표시: 각 분석 모델이 @unique 제약조건으로 인해 학생당 1개 레코드만 존재. 진정한 이력 기능은 별도 이력 테이블이 필요 (향후 개선)
-- [25-03] History Dialog 패턴: 목록 → 상세 보기 2단계 모달 구조로 이력 조회
-- [25-03] Async Dialog Loading: 모달 열릴 때 데이터 lazy loading
-- [23-01] ProviderSelect 컴포넌트 UI only: 기본 제공자 선택 드롭다운 UI만 구현, 실제 동작은 추후 Phase에서 구현
-- [23-01] DateRangeSelector UI only: 날짜 범위 선택기 UI만 구현, 실제 필터링은 추후 Phase에서 구현
-- [24-01] 감사 로그와 시스템 로그 분리: 사용자별 추적(teacherId, IP, User-Agent)이 필요한 감사 로그와 애플리케이션 전체 이벤트 기록이 목적인 시스템 로그를 별도 모델로 분리
-- [24-01] @@map을 사용한 snake_case 테이블명: 데이터베이스 관리 일관성을 위해 audit_logs, system_logs로 지정
-- [24-01] Server-side redirect 패턴: Server Component에서 Next.js redirect 함수 사용하여 SEO 친화적이고 클라이언트 사이드 리다이렉트보다 빠름
-- [24-03] 탭 기반 Admin 통합: 단일 /admin 페이지에서 6개 탭(LLM 설정, 토큰 사용량, 시스템 상태, 시스템 로그, 데이터베이스, 감사 로그)을 제공하는 통합 UI로 변경
-- [24-03] AdminTabsWrapper Client Component 분리: 기존 Tabs 컴포넌트는 value와 onValueChange prop이 필요하여 Server Component에서 사용 불가, AdminTabsWrapper Client Component를 생성하여 탭 상태를 관리
-- [24-03] Health API 통합: 시스템 상태 탭에서 DB, Storage, Backup 상태를 표시하기 위해 기존 /api/health 엔드포인트를 호출하여 상태 데이터 가져오기
-- [26-02] Dashboard page creation: /dashboard 라우트가 존재하지 않아 새로 생성하여 위젯 배치
-- [26-02] Alert + Collapsible 위젯 패턴: shadcn/ui Alert와 Radix UI Collapsible 조합으로 요약 + 펼침 목록 UI
-- [26-02] date-fns 한국어 로케일: ko locale로 M월 d일 E요일 HH:mm 형식의 한국어 날짜 표시
-- [26-02] Conditional widget rendering: 예약이 있는 경우에만 위젯 표시하여 불필요한 UI 제거
-- [26-02] Server-side 7일 범위 필터링: startOfDay(now) ~ endOfDay(addDays(7))으로 정확한 날짜 범위 계산
-- [26-01] 통합 검색 파라미터: query로 학생 이름, 상담 요약을 Prisma OR 쿼리로 검색
-- [26-01] 명시적 검색 패턴: Enter 키 또는 검색 버튼 클릭 시에만 검색 실행 (즉시 검색 아님)
-- [26-01] URL 상태 관리: URLSearchParams로 필터 상태 유지하여 북마크/공유 가능
-- [26-01] 기존 studentName 파라미터와 호환성 유지
-- [26-04] 60점 기준 성공/실패 분류: 배정 궁합 점수 60점 이상/미만으로 성공/실패 카운트
-- [26-04] ExtendedDatePreset 타입 호환성: 기존 DatePreset(1M, 3M, 6M, 1Y) 유지하며 TODAY, 7D, 30D, ALL 추가
-- [26-04] DateRangeFilter 커스텀 프리셋: presets, labels props로 각 사용처마다 다른 프리셋 조합 지원
-- [26-04] PerformanceTrendChart 데이터 위임: onDataRequest prop으로 데이터 페칭 로직을 부모에 위임
-- [26-03] change-formatter.ts 유틸리티 분리: 변경 내용 포맷팅 로직을 별도 파일로 분리하여 재사용성 확보 (formatChangesForDiff, formatChangesSummary)
-- [26-03] Server/Client Component 분리: 페이지는 Server Component로 데이터 페칭, 탭 상태는 Client Component에서 관리
-- [26-03] AuditLog entityType='Student' 필터링: 학생 배정 변경만 추적하도록 Prisma 쿼리에 entityType 조건 추가
-- [26-03] 날짜 범위 필터 종료일 처리: endDate에 23:59:59 설정하여 하루 끝까지 포함
+**v3.0 Phase Structure (Roadmap):**
+- Phase 29-34 order follows dependency graph: DB→API→UI→Sentry→Webhook→CI/CD→Dashboard
+- Phase 29 addresses INFRA & GH foundation (8 requirements)
+- Phase 30 addresses user-facing issue reporting (5 requirements)
+- Phase 31 addresses automatic error collection (5 requirements)
+- Phase 32 addresses GitHub sync bidirectional (3 requirements)
+- Phase 33 addresses deployment automation (5 requirements)
+- Phase 34 addresses visibility & integration (5 requirements)
 
-**v2.1 결정:**
-- [v2.1] 선생님 중심 운영: 학부모 계정 없이 선생님이 모든 상담 관리
-- [v2.1] 내부 기록 전용: 외부 알림 없이 시스템에만 기록
-- [v2.1] ParentCounselingReservation 별도 모델: 기존 CounselingSession과 분리하여 예약 전용 책임 부여
-- [v2.1] react-day-picker + shadcn/ui Calendar: 날짜 선택 UX 개선 (45KB gzipped)
-- [16-01] Student FK 간접 격리: Parent/Reservation은 Student를 참조하여 기존 RBAC Extension 재사용
-- [16-01] 주 연락처 이중 저장: Student.primaryParentId FK + Parent.isPrimary 플래그로 빠른 조회와 관리 모두 지원
-- [16-01] ON DELETE CASCADE: Parent/Reservation FK에 Cascade 적용 (Phase 14 결정사항과 일관성)
-- [17-01] 30분 단위 시간 슬롯 검증: Zod 커스텀 규칙으로 분이 0 또는 30인지 확인
-- [17-01] 트랜잭션 기반 중복 검증: 같은 선생님의 같은 시간대 예약을 CANCELLED 상태 제외하고 확인
-- [17-01] Prisma 타입 사용: ESLint 오류 방지를 위해 any 대신 Prisma.ParentCounselingReservationWhereInput 사용
-- [17-03] Hard delete for SCHEDULED reservations: Prisma cascade로 연관 데이터 자동 정리
-- [17-03] 상태 기반 수정/삭제 제어: SCHEDULED 상태만 수정/삭제 가능 (COMPLETED/CANCELLED/NO_SHOW 불가)
-- [17-03] 부분 수정 지원: 모든 필드 선택적 (scheduledAt, studentId, parentId, topic)
-- [17-04] COMPLETED 전환 시 CounselingSession 자동 생성: 트랜잭션으로 원자성 보장
-- [17-04] 상태 전환 제어: SCHEDULED 상태에서만 COMPLETED/CANCELLED/NO_SHOW로 전환 가능
-- [17-04] CounselingSession 기본값: duration 30분, type ACADEMIC (필요시 변경 가능)
-- [18-01] Badge 상태 variants: scheduled(blue), completed(green), cancelled(gray), noShow(orange) + dark mode 지원
-- [18-02] react-day-picker v9 DatePicker: 한국어 로케일, Tailwind 스타일링, 단일 날짜 선택 모드
-- [18-03] getStudentsAction 추가: StudentWithParents 타입으로 학부모 정보 포함 반환
-- [18-03] 예약된 슬롯 필터링: CANCELLED/NO_SHOW 상태 제외하여 실제 예약만 비활성화
-- [18-03] 학생/학부모 의존성: selectedStudentId 변경 시 selectedParentId 초기화
-- [18-04] AlertDialog 확인 패턴: 모든 상태 변경 전 사용자 확인 다이얼로그 표시
-- [18-04] 상태 변경 버튼 색상: 완료(초록), 취소(회색), 노쇼(주황)
-- [18-04] 검색 디바운스: 300ms 딜레이로 불필요한 필터링 연산 방지
-- [18-05] Server Component + Client Component Tabs 패턴: 페이지는 Server Component로 유지, 탭 상태는 Client Component에서 관리
-- [18-05] FormView 상태 기반 전환: URL 변경 없이 useState로 목록/폼 뷰 전환 (SPA 경험)
-- [18-05] 외부 dateFilter prop: ReservationList가 부모로부터 날짜 필터를 받아서 캘린더 클릭 기반 필터링 구현
-- [19-01] Custom DayButton with useDayPicker: 접근성 유지를 위해 useDayPicker hook의 components.DayButton 래핑
-- [19-01] Modifier와 Custom Component 분리: modifiers는 배경색, Custom DayButton은 dot indicators만 담당
-- [19-01] 날짜 높이 h-14: dot indicators 공간 확보를 위해 DayButton 높이 증가
-- [19-02] 주간 캘린더 직접 구현: react-day-picker 대신 8열 그리드(시간 + 요일)로 시간 슬롯 표시
-- [19-02] isSameDay 패턴: 타임존 오프셋 문제 방지를 위해 isSameDay + 시간/분 비교 사용
-- [19-03] 캘린더 탭 자동 전환: 날짜 선택 시 예약 관리 탭으로 자동 이동하여 필터링된 목록 표시
-- [19-03] TabType 타입 안전성: history | reservations | calendar 유니온 타입으로 탭 네비게이션 타입 안전성 확보
-- [20-01] shadcn/ui Alert 컴포넌트: Alert, AlertTitle, AlertDescription를 다음 예약 표시용으로 설치
-- [20-01] shadcn/ui Dialog 컴포넌트: Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle를 상세 모달용으로 설치
-- [20-02] CounselingSection Server Component: 상담 섹션 래퍼로 다음 예약 Alert과 이력 목록 컴포지션
-- [20-02] CounselingSessionModal Client Component: 상세 모달로 모든 세션 정보 표시 (유형, 시간, 교사, 내용, 후속 조치, 만족도)
-- [20-02] onClick prop 패턴: CounselingSessionCard에 선택적 onClick prop 추가로 재사용성 확보
-- [20-02] Selective include 쿼리: upcomingReservation 쿼리에서 select로 필요한 필드만 전송하여 데이터 전송 최소화
-- [20-02] TypeScript null safety: satisfactionScore에 nullish coalescing (??) 연산자 사용으로 null 참조 오류 방지
-- [20-03] Manual browser verification: UI/UX 검증을 위해 브라우저에서 직접 테스트 후 체크포인트 통과
-- [20-03] Screenshot documentation: 스크린샷을 planning docs에 저장하여 향후 회귀 테스트 기준 확보
-- [21-01] Prisma groupBy 대신 findMany + Map 집계: groupBy는 include를 지원하지 않아 teacher.name 등 관련 데이터를 가져올 수 없음, 유연한 데이터 변환 가능
-- [21-01] 빈 월 데이터 초기화: getMonthlyTrendAction에서 요청한 months만큼 빈 월 구조를 미리 생성하여 차트 연속성 확보
-- [21-01] Server-side percentage 계산: getCounselingTypeDistributionAction에서 비율을 서버에서 계산하여 일관된 반올림 규칙 적용
-- [21-01] Prisma.CounselingSessionWhereInput 타입: ESLint no-explicit-any 규칙 준수, 타입 안전성 확보
-- [21-05] DateRangeFilter 두 가지 variant: 버튼 그룹과 드롭다운 모두 지원하여 UI 유연성 확보 (variant prop)
-- [21-05] 선생님별 총 상담 횟수 집계: TeacherMonthlyStats를 선생님 ID로 그룹핑하여 전체 기간 합계 계산 (클라이언트 집계)
-- [21-05] CsvExportButton 제네릭 타입: `<T = Record<string, unknown>>`로 any 대신 타입 안전성 확보
-- [21-05] Blob API + BOM: react-csv 없이 CSV 생성, `\uFEFF` BOM으로 한글 깨짐 방지
-- [21-04] 지연 표시 스타일: overdue 상태 시 bg-red-50 border-red-200 + AlertCircle 아이콘으로 긴급성 시각화
-- [21-04] 완료 처리 흐름: Checkbox → AlertDialog 확인 → onComplete 콜백으로 실수 방지
-- [21-04] 정렬 우선순위: status === 'overdue' 우선, 그 다음 followUpDate ASC로 긴급한 항목 최상단 노출
-- [21-04] shadcn/ui Checkbox 설치: 완료 체크 UI 구현에 필요한 컴포넌트 추가
-- [21-06] 간단한 wrapper 레이아웃: (dashboard) 레이아웃을 상속하므로 추가 레이아웃 불필요
-- [21-06] Server Component로 초기 데이터 fetch: SSR로 빠른 초기 렌더링, SEO 최적화
-- [21-06] getDateRangeFromPreset 유틸리티 분리: "use server" 파일에서 동기 함수 export 불가, 별도 파일로 분리
-- [21-07] ESLint 외부 스크립트 제외: .agent, scripts, prisma.config.ts를 globalIgnores에 추가하여 빌드 안정성 확보
-- [21-07] Playwright 자동 검증: E2E 테스트로 8개 주요 기능 체계적 검증
-- [22-01] 기존 PersonalitySummary 관계 활용: Student.personalitySummary String 필드 대신 기존 관계의 coreTraits 필드 사용 (명명 충돌 방지)
-- [22-01] 상담 요약 출력 형식 Markdown: 핵심 내용, 합의 사항, 관찰 사항, 후속 조치 섹션으로 구조화
-- [22-01] 성향 요약 출력 형식 단순 텍스트: 1-2문장으로 직접 사용 가능
-- [22-01] 이전 상담 이력 5개 제한: 프롬프트 토큰 효율성
-- [22-02] radix-ui 통합 패키지 활용: Sheet/Collapsible 설치 시 추가 의존성 불필요
-- [22-04] muted/50 배경색으로 성향 요약 카드 시각적 구분
-- [22-04] 궁합 점수 해석 임계값: 80+ 매우 좋음, 70+ 좋음, 60+ 보통, 60 미만 노력 필요
-- [22-04] 60 미만 점수시 상담 팁 Alert 자동 표시
-- [22-04] Collapsible 세부 항목 펼치기 패턴: ChevronDown 회전 애니메이션
+**v3.0 Key Technical Decisions (from research):**
+- GitHub API integration: octokit SDK (unified REST + GraphQL)
+- Screenshot capture: modern-screenshot (20KB, 3x faster than html2canvas)
+- Webhook security: HMAC-SHA256 signature verification mandatory
+- Error deduplication: fingerprint-based to prevent issue spam
+- Rate limit monitoring: X-RateLimit-Remaining header tracking
+- Dual-layer storage: Local PostgreSQL + GitHub Issues sync
+- CI/CD trigger: `auto-deploy` label on PR merge to main
 
-**v2.0 결정 (영향 있음):**
-- [11-02] Prisma Client Extensions over deprecated Middleware - $allOperations pattern for automatic teamId filtering
-- [11-02] PostgreSQL RLS with quoted identifiers for case sensitivity - "teamId" vs teamid to prevent folding
-- [11-02] Defense in Depth: App-layer (Prisma Extensions) + DB-layer (RLS) for tenant isolation
-- [11-03] verifySession as RLS entry point - All DB queries must go through verifySession which calls setRLSSessionContext
-- [14-01] ON DELETE CASCADE for counseling/satisfaction models - Automatic cleanup when student/teacher deleted
-- [15-01] Vercel AI SDK unified interface: ai, @ai-sdk/anthropic, @ai-sdk/openai, @ai-sdk/google, ollama-ai-provider-v2 for multi-provider support
-- [15-04] 기존 Claude 직접 호출을 모두 통합 라우터로 마이그레이션
+**Critical Pitfalls to Avoid:**
+1. GitHub API rate limit (5,000/hour) - monitor and cache locally
+2. Webhook signature verification - HMAC-SHA256 + timingSafeEqual
+3. Sentry issue spam - fingerprint + threshold (10 errors → 1 issue)
+4. Auto-deploy infinite loop - [skip ci] + bot account filtering
+5. Screenshot CORS - image proxy + crossorigin="anonymous"
 
 ### Pending Todos
 
-None yet.
-
-### Quick Tasks Completed
-
-| # | Description | Date | Commit | Directory |
-|---|-------------|------|--------|-----------|
-| 001 | 사주 해석 결과에 사용 모델 정보 영구 표시 | 2026-02-10 | e337201 | [001-saju-model-display](./quick/001-saju-model-display/) |
-| 002 | 사주 해석 쉽게 풀이 기능 (AI 텍스트 변환 토글) | 2026-02-10 | 47aa096 | [002-saju-easy-explanation](./quick/002-saju-easy-explanation/) |
-| 003 | 관상/손금/MBTI 프롬프트 관리 시스템 추가 | 2026-02-10 | 28375bf | [003-face-palm-mbti](./quick/003-face-palm-mbti/) |
-| 004 | LLM 제공자 CRUD 확장 (8개 제공자 지원) | 2026-02-11 | 1fab53c | [004-llm-llm-crud](./quick/4-llm-llm-crud/) |
+None yet for v3.0.
 
 ### Blockers/Concerns
 
-**From Phase 28-06 Quick Wins:**
-- E2E 테스트 40-53% 통과율 (16-21/40 implemented tests), 20-26% 전체 (16-21/80 total)
-- 40개 미구현 기능 테스트 skip 처리 완료 (teacher 14, admin 9, report 7, performance 4, matching 6)
-- Matching 컴포넌트 data-testid 인프라 구축 (9개 testid 추가)
-- **향후 개선 방향:**
-  - High Priority (Quick wins): Analysis/Student/Counseling 셀렉터 수정 (+20%p)
-  - Medium Priority (Feature work): Teacher management, Admin settings, Report generation 구현 (+40개 테스트)
-  - Target: 70%+ pass rate on implemented tests, 50%+ overall
+**From v3.0 Research - Gaps to Address:**
+- GitHub App vs PAT authentication: Start with PAT, migrate to GitHub App if rate limit issues
+- Image upload strategy: MinIO upload + URL insertion vs base64 inline (decide in Phase 30)
+- Sentry beforeSend async pattern: fire-and-forget with local queueing fallback (design in Phase 31)
 
-**From v2.1 Research:**
-- Shadow database sync issue: 반복 발생 중 (7회). `npx prisma db push` 워크어라운드 계속 사용.
-- Schema constraint issue: Current schema has teacherId as non-nullable String, which conflicts with "unassigned student" concept.
-
-**From Phase 12-05 execution:**
-- Teacher profile edit form needed: Existing teachers have null `birthDate`, `birthTimeHour`, `birthTimeMinute`, `nameHanja` fields.
-
-**From v2.1 Research - Key Pitfalls to Avoid:**
-1. 기존 CounselingSession 모델 오용 - 예약 필드를 기존 모델에 추가하면 성과 분석 로직 오염
-2. 새 모델에 RBAC 적용 누락 - 다른 팀 학생 정보 노출 위험
-3. 예약 시간 중복 검증 누락 - 더블 부킹 발생
-4. 기존 상담 페이지 UI 파괴 - 점진적 통합 필요
-5. 날짜/시간 처리 일관성 부족 - 타임존 명시적 처리
+**From v2.1.1 Technical Debt:**
+- E2E test coverage 20.7% (18/87 passing) - Admin data-testid missing, timeout issues
+- Analysis history feature constraint - @unique prevents multiple records, needs separate history table
+- 40 unimplemented feature tests skipped - teacher management, admin settings, report generation
 
 ## Session Continuity
 
 Last session: 2026-02-11
-Stopped at: v3.0 Milestone started
+Stopped at: v3.0 roadmap created
 Resume file: None
-Next action: Define requirements → Create roadmap
+Next action: `/gsd:plan-phase 29` to create Phase 29 execution plans
 
 ---
-*Last updated: 2026-02-11 (v3.0 milestone started)*
+*Last updated: 2026-02-11 (v3.0 roadmap created, 31/31 requirements mapped)*
