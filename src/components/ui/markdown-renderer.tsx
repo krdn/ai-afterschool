@@ -25,24 +25,12 @@ const components: Components = {
   h4: ({ children }) => (
     <h4 className="text-sm font-semibold text-gray-700 mt-3 mb-1">{children}</h4>
   ),
-  p: ({ children }) => (
-    <p className="my-2 leading-7">{children}</p>
-  ),
-  strong: ({ children }) => (
-    <strong className="font-semibold text-gray-900">{children}</strong>
-  ),
-  em: ({ children }) => (
-    <em className="italic text-gray-600">{children}</em>
-  ),
-  ul: ({ children }) => (
-    <ul className="my-2 ml-4 space-y-1 list-disc">{children}</ul>
-  ),
-  ol: ({ children }) => (
-    <ol className="my-2 ml-4 space-y-1 list-decimal">{children}</ol>
-  ),
-  li: ({ children }) => (
-    <li className="leading-7">{children}</li>
-  ),
+  p: ({ children }) => <p className="my-2 leading-7">{children}</p>,
+  strong: ({ children }) => <strong className="font-semibold text-gray-900">{children}</strong>,
+  em: ({ children }) => <em className="italic text-gray-600">{children}</em>,
+  ul: ({ children }) => <ul className="my-2 ml-4 space-y-1 list-disc">{children}</ul>,
+  ol: ({ children }) => <ol className="my-2 ml-4 space-y-1 list-decimal">{children}</ol>,
+  li: ({ children }) => <li className="leading-7">{children}</li>,
   blockquote: ({ children }) => (
     <blockquote className="my-3 pl-4 border-l-4 border-purple-300 bg-purple-50/50 py-2 pr-3 rounded-r-md text-gray-700 italic">
       {children}
@@ -55,34 +43,22 @@ const components: Components = {
     </code>
   ),
   // pre 태그 스타일링 (코드 블록 컨테이너)
-  pre: ({ children }) => (
-    <pre className="my-3 rounded-md overflow-x-auto">{children}</pre>
-  ),
+  pre: ({ children }) => <pre className="my-3 rounded-md overflow-x-auto">{children}</pre>,
   table: ({ children }) => (
     <div className="my-3 overflow-x-auto rounded-md border border-gray-200">
       <table className="w-full text-sm">{children}</table>
     </div>
   ),
-  thead: ({ children }) => (
-    <thead className="bg-gray-50 border-b border-gray-200">{children}</thead>
-  ),
-  tbody: ({ children }) => (
-    <tbody className="divide-y divide-gray-100">{children}</tbody>
-  ),
-  tr: ({ children }) => (
-    <tr className="hover:bg-gray-50/50">{children}</tr>
-  ),
+  thead: ({ children }) => <thead className="bg-gray-50 border-b border-gray-200">{children}</thead>,
+  tbody: ({ children }) => <tbody className="divide-y divide-gray-100">{children}</tbody>,
+  tr: ({ children }) => <tr className="hover:bg-gray-50/50">{children}</tr>,
   th: ({ children }) => (
     <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
       {children}
     </th>
   ),
-  td: ({ children }) => (
-    <td className="px-3 py-2 text-sm text-gray-700">{children}</td>
-  ),
-  hr: () => (
-    <hr className="my-4 border-gray-200" />
-  ),
+  td: ({ children }) => <td className="px-3 py-2 text-sm text-gray-700">{children}</td>,
+  hr: () => <hr className="my-4 border-gray-200" />,
   a: ({ href, children }) => (
     <a href={href} className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">
       {children}
@@ -95,15 +71,31 @@ type Props = {
   className?: string
 }
 
+// HTML entity 디코딩 함수
+function decodeHtmlEntities(text: string): string {
+  const textarea = document.createElement('textarea');
+  textarea.innerHTML = text;
+  return textarea.value;
+}
+
 export function MarkdownRenderer({ content, className = "" }: Props) {
+  if (!content || typeof content !== "string") {
+    return null
+  }
+  
+  // HTML entity 디코딩 (&#35; → #, &#42; → * 등)
+  const decodedContent = typeof window !== 'undefined' 
+    ? decodeHtmlEntities(content)
+    : content
+  
   return (
     <div className={`markdown-rendered prose prose-sm max-w-none text-gray-700 ${className}`}>
-      <ReactMarkdown 
-        remarkPlugins={[remarkGfm, remarkBreaks]} 
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm, remarkBreaks]}
         rehypePlugins={[rehypeRaw, rehypeHighlight]}
         components={components}
       >
-        {content}
+        {decodedContent}
       </ReactMarkdown>
     </div>
   )
