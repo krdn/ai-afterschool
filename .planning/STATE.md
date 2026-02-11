@@ -11,14 +11,14 @@ See: .planning/PROJECT.md (updated 2026-02-11)
 
 Milestone: v3.0 Issue Management & Auto DevOps Pipeline
 Phase: 29 of 34 (Database & GitHub API Foundation)
-Plan: Ready to plan Phase 29
-Status: Roadmap created, ready for planning
-Last activity: 2026-02-11 — v3.0 roadmap created with 6 phases (29-34)
+Plan: 01 of 03 completed
+Status: Phase 29 in progress (1/3 plans complete)
+Last activity: 2026-02-11 — Completed 29-01 (Issue/IssueEvent DB schema)
 
-Progress: [████████████████████████░░░░░░░░░░░░░░░░░░░░] 82.8% (162/195+ plans across v1.0-v3.0)
+Progress: [████████████████████████░░░░░░░░░░░░░░░░░░░░] 83.1% (163/196 plans across v1.0-v3.0)
 
 **v3.0 Issue Management & Auto DevOps Pipeline** 🚧 IN PROGRESS
-- Phase 29: Database & GitHub API Foundation (ready to plan)
+- Phase 29: Database & GitHub API Foundation (1/3 plans complete) ✅ 29-01
 - Phase 30: Issue UI & Screenshot (not started)
 - Phase 31: Sentry Error Auto-Collection (not started)
 - Phase 32: Webhook & Issue Sync (not started)
