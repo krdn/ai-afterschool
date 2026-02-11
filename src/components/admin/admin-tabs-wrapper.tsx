@@ -13,7 +13,7 @@ export function AdminTabsWrapper({ children, defaultValue = 'llm-settings' }: Ad
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6" data-testid="admin-tabs">
-      <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7">
+      <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8">
         <TabsTrigger value="llm-settings">LLM 설정</TabsTrigger>
         <TabsTrigger value="llm-usage">토큰 사용량</TabsTrigger>
         <TabsTrigger value="ai-prompts">AI 프롬프트</TabsTrigger>
@@ -21,6 +21,7 @@ export function AdminTabsWrapper({ children, defaultValue = 'llm-settings' }: Ad
         <TabsTrigger value="system-logs">시스템 로그</TabsTrigger>
         <TabsTrigger value="database">데이터베이스</TabsTrigger>
         <TabsTrigger value="audit-logs">감사 로그</TabsTrigger>
+        <TabsTrigger value="teams">팀 관리</TabsTrigger>
       </TabsList>
       {children}
     </Tabs>
@@ -42,6 +43,7 @@ export function AdminTabsContent({ value, children }: AdminTabsContentProps) {
     'system-logs': 'admin-system-logs-page',
     'database': 'admin-backup-page',
     'audit-logs': 'admin-audit-logs-page',
+    'teams': 'admin-teams-page',
   }
 
   return <TabsContent value={value} className="space-y-6" data-testid={testIdMap[value]}>{children}</TabsContent>

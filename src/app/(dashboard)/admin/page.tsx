@@ -24,6 +24,11 @@ import { StatusTab } from '@/components/admin/tabs/status-tab'
 import { LogsTab } from '@/components/admin/tabs/logs-tab'
 import { DatabaseTab } from '@/components/admin/tabs/database-tab'
 import { AuditTab } from '@/components/admin/tabs/audit-tab'
+import { TeamsTab } from '@/components/admin/tabs/teams-tab'
+import { getTeams } from '@/lib/actions/teams'
+import { pool } from '@/lib/db'
+import { existsSync, readdirSync, statSync } from 'fs'
+import { join } from 'path'
 
 // AI 프롬프트 관리 (통합)
 import { AnalysisPromptsTab } from '@/components/admin/tabs/analysis-prompts-tab'
@@ -105,7 +110,7 @@ async function getProviderUsageData(): Promise<ProviderUsageData[]> {
   try {
     const stats = await getUsageStatsByProvider({ startDate, endDate })
 
-    const providers: ProviderName[] = ['anthropic', 'openai', 'google', 'ollama']
+    const providers: ProviderName[] = ['ollama', 'anthropic', 'openai', 'google', 'deepseek', 'mistral', 'cohere', 'xai', 'zhipu', 'moonshot']
     return providers.map((provider) => ({
       provider,
       totalRequests: stats[provider]?.totalRequests || 0,
@@ -116,6 +121,117 @@ async function getProviderUsageData(): Promise<ProviderUsageData[]> {
     console.error('Failed to fetch provider usage data:', error)
     return []
   }
+}
+
+// Health check 직접 수행 (self-referencing fetch 방지)
+type HealthStatus = 'healthy' | 'unhealthy' | 'unknown'
+
+interface HealthCheckItem {
+  status: HealthStatus
+  message?: string
+  responseTime?: number
+  connectionPool?: { total: number; idle: number; waiting: number }
+}
+
+async function getHealthData() {
+  const startTime = Date.now()
+  const result: {
+    status: string
+    uptime: number
+    version?: string
+    headers: { 'X-Response-Time': string }
+    checks: {
+      database: HealthCheckItem
+      storage: HealthCheckItem
+      backup?: HealthCheckItem
+    }
+  } = {
+    status: 'healthy',
+    uptime: process.uptime(),
+    headers: { 'X-Response-Time': '0' },
+    checks: {
+      database: { status: 'unknown', message: '' },
+      storage: { status: 'unknown', message: '' },
+    },
+  }
+
+  // DB 체크
+  try {
+    const dbStart = Date.now()
+    await db.$queryRaw`SELECT 1`
+    const dbTime = Date.now() - dbStart
+    const poolInfo = { total: pool.totalCount, idle: pool.idleCount, waiting: pool.waitingCount }
+    result.checks.database = {
+      status: 'healthy' as HealthStatus,
+      message: dbTime > 1000 ? `Database connection successful (slow: ${dbTime}ms)` : 'Database connection successful',
+      responseTime: dbTime,
+      connectionPool: poolInfo,
+    }
+    if (dbTime > 1000) result.status = 'degraded'
+  } catch (error) {
+    result.checks.database = {
+      status: 'unhealthy' as HealthStatus,
+      message: error instanceof Error ? error.message : 'Database connection failed',
+      responseTime: 0,
+      connectionPool: { total: pool.totalCount, idle: pool.idleCount, waiting: pool.waitingCount },
+    }
+    result.status = 'unhealthy'
+  }
+
+  // 스토리지 체크
+  try {
+    const storageStart = Date.now()
+    const storageType = process.env.PDF_STORAGE_TYPE || 'local'
+    if (storageType === 's3') {
+      const endpoint = process.env.MINIO_ENDPOINT
+      if (endpoint && process.env.MINIO_ACCESS_KEY && process.env.MINIO_SECRET_KEY) {
+        result.checks.storage = { status: 'healthy' as HealthStatus, message: `S3 storage configured (${endpoint})`, responseTime: Date.now() - storageStart }
+      } else {
+        result.checks.storage = { status: 'unhealthy' as HealthStatus, message: 'S3 storage incomplete configuration', responseTime: 0 }
+        result.status = 'unhealthy'
+      }
+    } else {
+      const storagePath = process.env.PDF_STORAGE_PATH || './public/reports'
+      if (existsSync(storagePath)) {
+        result.checks.storage = { status: 'healthy' as HealthStatus, message: `Local storage accessible (${storagePath})`, responseTime: Date.now() - storageStart }
+      } else {
+        result.checks.storage = { status: 'unhealthy' as HealthStatus, message: `Storage directory not found: ${storagePath}`, responseTime: 0 }
+        result.status = 'unhealthy'
+      }
+    }
+  } catch (error) {
+    result.checks.storage = { status: 'unhealthy' as HealthStatus, message: error instanceof Error ? error.message : 'Storage check failed', responseTime: 0 }
+    result.status = 'unhealthy'
+  }
+
+  // 백업 체크
+  try {
+    const backupDir = process.env.BACKUP_DIR || './backups'
+    const dbName = process.env.POSTGRES_DB || 'ai_afterschool'
+    if (existsSync(backupDir)) {
+      const files = readdirSync(backupDir).filter(f => f.startsWith(`${dbName}-`) && f.endsWith('.sql.gz'))
+      if (files.length > 0) {
+        const latestFile = files
+          .map(f => ({ name: f, mtime: statSync(join(backupDir, f)).mtime.getTime() }))
+          .sort((a, b) => b.mtime - a.mtime)[0]
+        const hoursSince = (Date.now() - latestFile.mtime) / (1000 * 60 * 60)
+        const size = statSync(join(backupDir, latestFile.name)).size
+        result.checks.backup = {
+          status: (hoursSince <= 48 ? 'healthy' : 'unhealthy') as HealthStatus,
+          message: `Last backup: ${latestFile.name} (${hoursSince.toFixed(1)}h ago, ${(size / 1024).toFixed(1)}KB)`,
+        }
+      } else {
+        result.checks.backup = { status: 'unhealthy' as HealthStatus, message: 'No backup files found' }
+      }
+    } else {
+      result.checks.backup = { status: 'healthy' as HealthStatus, message: 'Backup directory not configured' }
+    }
+  } catch {
+    result.checks.backup = { status: 'unknown' as HealthStatus, message: 'Backup check failed' }
+  }
+
+  result.headers['X-Response-Time'] = String(Date.now() - startTime)
+  return result
 }
 
 // 기능별 사용량 조회
@@ -165,6 +281,7 @@ export default async function AdminPage() {
     dailyUsageData,
     providerUsageData,
     featureUsageData,
+    teams,
   ] = await Promise.all([
     getAllLLMConfigs(),
     getAllFeatureConfigs(),
@@ -176,6 +293,7 @@ export default async function AdminPage() {
     getDailyUsageData(),
     getProviderUsageData(),
     getFeatureUsageData(),
+    getTeams(),
   ])
 
   // AI 프롬프트 seed 및 조회
@@ -223,15 +341,8 @@ export default async function AdminPage() {
     llmConfigs.map((c: LLMConfigData) => [c.provider, c])
   )
 
-  // Health API에서 데이터 가져오기
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
-  const healthData = await fetch(`${baseUrl}/api/health`, {
-    cache: 'no-store',
-  }).then((res) => res.json()).catch(() => ({
-    status: 'unknown',
-    uptime: 0,
-    checks: { database: { status: 'unknown' }, storage: { status: 'unknown' } },
-  }))
+  // Health 데이터 직접 수집 (self-referencing fetch 방지)
+  const healthData = await getHealthData()
 
   return (
     <div className="container py-6 space-y-8">
@@ -361,6 +472,11 @@ export default async function AdminPage() {
         {/* 감사 로그 탭 */}
         <AdminTabsContent value="audit-logs">
           <AuditTab />
+        </AdminTabsContent>
+
+        {/* 팀 관리 탭 */}
+        <AdminTabsContent value="teams">
+          <TeamsTab initialTeams={teams} userRole={session.role} />
         </AdminTabsContent>
       </AdminTabsWrapper>
     </div>
