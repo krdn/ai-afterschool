@@ -108,12 +108,20 @@ None yet for v3.0.
 - Analysis history feature constraint - @unique prevents multiple records, needs separate history table
 - 40 unimplemented feature tests skipped - teacher management, admin settings, report generation
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 004 | 사주분석 미리보기 markdown HTML 렌더링 개선 | 2026-02-11 | 7fa87bd | [004-saju-preview-markdown-html](./quick/004-saju-preview-markdown-html/) |
+
 ## Session Continuity
 
 Last session: 2026-02-11
 Stopped at: Phase 29 complete (3/3 plans)
 Resume file: None
 Next action: `/gsd:plan-phase 30` to create Phase 30 execution plans
+
+Last activity: 2026-02-11 - Completed quick task 004: 사주분석 미리보기 markdown HTML 렌더링 개선
 
 ---
 *Last updated: 2026-02-11 (Phase 29 complete, ready for Phase 30)*
