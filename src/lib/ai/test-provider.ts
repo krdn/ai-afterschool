@@ -19,9 +19,15 @@ interface TestResult {
   error?: string;
 }
 
-// Ollama 직접 연결 테스트 (API 키 불필요)
+// Ollama 연결 테스트 (DB에서 baseUrl/apiKey 읽어서 전달)
 async function testOllama(): Promise<TestResult> {
-  const result = await testOllamaGeneration();
+  const { getLLMConfig } = await import('./config');
+  const config = await getLLMConfig('ollama');
+  const options = {
+    baseUrl: config?.baseUrl ?? undefined,
+    apiKey: config?.apiKey ?? undefined,
+  };
+  const result = await testOllamaGeneration(undefined, options);
   return {
     valid: result.success,
     response: result.response,

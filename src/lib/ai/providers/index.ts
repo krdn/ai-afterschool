@@ -31,7 +31,20 @@ export const providers = {
   moonshot: (model?: string) => moonshotProvider.chatModel(model || 'kimi-k2.5-preview'),
 } as const;
 
-export function getProvider(name: ProviderName, model?: string) {
+/**
+ * 프로바이더 인스턴스를 반환합니다.
+ * Ollama는 ollamaOptions를 통해 DB 설정(baseUrl, apiKey)을 전달할 수 있습니다.
+ * 호출 측(router.ts 등 서버 전용 코드)에서 DB 접근 후 옵션을 넘겨야 합니다.
+ */
+export function getProvider(
+  name: ProviderName,
+  model?: string,
+  ollamaOptions?: { baseUrl?: string; apiKey?: string }
+) {
+  if (name === 'ollama') {
+    const ollamaInstance = createOllamaInstance(ollamaOptions);
+    return ollamaInstance(model || 'llama3.2:3b');
+  }
   const providerFn = providers[name];
   if (!providerFn) {
     throw new Error(`Unknown provider: ${name}`);

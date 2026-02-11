@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Loader2, Check, X, Eye, EyeOff } from 'lucide-react';
 import { saveLLMConfigAction, testProviderAction, getOllamaModelsAction } from '@/lib/actions/llm-settings';
-import type { ProviderName, ProviderConfig } from '@/lib/ai/providers';
+import type { ProviderName, ProviderConfig } from '@/lib/ai/providers/types';
 
 interface ProviderCardProps {
   provider: ProviderName;
