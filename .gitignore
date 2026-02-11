@@ -68,6 +68,9 @@ obsidian/
 
 # screenshots
 prompt-preview-*.png
+*.png
 
 # uploaded files
 /public/uploads
+.claude/
+.playwright-cli/
