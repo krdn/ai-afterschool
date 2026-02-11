@@ -2,9 +2,46 @@
 
 import { redirect } from "next/navigation"
 import argon2 from "argon2"
+import { Prisma } from "@prisma/client"
 import { verifySession } from "@/lib/dal"
 import { db } from "@/lib/db"
 import { TeacherSchema, UpdateTeacherSchema } from "@/lib/validations/teachers"
+import { NameHanjaSchema, type NameHanjaInput } from "@/lib/validations/students"
+
+function parseNameHanjaPayload(value: FormDataEntryValue | null): {
+  nameHanja: NameHanjaInput | null
+  error?: string
+} {
+  if (!value) return { nameHanja: null }
+  if (typeof value !== "string") {
+    return { nameHanja: null, error: "한자 정보 형식이 올바르지 않아요." }
+  }
+
+  let parsedValue: unknown
+  try {
+    parsedValue = JSON.parse(value)
+  } catch {
+    return { nameHanja: null, error: "한자 정보 형식이 올바르지 않아요." }
+  }
+
+  if (Array.isArray(parsedValue)) {
+    parsedValue = parsedValue.map((entry) => {
+      if (!entry || typeof entry !== "object") return entry
+      const record = entry as { syllable?: unknown; hanja?: unknown }
+      return {
+        syllable: record.syllable,
+        hanja: record.hanja === "" ? null : record.hanja,
+      }
+    })
+  }
+
+  const parsed = NameHanjaSchema.safeParse(parsedValue)
+  if (!parsed.success) {
+    return { nameHanja: null, error: "한자 정보 형식이 올바르지 않아요." }
+  }
+
+  return { nameHanja: parsed.data }
+}
 
 const DEFAULT_PASSWORD = "afterschool2026!"
 
@@ -60,7 +97,13 @@ export async function createTeacher(
     }
   }
 
-  const { name, email, role, teamId, phone, birthDate, nameHanja, birthTimeHour, birthTimeMinute } = validatedFields.data
+  const { name, email, role, teamId, phone, birthDate, birthTimeHour, birthTimeMinute } = validatedFields.data
+
+  // 한자 이름 파싱
+  const nameHanjaPayload = parseNameHanjaPayload(formData.get("nameHanja"))
+  if (nameHanjaPayload.error) {
+    return { errors: { _form: [nameHanjaPayload.error] } }
+  }
 
   const profileImage = formData.get("profileImage") as string || null
   const profileImagePublicId = formData.get("profileImagePublicId") as string || null
@@ -105,7 +148,7 @@ export async function createTeacher(
         teamId,
         phone,
         birthDate: new Date(birthDate),
-        nameHanja: nameHanja || null,
+        nameHanja: (nameHanjaPayload.nameHanja as Prisma.InputJsonValue) ?? Prisma.JsonNull,
         birthTimeHour: birthTimeHour ?? null,
         birthTimeMinute: birthTimeMinute ?? null,
         profileImage,
@@ -182,7 +225,13 @@ export async function updateTeacher(
     }
   }
 
-  const { birthDate, nameHanja, birthTimeHour, birthTimeMinute, ...restData } = validatedFields.data
+  const { birthDate, birthTimeHour, birthTimeMinute, ...restData } = validatedFields.data
+
+  // 한자 이름 파싱
+  const nameHanjaPayload = parseNameHanjaPayload(formData.get("nameHanja"))
+  if (nameHanjaPayload.error) {
+    return { errors: { _form: [nameHanjaPayload.error] } }
+  }
 
   // 이메일 중복 검증 (이메일 변경 시)
   if (restData.email && restData.email !== teacher.email) {
@@ -215,7 +264,7 @@ export async function updateTeacher(
 
   const updateData: Record<string, unknown> = { ...restData }
   if (birthDate !== undefined) updateData.birthDate = new Date(birthDate)
-  if (nameHanja !== undefined) updateData.nameHanja = nameHanja || null
+  updateData.nameHanja = nameHanjaPayload.nameHanja as Prisma.InputJsonValue ?? null
   if (birthTimeHour !== undefined) updateData.birthTimeHour = birthTimeHour
   if (birthTimeMinute !== undefined) updateData.birthTimeMinute = birthTimeMinute
   updateData.profileImage = profileImage

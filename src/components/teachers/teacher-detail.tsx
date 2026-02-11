@@ -1,3 +1,4 @@
+import { coerceHanjaSelections, selectionsToHanjaName } from '@/lib/analysis/hanja-strokes'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
@@ -22,7 +23,7 @@ type TeacherDetailProps = {
     team: { id: string; name: string } | null
     phone: string | null
     birthDate: Date | null
-    nameHanja: string | null
+    nameHanja: unknown
     birthTimeHour: number | null
     birthTimeMinute: number | null
     profileImage: string | null
@@ -41,6 +42,8 @@ const roleLabels: Record<TeacherDetailProps['teacher']['role'], string> = {
 }
 
 export function TeacherDetail({ teacher }: TeacherDetailProps) {
+  const hanjaName = selectionsToHanjaName(coerceHanjaSelections(teacher.nameHanja) ?? [])
+
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('ko-KR', {
       year: 'numeric',
@@ -61,8 +64,8 @@ export function TeacherDetail({ teacher }: TeacherDetailProps) {
               <p className="text-sm text-gray-500">이름</p>
               <p className="font-medium">
                 {teacher.name}
-                {teacher.nameHanja && (
-                  <span className="ml-1 text-gray-400">({teacher.nameHanja})</span>
+                {hanjaName && (
+                  <span className="ml-1 text-gray-400">({hanjaName})</span>
                 )}
               </p>
             </div>
