@@ -37,6 +37,9 @@ model Teacher {
   teacherPalmAnalysis        TeacherPalmAnalysis?
   teacherSajuAnalysis        TeacherSajuAnalysis?
   auditLogs                  AuditLog[]
+  issuesCreated              Issue[]                   @relation("IssueCreator")
+  issuesAssigned             Issue[]                   @relation("IssueAssignee")
+  issueEvents                IssueEvent[]              @relation("IssueEventPerformer")
 }
 
 model Team {
@@ -645,6 +648,53 @@ model SystemLog {
   @@map("system_logs")
 }
 
+model Issue {
+  id                String        @id @default(cuid())
+  title             String
+  description       String?       @db.Text
+  category          IssueCategory
+  priority          IssuePriority @default(MEDIUM)
+  status            IssueStatus   @default(OPEN)
+  githubIssueNumber Int?          @unique
+  githubIssueUrl    String?
+  githubBranchName  String?
+  screenshotUrl     String?
+  userContext       Json?
+  createdBy         String
+  assignedTo        String?
+  closedAt          DateTime?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  creator           Teacher       @relation("IssueCreator", fields: [createdBy], references: [id])
+  assignee          Teacher?      @relation("IssueAssignee", fields: [assignedTo], references: [id])
+  events            IssueEvent[]
+
+  @@index([status])
+  @@index([category])
+  @@index([createdBy])
+  @@index([githubIssueNumber])
+  @@index([createdAt(sort: Desc)])
+  @@map("issues")
+}
+
+model IssueEvent {
+  id          String   @id @default(cuid())
+  issueId     String
+  eventType   String   // "created", "labeled", "branch_created", "status_changed", "closed", "synced"
+  performedBy String
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  issue       Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  performer   Teacher  @relation("IssueEventPerformer", fields: [performedBy], references: [id])
+
+  @@index([issueId])
+  @@index([eventType])
+  @@index([createdAt(sort: Desc)])
+  @@map("issue_events")
+}
+
 model VarkAnalysis {
   id             String   @id @default(cuid())
   studentId      String   @unique
@@ -734,4 +784,29 @@ enum StudentImageType {
   profile
   face
   palm
+}
+
+enum IssueCategory {
+  BUG
+  FEATURE
+  IMPROVEMENT
+  UI_UX
+  DOCUMENTATION
+  PERFORMANCE
+  SECURITY
+}
+
+enum IssueStatus {
+  OPEN
+  IN_PROGRESS
+  IN_REVIEW
+  CLOSED
+  ARCHIVED
+}
+
+enum IssuePriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
 }
