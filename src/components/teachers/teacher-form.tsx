@@ -11,11 +11,8 @@ import {
   StudentImageUploader,
   type StudentImagePayload,
 } from "@/components/students/student-image-uploader"
-import { HanjaPicker } from "@/components/students/hanja-picker"
 import {
   coerceHanjaSelections,
-  normalizeHanjaSelections,
-  type HanjaSelection,
 } from "@/lib/analysis/hanja-strokes"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -69,14 +66,12 @@ export function TeacherForm({ teams = [], teacher, currentRole }: TeacherFormPro
   const [profileRemoved, setProfileRemoved] = useState(false)
   const [showPasswordChange, setShowPasswordChange] = useState(false)
 
-  // Initialize hanja selections from teacher data
-  const initialHanjaSelections = teacher?.name
-    ? normalizeHanjaSelections(
-        teacher.name,
-        coerceHanjaSelections(teacher.nameHanja)
-      )
-    : []
-  const [hanjaSelections, setHanjaSelections] = useState<HanjaSelection[]>(initialHanjaSelections)
+  // 기존 한자 데이터에서 텍스트 추출
+  const [nameHanjaText, setNameHanjaText] = useState(() => {
+    const selections = coerceHanjaSelections(teacher?.nameHanja)
+    if (!selections) return ""
+    return selections.map((s) => s.hanja ?? "").join("")
+  })
 
   const formRef = useRef<HTMLFormElement>(null)
 
@@ -105,6 +100,13 @@ export function TeacherForm({ teams = [], teacher, currentRole }: TeacherFormPro
       toast.dismiss("teacher-form-submit")
     }
   }, [pending, state?.errors?._form])
+
+  // 언마운트 시 로딩 토스트 정리 (redirect로 페이지 전환 시 pending이 false로 돌아오지 않는 문제 방지)
+  useEffect(() => {
+    return () => {
+      toast.dismiss("teacher-form-submit")
+    }
+  }, [])
 
   const formatDate = (date: Date | null) => {
     if (!date) return ""
@@ -136,9 +138,17 @@ export function TeacherForm({ teams = [], teacher, currentRole }: TeacherFormPro
 
       const formData = new FormData(formElement)
 
-      // nameHanja를 JSON으로 변환하여 추가
-      if (hanjaSelections.length > 0) {
-        formData.set("nameHanja", JSON.stringify(hanjaSelections))
+      // nameHanja를 학생 폼과 동일한 방식으로 JSON 변환
+      const name = formData.get("name") as string
+      const hanja = nameHanjaText.trim()
+      if (name && hanja) {
+        const syllables = Array.from(name.trim())
+        const hanjaChars = Array.from(hanja)
+        const selections = syllables.map((s, i) => ({
+          syllable: s,
+          hanja: hanjaChars[i] ?? null,
+        }))
+        formData.set("nameHanja", JSON.stringify(selections))
       }
 
       // 제출 시작 토스트 표시
@@ -216,15 +226,16 @@ export function TeacherForm({ teams = [], teacher, currentRole }: TeacherFormPro
               )}
             </div>
 
-            {teacher?.name && (
-              <div className="space-y-2">
-                <HanjaPicker
-                  name={teacher.name}
-                  value={hanjaSelections}
-                  onChange={setHanjaSelections}
-                />
-              </div>
-            )}
+            <div className="space-y-2">
+              <Label htmlFor="nameHanjaText">한자 이름 <span className="text-muted-foreground font-normal">(선택)</span></Label>
+              <Input
+                id="nameHanjaText"
+                placeholder="洪吉東"
+                value={nameHanjaText}
+                onChange={(e) => setNameHanjaText(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">이름 분석에 사용됩니다</p>
+            </div>
 
             <div className="space-y-2">
               <Label htmlFor="email">이메일 *</Label>
