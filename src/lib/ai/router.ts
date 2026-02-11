@@ -184,7 +184,7 @@ export async function generateWithProvider(options: GenerateOptions): Promise<Ge
       const config = await getLLMConfig(provider);
       const modelId = featureConfig.modelOverride || config?.defaultModel || undefined;
 
-      const model = getProvider(provider, modelId);
+      const model = getProvider(provider, modelId, provider === 'ollama' ? { baseUrl: config?.baseUrl ?? undefined, apiKey: config?.apiKey ?? undefined } : undefined);
       const result = await generateText({
         model,
         prompt,
@@ -259,7 +259,7 @@ export async function streamWithProvider(options: GenerateOptions) {
       const config = await getLLMConfig(provider);
       const modelId = featureConfig.modelOverride || config?.defaultModel || undefined;
 
-      const model = getProvider(provider, modelId);
+      const model = getProvider(provider, modelId, provider === 'ollama' ? { baseUrl: config?.baseUrl ?? undefined, apiKey: config?.apiKey ?? undefined } : undefined);
       const result = streamText({
         model,
         prompt,
@@ -313,7 +313,7 @@ export async function generateWithSpecificProvider(
   const config = await getLLMConfig(provider);
   const modelId = config?.defaultModel || undefined;
 
-  const model = getProvider(provider, modelId);
+  const model = getProvider(provider, modelId, provider === 'ollama' ? { baseUrl: config?.baseUrl ?? undefined, apiKey: config?.apiKey ?? undefined } : undefined);
   const result = await generateText({
     model,
     prompt,
@@ -434,7 +434,7 @@ export async function generateWithVision(
       const config = await getLLMConfig(provider);
       const modelId = featureConfig.modelOverride || config?.defaultModel || undefined;
 
-      const model = getProvider(provider, modelId);
+      const model = getProvider(provider, modelId, provider === 'ollama' ? { baseUrl: config?.baseUrl ?? undefined, apiKey: config?.apiKey ?? undefined } : undefined);
 
       // Vercel AI SDK messages format with image
       const messages: ModelMessage[] = [
@@ -567,7 +567,7 @@ export async function generateVisionWithSpecificProvider(
   const config = await getLLMConfig(provider);
   const modelId = config?.defaultModel || undefined;
 
-  const model = getProvider(provider, modelId);
+  const model = getProvider(provider, modelId, provider === 'ollama' ? { baseUrl: config?.baseUrl ?? undefined, apiKey: config?.apiKey ?? undefined } : undefined);
 
   const messages: ModelMessage[] = [
     {

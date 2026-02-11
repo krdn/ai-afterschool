@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Loader2 } from 'lucide-react';
 import { saveFeatureConfigAction } from '@/lib/actions/llm-settings';
-import { PROVIDER_CONFIGS, type ProviderName, type FeatureType } from '@/lib/ai/providers';
+import { PROVIDER_CONFIGS, type ProviderName, type FeatureType } from '@/lib/ai/providers/types';
 
 interface FeatureMappingProps {
   enabledProviders: ProviderName[];

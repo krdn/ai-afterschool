@@ -148,6 +148,11 @@ export async function setDefaultProviderAction(provider: ProviderName) {
 export async function getOllamaModelsAction() {
   await requireDirector();
   const { getOllamaModels } = await import('@/lib/ai/providers/ollama');
-  const models = await getOllamaModels();
+  const config = await getLLMConfig('ollama');
+  const options = {
+    baseUrl: config?.baseUrl ?? undefined,
+    apiKey: config?.apiKey ?? undefined,
+  };
+  const models = await getOllamaModels(options);
   return models.map((m) => ({ name: m.name, size: m.size }));
 }
