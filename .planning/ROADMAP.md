@@ -262,10 +262,12 @@ Plans:
   3. 이슈 유형에 따라 브랜치가 자동 생성된다 (fix/issue-N-slug, feat/issue-N-slug)
   4. GitHub API rate limit이 임계값 이하로 떨어지면 경고가 표시된다
   5. 모든 이슈 생성 작업이 AuditLog에 기록된다
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 29-01: TBD
+- [ ] 29-01-PLAN.md -- Prisma 스키마 (Issue, IssueEvent 모델 + enum + 마이그레이션)
+- [ ] 29-02-PLAN.md -- GitHub 클라이언트 기반 (Octokit + 유틸리티 + 상수)
+- [ ] 29-03-PLAN.md -- GitHub 서비스 + Issue Server Actions (CRUD, 라벨, 브랜치)
 
 #### Phase 30: Issue UI & Screenshot
 **Goal**: 이슈 보고 UI 및 스크린샷 캡처
@@ -377,7 +379,7 @@ Phases execute in numeric order: 29 → 30 → 31 → 32 → 33 → 34
 | 26. Counseling & Matching UI Enhancement | v2.1.1 | 4/4 | Complete | 2026-02-07 |
 | 27. RBAC, Auth & Error Handling | v2.1.1 | 4/4 | Complete | 2026-02-07 |
 | 28. Integration Verification & Test Alignment | v2.1.1 | 8/8 | Complete | 2026-02-07 |
-| 29. Database & GitHub API Foundation | v3.0 | 0/TBD | Not started | - |
+| 29. Database & GitHub API Foundation | v3.0 | 0/3 | Planned | - |
 | 30. Issue UI & Screenshot | v3.0 | 0/TBD | Not started | - |
 | 31. Sentry Error Auto-Collection | v3.0 | 0/TBD | Not started | - |
 | 32. Webhook & Issue Sync | v3.0 | 0/TBD | Not started | - |
