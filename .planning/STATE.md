@@ -113,6 +113,7 @@ None yet for v3.0.
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 004 | 사주분석 미리보기 markdown HTML 렌더링 개선 | 2026-02-11 | 7fa87bd | [004-saju-preview-markdown-html](./quick/004-saju-preview-markdown-html/) |
+| 005 | 사주 이력 패널 마크다운 렌더링 개선 | 2026-02-11 | ff7760a | [005-saju-interpretation-markdown-render](./quick/005-saju-interpretation-markdown-render/) |
 
 ## Session Continuity
 
@@ -121,7 +122,7 @@ Stopped at: Phase 29 complete (3/3 plans)
 Resume file: None
 Next action: `/gsd:plan-phase 30` to create Phase 30 execution plans
 
-Last activity: 2026-02-11 - Completed quick task 004: 사주분석 미리보기 markdown HTML 렌더링 개선
+Last activity: 2026-02-11 - Completed quick task 005: 사주 이력 패널 마크다운 렌더링 개선
 
 ---
 *Last updated: 2026-02-11 (Phase 29 complete, ready for Phase 30)*
