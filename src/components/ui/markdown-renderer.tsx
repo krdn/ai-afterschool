@@ -2,7 +2,11 @@
 
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import rehypeHighlight from "rehype-highlight"
 import type { Components } from "react-markdown"
+
+// Highlight.js 테마 스타일 (GitHub 스타일)
+import "highlight.js/styles/github.css"
 
 const components: Components = {
   h1: ({ children }) => (
@@ -42,23 +46,15 @@ const components: Components = {
       {children}
     </blockquote>
   ),
-  code: ({ children, className }) => {
-    const isBlock = className?.includes("language-")
-    if (isBlock) {
-      return (
-        <code className="block bg-gray-900 text-gray-100 rounded-md p-4 my-3 text-xs leading-6 overflow-x-auto font-mono">
-          {children}
-        </code>
-      )
-    }
-    return (
-      <code className="px-1.5 py-0.5 bg-gray-100 text-pink-600 rounded text-xs font-mono">
-        {children}
-      </code>
-    )
-  },
+  // 코드 블록은 rehype-highlight가 처리하도록 변경
+  code: ({ children }) => (
+    <code className="px-1.5 py-0.5 bg-gray-100 text-pink-600 rounded text-xs font-mono">
+      {children}
+    </code>
+  ),
+  // pre 태그 스타일링 (코드 블록 컨테이너)
   pre: ({ children }) => (
-    <pre className="my-3">{children}</pre>
+    <pre className="my-3 rounded-md overflow-x-auto">{children}</pre>
   ),
   table: ({ children }) => (
     <div className="my-3 overflow-x-auto rounded-md border border-gray-200">
@@ -100,7 +96,11 @@ type Props = {
 export function MarkdownRenderer({ content, className = "" }: Props) {
   return (
     <div className={`markdown-rendered text-sm text-gray-700 leading-7 ${className}`}>
-      <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
+      <ReactMarkdown 
+        remarkPlugins={[remarkGfm]} 
+        rehypePlugins={[rehypeHighlight]}
+        components={components}
+      >
         {content}
       </ReactMarkdown>
     </div>
