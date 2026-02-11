@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { getPromptPreviewAction } from "@/app/(dashboard)/students/[id]/saju/actions"
 import type { AnalysisPromptMeta } from "@/lib/ai/saju-prompts"
+import { MarkdownRenderer } from "@/components/ui/markdown-renderer"
 
 type Props = {
   open: boolean
@@ -95,9 +96,9 @@ export function PromptPreviewDialog({ open, onOpenChange, prompt }: Props) {
               </div>
             ) : (
               <>
-                <pre className="text-xs leading-5 text-gray-700 whitespace-pre-wrap break-words font-mono bg-gray-50 rounded-md p-3 border">
-                  {previewText}
-                </pre>
+                <div className="rounded-md border border-gray-200 bg-white">
+                  <MarkdownRenderer content={previewText} />
+                </div>
                 <p className="text-xs text-gray-400 mt-2">
                   * DB에 저장된 프롬프트 원문입니다. 실제 분석 시 {"{학생정보}"}, {"{사주데이터}"} 부분이 학생 데이터로 치환됩니다.
                 </p>
