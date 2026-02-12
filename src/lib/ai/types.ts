@@ -136,6 +136,18 @@ export interface FeatureMappingInput {
   fallbackMode: FallbackMode;
 }
 
+/**
+ * 해상도 요구사항
+ * 모델 선택 시 추가 필터링 조건
+ */
+export interface ResolutionRequirements {
+  needsVision?: boolean;
+  needsTools?: boolean;
+  preferredCost?: CostTier;
+  preferredQuality?: QualityTier;
+  minContextWindow?: number;
+}
+
 // =============================================================================
 // 레지스트리 관련 타입
 // =============================================================================
