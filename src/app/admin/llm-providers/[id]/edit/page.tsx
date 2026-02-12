@@ -8,6 +8,7 @@ import { AdminPageLayout } from '@/components/admin/admin-page-layout';
 import { ProviderForm } from '@/components/admin/llm-providers/provider-form';
 import { getProviderTemplates } from '@/lib/ai/templates';
 import type { ProviderTemplate } from '@/lib/ai/templates';
+import type { ProviderWithModels } from '@/lib/ai/types';
 
 interface EditProviderPageProps {
   params: Promise<{
@@ -42,20 +43,29 @@ export default function EditProviderPage({ params }: EditProviderPageProps) {
       try {
         const response = await fetch(`/api/providers/${providerId}`);
         if (!response.ok) {
-          throw new Error('제공자를 불러오는데 실패했습니다.');
+          const errorData = await response.json().catch(() => ({}));
+          console.error('API Error:', response.status, errorData);
+          throw new Error(errorData.error || '제공자를 불러오는데 실패했습니다.');
         }
         const data = await response.json();
+        console.log('Provider data loaded:', data);
+        
+        if (!data.provider) {
+          throw new Error('제공자 데이터가 없습니다.');
+        }
+        
         setProvider(data.provider);
 
         // 템플릿 찾기
         const templates = getProviderTemplates();
         const matchedTemplate = templates.find(
-          (t) => t.providerType === data.providerType
+          (t) => t.providerType === data.provider.providerType
         );
+        console.log('Template matched:', matchedTemplate?.name || 'Not found');
         setTemplate(matchedTemplate || null);
       } catch (error) {
+        console.error('Load provider error:', error);
         toast.error(error instanceof Error ? error.message : '오류가 발생했습니다.');
-        router.push('/admin/llm-providers');
       } finally {
         setIsLoading(false);
       }
@@ -92,7 +102,7 @@ export default function EditProviderPage({ params }: EditProviderPageProps) {
     );
   }
 
-  if (!provider || !template) {
+  if (!provider) {
     return (
       <AdminPageLayout
         title="제공자 수정"
@@ -105,7 +115,7 @@ export default function EditProviderPage({ params }: EditProviderPageProps) {
         <Card>
           <CardContent className="p-6">
             <p className="text-center text-muted-foreground">
-              제공자를 찾을 수 없습니다.
+              제공자를 찾을 수 없습니다. (ID: {providerId})
             </p>
           </CardContent>
         </Card>
@@ -126,7 +136,7 @@ export default function EditProviderPage({ params }: EditProviderPageProps) {
       <Card>
         <CardContent className="p-6">
           <ProviderForm
-            template={template}
+            template={template || undefined}
             provider={provider}
             onSuccess={handleSuccess}
           />
@@ -134,16 +144,4 @@ export default function EditProviderPage({ params }: EditProviderPageProps) {
       </Card>
     </AdminPageLayout>
   );
-}
-
-// 타입 정의 (임시)
-interface ProviderWithModels {
-  id: string;
-  name: string;
-  providerType: string;
-  models: Array<{
-    id: string;
-    modelId: string;
-    displayName: string;
-  }>;
 }

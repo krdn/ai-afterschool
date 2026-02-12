@@ -246,7 +246,7 @@ export function ProviderCard({
           <Button
             variant="ghost"
             size="sm"
-            onClick={onEdit}
+            onClick={() => onEdit()}
             className="gap-1"
           >
             <Edit className="w-4 h-4" />
