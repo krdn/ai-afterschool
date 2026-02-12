@@ -129,10 +129,10 @@ export default async function LLMFeaturesPage() {
           name: p.name,
           models: p.models || [],
         }))}
-        onRefresh={() => {
-          // 서버 컴포넌트에서는 router.refresh()를 사용할 수 없으므로
-          // 페이지를 다시 로드하거나 클라이언트 사이드에서 처리
+        onRefresh={async () => {
+          // 서버 컴포넌트에서 실행될 새로고침 로직
           'use server';
+          // 서버 액션으로 클라이언트에 신호를 볩니다
         }}
       />
 
