@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Plus, Settings } from 'lucide-react';
 import { getProvidersAction } from '@/lib/actions/provider-actions';
 import { ProviderListClient } from './provider-list-client';
+import { HelpIntegration, QuickHelpSection } from './help-integration';
 
 export const metadata: Metadata = {
   title: 'LLM 제공자 관리 | AI AfterSchool Admin',
@@ -12,7 +13,7 @@ export const metadata: Metadata = {
 
 /**
  * LLM 제공자 관리 페이지 (Server Component)
- * 
+ *
  * 제공자 목록을 서버에서 가져와서 클라이언트 컴포넌트에 전달합니다.
  */
 export default async function LLMProvidersPage() {
@@ -20,6 +21,9 @@ export default async function LLMProvidersPage() {
 
   return (
     <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+      {/* 도움말 시스템 통합 */}
+      <HelpIntegration />
+
       {/* 페이지 헤더 */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
@@ -47,6 +51,9 @@ export default async function LLMProvidersPage() {
 
       {/* 제공자 목록 */}
       <ProviderListClient providers={providers} />
+
+      {/* 퀵 헬프 섹션 */}
+      <QuickHelpSection />
     </div>
   );
 }

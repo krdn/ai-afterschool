@@ -27,6 +27,7 @@ import {
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { AlertCircle, CheckCircle2, Loader2, RefreshCw } from 'lucide-react';
+import { InlineHelp } from '@/components/help/inline-help';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
 import {
@@ -256,7 +257,10 @@ export function ProviderForm({ provider, template, onSuccess }: ProviderFormProp
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>제공자명 *</FormLabel>
+                  <FormLabel className="flex items-center gap-1">
+                    제공자명 *
+                    <InlineHelp helpId="provider-name" />
+                  </FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="예: OpenAI GPT-4" />
                   </FormControl>
@@ -313,7 +317,10 @@ export function ProviderForm({ provider, template, onSuccess }: ProviderFormProp
               name="baseUrl"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Base URL</FormLabel>
+                  <FormLabel className="flex items-center gap-1">
+                    Base URL
+                    <InlineHelp helpId="provider-custom" />
+                  </FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="https://api.example.com/v1" />
                   </FormControl>
@@ -372,7 +379,10 @@ export function ProviderForm({ provider, template, onSuccess }: ProviderFormProp
               name="apiKey"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{isEditing ? 'API 키 (변경 시에만 입력)' : 'API 키 *'}</FormLabel>
+                  <FormLabel className="flex items-center gap-1">
+                    {isEditing ? 'API 키 (변경 시에만 입력)' : 'API 키 *'}
+                    <InlineHelp helpId="api-key-guide" />
+                  </FormLabel>
                   <FormControl>
                     <Input {...field} type="password" placeholder="sk-..." />
                   </FormControl>
@@ -406,7 +416,10 @@ export function ProviderForm({ provider, template, onSuccess }: ProviderFormProp
           <CardContent className="space-y-6">
             {/* 기능 태그 */}
             <div>
-              <FormLabel className="text-base">지원 기능</FormLabel>
+              <FormLabel className="text-base flex items-center gap-1">
+                지원 기능
+                <InlineHelp helpId="capabilities" />
+              </FormLabel>
               <div className="grid grid-cols-2 gap-4 mt-3">
                 {ALL_CAPABILITIES.map((cap) => (
                   <FormField
