@@ -51,7 +51,7 @@ export async function analyzeFaceImage(studentId: string, imageUrl: string, prov
         imageBase64: base64Image,
         mimeType: 'image/jpeg' as const,
         prompt: selectedPrompt,
-        maxOutputTokens: 2048,
+        maxOutputTokens: 4096,
       }
 
       const response = (provider && provider !== 'auto')
@@ -151,7 +151,7 @@ export async function analyzePalmImage(
         imageBase64: base64Image,
         mimeType: 'image/jpeg' as const,
         prompt: selectedPrompt,
-        maxOutputTokens: 2048,
+        maxOutputTokens: 4096,
       }
 
       const response = (provider && provider !== 'auto')

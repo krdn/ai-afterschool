@@ -121,6 +121,11 @@ export async function getTeacherAnalysisData(teacherId: string): Promise<Teacher
       getTeacherNameAnalysis(teacherId),
     ])
 
+    // 사주 분석에서 사용된 provider와 model 정보 추출
+    const sajuAnalysis = teacher.teacherSajuAnalysis as typeof teacher.teacherSajuAnalysis & { usedProvider?: string | null; usedModel?: string | null } | null
+    const lastUsedProvider = sajuAnalysis?.usedProvider ?? null
+    const lastUsedModel = sajuAnalysis?.usedModel ?? null
+
     return {
       teacher: {
         id: teacher.id,
@@ -158,8 +163,8 @@ export async function getTeacherAnalysisData(teacherId: string): Promise<Teacher
         calculatedAt: nameAnalysis.calculatedAt,
       } : null,
       enabledProviders,
-      lastUsedProvider: null,
-      lastUsedModel: null,
+      lastUsedProvider,
+      lastUsedModel,
       facePromptOptions: toPromptOptions(facePresets),
       palmPromptOptions: toPromptOptions(palmPresets),
       mbtiPromptOptions: toPromptOptions(mbtiPresets),

@@ -3,7 +3,6 @@
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import remarkBreaks from "remark-breaks"
-import rehypeRaw from "rehype-raw"
 import rehypeHighlight from "rehype-highlight"
 import type { Components } from "react-markdown"
 
@@ -78,21 +77,46 @@ function decodeHtmlEntities(text: string): string {
   return textarea.value;
 }
 
+function stripMarkdownCodeBlock(content: string): string {
+  // ```markdown 또는 ``` 로 시작하는 코드 블록 제거
+  // 1. ```markdown 또는 ```로 시작하는지 확인
+  const trimmed = content.trim()
+  
+  // ```markdown 또는 ``` 패턴으로 시작하는 경우
+  if (trimmed.startsWith('```markdown') || trimmed.startsWith('```')) {
+    // 첫 번째 줄 제거 (```markdown 또는 ```)
+    const lines = trimmed.split('\n')
+    lines.shift() // 첫 줄 제거
+    
+    // 마지막 줄이 ```로 끝나면 제거
+    if (lines.length > 0 && lines[lines.length - 1].trim() === '```') {
+      lines.pop()
+    }
+    
+    return lines.join('\n').trim()
+  }
+  
+  return content
+}
+
 export function MarkdownRenderer({ content, className = "" }: Props) {
   if (!content || typeof content !== "string") {
     return null
   }
   
   // HTML entity 디코딩 (&#35; → #, &#42; → * 등)
-  const decodedContent = typeof window !== 'undefined' 
+  let decodedContent = typeof window !== 'undefined' 
     ? decodeHtmlEntities(content)
     : content
+  
+  // markdown 코드 블록 래퍼 제거
+  decodedContent = stripMarkdownCodeBlock(decodedContent)
   
   return (
     <div className={`markdown-rendered prose prose-sm max-w-none text-gray-700 ${className}`}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkBreaks]}
-        rehypePlugins={[rehypeRaw, rehypeHighlight]}
+        rehypePlugins={[rehypeHighlight]}
         components={components}
       >
         {decodedContent}

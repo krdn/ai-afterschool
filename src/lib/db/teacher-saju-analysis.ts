@@ -8,6 +8,8 @@ type AnalysisPayload = {
   status?: string
   version?: number
   calculatedAt?: Date
+  usedProvider?: string | null
+  usedModel?: string | null
 }
 
 /**
@@ -25,6 +27,8 @@ export async function upsertTeacherSajuAnalysis(
     status: payload.status ?? "complete",
     version: payload.version ?? 1,
     calculatedAt,
+    usedProvider: payload.usedProvider ?? null,
+    usedModel: payload.usedModel ?? null,
   }
 
   return db.teacherSajuAnalysis.upsert({

@@ -25,6 +25,7 @@ type Props = {
   faceImageUrl: string | null
   enabledProviders?: ProviderName[]
   promptOptions?: GenericPromptMeta[]
+  onDataChange?: () => void
 }
 
 export function FaceAnalysisPanel({
@@ -32,7 +33,8 @@ export function FaceAnalysisPanel({
   analysis,
   faceImageUrl,
   enabledProviders = [],
-  promptOptions = []
+  promptOptions = [],
+  onDataChange
 }: Props) {
   const [, startTransition] = useTransition()
   const [localStatus, setLocalStatus] = useState<'idle' | 'analyzing'>('idle')
@@ -51,7 +53,9 @@ export function FaceAnalysisPanel({
     startTransition(async () => {
       const result = await analyzeFaceImage(studentId, faceImageUrl, selectedProvider, selectedPromptId)
       if (result.success) {
-        window.location.reload()
+        onDataChange?.()
+        // 로컬 상태는 서버의 pending 상태로 전환 (폧링으로 상태 확인)
+        setLocalStatus('idle')
       } else {
         setErrorMessage(`이미지 분석에 실패했습니다. (원인: ${result.error || '알 수 없는 오류'}) 다시 시도해주세요.`)
         setLocalStatus('idle')
@@ -95,10 +99,15 @@ export function FaceAnalysisPanel({
       {/* Content */}
       <div className="p-6">
         {analysis?.status === 'complete' && analysis.result ? (
-          <AnalysisResult result={analysis.result} imageUrl={analysis.imageUrl} />
+          <AnalysisResult 
+            result={analysis.result} 
+            imageUrl={analysis.imageUrl}
+            onReanalyze={handleAnalyze}
+            isReanalyzing={isAnalyzing}
+          />
         ) : analysis?.status === 'failed' || errorMessage ? (
           <ErrorState
-            message={errorMessage || analysis.errorMessage || "이미지 분석에 실패했습니다. 다시 시도해주세요."}
+            message={errorMessage || analysis?.errorMessage || "이미지 분석에 실패했습니다. 다시 시도해주세요."}
             onRetry={handleAnalyze}
             isRetrying={isAnalyzing}
           />
@@ -115,7 +124,7 @@ export function FaceAnalysisPanel({
   )
 }
 
-function AnalysisResult({ result, imageUrl }: { result: unknown; imageUrl: string | null }) {
+function AnalysisResult({ result, imageUrl, onReanalyze, isReanalyzing }: { result: unknown; imageUrl: string | null; onReanalyze: () => void; isReanalyzing: boolean }) {
   const analysisResult = result as {
     faceShape: string
     features: {
@@ -202,6 +211,28 @@ function AnalysisResult({ result, imageUrl }: { result: unknown; imageUrl: strin
           </p>
         </div>
       )}
+
+      {/* Reanalyze Button */}
+      <div className="pt-4 border-t">
+        <Button
+          onClick={onReanalyze}
+          disabled={isReanalyzing}
+          variant="outline"
+          className="w-full"
+        >
+          {isReanalyzing ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin mr-2" />
+              분석 중...
+            </>
+          ) : (
+            <>
+              <RefreshCw className="w-4 h-4 mr-2" />
+              다시 분석하기
+            </>
+          )}
+        </Button>
+      </div>
     </div>
   )
 }

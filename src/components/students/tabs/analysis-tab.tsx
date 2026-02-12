@@ -139,8 +139,11 @@ export default function AnalysisTab({ studentId }: { studentId: string }) {
   }
 
   // Get image URLs for analysis panels
-  const faceImageUrl = data.student.images?.find(img => img.type === "face")?.originalUrl || null
-  const palmImageUrl = data.student.images?.find(img => img.type === "palm")?.originalUrl || null
+  // 관상 분석: face 타입 이미지가 없으면 프로필 사진을 사용
+  const faceImage = data.student.images?.find(img => img.type === 'face')
+  const profileImage = data.student.images?.find(img => img.type === 'profile')
+  const faceImageUrl = faceImage?.originalUrl || profileImage?.originalUrl || null
+  const palmImageUrl = data.student.images?.find(img => img.type === 'palm')?.originalUrl || null
 
   return (
     <>
@@ -227,6 +230,7 @@ export default function AnalysisTab({ studentId }: { studentId: string }) {
             faceImageUrl={faceImageUrl}
             enabledProviders={data.enabledProviders}
             promptOptions={data.facePromptOptions}
+            onDataChange={refreshData}
           />
         </TabsContent>
 
