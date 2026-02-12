@@ -596,6 +596,94 @@ model LLMBudget {
   updatedAt          DateTime  @updatedAt
 }
 
+// Universal LLM Hub Models
+model Provider {
+  id                String   @id @default(cuid())
+  name              String
+  providerType      String
+  baseUrl           String?
+  apiKeyEncrypted   String?
+  authType          String
+  customAuthHeader  String?
+  capabilities      String[]
+  costTier          String
+  qualityTier       String
+  isEnabled         Boolean  @default(false)
+  isValidated       Boolean  @default(false)
+  validatedAt       DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  models            Model[]
+
+  @@index([providerType])
+  @@index([isEnabled])
+  @@index([isValidated])
+  @@map("providers")
+}
+
+model Model {
+  id                String   @id @default(cuid())
+  providerId        String
+  modelId           String
+  displayName       String
+  contextWindow     Int?
+  supportsVision    Boolean  @default(false)
+  supportsTools     Boolean  @default(false)
+  defaultParams     Json?
+  isDefault         Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  provider          Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  featureMappings   FeatureMapping[]
+
+  @@unique([providerId, modelId])
+  @@index([providerId])
+  @@index([supportsVision])
+  @@index([supportsTools])
+  @@map("models")
+}
+
+model FeatureMapping {
+  id                String   @id @default(cuid())
+  featureType       String
+  matchMode         String
+  requiredTags      String[]
+  excludedTags      String[]
+  specificModelId   String?
+  priority          Int      @default(1)
+  fallbackMode      String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  specificModel     Model?   @relation(fields: [specificModelId], references: [id], onDelete: SetNull)
+
+  @@index([featureType])
+  @@index([matchMode])
+  @@index([specificModelId])
+  @@index([priority])
+  @@map("feature_mappings")
+}
+
+model ProviderTemplate {
+  id                  String   @id @default(cuid())
+  templateId          String   @unique
+  name                String
+  providerType        String
+  defaultBaseUrl      String?
+  defaultCapabilities String[]
+  defaultAuthType     String
+  description         String
+  helpUrl             String?
+  isPopular           Boolean  @default(false)
+  sortOrder           Int      @default(0)
+
+  @@index([isPopular])
+  @@index([sortOrder])
+  @@map("provider_templates")
+}
+
 model AnalysisPromptPreset {
   id                String   @id @default(cuid())
   promptKey         String
