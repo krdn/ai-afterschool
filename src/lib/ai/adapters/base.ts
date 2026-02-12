@@ -5,7 +5,7 @@
  * Vercel AI SDK와의 통합을 표준화합니다.
  */
 
-import type { LanguageModelV1 } from '@ai-sdk/provider';
+import type { LanguageModel } from 'ai';
 import type {
   ProviderConfig,
   GenerateOptions,
@@ -46,13 +46,13 @@ export abstract class BaseAdapter {
   abstract readonly supportsJsonMode: boolean;
 
   /**
-   * LanguageModelV1 인스턴스를 생성합니다.
+   * LanguageModel 인스턴스를 생성합니다.
    * 
    * @param modelId - 모델 ID
    * @param config - 제공자 설정
-   * @returns LanguageModelV1 인스턴스
+   * @returns LanguageModel 인스턴스
    */
-  abstract createModel(modelId: string, config?: ProviderConfig): LanguageModelV1;
+  abstract createModel(modelId: string, config?: ProviderConfig): LanguageModel;
 
   /**
    * 텍스트를 생성합니다.

@@ -224,14 +224,17 @@ export function providerNameToType(name: LegacyProviderName): ProviderType {
 // 어댑터 관련 타입
 // =============================================================================
 
-import type { LanguageModelV1, LanguageModelUsage } from '@ai-sdk/provider';
-import type { ModelMessage } from '@ai-sdk/provider-utils';
+import type { LanguageModelV2Usage } from '@ai-sdk/provider';
+import type { ModelMessage, LanguageModel } from 'ai';
+
+// Export for compatibility
+export type LanguageModelUsage = LanguageModelV2Usage;
 
 /**
  * 생성 옵션
  */
 export interface GenerateOptions {
-  model: LanguageModelV1;
+  model: LanguageModel;
   messages?: ModelMessage[];
   prompt?: string;
   system?: string;
