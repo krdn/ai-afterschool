@@ -1,0 +1,149 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import { Card, CardContent } from '@/components/ui/card';
+import { AdminPageLayout } from '@/components/admin/admin-page-layout';
+import { ProviderForm } from '@/components/admin/llm-providers/provider-form';
+import { getProviderTemplates } from '@/lib/ai/templates';
+import type { ProviderTemplate } from '@/lib/ai/templates';
+
+interface EditProviderPageProps {
+  params: Promise<{
+    id: string;
+  }>;
+}
+
+/**
+ * 제공자 편집 페이지
+ * 
+ * 기존 제공자의 설정을 수정합니다.
+ */
+export default function EditProviderPage({ params }: EditProviderPageProps) {
+  const router = useRouter();
+  const [providerId, setProviderId] = useState<string>('');
+  const [provider, setProvider] = useState<ProviderWithModels | null>(null);
+  const [template, setTemplate] = useState<ProviderTemplate | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // params에서 id 추출
+  useEffect(() => {
+    params.then(({ id }) => {
+      setProviderId(id);
+    });
+  }, [params]);
+
+  // 제공자 데이터 로드
+  useEffect(() => {
+    if (!providerId) return;
+
+    async function loadProvider() {
+      try {
+        const response = await fetch(`/api/providers/${providerId}`);
+        if (!response.ok) {
+          throw new Error('제공자를 불러오는데 실패했습니다.');
+        }
+        const data = await response.json();
+        setProvider(data);
+
+        // 템플릿 찾기
+        const templates = getProviderTemplates();
+        const matchedTemplate = templates.find(
+          (t) => t.providerType === data.providerType
+        );
+        setTemplate(matchedTemplate || null);
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : '오류가 발생했습니다.');
+        router.push('/admin/llm-providers');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadProvider();
+  }, [providerId, router]);
+
+  // 저장 성공 핸들러
+  const handleSuccess = () => {
+    toast.success('제공자가 수정되었습니다.');
+    router.push('/admin/llm-providers');
+    router.refresh();
+  };
+
+  if (isLoading) {
+    return (
+      <AdminPageLayout
+        title="제공자 수정"
+        description="제공자 정보를 불러오는 중..."
+        breadcrumbs={[
+          { label: 'Universal LLM Hub', href: '/admin/llm-providers' },
+          { label: '제공자 수정' },
+        ]}
+      >
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+            </div>
+          </CardContent>
+        </Card>
+      </AdminPageLayout>
+    );
+  }
+
+  if (!provider || !template) {
+    return (
+      <AdminPageLayout
+        title="제공자 수정"
+        description="제공자를 찾을 수 없습니다."
+        breadcrumbs={[
+          { label: 'Universal LLM Hub', href: '/admin/llm-providers' },
+          { label: '제공자 수정' },
+        ]}
+      >
+        <Card>
+          <CardContent className="p-6">
+            <p className="text-center text-muted-foreground">
+              제공자를 찾을 수 없습니다.
+            </p>
+          </CardContent>
+        </Card>
+      </AdminPageLayout>
+    );
+  }
+
+  return (
+    <AdminPageLayout
+      title={`${provider.name} 수정`}
+      description="제공자 설정을 수정합니다."
+      breadcrumbs={[
+        { label: 'Universal LLM Hub', href: '/admin/llm-providers' },
+        { label: provider.name, href: `/admin/llm-providers` },
+        { label: '수정' },
+      ]}
+    >
+      <Card>
+        <CardContent className="p-6">
+          <ProviderForm
+            template={template}
+            provider={provider}
+            onSuccess={handleSuccess}
+          />
+        </CardContent>
+      </Card>
+    </AdminPageLayout>
+  );
+}
+
+// 타입 정의 (임시)
+interface ProviderWithModels {
+  id: string;
+  name: string;
+  providerType: string;
+  models: Array<{
+    id: string;
+    modelId: string;
+    displayName: string;
+  }>;
+}
