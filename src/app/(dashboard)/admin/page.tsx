@@ -173,7 +173,9 @@ async function getHealthData() {
       status: 'unhealthy' as HealthStatus,
       message: error instanceof Error ? error.message : 'Database connection failed',
       responseTime: 0,
-      connectionPool: { total: pool.totalCount, idle: pool.idleCount, waiting: pool.waitingCount },
+      connectionPool: pool
+        ? { total: pool.totalCount, idle: pool.idleCount, waiting: pool.waitingCount }
+        : { total: 0, idle: 0, waiting: 0 },
     }
     result.status = 'unhealthy'
   }
