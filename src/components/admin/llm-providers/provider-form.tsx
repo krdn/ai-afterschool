@@ -94,6 +94,7 @@ export function ProviderForm({ provider, template, onSuccess }: ProviderFormProp
     null
   );
   const [syncedModels, setSyncedModels] = useState<number | null>(null);
+  const [selectedModel, setSelectedModel] = useState<string>('');
   const isEditing = !!provider;
 
   // 폼 초기화
@@ -507,6 +508,38 @@ export function ProviderForm({ provider, template, onSuccess }: ProviderFormProp
             />
           </CardContent>
         </Card>
+
+        {/* 모델 설정 - 수정 모드에서만 표시 */}
+        {isEditing && provider?.models && provider.models.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">모델 설정</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">기본 모델</label>
+                <Select
+                  value={selectedModel || ''}
+                  onValueChange={setSelectedModel}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="모델을 선택하세요" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {provider.models.map((model) => (
+                      <SelectItem key={model.id} value={model.modelId}>
+                        {model.displayName || model.modelId}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  이 제공자의 기본 모델을 선택합니다.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* 상태 설정 */}
         <Card>
