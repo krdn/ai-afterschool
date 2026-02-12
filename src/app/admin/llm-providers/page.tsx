@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Plus, Settings } from 'lucide-react';
+import { AdminPageLayout } from '@/components/admin/admin-page-layout';
 import { getProvidersAction } from '@/lib/actions/provider-actions';
 import { ProviderListClient } from './provider-list-client';
 import { HelpIntegration, QuickHelpSection } from './help-integration';
@@ -20,20 +21,15 @@ export default async function LLMProvidersPage() {
   const providers = await getProvidersAction();
 
   return (
-    <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-      {/* 도움말 시스템 통합 */}
-      <HelpIntegration />
-
-      {/* 페이지 헤더 */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">LLM 제공자 관리</h1>
-          <p className="text-muted-foreground mt-1">
-            AI 기능에 사용될 LLM 제공자를 등록하고 관리합니다
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2">
+    <AdminPageLayout
+      title="LLM 제공자 관리"
+      description="AI 기능에 사용될 LLM 제공자를 등록하고 관리합니다"
+      breadcrumbs={[
+        { label: 'Universal LLM Hub', href: '/admin' },
+        { label: '제공자 관리' },
+      ]}
+      actions={
+        <>
           <Button variant="outline" asChild>
             <Link href="/admin/llm-settings">
               <Settings className="w-4 h-4 mr-2" />
@@ -46,14 +42,17 @@ export default async function LLMProvidersPage() {
               새 제공자 추가
             </Link>
           </Button>
-        </div>
-      </div>
+        </>
+      }
+    >
+      {/* 도움말 시스템 통합 */}
+      <HelpIntegration />
 
       {/* 제공자 목록 */}
       <ProviderListClient providers={providers} />
 
       {/* 퀵 헬프 섹션 */}
       <QuickHelpSection />
-    </div>
+    </AdminPageLayout>
   );
 }

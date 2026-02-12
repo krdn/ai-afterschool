@@ -2,11 +2,10 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, Check } from 'lucide-react';
+import { Check } from 'lucide-react';
+import { AdminPageLayout } from '@/components/admin/admin-page-layout';
 import { TemplateSelector } from '@/components/admin/llm-providers/template-selector';
 import { ProviderForm } from '@/components/admin/llm-providers/provider-form';
 import { getProviderTemplates } from '@/lib/ai/templates';
@@ -38,16 +37,6 @@ export default function NewProviderPage() {
     }
   };
 
-  // 뒤로 가기 핸들러
-  const handleBack = () => {
-    if (step === 2) {
-      setStep(1);
-      setSelectedTemplate(null);
-    } else {
-      router.push('/admin/llm-providers');
-    }
-  };
-
   // 저장 성공 핸들러
   const handleSuccess = () => {
     toast.success('제공자가 등록되었습니다.');
@@ -56,24 +45,18 @@ export default function NewProviderPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-      {/* 페이지 헤더 */}
-      <div className="flex items-center gap-4 mb-8">
-        <Button variant="ghost" size="icon" onClick={handleBack}>
-          <ArrowLeft className="w-5 h-5" />
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            {step === 1 ? '새 제공자 등록' : '제공자 정보 입력'}
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            {step === 1
-              ? '사용할 LLM 제공자를 선택하세요'
-              : `${selectedTemplate?.name} 설정을 완료하세요`}
-          </p>
-        </div>
-      </div>
-
+    <AdminPageLayout
+      title={step === 1 ? '새 제공자 등록' : '제공자 정보 입력'}
+      description={
+        step === 1
+          ? '사용할 LLM 제공자를 선택하세요'
+          : `${selectedTemplate?.name} 설정을 완료하세요`
+      }
+      breadcrumbs={[
+        { label: 'Universal LLM Hub', href: '/admin/llm-providers' },
+        { label: '새 제공자 등록' },
+      ]}
+    >
       {/* 진행 단계 표시 */}
       <div className="flex items-center gap-2 mb-8">
         <div
@@ -120,6 +103,6 @@ export default function NewProviderPage() {
           </Card>
         )}
       </div>
-    </div>
+    </AdminPageLayout>
   );
 }

@@ -1,7 +1,8 @@
 import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertCircle, Info } from 'lucide-react';
+import { AdminPageLayout } from '@/components/admin/admin-page-layout';
 import { HelpIntegration, QuickHelpSection } from './help-integration';
 import { FeatureMappingList } from '@/components/admin/llm-features/feature-mapping-list';
 import { getFeatureMappingsAction } from '@/lib/actions/feature-mapping-actions';
@@ -31,17 +32,16 @@ export default async function LLMFeaturesPage() {
   const activeProviders = providers.filter((p: { isEnabled?: boolean }) => p.isEnabled);
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-7xl">
+    <AdminPageLayout
+      title="기능별 LLM 매핑"
+      description="각 기능에 사용될 LLM 모델의 매핑 규칙을 설정하고 관리합니다."
+      breadcrumbs={[
+        { label: 'Universal LLM Hub', href: '/admin' },
+        { label: '기능별 매핑' },
+      ]}
+    >
       {/* 도움말 시스템 통합 */}
       <HelpIntegration />
-
-      {/* 헤더 */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">기능별 LLM 매핑</h1>
-        <p className="text-muted-foreground">
-          각 기능에 사용될 LLM 모델의 매핑 규칙을 설정하고 관리합니다.
-        </p>
-      </div>
 
       {/* 정보 카드 */}
       <div className="grid gap-4 md:grid-cols-2 mb-8">
@@ -93,8 +93,6 @@ export default async function LLMFeaturesPage() {
         </Card>
       )}
 
-
-
       {/* 제공자 없음 경고 */}
       {activeProviders.length === 0 && (
         <Card className="mb-6 border-amber-500/50 bg-amber-50 dark:bg-amber-950/20">
@@ -132,12 +130,12 @@ export default async function LLMFeaturesPage() {
         onRefresh={async () => {
           // 서버 컴포넌트에서 실행될 새로고침 로직
           'use server';
-          // 서버 액션으로 클라이언트에 신호를 볩니다
+          // 서버 액션으로 클라이언트에 신호를 본니다
         }}
       />
 
       {/* 퀵 헬프 섹션 */}
       <QuickHelpSection />
-    </div>
+    </AdminPageLayout>
   );
 }
