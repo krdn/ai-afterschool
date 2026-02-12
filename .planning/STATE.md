@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-02-12)
 
 Milestone: v3.0 Issue Management & Auto DevOps Pipeline
 Phase: 35 of 35 (Universal LLM Hub) 🚧 IN PROGRESS
-Plan: 02 of TBD completed
-Status: Phase 35 in progress (2 plans complete)
-Last activity: 2026-02-12 — Completed 35-02 (Core Types & Provider Registry Foundation)
+Plan: 03 of TBD completed
+Status: Phase 35 in progress (3 plans complete)
+Last activity: 2026-02-12 — Completed 35-03 (Provider Template System & Registration API)
 
-Progress: [██████████████████████████░░░░░░░░░░░░░░░░░] 83.7% (165/196 plans across v1.0-v3.0)
+Progress: [██████████████████████████░░░░░░░░░░░░░░░░░] 83.7% (166/196 plans across v1.0-v3.0)
 
 **v3.0 Issue Management & Auto DevOps Pipeline** 🚧 IN PROGRESS
 - Phase 29: Database & GitHub API Foundation (3/3 plans complete) ✅ 29-01, 29-02, 29-03
@@ -26,7 +26,7 @@ Progress: [███████████████████████
 - Phase 34: Issue Dashboard & Integration Testing (not started)
 
 **Universal LLM Hub** 🚧 IN PROGRESS
-- Phase 35: Core Types & Provider Registry Foundation (2/TBD complete) ✅ 35-01, 35-02
+- Phase 35: Core Types & Provider Registry Foundation (3/TBD complete) ✅ 35-01, 35-02, 35-03
 
 ## Performance Metrics
 
@@ -83,6 +83,9 @@ Recent decisions affecting v3.0:
 - 타입 정의: Prisma 타입에서 파생하여 일관성 유지 (35-02)
 - 어댑터 패턴: BaseAdapter 상속 구조 (35-02)
 - ProviderRegistry: Singleton + TTL 캐싱 (35-02)
+- 제공자 템플릿: 11개 인기 제공자 템플릿 정의 (35-03)
+- 템플릿 기반 등록: 필드 자동 채우기 + 직접 설정 모드 (35-03)
+- Provider API: REST API + Server Actions 이중 지원 (35-03)
 
 **Critical Pitfalls to Avoid:**
 1. GitHub API rate limit (5,000/hour) - monitor and cache locally
@@ -121,11 +124,11 @@ None yet for v3.0.
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Phase 35 Plan 02 complete (Core Types & Provider Registry)
+Stopped at: Phase 35 Plan 03 complete (Provider Template System & Registration API)
 Resume file: None
-Next action: Create Phase 35 Plan 03 (Feature Mapping & Resolution)
+Next action: Create Phase 35 Plan 04 (Feature Mapping & Resolution)
 
-Last activity: 2026-02-12 - Completed 35-02: Core Types & Provider Registry Foundation
+Last activity: 2026-02-12 - Completed 35-03: Provider Template System & Registration API
 
 ---
-*Last updated: 2026-02-12 (Phase 35 Plan 02 complete, ready for Plan 03)*
+*Last updated: 2026-02-12 (Phase 35 Plan 03 complete, ready for Plan 04)*
