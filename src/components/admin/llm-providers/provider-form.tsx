@@ -135,7 +135,11 @@ export function ProviderForm({ provider, template, onSuccess }: ProviderFormProp
 
       // 기본 모델 선택 상태 초기화
       const defaultModel = provider.models?.find(m => m.isDefault);
+      console.log('ProviderForm - provider.models:', provider.models);
+      console.log('ProviderForm - defaultModel:', defaultModel);
+      console.log('ProviderForm - hasApiKey:', provider.hasApiKey);
       if (defaultModel) {
+        console.log('ProviderForm - Setting selectedModel to:', defaultModel.modelId);
         setSelectedModel(defaultModel.modelId);
       }
     } else if (template) {
@@ -559,6 +563,7 @@ export function ProviderForm({ provider, template, onSuccess }: ProviderFormProp
                 <div className="space-y-2">
                   <label className="text-sm font-medium">기본 모델</label>
                   <Select
+                    key={`${provider.id}-${selectedModel || 'empty'}`}
                     value={selectedModel || ''}
                     onValueChange={async (value) => {
                       setSelectedModel(value);
