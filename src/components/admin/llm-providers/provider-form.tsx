@@ -35,6 +35,7 @@ import {
   updateProviderAction,
   validateProviderAction,
   syncProviderModelsAction,
+  setDefaultModelAction,
 } from '@/lib/actions/provider-actions';
 import type { ProviderWithModels, ProviderInput, Capability } from '@/lib/ai/types';
 import type { ProviderTemplate } from '@/lib/ai/templates';
@@ -130,6 +131,12 @@ export function ProviderForm({ provider, template, onSuccess }: ProviderFormProp
         qualityTier: provider.qualityTier as ProviderFormValues['qualityTier'],
         isEnabled: provider.isEnabled,
       });
+
+      // 기본 모델 선택 상태 초기화
+      const defaultModel = provider.models?.find(m => m.isDefault);
+      if (defaultModel) {
+        setSelectedModel(defaultModel.modelId);
+      }
     } else if (template) {
       // 템플릿 기반 새 제공자
       form.reset({
@@ -521,7 +528,27 @@ export function ProviderForm({ provider, template, onSuccess }: ProviderFormProp
                   <label className="text-sm font-medium">기본 모델</label>
                   <Select
                     value={selectedModel || ''}
-                    onValueChange={setSelectedModel}
+                    onValueChange={async (value) => {
+                      setSelectedModel(value);
+                      // 기본 모델 저장
+                      if (provider && value) {
+                        try {
+                          const selectedModelData = provider.models?.find(m => m.modelId === value);
+                          if (selectedModelData) {
+                            await setDefaultModelAction(provider.id, selectedModelData.id);
+                            setTestResult({
+                              success: true,
+                              message: `기본 모델이 "${selectedModelData.displayName || selectedModelData.modelId}"(으)로 설정되었습니다.`,
+                            });
+                          }
+                        } catch (error) {
+                          setTestResult({
+                            success: false,
+                            message: error instanceof Error ? error.message : '기본 모델 설정에 실패했습니다.',
+                          });
+                        }
+                      }
+                    }}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="모델을 선택하세요" />

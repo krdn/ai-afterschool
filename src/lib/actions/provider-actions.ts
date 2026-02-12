@@ -192,6 +192,37 @@ export async function syncProviderModelsAction(
 }
 
 // ============================================================================
+// Model Default Actions
+// ============================================================================
+
+/**
+ * 기본 모델을 설정합니다.
+ */
+export async function setDefaultModelAction(
+  providerId: string,
+  modelId: string
+): Promise<void> {
+  const session = await verifySession();
+  if (session.role !== 'DIRECTOR') {
+    throw new Error('Unauthorized: DIRECTOR role required');
+  }
+
+  // 기존 기본 모델 해제
+  await db.model.updateMany({
+    where: { providerId },
+    data: { isDefault: false },
+  });
+
+  // 새 기본 모델 설정
+  await db.model.update({
+    where: { id: modelId },
+    data: { isDefault: true },
+  });
+
+  revalidatePath('/admin/llm-providers');
+}
+
+// ============================================================================
 // Utility Exports
 // ============================================================================
 
