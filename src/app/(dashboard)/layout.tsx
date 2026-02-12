@@ -3,6 +3,7 @@ import { getCurrentTeacher } from "@/lib/dal"
 import { NotificationBell } from "@/components/layout/notification-bell"
 import { UserMenu } from "@/components/layout/user-menu"
 import { DevUserSwitcher } from "@/components/dev/dev-user-switcher"
+import { IssueReportButton } from "@/components/issues/issue-report-button"
 
 const isDev = process.env.NODE_ENV === "development"
 
@@ -68,7 +69,12 @@ export default async function DashboardLayout({
               </nav>
             </div>
             <div className="flex items-center space-x-4">
-              {teacher.role === "DIRECTOR" && <NotificationBell />}
+              {teacher.role === "DIRECTOR" && (
+                <>
+                  <IssueReportButton userRole={teacher.role} />
+                  <NotificationBell />
+                </>
+              )}
               <UserMenu name={teacher.name} role={teacher.role} />
             </div>
           </div>
