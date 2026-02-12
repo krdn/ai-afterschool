@@ -105,8 +105,13 @@ export class OllamaAdapter extends BaseAdapter {
       // 연결 테스트 - /api/version 호출
       const versionUrl = baseUrl.replace(/\/api$/, '/api/version');
 
+      console.log('[OllamaAdapter] Validating URL:', versionUrl);
+
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 5000);
+      const timeout = setTimeout(() => {
+        console.log('[OllamaAdapter] Timeout after 10s');
+        controller.abort();
+      }, 10000);
 
       const headers: Record<string, string> = {};
       if (apiKey) {
@@ -131,9 +136,25 @@ export class OllamaAdapter extends BaseAdapter {
         isValid: true,
       };
     } catch (error) {
+      console.error('[OllamaAdapter] Validation error:', error);
+      
+      // 더 구체적인 오류 메시지
+      let errorMessage = '알 수 없는 오류';
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          errorMessage = '연결 시간 초과 (10초). 서버가 접근 가능한지 확인하세요.';
+        } else if (error.message.includes('ECONNREFUSED')) {
+          errorMessage = '연결 거부됨. 서버가 실행 중인지 확인하세요.';
+        } else if (error.message.includes('ENOTFOUND')) {
+          errorMessage = '호스트를 찾을 수 없음. URL을 확인하세요.';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
       return {
         isValid: false,
-        error: this.handleError(error, 'validation').message,
+        error: `[Ollama] ${errorMessage}`,
       };
     }
   }
