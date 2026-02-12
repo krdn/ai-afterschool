@@ -46,7 +46,11 @@ function getPrismaClient(): PrismaClient {
 
 export const db = getPrismaClient();
 
+// Export pool for health check monitoring (lazy initialization)
+export const pool = databaseUrl ? getPool() : undefined;
+
 // Store in global for hot reload during development
 if (process.env.NODE_ENV !== "production" && databaseUrl) {
   globalForPrisma.prisma = db;
+  globalForPrisma.pool = pool;
 }
