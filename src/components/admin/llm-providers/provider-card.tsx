@@ -31,6 +31,8 @@ import {
   ChevronDown,
   ChevronUp,
   Brain,
+  Pin,
+  Key,
 } from 'lucide-react';
 import type { ProviderWithModels } from '@/lib/ai/types';
 
@@ -190,7 +192,7 @@ export function ProviderCard({
             <div>
               <CardTitle className="text-base flex items-center gap-2">
                 {String(providerData.name)}
-                {providerData.isDefault && (
+                {Boolean(providerData.isDefault) && (
                   <Sparkles className="w-4 h-4 text-yellow-500" />
                 )}
               </CardTitle>
@@ -216,11 +218,45 @@ export function ProviderCard({
 
       <CardContent className="pt-0 space-y-4">
         {/* URL 정보 */}
-        {providerData.baseUrl && (
+        {providerData.baseUrl ? (
           <p className="text-sm text-muted-foreground truncate">
             {String(providerData.baseUrl)}
           </p>
-        )}
+        ) : null}
+
+        {/* 기본 모델 (접힌 상태에서도 표시) */}
+        {(() => {
+          const defaultModel = provider.models?.find(m => m.isDefault);
+          if (!defaultModel) return null;
+          return (
+            <div className="flex items-center gap-2 text-sm">
+              <Pin className="w-4 h-4 text-yellow-500" />
+              <span className="font-medium">기본 모델:</span>
+              <span>{defaultModel.displayName}</span>
+              {defaultModel.contextWindow && (
+                <Badge variant="secondary" className="text-[10px] h-4 px-1">
+                  {formatContextWindow(defaultModel.contextWindow)}
+                </Badge>
+              )}
+            </div>
+          );
+        })()}
+
+        {/* API 키 상태 */}
+        <div className="flex items-center gap-2 text-sm">
+          <Key className={cn(
+            "w-4 h-4",
+            providerData.apiKey ? "text-green-500" : "text-muted-foreground"
+          )} />
+          <span className="text-muted-foreground">
+            {providerData.apiKey ? "API 키 설정됨" : "API 키 없음"}
+          </span>
+          {providerData.apiKey ? (
+            <code className="text-xs bg-muted px-1.5 py-0.5 rounded">
+              {maskApiKey(String(providerData.apiKey))}
+            </code>
+          ) : null}
+        </div>
 
         {/* 모델 수 & 토글 */}
         <div 
@@ -242,13 +278,34 @@ export function ProviderCard({
             <p className="text-xs font-medium text-muted-foreground mb-2">등록된 모델:</p>
             <div className="space-y-1">
               {provider.models.map((model) => (
-                <div 
-                  key={model.id} 
-                  className="flex items-center gap-2 text-sm py-1 px-2 rounded hover:bg-muted"
+                <div
+                  key={model.id}
+                  className={cn(
+                    "flex items-center gap-2 text-sm py-1 px-2 rounded",
+                    model.isDefault 
+                      ? "bg-yellow-50 border border-yellow-200 hover:bg-yellow-100" 
+                      : "hover:bg-muted"
+                  )}
                 >
-                  <Brain className="w-3 h-3 text-muted-foreground" />
+                  {model.isDefault ? (
+                    <Pin className="w-3 h-3 text-yellow-500" />
+                  ) : (
+                    <Brain className="w-3 h-3 text-muted-foreground" />
+                  )}
                   <span className="font-medium">{model.displayName || model.modelId}</span>
-                  <span className="text-xs text-muted-foreground">({model.modelId})</span>
+                  {model.isDefault && (
+                    <Badge className="bg-yellow-500 text-white text-[10px] h-4 px-1">
+                      기본
+                    </Badge>
+                  )}
+                  <span className="text-xs text-muted-foreground ml-auto flex items-center gap-2">
+                    {model.contextWindow && (
+                      <span className="text-xs bg-muted px-1.5 py-0.5 rounded">
+                        {formatContextWindow(model.contextWindow)}
+                      </span>
+                    )}
+                    <span>({model.modelId})</span>
+                  </span>
                 </div>
               ))}
             </div>
@@ -368,4 +425,25 @@ function getQualityTierStyle(tier: string): string {
     premium: 'text-purple-600 border-purple-600',
   };
   return styles[tier] || '';
+}
+
+/**
+ * 컨텍스트 윈도우 포맷팅
+ * 4000 -> 4K, 128000 -> 128K, 200000 -> 200K
+ */
+function formatContextWindow(n?: number | null): string {
+  if (!n) return '';
+  if (n >= 1000) return `${(n / 1000).toFixed(0)}K`;
+  return `${n}`;
+}
+
+/**
+ * API 키 마스킹
+ * sk-abc123def456 -> sk-...456
+ */
+function maskApiKey(key: string): string {
+  if (!key || key.length < 8) return key;
+  const prefix = key.slice(0, 4);
+  const suffix = key.slice(-4);
+  return `${prefix}...${suffix}`;
 }
