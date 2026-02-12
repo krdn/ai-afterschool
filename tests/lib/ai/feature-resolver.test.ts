@@ -451,15 +451,16 @@ describe('FeatureResolver', () => {
     it('should return fallback chain in priority order', async () => {
       const provider1 = mockProvider('p1');
       const provider2 = mockProvider('p2');
-      const model1 = mockModel('m1', 'p1');
-      const model2 = mockModel('m2', 'p2');
+      // Use different models to ensure they both appear in results
+      const model1 = mockModel('m1', 'p1', { supportsVision: true });
+      const model2 = mockModel('m2', 'p2', { supportsVision: false });
 
       const mappings = [
         {
           id: 'map1',
           featureType: 'test_feature',
           matchMode: 'auto_tag',
-          requiredTags: [],
+          requiredTags: ['vision'], // Only matches model1
           excludedTags: [],
           specificModelId: null,
           priority: 2,
@@ -471,7 +472,7 @@ describe('FeatureResolver', () => {
           id: 'map2',
           featureType: 'test_feature',
           matchMode: 'auto_tag',
-          requiredTags: [],
+          requiredTags: [], // Matches all
           excludedTags: [],
           specificModelId: null,
           priority: 1,
@@ -489,7 +490,9 @@ describe('FeatureResolver', () => {
 
       const results = await resolver.resolveWithFallback('test_feature');
 
+      // Should get both models with their respective priorities
       expect(results).toHaveLength(2);
+      // Higher priority should come first
       expect(results[0].priority).toBe(2);
       expect(results[1].priority).toBe(1);
     });
