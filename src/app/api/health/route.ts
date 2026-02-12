@@ -69,14 +69,14 @@ export async function GET() {
     const dbTime = Date.now() - dbStart
 
     // 연결 풀 메트릭 수집
-    const connectionPoolMetrics = {
+    const connectionPoolMetrics = pool ? {
       total: pool.totalCount,
       idle: pool.idleCount,
       waiting: pool.waitingCount,
-    }
+    } : { total: 0, idle: 0, waiting: 0 }
 
     // 연결 풀 사용률 계산 및 경고 (max: 10)
-    const poolUsage = pool.totalCount / 10
+    const poolUsage = pool ? pool.totalCount / 10 : 0
     if (poolUsage > 0.8) {
       logger.warn({ poolUsage: `${(poolUsage * 100).toFixed(0)}%`, pool: connectionPoolMetrics }, 'Connection pool usage high')
     }
@@ -98,11 +98,11 @@ export async function GET() {
     results.checks.database = {
       status: 'unhealthy',
       message: errorMessage,
-      connectionPool: {
+      connectionPool: pool ? {
         total: pool.totalCount,
         idle: pool.idleCount,
         waiting: pool.waitingCount,
-      },
+      } : { total: 0, idle: 0, waiting: 0 },
     }
     results.status = 'unhealthy'
   }
