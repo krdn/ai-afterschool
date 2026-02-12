@@ -28,6 +28,9 @@ import {
   Sparkles,
   DollarSign,
   Gauge,
+  ChevronDown,
+  ChevronUp,
+  Brain,
 } from 'lucide-react';
 import type { ProviderWithModels } from '@/lib/ai/types';
 
@@ -62,6 +65,7 @@ export function ProviderCard({
   });
 
   const providerData = provider as unknown as Record<string, unknown>;
+  const [showModels, setShowModels] = useState(false);
 
   // 연결 테스트 실행
   const handleTest = async () => {
@@ -218,11 +222,38 @@ export function ProviderCard({
           </p>
         )}
 
-        {/* 모델 수 */}
-        <div className="flex items-center gap-2 text-sm">
+        {/* 모델 수 & 토글 */}
+        <div 
+          className="flex items-center gap-2 text-sm cursor-pointer hover:text-primary transition-colors"
+          onClick={() => setShowModels(!showModels)}
+        >
           <Server className="w-4 h-4 text-muted-foreground" />
           <span>{(provider.models?.length || 0)}개 모델 등록됨</span>
+          {showModels ? (
+            <ChevronUp className="w-4 h-4 text-muted-foreground" />
+          ) : (
+            <ChevronDown className="w-4 h-4 text-muted-foreground" />
+          )}
         </div>
+
+        {/* 모델 리스트 */}
+        {showModels && provider.models && provider.models.length > 0 && (
+          <div className="bg-muted/50 rounded-lg p-3 space-y-2">
+            <p className="text-xs font-medium text-muted-foreground mb-2">등록된 모델:</p>
+            <div className="space-y-1">
+              {provider.models.map((model) => (
+                <div 
+                  key={model.id} 
+                  className="flex items-center gap-2 text-sm py-1 px-2 rounded hover:bg-muted"
+                >
+                  <Brain className="w-3 h-3 text-muted-foreground" />
+                  <span className="font-medium">{model.displayName || model.modelId}</span>
+                  <span className="text-xs text-muted-foreground">({model.modelId})</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* 기능 태그 */}
         {renderCapabilityBadges()}
