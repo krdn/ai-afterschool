@@ -5,8 +5,7 @@
  */
 
 import { anthropic, createAnthropic } from '@ai-sdk/anthropic';
-import { generateText, streamText } from 'ai';
-import type { LanguageModelV1 } from '@ai-sdk/provider';
+import { generateText, streamText, type LanguageModel } from 'ai';
 import { BaseAdapter } from './base';
 import type {
   ProviderConfig,
@@ -28,22 +27,21 @@ export class AnthropicAdapter extends BaseAdapter {
   private apiKey: string = '';
   private baseUrl: string = 'https://api.anthropic.com/v1';
 
-  createModel(modelId: string, config?: ProviderConfig): LanguageModelV1 {
+  createModel(modelId: string, config?: ProviderConfig): LanguageModel {
     const effectiveConfig = config || ({} as ProviderConfig);
     const effectiveApiKey = effectiveConfig.apiKeyEncrypted
       ? this.decryptApiKey(effectiveConfig.apiKeyEncrypted)
       : this.apiKey;
     const effectiveBaseUrl = effectiveConfig.baseUrl || this.baseUrl;
 
-    if (effectiveBaseUrl !== 'https://api.anthropic.com/v1' || effectiveApiKey) {
+    if (effectiveApiKey) {
       const custom = createAnthropic({
         apiKey: effectiveApiKey,
-        baseURL: effectiveBaseUrl,
       });
-      return custom.chatModel(modelId);
+      return custom(modelId);
     }
 
-    return anthropic.chatModel(modelId);
+    return anthropic(modelId);
   }
 
   async generate(options: GenerateOptions): Promise<GenerateResult> {
@@ -51,10 +49,12 @@ export class AnthropicAdapter extends BaseAdapter {
 
     const result = await generateText({
       model,
-      prompt: options.prompt,
-      messages: options.messages,
+      ...(options.messages 
+        ? { messages: options.messages }
+        : { prompt: options.prompt || '' }
+      ),
       system: options.system,
-      maxTokens: options.maxTokens,
+      maxOutputTokens: options.maxTokens,
       temperature: options.temperature,
       topP: options.topP,
     });
@@ -70,10 +70,12 @@ export class AnthropicAdapter extends BaseAdapter {
 
     const result = streamText({
       model,
-      prompt: options.prompt,
-      messages: options.messages,
+      ...(options.messages 
+        ? { messages: options.messages }
+        : { prompt: options.prompt || '' }
+      ),
       system: options.system,
-      maxTokens: options.maxTokens,
+      maxOutputTokens: options.maxTokens,
       temperature: options.temperature,
       topP: options.topP,
     });
@@ -81,7 +83,7 @@ export class AnthropicAdapter extends BaseAdapter {
     return {
       stream: result.textStream,
       provider: this.providerType,
-      model: model.modelId,
+      model: 'unknown',
     };
   }
 
@@ -103,7 +105,7 @@ export class AnthropicAdapter extends BaseAdapter {
       await generateText({
         model: testModel,
         prompt: 'Hello',
-        maxTokens: 1,
+        maxOutputTokens: 1,
       });
 
       return {

@@ -7,8 +7,7 @@
 
 import { createOllama } from 'ollama-ai-provider-v2';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
-import { generateText, streamText } from 'ai';
-import type { LanguageModelV1 } from '@ai-sdk/provider';
+import { generateText, streamText, type LanguageModel } from 'ai';
 import { BaseAdapter } from './base';
 import type {
   ProviderConfig,
@@ -30,7 +29,7 @@ export class OllamaAdapter extends BaseAdapter {
   private apiKey: string = '';
   private baseUrl: string = 'http://localhost:11434/api';
 
-  createModel(modelId: string, config?: ProviderConfig): LanguageModelV1 {
+  createModel(modelId: string, config?: ProviderConfig): LanguageModel {
     const effectiveConfig = config || ({} as ProviderConfig);
     const effectiveApiKey = effectiveConfig.apiKeyEncrypted
       ? this.decryptApiKey(effectiveConfig.apiKeyEncrypted)
@@ -44,13 +43,13 @@ export class OllamaAdapter extends BaseAdapter {
         baseURL: this.ensureHttps(effectiveBaseUrl),
         apiKey: effectiveApiKey,
       });
-      return provider.chatModel(modelId);
+      return provider(modelId);
     }
 
     // 직접 Ollama 서버 → 네이티브 API
     return createOllama({
       baseURL: this.ensureHttps(effectiveBaseUrl),
-    }).chatModel(modelId);
+    })(modelId);
   }
 
   async generate(options: GenerateOptions): Promise<GenerateResult> {
@@ -58,10 +57,12 @@ export class OllamaAdapter extends BaseAdapter {
 
     const result = await generateText({
       model,
-      prompt: options.prompt,
-      messages: options.messages,
+      ...(options.messages 
+        ? { messages: options.messages }
+        : { prompt: options.prompt || '' }
+      ),
       system: options.system,
-      maxTokens: options.maxTokens,
+      maxOutputTokens: options.maxTokens,
       temperature: options.temperature,
       topP: options.topP,
     });
@@ -77,10 +78,12 @@ export class OllamaAdapter extends BaseAdapter {
 
     const result = streamText({
       model,
-      prompt: options.prompt,
-      messages: options.messages,
+      ...(options.messages 
+        ? { messages: options.messages }
+        : { prompt: options.prompt || '' }
+      ),
       system: options.system,
-      maxTokens: options.maxTokens,
+      maxOutputTokens: options.maxTokens,
       temperature: options.temperature,
       topP: options.topP,
     });
@@ -88,7 +91,7 @@ export class OllamaAdapter extends BaseAdapter {
     return {
       stream: result.textStream,
       provider: this.providerType,
-      model: model.modelId,
+      model: 'unknown',
     };
   }
 
