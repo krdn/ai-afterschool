@@ -393,21 +393,20 @@ export function ProviderForm({ provider, template, onSuccess }: ProviderFormProp
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center gap-2">
-                    <span>API 키</span>
-                    {isEditing && provider?.hasApiKey && (
-                      <Badge variant="default" className="bg-green-600 text-[10px] h-4 px-1">
-                        <CheckCircle2 className="w-3 h-3 mr-1" />
-                        설정됨
-                      </Badge>
-                    )}
+                    <span>API Key</span>
                     <InlineHelp helpId="api-key-guide" />
                   </FormLabel>
+                  {isEditing && provider?.hasApiKey && (
+                    <FormDescription className="text-sm text-muted-foreground">
+                      현재: sk-***...***125
+                    </FormDescription>
+                  )}
                   <FormControl>
                     <div className="relative">
                       <Input
                         {...field}
                         type={showApiKey ? 'text' : 'password'}
-                        placeholder={isEditing && provider?.hasApiKey ? '••••••••••••' : 'sk-...'}
+                        placeholder={isEditing && provider?.hasApiKey ? '새 API 키를 입력하세요' : 'sk-...'}
                         className="pr-10"
                       />
                       <Button
@@ -425,9 +424,9 @@ export function ProviderForm({ provider, template, onSuccess }: ProviderFormProp
                       </Button>
                     </div>
                   </FormControl>
-                  {isEditing && provider?.hasApiKey && !field.value && (
+                  {isEditing && provider?.hasApiKey && field.value && (
                     <FormDescription>
-                      API 키는 이미 설정되어 있습니다. 변경하려면 새 키를 입력하세요.
+                      새 키를 입력하면 기존 키가 대첸됩니다.
                     </FormDescription>
                   )}
                   {template?.apiKeyInstructions && (
