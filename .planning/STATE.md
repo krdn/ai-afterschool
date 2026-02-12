@@ -9,13 +9,13 @@ See: .planning/PROJECT.md (updated 2026-02-11)
 
 ## Current Position
 
-Milestone: v3.0 Issue Management & Auto DevOps Pipeline
-Phase: 29 of 34 (Database & GitHub API Foundation)
-Plan: 03 of 03 completed
-Status: Phase 29 complete (3/3 plans complete)
-Last activity: 2026-02-11 — Completed 29-03 (GitHub Services & Issue Actions)
+Milestone: v4.0 Universal LLM Hub
+Phase: 35 of 35 (Universal LLM Hub)
+Plan: 01 of 09 completed
+Status: Phase 35 in progress (1/9 plans complete)
+Last activity: 2026-02-12 — Completed 35-01 (Database Schema Migration)
 
-Progress: [██████████████████████████░░░░░░░░░░░░░░░░░] 83.7% (165/196 plans across v1.0-v3.0)
+Progress: [██████████████████████████░░░░░░░░░░░░░░░░░] 84.2% (166/197 plans across v1.0-v4.0)
 
 **v3.0 Issue Management & Auto DevOps Pipeline** 🚧 IN PROGRESS
 - Phase 29: Database & GitHub API Foundation (3/3 plans complete) ✅ 29-01, 29-02, 29-03
@@ -24,6 +24,11 @@ Progress: [███████████████████████
 - Phase 32: Webhook & Issue Sync (not started)
 - Phase 33: CI/CD Pipeline (not started)
 - Phase 34: Issue Dashboard & Integration Testing (not started)
+
+**v4.0 Universal LLM Hub** 🚧 IN PROGRESS
+- Phase 35: Universal LLM Hub (1/9 plans complete) ✅ 35-01
+- Phase 35-02: Core Types & Provider Registry Foundation (not started)
+- Phase 35-03: Provider Template System & Registration API (not started)
 
 **Coverage:**
 - Requirements: 31/31 (100%) mapped to phases
@@ -85,6 +90,12 @@ Recent decisions affecting v3.0:
 - Dual-layer storage: Local PostgreSQL + GitHub Issues sync
 - CI/CD trigger: `auto-deploy` label on PR merge to main
 
+**v4.0 Universal LLM Hub Technical Decisions:**
+- Database schema: Provider(1) → Model(N) → FeatureMapping(N) 구조
+- 하위호환성: 기존 LLMConfig, LLMFeatureConfig 테이블 유지
+- 인증 방식: authType 필드로 'api_key', 'bearer', 'custom_header', 'none' 지원
+- 마이그레이션: Standalone TypeScript 스크립트 with dry-run/rollback
+
 **Critical Pitfalls to Avoid:**
 1. GitHub API rate limit (5,000/hour) - monitor and cache locally
 2. Webhook signature verification - HMAC-SHA256 + timingSafeEqual
@@ -118,12 +129,12 @@ None yet for v3.0.
 
 ## Session Continuity
 
-Last session: 2026-02-11
-Stopped at: Phase 29 complete (3/3 plans)
+Last session: 2026-02-12
+Stopped at: Phase 35-01 complete (1/9 plans)
 Resume file: None
-Next action: `/gsd:plan-phase 30` to create Phase 30 execution plans
+Next action: Execute 35-02 (Core Types & Provider Registry Foundation)
 
-Last activity: 2026-02-11 - Completed quick task 006: 사주 해석 미리보기 포맷 개선
+Last activity: 2026-02-12 - Completed Phase 35-01: Database Schema Migration for Universal LLM Hub
 
 ---
-*Last updated: 2026-02-11 (Phase 29 complete, ready for Phase 30)*
+*Last updated: 2026-02-12 (Phase 35 in progress, 1/9 plans complete)*
