@@ -45,7 +45,7 @@ export default function EditProviderPage({ params }: EditProviderPageProps) {
           throw new Error('제공자를 불러오는데 실패했습니다.');
         }
         const data = await response.json();
-        setProvider(data);
+        setProvider(data.provider);
 
         // 템플릿 찾기
         const templates = getProviderTemplates();
