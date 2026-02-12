@@ -242,20 +242,17 @@ export function ProviderCard({
           );
         })()}
 
-        {/* API 키 상태 */}
+        {/* API 키 상태 - hasApiKey 필드 사용 */}
         <div className="flex items-center gap-2 text-sm">
           <Key className={cn(
             "w-4 h-4",
-            providerData.apiKey ? "text-green-500" : "text-muted-foreground"
+            (providerData.hasApiKey || providerData.apiKey) ? "text-green-500" : "text-muted-foreground"
           )} />
-          <span className="text-muted-foreground">
-            {providerData.apiKey ? "API 키 설정됨" : "API 키 없음"}
+          <span className={cn(
+            (providerData.hasApiKey || providerData.apiKey) ? "text-green-600 font-medium" : "text-muted-foreground"
+          )}>
+            {(providerData.hasApiKey || providerData.apiKey) ? "✓ API 키 설정됨" : "API 키 없음"}
           </span>
-          {providerData.apiKey ? (
-            <code className="text-xs bg-muted px-1.5 py-0.5 rounded">
-              {maskApiKey(String(providerData.apiKey))}
-            </code>
-          ) : null}
         </div>
 
         {/* 모델 수 & 토글 */}

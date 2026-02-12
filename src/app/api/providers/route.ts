@@ -37,7 +37,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       orderBy: { createdAt: 'desc' },
     });
 
-    return NextResponse.json({ providers });
+    // API 키 존재 여부를 hasApiKey 필드로 변환
+    const providersWithKeyStatus = providers.map((provider) => ({
+      ...provider,
+      hasApiKey: !!provider.apiKeyEncrypted,
+      apiKeyEncrypted: undefined, // 보안상 민감한 필드 제거
+    }));
+
+    return NextResponse.json({ providers: providersWithKeyStatus });
   } catch (error) {
     console.error('Error fetching providers:', error);
     return NextResponse.json(
@@ -162,8 +169,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       include: { models: true },
     });
 
+    // API 키 존재 여부를 hasApiKey 필드로 변환
+    const providerWithKeyStatus = providerWithModels ? {
+      ...providerWithModels,
+      hasApiKey: !!providerWithModels.apiKeyEncrypted,
+      apiKeyEncrypted: undefined, // 보안상 민감한 필드 제거
+    } : null;
+
     return NextResponse.json(
-      { provider: providerWithModels, message: 'Provider created successfully' },
+      { provider: providerWithKeyStatus, message: 'Provider created successfully' },
       { status: 201 }
     );
   } catch (error) {
