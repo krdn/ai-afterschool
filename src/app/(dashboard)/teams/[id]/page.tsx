@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { getTeamById } from '@/lib/actions/teams'
 import { notFound } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Users, UserGraduate } from 'lucide-react'
+import { Users, GraduationCap } from 'lucide-react'
 
 /**
  * 팀 상세 페이지
@@ -85,7 +85,7 @@ export default async function TeamDetailPage({
       <Card data-testid="team-students-card">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <UserGraduate className="w-5 h-5" />
+            <GraduationCap className="w-5 h-5" />
             소속 학생 ({team.students.length}명)
           </CardTitle>
         </CardHeader>

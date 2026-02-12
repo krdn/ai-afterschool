@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/sheet';
 import {
   getAllHelpTopics,
-  getHelpCategories,
+  getCategories,
   searchHelp,
   getHelpByCategory,
   type HelpTopic,
@@ -63,7 +63,7 @@ export function HelpCenter({
   const [activeCategory, setActiveCategory] = React.useState<HelpCategory>(initialCategory);
   const [isDetailOpen, setIsDetailOpen] = React.useState(false);
 
-  const categories = getHelpCategories();
+  const categories = getCategories();
   const allTopics = getAllHelpTopics();
 
   // 검색 또는 카테고리별 주제 필터링
@@ -135,7 +135,7 @@ export function HelpCenter({
           <TabsList className="grid w-full grid-cols-4">
             {categories.map((cat) => (
               <TabsTrigger key={cat.id} value={cat.id} className="text-xs sm:text-sm">
-                {cat.name}
+                {cat.label}
               </TabsTrigger>
             ))}
           </TabsList>
