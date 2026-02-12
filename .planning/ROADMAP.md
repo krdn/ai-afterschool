@@ -250,7 +250,7 @@ Plans:
 
 ### 🚧 v3.0 Issue Management & Auto DevOps Pipeline (In Progress)
 
-**Milestone Goal:** 앱 내부에서 이슈를 등록하고, GitHub Issue 생성 → 브랜치 생성 → 수정 작업 → 테스트 → 배포까지의 전체 DevOps 파이프라인을 자동화
+**Milestone Goal:** 앱 낭에서 이슈를 등록하고, GitHub Issue 생성 → 브랜치 생성 → 수정 작업 → 테스트 → 배포까지의 전체 DevOps 파이프라인을 자동화
 
 #### Phase 29: Database & GitHub API Foundation
 **Goal**: 이슈 저장 기반 및 GitHub API 통합
@@ -265,9 +265,46 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 29-01-PLAN.md -- Prisma 스키마 (Issue, IssueEvent 모델 + enum + 마이그레이션)
-- [ ] 29-02-PLAN.md -- GitHub 클라이언트 기반 (Octokit + 유틸리티 + 상수)
-- [ ] 29-03-PLAN.md -- GitHub 서비스 + Issue Server Actions (CRUD, 라벨, 브랜치)
+- [x] 29-01-PLAN.md -- Prisma 스키마 (Issue, IssueEvent 모델 + enum + 마이그레이션)
+- [x] 29-02-PLAN.md -- GitHub 클라이언트 기반 (Octokit + 유틸리티 + 상수)
+- [x] 29-03-PLAN.md -- GitHub 서비스 + Issue Server Actions (CRUD, 라벨, 브랜치)
+
+### 🚀 v4.0 Universal LLM Hub (New)
+
+**Milestone Goal:** 기존 정적인 LLM 설정을 범용 Universal LLM Hub로 전환하여 시중의 모든 LLM(상용/로컬)을 동적으로 등록하고, 기능별로 유연하게 연결하는 미래지향적 시스템 구축
+
+**Key Features:**
+- 11개 인기 제공자 템플릿 (OpenAI, Claude, Gemini, Ollama, DeepSeek 등)
+- 템플릿 기반 + 직접 설정 하이브리드 등록
+- 태그 기반 자동 매칭 + 직접 모델 지정
+- 기능별 LLM 연결 (학습 분석→GPT-4, 이미지 분석→Vision 지원 모델 등)
+- 인라인 도움말 + 헬프 센터 + 스마트 추천 시스템
+- 기존 코드와 100% 하위호환
+
+#### Phase 35: Universal LLM Hub
+**Goal**: 범용 LLM Hub 시스템 구축
+**Depends on**: Phase 15 (기존 Multi-LLM Integration)
+**Requirements**: LLM-HUB-01~09
+**Success Criteria** (what must be TRUE):
+  1. 관리자가 템플릿을 선택하여 새 LLM 제공자를 3클릭으로 등록할 수 있다
+  2. 제공자 등록 시 API 키 발급 방법이 인라인으로 안난된다
+  3. 기능별(학습분석, 관상분석 등)로 LLM을 태그 기반 또는 직접 지정으로 매핑할 수 있다
+  4. 매핑 결과를 미리 보고 테스트할 수 있다
+  5. 기존 generateWithProvider() 호출이 새 시스템으로 자동 전환된다 (하위호환)
+  6. 일반인이 "어떤 LLM을 선택해야 할지" 위자드를 통해 추천받을 수 있다
+  7. 모든 설정에 대한 인라인 도움말과 종합 헬프 센터가 제공된다
+**Plans**: 9 plans
+
+Plans:
+- [ ] 35-01: Database Schema Migration (Provider, Model, FeatureMapping 테이블)
+- [ ] 35-02: Core Types & Provider Registry Foundation
+- [ ] 35-03: Provider Template System & Registration API
+- [ ] 35-04: Feature Mapping System (Tag-based + Direct)
+- [ ] 35-05: LLM Router Integration (Legacy Migration)
+- [ ] 35-06: Admin Dashboard UI - Provider Management
+- [ ] 35-07: Admin Dashboard UI - Feature Mapping Settings
+- [ ] 35-08: Help System (Inline + Help Center + Recommendations)
+- [ ] 35-09: Testing & Validation
 
 #### Phase 30: Issue UI & Screenshot
 **Goal**: 이슈 보고 UI 및 스크린샷 캡처
@@ -385,8 +422,9 @@ Phases execute in numeric order: 29 → 30 → 31 → 32 → 33 → 34
 | 32. Webhook & Issue Sync | v3.0 | 0/TBD | Not started | - |
 | 33. CI/CD Pipeline | v3.0 | 0/TBD | Not started | - |
 | 34. Issue Dashboard & Integration Testing | v3.0 | 0/TBD | Not started | - |
+| **35. Universal LLM Hub** | **v4.0** | **0/9** | **Planned** | **-** |
 
-**Overall Progress:** 162/162+ plans complete (v1.0-v2.1.1: 100%, v3.0: 0%)
+**Overall Progress:** 162/171+ plans complete (v1.0-v2.1.1: 100%, v3.0: 0%, v4.0: 0%)
 
 ---
-*Last updated: 2026-02-11 (v3.0 마일스톤 로드맵 생성)*
+*Last updated: 2026-02-12 (Phase 35: Universal LLM Hub 계획 생성)*
