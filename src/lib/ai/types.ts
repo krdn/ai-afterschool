@@ -73,6 +73,7 @@ export interface ProviderInput {
  */
 export interface ProviderWithModels extends Provider {
   models: Model[];
+  hasApiKey?: boolean; // API 응답에서 추가되는 필드
 }
 
 // =============================================================================

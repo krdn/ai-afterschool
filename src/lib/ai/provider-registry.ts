@@ -192,11 +192,17 @@ export class ProviderRegistry {
     });
 
     if (provider) {
+      // API 키 존재 여부 추가
+      const providerWithKeyStatus = {
+        ...provider,
+        hasApiKey: !!(provider as unknown as { apiKeyEncrypted?: string }).apiKeyEncrypted,
+      };
       // 캐시에 저장
-      this.setCache(id, provider);
+      this.setCache(id, providerWithKeyStatus);
+      return providerWithKeyStatus;
     }
 
-    return provider;
+    return null;
   }
 
   /**
@@ -220,12 +226,18 @@ export class ProviderRegistry {
       orderBy: { createdAt: 'asc' },
     });
 
+    // API 키 존재 여부를 hasApiKey 필드로 변환
+    const providersWithKeyStatus = providers.map((provider) => ({
+      ...provider,
+      hasApiKey: !!(provider as unknown as { apiKeyEncrypted?: string }).apiKeyEncrypted,
+    }));
+
     // 캐시 업데이트
-    providers.forEach((provider) => {
+    providersWithKeyStatus.forEach((provider) => {
       this.setCache(provider.id, provider);
     });
 
-    return providers;
+    return providersWithKeyStatus;
   }
 
   // ============================================================================
