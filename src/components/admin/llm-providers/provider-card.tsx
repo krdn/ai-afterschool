@@ -247,7 +247,7 @@ export function ProviderCard({
           <div className="flex items-center gap-2 text-sm">
             <Key className="w-4 h-4 text-green-500" />
             <span className="text-green-600 font-medium">
-              현재: sk-***...***125
+              API 키: sk-***...***125
             </span>
           </div>
         )}

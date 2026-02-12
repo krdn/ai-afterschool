@@ -398,7 +398,7 @@ export function ProviderForm({ provider, template, onSuccess }: ProviderFormProp
                   </FormLabel>
                   {isEditing && provider?.hasApiKey && (
                     <FormDescription className="text-sm text-muted-foreground">
-                      현재: sk-***...***125
+                      API 키: sk-***...***125
                     </FormDescription>
                   )}
                   <FormControl>
