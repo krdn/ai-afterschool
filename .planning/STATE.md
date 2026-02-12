@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-02-12)
 
 Milestone: v3.0 Issue Management & Auto DevOps Pipeline
 Phase: 35 of 35 (Universal LLM Hub) 🚧 IN PROGRESS
-Plan: 05 of TBD completed
-Status: Phase 35 in progress (5 plans complete)
-Last activity: 2026-02-12 — Completed 35-05 (LLM Router Integration)
+Plan: 06 of TBD completed
+Status: Phase 35 in progress (6 plans complete)
+Last activity: 2026-02-12 — Completed 35-06 (Admin Dashboard UI)
 
-Progress: [██████████████████████████░░░░░░░░░░░░░░░░░] 84.7% (168/196 plans across v1.0-v3.0)
+Progress: [███████████████████████████░░░░░░░░░░░░░░░░] 85.2% (169/196 plans across v1.0-v3.0)
 
 **v3.0 Issue Management & Auto DevOps Pipeline** 🚧 IN PROGRESS
 - Phase 29: Database & GitHub API Foundation (3/3 plans complete) ✅ 29-01, 29-02, 29-03
@@ -26,7 +26,7 @@ Progress: [███████████████████████
 - Phase 34: Issue Dashboard & Integration Testing (not started)
 
 **Universal LLM Hub** 🚧 IN PROGRESS
-- Phase 35: Core Types & Provider Registry Foundation (5/TBD complete) ✅ 35-01, 35-02, 35-03, 35-04, 35-05
+- Phase 35: Core Types & Provider Registry Foundation (6/TBD complete) ✅ 35-01, 35-02, 35-03, 35-04, 35-05, 35-06
 
 ## Performance Metrics
 
@@ -120,10 +120,11 @@ None yet for v3.0.
 **From Phase 35:**
 - AI SDK 타입 변경사항: 최신 버전과의 호환성 확인 필요 (resolved in 35-02)
 - Prisma Client 재생성 필요: schema 변경사항 반영을 위해 `prisma generate` 실행 필요 (TypeScript 오류 해결)
-- **Router Migration 완료 (35-05)**: 기존 router.ts가 universal-router.ts로 위임하도록 변경, 하위호환성 100% 유지
+  - **Router Migration 완료 (35-05)**: 기존 router.ts가 universal-router.ts로 위임하도록 변경, 하위호환성 100% 유지
   - Universal Router: FeatureResolver 기반 동적 모델 선택
   - Compatibility Layer: legacy/new 타입 변환 지원
   - 통합 테스트: 19개 테스트 통과
+  - **Admin Dashboard UI (35-06)**: 2-step registration, TemplateSelector, ProviderForm, ProviderCard
 
 ### Quick Tasks Completed
 
@@ -136,11 +137,11 @@ None yet for v3.0.
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Phase 35 Plan 05 complete (LLM Router Integration)
+Stopped at: Phase 35 Plan 06 complete (Admin Dashboard UI)
 Resume file: None
-Next action: Create Phase 35 Plan 06 (Admin UI Integration)
+Next action: Create Phase 35 Plan 07 (Testing & Integration)
 
-Last activity: 2026-02-12 - Completed 35-05: LLM Router Integration (Legacy Migration)
+Last activity: 2026-02-12 - Completed 35-06: Admin Dashboard UI - Provider Management
 
 ---
-*Last updated: 2026-02-12 (Phase 35 Plan 05 complete, ready for Plan 06)*
+*Last updated: 2026-02-12 (Phase 35 Plan 06 complete, ready for Plan 07)*
