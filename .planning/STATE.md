@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-02-12)
 
 Milestone: v3.0 Issue Management & Auto DevOps Pipeline
 Phase: 35 of 35 (Universal LLM Hub) 🚧 IN PROGRESS
-Plan: 03 of TBD completed
-Status: Phase 35 in progress (3 plans complete)
-Last activity: 2026-02-12 — Completed 35-03 (Provider Template System & Registration API)
+Plan: 04 of TBD completed
+Status: Phase 35 in progress (4 plans complete)
+Last activity: 2026-02-12 — Completed 35-04 (Feature Mapping System)
 
-Progress: [██████████████████████████░░░░░░░░░░░░░░░░░] 83.7% (166/196 plans across v1.0-v3.0)
+Progress: [██████████████████████████░░░░░░░░░░░░░░░░░] 84.2% (167/196 plans across v1.0-v3.0)
 
 **v3.0 Issue Management & Auto DevOps Pipeline** 🚧 IN PROGRESS
 - Phase 29: Database & GitHub API Foundation (3/3 plans complete) ✅ 29-01, 29-02, 29-03
@@ -26,14 +26,14 @@ Progress: [███████████████████████
 - Phase 34: Issue Dashboard & Integration Testing (not started)
 
 **Universal LLM Hub** 🚧 IN PROGRESS
-- Phase 35: Core Types & Provider Registry Foundation (3/TBD complete) ✅ 35-01, 35-02, 35-03
+- Phase 35: Core Types & Provider Registry Foundation (4/TBD complete) ✅ 35-01, 35-02, 35-03, 35-04
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 165 (v1.0-v3.0)
+- Total plans completed: 167 (v1.0-v3.0)
 - Average duration: ~4.3 min
-- Total execution time: ~11.8 hours
+- Total execution time: ~11.9 hours
 
 **By Milestone:**
 
@@ -86,6 +86,13 @@ Recent decisions affecting v3.0:
 - 제공자 템플릿: 11개 인기 제공자 템플릿 정의 (35-03)
 - 템플릿 기반 등록: 필드 자동 채우기 + 직접 설정 모드 (35-03)
 - Provider API: REST API + Server Actions 이중 지원 (35-03)
+- Feature Mapping System: 태그 기반 + 직접 지정 하이브리드 해상도 (35-04)
+  - FeatureResolver: resolve(), resolveWithFallback() 지원
+  - 태그 필터링: requiredTags, excludedTags
+  - 폴 백 체인: priority 기반 정렬, fallbackMode (next_priority, any_available, fail)
+  - 시딩 데이터: 12개 기능 타입 기본 매핑
+  - 매핑 API: CRUD + resolve 엔드포인트
+  - Server Actions: 6개 액션으로 UI 연동
 
 **Critical Pitfalls to Avoid:**
 1. GitHub API rate limit (5,000/hour) - monitor and cache locally
@@ -112,6 +119,7 @@ None yet for v3.0.
 
 **From Phase 35:**
 - AI SDK 타입 변경사항: 최신 버전과의 호환성 확인 필요 (resolved in 35-02)
+- Prisma Client 재생성 필요: schema 변경사항 반영을 위해 `prisma generate` 실행 필요 (TypeScript 오류 해결)
 
 ### Quick Tasks Completed
 
@@ -124,11 +132,11 @@ None yet for v3.0.
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Phase 35 Plan 03 complete (Provider Template System & Registration API)
+Stopped at: Phase 35 Plan 04 complete (Feature Mapping System)
 Resume file: None
-Next action: Create Phase 35 Plan 04 (Feature Mapping & Resolution)
+Next action: Create Phase 35 Plan 05 (Router Migration)
 
-Last activity: 2026-02-12 - Completed 35-03: Provider Template System & Registration API
+Last activity: 2026-02-12 - Completed 35-04: Feature Mapping System (Tag-based + Direct resolution)
 
 ---
-*Last updated: 2026-02-12 (Phase 35 Plan 03 complete, ready for Plan 04)*
+*Last updated: 2026-02-12 (Phase 35 Plan 04 complete, ready for Plan 05)*
