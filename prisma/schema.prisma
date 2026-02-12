@@ -191,6 +191,8 @@ model TeacherSajuAnalysis {
   calculatedAt   DateTime
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+  usedProvider   String?
+  usedModel      String?
   teacher        Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
 
   @@index([teacherId])

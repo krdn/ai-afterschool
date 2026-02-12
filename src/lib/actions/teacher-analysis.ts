@@ -153,6 +153,8 @@ export async function runTeacherSajuAnalysis(
     status: "complete",
     version: 1,
     calculatedAt: new Date(),
+    usedProvider,
+    usedModel,
   })
 
   revalidatePath(`/teachers/${teacherId}`)
