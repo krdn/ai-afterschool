@@ -51,7 +51,7 @@ export async function analyzeFaceImage(studentId: string, imageUrl: string, prov
         imageBase64: base64Image,
         mimeType: 'image/jpeg' as const,
         prompt: selectedPrompt,
-        maxOutputTokens: 4096,
+        maxOutputTokens: 8192,
       }
 
       const response = (provider && provider !== 'auto')
