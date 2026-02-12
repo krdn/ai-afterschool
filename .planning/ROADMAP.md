@@ -317,10 +317,13 @@ Plans:
   3. 사용자가 현재 화면의 스크린샷을 캡처하여 이슈에 첨부할 수 있다
   4. 스크린샷이 MinIO에 업로드되고 GitHub Issue 본문에 이미지 URL로 삽입된다
   5. 사용자 컨텍스트(역할, 페이지 URL)가 자동으로 이슈 본문에 포함된다
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 30-01: TBD
+- [ ] 30-01: 스크린샷 및 이미지 업로드 인프라 (modern-screenshot + MinIO)
+- [ ] 30-02: 스크린샷 캡처 및 미리보기 UI 컴포넌트
+- [ ] 30-03: 이슈 입력 폼과 모달 컴포넌트
+- [ ] 30-04: 헤더 버튼 통합 및 최종 연결
 
 #### Phase 31: Sentry Error Auto-Collection
 **Goal**: 런타임 에러 자동 수집 → GitHub Issue 생성
