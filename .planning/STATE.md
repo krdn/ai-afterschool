@@ -10,12 +10,12 @@ See: .planning/PROJECT.md (updated 2026-02-12)
 ## Current Position
 
 Milestone: v3.0 Issue Management & Auto DevOps Pipeline
-Phase: 35 of 35 (Universal LLM Hub) 🚧 IN PROGRESS
-Plan: 07 of TBD completed
-Status: Phase 35 in progress (7 plans complete)
-Last activity: 2026-02-12 — Completed 35-07 (Admin Dashboard UI - Feature Mapping)
+Phase: 35 of 35 (Universal LLM Hub) ✅ COMPLETE
+Plan: 09 of 09 completed
+Status: Phase 35 complete (all 9 plans done)
+Last activity: 2026-02-12 — Completed 35-09 (Testing & Validation)
 
-Progress: [███████████████████████████░░░░░░░░░░░░░░░░] 85.7% (170/196 plans across v1.0-v3.0)
+Progress: [████████████████████████████████████████████] 91.8% (172/196 plans across v1.0-v3.0)
 
 **v3.0 Issue Management & Auto DevOps Pipeline** 🚧 IN PROGRESS
 - Phase 29: Database & GitHub API Foundation (3/3 plans complete) ✅ 29-01, 29-02, 29-03
@@ -25,8 +25,8 @@ Progress: [███████████████████████
 - Phase 33: CI/CD Pipeline (not started)
 - Phase 34: Issue Dashboard & Integration Testing (not started)
 
-**Universal LLM Hub** 🚧 IN PROGRESS
-- Phase 35: Core Types & Provider Registry Foundation (7/TBD complete) ✅ 35-01, 35-02, 35-03, 35-04, 35-05, 35-06, 35-07
+**Universal LLM Hub** ✅ COMPLETE
+- Phase 35: Core Types & Provider Registry Foundation (9/9 complete) ✅ 35-01, 35-02, 35-03, 35-04, 35-05, 35-06, 35-07, 35-08, 35-09
 
 ## Performance Metrics
 
@@ -78,7 +78,7 @@ Recent decisions affecting v3.0:
 - Dual-layer storage: Local PostgreSQL + GitHub Issues sync
 - CI/CD trigger: `auto-deploy` label on PR merge to main
 
-**Universal LLM Hub (Phase 35):**
+**Universal LLM Hub (Phase 35) - COMPLETE:**
 - Prisma schema: Provider, Model, FeatureMapping 테이블 추가 (35-01)
 - 타입 정의: Prisma 타입에서 파생하여 일관성 유지 (35-02)
 - 어댑터 패턴: BaseAdapter 상속 구조 (35-02)
@@ -99,6 +99,19 @@ Recent decisions affecting v3.0:
   - FeatureMappingCard: 규칙 카드 표시
   - FeatureMappingList: 기능별 탭 조직화
   - /admin/llm-features: DIRECTOR 권한 관리 페이지
+- Help System: 인라인 도움말 + 헬프 센터 + 추천 위자드 (35-08)
+  - 도움말 콘텐츠: 4개 카테고리, 20+ 주제
+  - InlineHelp: (?) 아이콘으로 필드별 도움말
+  - HelpCenter: 검색, 카테고리 탭, 마크다운 렌더링
+  - LLMRecommender: 3-4단계 질문 기반 추천 위자드
+  - 모든 관리자 페이지에 통합
+- Testing & Validation: 단위/통합/E2E 테스트 (35-09)
+  - ProviderRegistry: 20+ 단위 테스트
+  - FeatureResolver: 23 단위 테스트
+  - Universal Router: 24 단위 테스트
+  - 통합 테스트: 10 시나리오
+  - E2E 테스트: 30+ 시나리오 (제공자 관리, 기능 매핑)
+  - 총 98개 테스트 통과
 
 **Critical Pitfalls to Avoid:**
 1. GitHub API rate limit (5,000/hour) - monitor and cache locally
@@ -142,11 +155,16 @@ None yet for v3.0.
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Phase 35 Plan 07 complete (Admin Dashboard UI - Feature Mapping)
+Stopped at: Phase 35 COMPLETE (Universal LLM Hub - All 9 plans done)
 Resume file: None
-Next action: Phase 35 Plan 08 (Advanced Features)
+Next action: Create VERIFICATION.md and MIGRATION_GUIDE.md for Phase 35
 
-Last activity: 2026-02-12 - Completed 35-07: Admin Dashboard UI - Feature Mapping Settings
+**Phase 35 Summary:**
+- 35-08 Help System: 인라인 도움말, 헬프 센터, LLM 추천 위자드
+- 35-09 Testing: 단위 테스트 67개, 통합 테스트 10개, E2E 테스트 30+ 시나리오
+- 총 98개 테스트 통과
+
+Last activity: 2026-02-12 - Completed 35-09: Testing & Validation
 
 ---
-*Last updated: 2026-02-12 (Phase 35 Plan 07 complete, ready for Plan 08)*
+*Last updated: 2026-02-12 (Phase 35 COMPLETE - Universal LLM Hub finished)*
