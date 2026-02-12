@@ -5,12 +5,10 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import { verifySession } from '@/lib/dal';
 import { logger } from '@/lib/logger';
+import { db } from '@/lib/db';
 import type { FeatureMappingInput } from '@/lib/ai/types';
-
-const db = new PrismaClient();
 
 interface RouteParams {
   params: Promise<{ id: string }>;

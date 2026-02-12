@@ -325,9 +325,9 @@ const helpContent: HelpTopic[] = [
       '',
       '### macOS/Linux',
       '',
-      '```bash
-curl -fsSL https://ollama.com/install.sh | sh
-```',
+      '```bash',
+      'curl -fsSL https://ollama.com/install.sh | sh',
+      '```',
       '',
       '### Windows',
       '',
@@ -335,24 +335,24 @@ curl -fsSL https://ollama.com/install.sh | sh
       '',
       '## Ollama 서버 실행',
       '',
-      '```bash
-ollama serve
-```',
+      '```bash',
+      'ollama serve',
+      '```',
       '',
       '기본적으로 http://localhost:11434 에서 실행됩니다.',
       '',
       '## 모델 다운로드',
       '',
-      '```bash
-# Llama 3.2 (3B) - 가벼운 모델
-ollama pull llama3.2:3b
-
-# Mistral (7B) - 균형잡힌 성능
-ollama pull mistral:7b
-
-# Phi-4 - Microsoft의 모델
-ollama pull phi4
-```',
+      '```bash',
+      '# Llama 3.2 (3B) - 가벼운 모델',
+      'ollama pull llama3.2:3b',
+      '',
+      '# Mistral (7B) - 균형잡힌 성능',
+      'ollama pull mistral:7b',
+      '',
+      '# Phi-4 - Microsoft의 모델',
+      'ollama pull phi4',
+      '```',
       '',
       '## LLM Hub에 등록',
       '',
@@ -820,20 +820,20 @@ ollama pull phi4
       '설정 화면에서 폴 백 체인을 미리 볼 수 있습니다.',
       '',
       '예시:',
-      '```
-학생 성향 분석
-├─ 1순위: GPT-4o (직접 지정)
-├─ 2순위: Claude Sonnet (premium 태그)
-└─ 3순위: Gemini Flash (balanced 태그)
-```',
+      '```',
+      '학생 성향 분석',
+      '├─ 1순위: GPT-4o (직접 지정)',
+      '├─ 2순위: Claude Sonnet (premium 태그)',
+      '└─ 3순위: Gemini Flash (balanced 태그)',
+      '```',
       '',
       '## 권장 설정',
       '',
-| 기능 | 주 모델 | 폴 백 모드 | 이유 |
-|------|---------|-----------|------|
-| 중요 분석 | GPT-4o | 다음 우선순위 | 품질 유지 |
-| 일반 작업 | Gemini | 사용 가능한 모델 | 가용성 우선 |
-| 테스트 | 특정 모델 | 실패 | 예측 가능성 |
+      '| 기능 | 주 모델 | 폴 백 모드 | 이유 |',
+      '|------|---------|-----------|------|',
+      '| 중요 분석 | GPT-4o | 다음 우선순위 | 품질 유지 |',
+      '| 일반 작업 | Gemini | 사용 가능한 모델 | 가용성 우선 |',
+      '| 테스트 | 특정 모델 | 실패 | 예측 가능성 |',
     ],
     relatedTopics: ['feature-mapping', 'auto-tag-match', 'specific-model'],
   },
@@ -863,18 +863,18 @@ ollama pull phi4
       '',
       '### 태그 기반 설정',
       '',
-      '```
-필수 태그: ["vision"]
-```',
+      '```',
+      '필수 태그: ["vision"]',
+      '```',
       '',
       '→ Vision 지원 모델 중에서 자동 선택',
       '',
       '### 직접 지정',
       '',
-      '```
-제공자: OpenAI
-모델: gpt-4o
-```',
+      '```',
+      '제공자: OpenAI',
+      '모델: gpt-4o',
+      '```',
       '',
       '→ 항상 GPT-4o 사용 (Vision 지원)',
       '',
@@ -1114,10 +1114,10 @@ ollama pull phi4
       '',
       '중요도에 따라 다른 모델을 사용하도록 설정하세요:',
       '',
-      '```
-일반 작업 → 저렴한 모델
-중요 작업 → 고품질 모델
-```',
+      '```',
+      '일반 작업 → 저렴한 모델',
+      '중요 작업 → 고품질 모델',
+      '```',
       '',
       '## 2. 폴 백 전략',
       '',

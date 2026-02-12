@@ -2,23 +2,21 @@
 
 /**
  * Feature Mapping Server Actions
- * 
+ *
  * 서버 액션 기반 기능 매핑 관리
  */
 
 import { revalidatePath } from 'next/cache';
-import { PrismaClient } from '@prisma/client';
 import { FeatureResolver } from '@/lib/ai/feature-resolver';
 import { verifySession } from '@/lib/dal';
 import { logger } from '@/lib/logger';
+import { db } from '@/lib/db';
 import type {
   FeatureMappingInput,
   FeatureMappingConfig,
   ResolutionRequirements,
   ResolutionResult,
 } from '@/lib/ai/types';
-
-const db = new PrismaClient();
 
 // ============================================================================
 // Permission Check Helper
