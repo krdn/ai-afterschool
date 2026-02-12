@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { AlertCircle, Info } from 'lucide-react';
+import { HelpIntegration, QuickHelpSection } from './help-integration';
 import { FeatureMappingList } from '@/components/admin/llm-features/feature-mapping-list';
 import { getFeatureMappingsAction } from '@/lib/actions/feature-mapping-actions';
 import { getProvidersAction } from '@/lib/actions/provider-actions';
@@ -31,6 +32,9 @@ export default async function LLMFeaturesPage() {
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-7xl">
+      {/* 도움말 시스템 통합 */}
+      <HelpIntegration />
+
       {/* 헤더 */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">기능별 LLM 매핑</h1>
@@ -131,6 +135,9 @@ export default async function LLMFeaturesPage() {
           'use server';
         }}
       />
+
+      {/* 퀵 헬프 섹션 */}
+      <QuickHelpSection />
     </div>
   );
 }
