@@ -120,7 +120,11 @@ export class OllamaAdapter extends BaseAdapter {
 
       const response = await fetch(versionUrl, {
         signal: controller.signal,
-        headers,
+        headers: {
+          ...headers,
+          'User-Agent': 'AI-AfterSchool/1.0',
+        },
+        cache: 'no-store',
       });
 
       clearTimeout(timeout);
