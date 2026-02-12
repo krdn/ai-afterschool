@@ -27,6 +27,11 @@ import { AuditTab } from '@/components/admin/tabs/audit-tab'
 import { TeamsTab } from '@/components/admin/tabs/teams-tab'
 import { getTeams } from '@/lib/actions/teams'
 import { pool } from '@/lib/db'
+
+// Universal LLM Hub (Phase 35)
+import { UniversalLLMTab } from '@/components/admin/tabs/universal-llm-tab'
+import { getProvidersAction } from '@/lib/actions/provider-actions'
+import { getFeatureMappingsAction } from '@/lib/actions/feature-mapping-actions'
 import { existsSync, readdirSync, statSync } from 'fs'
 import { join } from 'path'
 
@@ -160,7 +165,9 @@ async function getHealthData() {
     const dbStart = Date.now()
     await db.$queryRaw`SELECT 1`
     const dbTime = Date.now() - dbStart
-    const poolInfo = { total: pool.totalCount, idle: pool.idleCount, waiting: pool.waitingCount }
+    const poolInfo = pool
+      ? { total: pool.totalCount, idle: pool.idleCount, waiting: pool.waitingCount }
+      : { total: 0, idle: 0, waiting: 0 }
     result.checks.database = {
       status: 'healthy' as HealthStatus,
       message: dbTime > 1000 ? `Database connection successful (slow: ${dbTime}ms)` : 'Database connection successful',
@@ -284,6 +291,8 @@ export default async function AdminPage() {
     providerUsageData,
     featureUsageData,
     teams,
+    universalProviders,
+    universalMappings,
   ] = await Promise.all([
     getAllLLMConfigs(),
     getAllFeatureConfigs(),
@@ -296,6 +305,8 @@ export default async function AdminPage() {
     getProviderUsageData(),
     getFeatureUsageData(),
     getTeams(),
+    getProvidersAction(),
+    getFeatureMappingsAction(),
   ])
 
   // AI 프롬프트 seed 및 조회
@@ -449,6 +460,24 @@ export default async function AdminPage() {
             featureData={featureUsageData}
           />
           <CostAlerts initialData={usageSummary} />
+        </AdminTabsContent>
+
+        {/* Universal LLM Hub 탭 (Phase 35) */}
+        <AdminTabsContent value="universal-llm">
+          <UniversalLLMTab
+            providers={universalProviders}
+            mappings={universalMappings.success ? universalMappings.data?.map((m) => ({
+              id: (m as unknown as Record<string, string>).id || '',
+              featureType: (m as unknown as Record<string, string>).featureType || '',
+              matchMode: (m as unknown as Record<string, string>).matchMode as import('@/lib/ai/types').MatchMode,
+              requiredTags: ((m as unknown as Record<string, string[]>).requiredTags) || [],
+              excludedTags: ((m as unknown as Record<string, string[]>).excludedTags) || [],
+              specificModelId: (m as unknown as Record<string, string | null>).specificModelId || null,
+              priority: (m as unknown as Record<string, number>).priority || 1,
+              fallbackMode: (m as unknown as Record<string, string>).fallbackMode as import('@/lib/ai/types').FallbackMode,
+              specificModel: null,
+            })) || [] : []}
+          />
         </AdminTabsContent>
 
         {/* AI 프롬프트 관리 탭 (통합) */}
