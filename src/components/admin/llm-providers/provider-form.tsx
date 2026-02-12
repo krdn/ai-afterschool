@@ -26,7 +26,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { AlertCircle, CheckCircle2, Loader2, RefreshCw } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Loader2, RefreshCw, Eye, EyeOff } from 'lucide-react';
 import { InlineHelp } from '@/components/help/inline-help';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
@@ -96,6 +96,7 @@ export function ProviderForm({ provider, template, onSuccess }: ProviderFormProp
   );
   const [syncedModels, setSyncedModels] = useState<number | null>(null);
   const [selectedModel, setSelectedModel] = useState<string>('');
+  const [showApiKey, setShowApiKey] = useState(false);
   const isEditing = !!provider;
 
   // 폼 초기화
@@ -387,13 +388,44 @@ export function ProviderForm({ provider, template, onSuccess }: ProviderFormProp
               name="apiKey"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="flex items-center gap-1">
-                    {isEditing ? 'API 키 (변경 시에만 입력)' : 'API 키 *'}
+                  <FormLabel className="flex items-center gap-2">
+                    <span>API 키</span>
+                    {isEditing && provider?.hasApiKey && (
+                      <Badge variant="default" className="bg-green-600 text-[10px] h-4 px-1">
+                        <CheckCircle2 className="w-3 h-3 mr-1" />
+                        설정됨
+                      </Badge>
+                    )}
                     <InlineHelp helpId="api-key-guide" />
                   </FormLabel>
                   <FormControl>
-                    <Input {...field} type="password" placeholder="sk-..." />
+                    <div className="relative">
+                      <Input
+                        {...field}
+                        type={showApiKey ? 'text' : 'password'}
+                        placeholder={isEditing && provider?.hasApiKey ? '••••••••••••' : 'sk-...'}
+                        className="pr-10"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-0 top-0 h-full w-10 px-0"
+                        onClick={() => setShowApiKey(!showApiKey)}
+                      >
+                        {showApiKey ? (
+                          <EyeOff className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </Button>
+                    </div>
                   </FormControl>
+                  {isEditing && provider?.hasApiKey && !field.value && (
+                    <FormDescription>
+                      API 키는 이미 설정되어 있습니다. 변경하려면 새 키를 입력하세요.
+                    </FormDescription>
+                  )}
                   {template?.apiKeyInstructions && (
                     <FormDescription>{template.apiKeyInstructions}</FormDescription>
                   )}
