@@ -2,20 +2,20 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-11)
+See: .planning/PROJECT.md (updated 2026-02-12)
 
 **Core value:** 학생 정보 통합 관리를 기반으로 AI 성향 분석 및 맞춤형 학습/진로 제안 제공
 **Current focus:** v3.0 Issue Management & Auto DevOps Pipeline - Phase 29 (Database & GitHub API Foundation)
 
 ## Current Position
 
-Milestone: v4.0 Universal LLM Hub
-Phase: 35 of 35 (Universal LLM Hub)
-Plan: 01 of 09 completed
-Status: Phase 35 in progress (1/9 plans complete)
-Last activity: 2026-02-12 — Completed 35-01 (Database Schema Migration)
+Milestone: v3.0 Issue Management & Auto DevOps Pipeline
+Phase: 35 of 35 (Universal LLM Hub) 🚧 IN PROGRESS
+Plan: 02 of TBD completed
+Status: Phase 35 in progress (2 plans complete)
+Last activity: 2026-02-12 — Completed 35-02 (Core Types & Provider Registry Foundation)
 
-Progress: [██████████████████████████░░░░░░░░░░░░░░░░░] 84.2% (166/197 plans across v1.0-v4.0)
+Progress: [██████████████████████████░░░░░░░░░░░░░░░░░] 83.7% (165/196 plans across v1.0-v3.0)
 
 **v3.0 Issue Management & Auto DevOps Pipeline** 🚧 IN PROGRESS
 - Phase 29: Database & GitHub API Foundation (3/3 plans complete) ✅ 29-01, 29-02, 29-03
@@ -25,20 +25,8 @@ Progress: [███████████████████████
 - Phase 33: CI/CD Pipeline (not started)
 - Phase 34: Issue Dashboard & Integration Testing (not started)
 
-**v4.0 Universal LLM Hub** 🚧 IN PROGRESS
-- Phase 35: Universal LLM Hub (1/9 plans complete) ✅ 35-01
-- Phase 35-02: Core Types & Provider Registry Foundation (not started)
-- Phase 35-03: Provider Template System & Registration API (not started)
-
-**Coverage:**
-- Requirements: 31/31 (100%) mapped to phases
-- Phases: 6 phases (29-34)
-- Phase 29: 8 requirements (INFRA-01~05, GH-01~03)
-- Phase 30: 5 requirements (ISSUE-01~05)
-- Phase 31: 5 requirements (ERR-01~05)
-- Phase 32: 3 requirements (GH-04~06)
-- Phase 33: 5 requirements (CICD-01~05)
-- Phase 34: 5 requirements (DASH-01~05)
+**Universal LLM Hub** 🚧 IN PROGRESS
+- Phase 35: Core Types & Provider Registry Foundation (2/TBD complete) ✅ 35-01, 35-02
 
 ## Performance Metrics
 
@@ -90,11 +78,11 @@ Recent decisions affecting v3.0:
 - Dual-layer storage: Local PostgreSQL + GitHub Issues sync
 - CI/CD trigger: `auto-deploy` label on PR merge to main
 
-**v4.0 Universal LLM Hub Technical Decisions:**
-- Database schema: Provider(1) → Model(N) → FeatureMapping(N) 구조
-- 하위호환성: 기존 LLMConfig, LLMFeatureConfig 테이블 유지
-- 인증 방식: authType 필드로 'api_key', 'bearer', 'custom_header', 'none' 지원
-- 마이그레이션: Standalone TypeScript 스크립트 with dry-run/rollback
+**Universal LLM Hub (Phase 35):**
+- Prisma schema: Provider, Model, FeatureMapping 테이블 추가 (35-01)
+- 타입 정의: Prisma 타입에서 파생하여 일관성 유지 (35-02)
+- 어댑터 패턴: BaseAdapter 상속 구조 (35-02)
+- ProviderRegistry: Singleton + TTL 캐싱 (35-02)
 
 **Critical Pitfalls to Avoid:**
 1. GitHub API rate limit (5,000/hour) - monitor and cache locally
@@ -119,6 +107,9 @@ None yet for v3.0.
 - Analysis history feature constraint - @unique prevents multiple records, needs separate history table
 - 40 unimplemented feature tests skipped - teacher management, admin settings, report generation
 
+**From Phase 35:**
+- AI SDK 타입 변경사항: 최신 버전과의 호환성 확인 필요 (resolved in 35-02)
+
 ### Quick Tasks Completed
 
 | # | Description | Date | Commit | Directory |
@@ -130,11 +121,11 @@ None yet for v3.0.
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Phase 35-01 complete (1/9 plans)
+Stopped at: Phase 35 Plan 02 complete (Core Types & Provider Registry)
 Resume file: None
-Next action: Execute 35-02 (Core Types & Provider Registry Foundation)
+Next action: Create Phase 35 Plan 03 (Feature Mapping & Resolution)
 
-Last activity: 2026-02-12 - Completed Phase 35-01: Database Schema Migration for Universal LLM Hub
+Last activity: 2026-02-12 - Completed 35-02: Core Types & Provider Registry Foundation
 
 ---
-*Last updated: 2026-02-12 (Phase 35 in progress, 1/9 plans complete)*
+*Last updated: 2026-02-12 (Phase 35 Plan 02 complete, ready for Plan 03)*
