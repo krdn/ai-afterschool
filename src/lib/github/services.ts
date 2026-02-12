@@ -250,13 +250,44 @@ export function generateIssueBody(params: {
   category: IssueCategory
   priority: string
   creatorName: string
+  screenshotUrl?: string
+  userContext?: {
+    role: string
+    url: string
+    timestamp: string
+  }
 }): string {
-  const { title, description, category, priority, creatorName } = params
+  const { title, description, category, priority, creatorName, screenshotUrl, userContext } = params
 
-  return `## ${title}
+  let body = `## ${title}
 
 ${description || '설명 없음'}
+`
 
+  // 스크린샷이 있으면 추가
+  if (screenshotUrl) {
+    body += `
+---
+
+**스크린샷:**
+![스크린샷](${screenshotUrl})
+`
+  }
+
+  // 사용자 컨텍스트가 있으면 추가
+  if (userContext) {
+    body += `
+---
+
+**사용자 정보:**
+- 역할: ${userContext.role}
+- 페이지: ${userContext.url}
+- 발생 시각: ${new Date(userContext.timestamp).toLocaleString('ko-KR')}
+`
+  }
+
+  // 기본 이슈 정보 추가
+  body += `
 ---
 
 **이슈 정보:**
@@ -265,4 +296,6 @@ ${description || '설명 없음'}
 - 생성자: ${creatorName}
 - 앱에서 생성됨
 `
+
+  return body
 }

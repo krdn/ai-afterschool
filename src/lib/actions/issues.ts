@@ -6,7 +6,7 @@ import { IssueSchema, type IssueFormState } from "@/lib/validations/issues"
 import { createGitHubIssue, ensureLabel, createIssueBranch, generateIssueBody } from "@/lib/github/services"
 import { CATEGORY_LABEL_MAP } from "@/lib/github/constants"
 import { isGitHubConfigured } from "@/lib/github/client"
-import type { IssueCategory, IssuePriority, IssueStatus } from "@prisma/client"
+import { Prisma, type IssueCategory, type IssuePriority, type IssueStatus } from "@prisma/client"
 
 /**
  * 이슈 생성 Server Action
@@ -32,7 +32,7 @@ export async function createIssue(
     title: formData.get("title"),
     description: formData.get("description"),
     category: formData.get("category"),
-    priority: formData.get("priority"),
+    priority: formData.get("priority") || 'MEDIUM',
   })
 
   if (!validatedFields.success) {
@@ -43,6 +43,19 @@ export async function createIssue(
 
   const { title, description, category, priority } = validatedFields.data
 
+  // Step 2.5: 스크린샷 및 사용자 컨텍스트 추출
+  const screenshotUrl = formData.get("screenshotUrl") as string | null
+  const userContextJson = formData.get("userContext") as string | null
+  let userContext: { role: string; url: string; timestamp: string } | undefined
+  
+  if (userContextJson) {
+    try {
+      userContext = JSON.parse(userContextJson)
+    } catch {
+      // 파싱 실패 시 무시
+    }
+  }
+
   try {
     // Step 3: DB에 이슈 저장 (먼저 DB에 저장하여 GitHub 실패와 무관하게 이슈 보존)
     const issue = await db.issue.create({
@@ -52,6 +65,8 @@ export async function createIssue(
         category: category as IssueCategory,
         priority: (priority || 'MEDIUM') as IssuePriority,
         createdBy: session.userId,
+        screenshotUrl: screenshotUrl || null,
+        userContext: (userContext as Prisma.InputJsonValue) ?? Prisma.JsonNull,
       },
     })
 
@@ -80,6 +95,8 @@ export async function createIssue(
           category: category as IssueCategory,
           priority,
           creatorName: creator?.name || 'Unknown',
+          screenshotUrl: screenshotUrl || undefined,
+          userContext: userContext || undefined,
         })
 
         // GitHub Issue 생성
