@@ -6,7 +6,6 @@ import { createDeepSeek } from '@ai-sdk/deepseek';
 import { createMistral } from '@ai-sdk/mistral';
 import { createCohere } from '@ai-sdk/cohere';
 import { createXai } from '@ai-sdk/xai';
-import { createZhipu } from 'zhipu-ai-provider';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { testOllamaGeneration } from './providers/ollama';
 import type { ProviderName } from './providers';
@@ -91,8 +90,12 @@ export async function testProviderConnection(
         break;
       }
       case 'zhipu': {
-        const zhipuProvider = createZhipu({ apiKey });
-        model = zhipuProvider('glm-4-flash');
+        const zhipuProvider = createOpenAICompatible({
+          name: 'zhipu',
+          baseURL: 'https://api.z.ai/api/paas/v4',
+          apiKey,
+        });
+        model = zhipuProvider.chatModel('glm-4-plus');
         break;
       }
       case 'moonshot': {
