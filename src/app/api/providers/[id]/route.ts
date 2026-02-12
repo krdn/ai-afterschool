@@ -50,7 +50,14 @@ export async function GET(
       );
     }
 
-    return NextResponse.json({ provider });
+    // API 키 존재 여부를 hasApiKey 필드로 변환
+    const providerWithKeyStatus = {
+      ...provider,
+      hasApiKey: !!provider.apiKeyEncrypted,
+      apiKeyEncrypted: undefined, // 보안상 민감한 필드 제거
+    };
+
+    return NextResponse.json({ provider: providerWithKeyStatus });
   } catch (error) {
     console.error('Error fetching provider:', error);
     return NextResponse.json(
@@ -132,8 +139,15 @@ export async function PATCH(
       include: { models: true },
     });
 
+    // API 키 존재 여부를 hasApiKey 필드로 변환
+    const providerWithKeyStatus = {
+      ...provider,
+      hasApiKey: !!provider.apiKeyEncrypted,
+      apiKeyEncrypted: undefined, // 보안상 민감한 필드 제거
+    };
+
     return NextResponse.json({
-      provider,
+      provider: providerWithKeyStatus,
       message: 'Provider updated successfully',
     });
   } catch (error) {
