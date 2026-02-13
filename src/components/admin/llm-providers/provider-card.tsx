@@ -62,11 +62,10 @@ export function ProviderCard({
     success: boolean;
     message?: string;
   }>({
-    tested: (provider as unknown as Record<string, unknown>).isValidated as boolean,
-    success: (provider as unknown as Record<string, unknown>).isValidated as boolean,
+    tested: Boolean(provider.isValidated),
+    success: Boolean(provider.isValidated),
   });
 
-  const providerData = provider as unknown as Record<string, unknown>;
   const [showModels, setShowModels] = useState(false);
 
   // 연결 테스트 실행
@@ -124,22 +123,22 @@ export function ProviderCard({
   // 활성화 상태 배지
   const renderEnabledBadge = () => (
     <Badge
-      variant={providerData.isEnabled ? 'default' : 'secondary'}
+      variant={provider.isEnabled ? 'default' : 'secondary'}
       className={cn(
         'gap-1',
-        providerData.isEnabled
+        provider.isEnabled
           ? 'bg-blue-600 hover:bg-blue-700'
           : 'text-muted-foreground'
       )}
     >
       <Server className="w-3 h-3" />
-      {providerData.isEnabled ? '활성' : '비활성'}
+      {provider.isEnabled ? '활성' : '비활성'}
     </Badge>
   );
 
   // 기능 태그 렌더링
   const renderCapabilityBadges = () => {
-    const caps = (providerData.capabilities as string[]) || [];
+    const caps = (provider.capabilities as string[]) || [];
     if (caps.length === 0) return null;
 
     return (
@@ -163,42 +162,42 @@ export function ProviderCard({
     <div className="flex items-center gap-2">
       <Badge
         variant="outline"
-        className={cn('text-xs gap-1', getCostTierStyle(providerData.costTier as string))}
+        className={cn('text-xs gap-1', getCostTierStyle(provider.costTier as string))}
       >
         <DollarSign className="w-3 h-3" />
-        {getCostTierLabel(providerData.costTier as string)}
+        {getCostTierLabel(provider.costTier as string)}
       </Badge>
 
       <Badge
         variant="outline"
-        className={cn('text-xs gap-1', getQualityTierStyle(providerData.qualityTier as string))}
+        className={cn('text-xs gap-1', getQualityTierStyle(provider.qualityTier as string))}
       >
         <Gauge className="w-3 h-3" />
-        {getQualityTierLabel(providerData.qualityTier as string)}
+        {getQualityTierLabel(provider.qualityTier as string)}
       </Badge>
     </div>
   );
 
   return (
-    <Card className={cn('transition-all duration-200', !providerData.isEnabled && 'opacity-75')}>
+    <Card className={cn('transition-all duration-200', !provider.isEnabled && 'opacity-75')}>
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
             {/* 제공자 아이콘/이니셜 */}
             <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-lg font-bold">
-              {String(providerData.name || '').charAt(0)}
+              {(provider.name || '').charAt(0)}
             </div>
 
             <div>
               <CardTitle className="text-base flex items-center gap-2">
-                {String(providerData.name)}
-                {Boolean(providerData.isDefault) && (
+                {provider.name}
+                {'isDefault' in provider && Boolean(provider.isDefault) && (
                   <Sparkles className="w-4 h-4 text-yellow-500" />
                 )}
               </CardTitle>
               <div className="flex items-center gap-2 mt-1">
                 <Badge variant="outline" className="text-xs">
-                  {providerData.providerType as string}
+                  {provider.providerType}
                 </Badge>
                 {renderStatusBadge()}
                 {renderEnabledBadge()}
@@ -209,7 +208,7 @@ export function ProviderCard({
           {/* 활성화 토글 */}
           <div className="flex items-center gap-2">
             <Switch
-              checked={providerData.isEnabled as boolean}
+              checked={provider.isEnabled}
               onCheckedChange={onToggle}
             />
           </div>
@@ -218,9 +217,9 @@ export function ProviderCard({
 
       <CardContent className="pt-0 space-y-4">
         {/* URL 정보 */}
-        {providerData.baseUrl ? (
+        {provider.baseUrl ? (
           <p className="text-sm text-muted-foreground truncate">
-            {String(providerData.baseUrl)}
+            {provider.baseUrl}
           </p>
         ) : null}
 
@@ -243,7 +242,7 @@ export function ProviderCard({
         })()}
 
         {/* API 키 상태 - hasApiKey 필드 사용 */}
-        {Boolean(providerData.hasApiKey) && (
+        {provider.hasApiKey && (
           <div className="flex items-center gap-2 text-sm">
             <Key className="w-4 h-4 text-green-500" />
             <span className="text-green-600 font-medium">
@@ -350,7 +349,7 @@ export function ProviderCard({
               <AlertDialogHeader>
                 <AlertDialogTitle>제공자 삭제</AlertDialogTitle>
                 <AlertDialogDescription>
-                  정말로 <strong>{providerData.name as string}</strong> 제공자를 삭제하시겠습니까?
+                  정말로 <strong>{provider.name}</strong> 제공자를 삭제하시겠습니까?
                   이 작업은 되돌릴 수 없습니다.
                 </AlertDialogDescription>
               </AlertDialogHeader>
@@ -429,15 +428,4 @@ function formatContextWindow(n?: number | null): string {
   if (!n) return '';
   if (n >= 1000) return `${(n / 1000).toFixed(0)}K`;
   return `${n}`;
-}
-
-/**
- * API 키 마스킹
- * sk-abc123def456 -> sk-...456
- */
-function maskApiKey(key: string): string {
-  if (!key || key.length < 8) return key;
-  const prefix = key.slice(0, 4);
-  const suffix = key.slice(-4);
-  return `${prefix}...${suffix}`;
 }
