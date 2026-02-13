@@ -19,7 +19,7 @@ import type {
 export class ZhipuAdapter extends BaseAdapter {
   readonly providerType = 'zhipu';
   readonly supportsVision = true;
-  readonly supportsStreaming = true;
+  readonly supportsStreaming = false;
   readonly supportsTools = true;
   readonly supportsJsonMode = true;
 
