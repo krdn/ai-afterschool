@@ -429,6 +429,87 @@ const providerTemplates: ProviderTemplate[] = [
     sortOrder: 15,
   },
 
+  // OpenRouter (인기 - 멀티 제공자)
+  {
+    templateId: 'openrouter',
+    name: 'OpenRouter',
+    providerType: 'openrouter',
+    description: '200+ AI 모델을 단일 API로 접근. OpenAI, Anthropic, Google, Meta 등',
+    logoUrl: '/images/providers/openrouter.svg',
+    defaultBaseUrl: 'https://openrouter.ai/api/v1',
+    defaultAuthType: 'api_key',
+    defaultCapabilities: ['vision', 'function_calling', 'json_mode', 'streaming', 'tools'],
+    defaultCostTier: 'medium',
+    defaultQualityTier: 'premium',
+    defaultModels: [
+      {
+        modelId: 'openai/gpt-4o',
+        displayName: 'GPT-4o (via OpenRouter)',
+        contextWindow: 128000,
+        supportsVision: true,
+      },
+      {
+        modelId: 'openai/gpt-4o-mini',
+        displayName: 'GPT-4o Mini (via OpenRouter)',
+        contextWindow: 128000,
+        supportsVision: true,
+      },
+      {
+        modelId: 'anthropic/claude-sonnet-4-5',
+        displayName: 'Claude Sonnet 4.5 (via OpenRouter)',
+        contextWindow: 200000,
+        supportsVision: true,
+      },
+      {
+        modelId: 'anthropic/claude-3-5-haiku',
+        displayName: 'Claude 3.5 Haiku (via OpenRouter)',
+        contextWindow: 200000,
+        supportsVision: false,
+      },
+      {
+        modelId: 'google/gemini-2.5-flash',
+        displayName: 'Gemini 2.5 Flash (via OpenRouter)',
+        contextWindow: 1000000,
+        supportsVision: true,
+      },
+      {
+        modelId: 'google/gemini-2.0-flash',
+        displayName: 'Gemini 2.0 Flash (via OpenRouter)',
+        contextWindow: 1048576,
+        supportsVision: true,
+      },
+      {
+        modelId: 'meta-llama/llama-3.3-70b-instruct',
+        displayName: 'Llama 3.3 70B (via OpenRouter)',
+        contextWindow: 131072,
+        supportsVision: false,
+      },
+      {
+        modelId: 'deepseek/deepseek-chat-v3',
+        displayName: 'DeepSeek V3 (via OpenRouter)',
+        contextWindow: 131072,
+        supportsVision: false,
+      },
+      {
+        modelId: 'mistralai/mistral-large',
+        displayName: 'Mistral Large (via OpenRouter)',
+        contextWindow: 128000,
+        supportsVision: false,
+      },
+      {
+        modelId: 'qwen/qwen-2.5-72b-instruct',
+        displayName: 'Qwen 2.5 72B (via OpenRouter)',
+        contextWindow: 131072,
+        supportsVision: false,
+      },
+    ],
+    apiKeyInstructions: 'OpenRouter 대시보드에서 API 키를 생성하세요. Settings → Keys → Create Key',
+    apiKeyUrl: 'https://openrouter.ai/keys',
+    helpUrl: 'https://openrouter.ai/docs',
+    isPopular: true,
+    sortOrder: 5,
+  },
+
   // Custom (직접 설정 - 범용 OpenAI 호환)
   {
     templateId: 'custom',
