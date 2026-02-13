@@ -12,6 +12,10 @@ import { GoogleAdapter } from './google';
 import { OllamaAdapter } from './ollama';
 import { ZhipuAdapter } from './zhipu';
 import { MoonshotAdapter } from './moonshot';
+import { DeepSeekAdapter } from './deepseek';
+import { MistralAdapter } from './mistral';
+import { CohereAdapter } from './cohere';
+import { XaiAdapter } from './xai';
 
 /**
  * 어댑터 팩토리 클래스
@@ -34,6 +38,10 @@ class AdapterFactory {
     this.adapters.set('ollama', OllamaAdapter);
     this.adapters.set('zhipu', ZhipuAdapter);
     this.adapters.set('moonshot', MoonshotAdapter);
+    this.adapters.set('deepseek', DeepSeekAdapter);
+    this.adapters.set('mistral', MistralAdapter);
+    this.adapters.set('cohere', CohereAdapter);
+    this.adapters.set('xai', XaiAdapter);
   }
 
   /**
@@ -169,3 +177,7 @@ export { GoogleAdapter } from './google';
 export { OllamaAdapter } from './ollama';
 export { ZhipuAdapter } from './zhipu';
 export { MoonshotAdapter } from './moonshot';
+export { DeepSeekAdapter } from './deepseek';
+export { MistralAdapter } from './mistral';
+export { CohereAdapter } from './cohere';
+export { XaiAdapter } from './xai';
