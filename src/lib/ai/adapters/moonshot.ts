@@ -19,7 +19,7 @@ import type {
 export class MoonshotAdapter extends BaseAdapter {
   readonly providerType = 'moonshot';
   readonly supportsVision = true;
-  readonly supportsStreaming = true;
+  readonly supportsStreaming = false;
   readonly supportsTools = true;
   readonly supportsJsonMode = true;
 
