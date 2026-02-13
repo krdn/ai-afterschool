@@ -54,6 +54,7 @@ const providerFormSchema = z.object({
     'xai',
     'zhipu',
     'moonshot',
+    'openrouter',
     'custom',
   ]),
   baseUrl: z.string().url('올바른 URL을 입력해주세요').optional().or(z.literal('')),
@@ -305,6 +306,7 @@ export function ProviderForm({ provider, template, onSuccess }: ProviderFormProp
                       <SelectItem value="xai">xAI (Grok)</SelectItem>
                       <SelectItem value="zhipu">Zhipu AI</SelectItem>
                       <SelectItem value="moonshot">Moonshot AI</SelectItem>
+                      <SelectItem value="openrouter">OpenRouter</SelectItem>
                       <SelectItem value="custom">Custom (OpenAI 호환)</SelectItem>
                     </SelectContent>
                   </Select>
