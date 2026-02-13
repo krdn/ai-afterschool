@@ -92,6 +92,21 @@ export class MoonshotAdapter extends BaseAdapter {
         isValid: true,
       };
     } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+
+      // 잔액 부족 / 계정 정지 → API 키 자체는 유효
+      if (
+        msg.includes('insufficient balance') ||
+        msg.includes('suspended') ||
+        msg.includes('quota') ||
+        msg.includes('credit')
+      ) {
+        return {
+          isValid: true,
+          error: 'API 키는 유효하지만 잔액이 부족합니다. 충전 후 이용하세요.',
+        };
+      }
+
       return {
         isValid: false,
         error: this.handleError(error, 'validation').message,

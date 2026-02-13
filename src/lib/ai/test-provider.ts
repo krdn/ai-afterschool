@@ -136,11 +136,13 @@ export async function testProviderConnection(
       return { valid: false, error: 'API 키가 유효하지 않습니다' };
     }
 
-    // 사용량 초과 (키 자체는 유효)
+    // 사용량 초과 / 잔액 부족 (키 자체는 유효)
     if (
       errorMessage.includes('quota') ||
       errorMessage.includes('rate') ||
       errorMessage.includes('credit balance') ||
+      errorMessage.includes('insufficient balance') ||
+      errorMessage.includes('suspended') ||
       errorMessage.includes('RESOURCE_EXHAUSTED')
     ) {
       return {
