@@ -16,6 +16,7 @@ import { DeepSeekAdapter } from './deepseek';
 import { MistralAdapter } from './mistral';
 import { CohereAdapter } from './cohere';
 import { XaiAdapter } from './xai';
+import { OpenRouterAdapter } from './openrouter';
 
 /**
  * 어댑터 팩토리 클래스
@@ -42,6 +43,7 @@ class AdapterFactory {
     this.adapters.set('mistral', MistralAdapter);
     this.adapters.set('cohere', CohereAdapter);
     this.adapters.set('xai', XaiAdapter);
+    this.adapters.set('openrouter', OpenRouterAdapter);
   }
 
   /**
@@ -181,3 +183,4 @@ export { DeepSeekAdapter } from './deepseek';
 export { MistralAdapter } from './mistral';
 export { CohereAdapter } from './cohere';
 export { XaiAdapter } from './xai';
+export { OpenRouterAdapter } from './openrouter';
