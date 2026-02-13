@@ -95,7 +95,7 @@ export async function testProviderConnection(
           baseURL: 'https://api.z.ai/api/paas/v4',
           apiKey,
         });
-        model = zhipuProvider.chatModel('glm-4-plus');
+        model = zhipuProvider.chatModel('glm-4.5-air');
         break;
       }
       case 'moonshot': {
@@ -104,7 +104,7 @@ export async function testProviderConnection(
           baseURL: 'https://api.moonshot.ai/v1',
           apiKey,
         });
-        model = moonshotProvider.chatModel('moonshot-v1-128k');
+        model = moonshotProvider.chatModel('kimi-latest');
         break;
       }
       default:

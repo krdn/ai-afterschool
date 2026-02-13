@@ -80,7 +80,7 @@ export class MoonshotAdapter extends BaseAdapter {
         };
       }
 
-      const testModel = this.createModel('moonshot-v1-8k', config);
+      const testModel = this.createModel('kimi-latest', config);
 
       await generateText({
         model: testModel,
