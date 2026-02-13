@@ -1,4 +1,4 @@
-export type ProviderName = 'anthropic' | 'openai' | 'google' | 'ollama' | 'deepseek' | 'mistral' | 'cohere' | 'xai' | 'zhipu' | 'moonshot';
+export type ProviderName = 'anthropic' | 'openai' | 'google' | 'ollama' | 'deepseek' | 'mistral' | 'cohere' | 'xai' | 'zhipu' | 'moonshot' | 'openrouter';
 
 export type FeatureType =
   | 'learning_analysis'   // 학습 분석
@@ -110,6 +110,14 @@ export const PROVIDER_CONFIGS: Record<ProviderName, ProviderConfig> = {
     defaultModel: 'kimi-k2.5-preview',
     models: ['kimi-k2.5-preview', 'kimi-k2-preview', 'moonshot-v1-128k'],
   },
+  openrouter: {
+    name: 'openrouter',
+    displayName: 'OpenRouter',
+    requiresApiKey: true,
+    supportsVision: true,
+    defaultModel: 'openai/gpt-4o',
+    models: ['openai/gpt-4o', 'openai/gpt-4o-mini', 'anthropic/claude-sonnet-4-5', 'google/gemini-2.5-flash'],
+  },
 };
 
 // 비용 per 1M tokens (USD, 2026 기준)
@@ -124,4 +132,5 @@ export const COST_PER_MILLION_TOKENS: Record<ProviderName, { input: number; outp
   xai: { input: 3.0, output: 15.0 },           // Grok-3
   zhipu: { input: 0.35, output: 1.40 },         // GLM-4-Plus
   moonshot: { input: 1.0, output: 4.0 },         // Kimi K2.5
+  openrouter: { input: 2.5, output: 10.0 },      // 모델에 따라 다름 (GPT-4o 기준)
 };
