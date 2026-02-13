@@ -1,6 +1,7 @@
 import { db } from '@/lib/db';
 import { encryptApiKey, decryptApiKey, maskApiKey } from './encryption';
 import { PROVIDER_CONFIGS, type ProviderName, type FeatureType } from './providers';
+import { providerTypeToName, type ProviderType } from './types';
 
 interface LLMConfigInput {
   provider: ProviderName;
@@ -88,12 +89,20 @@ export async function markLLMConfigValidated(provider: ProviderName, isValid: bo
 }
 
 export async function getEnabledProviders(): Promise<ProviderName[]> {
-  const configs = await db.lLMConfig.findMany({
-    where: { isEnabled: true, isValidated: true },
-    select: { provider: true },
+  // Universal LLM Hub의 Provider 테이블에서 활성화된 제공자 조회
+  const hubProviders = await db.provider.findMany({
+    where: { isEnabled: true },
+    select: { providerType: true },
   });
 
-  const providers = configs.map((c) => c.provider as ProviderName);
+  // providerType → ProviderName 변환 (중복 제거)
+  const providers = [
+    ...new Set(
+      hubProviders
+        .map((p) => providerTypeToName(p.providerType as ProviderType))
+        .filter((name): name is ProviderName => name !== null)
+    ),
+  ];
 
   // Ollama는 내장 제공자 — API 키 불필요, 항상 사용 가능
   if (!providers.includes('ollama')) {
