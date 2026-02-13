@@ -247,7 +247,7 @@ export function ProviderCard({
           <div className="flex items-center gap-2 text-sm">
             <Key className="w-4 h-4 text-green-500" />
             <span className="text-green-600 font-medium">
-              API 키: sk-***...***125
+              API 키 등록됨
             </span>
           </div>
         )}
@@ -385,7 +385,7 @@ function getCapabilityLabel(capability: string): string {
 
 function getCostTierLabel(tier: string): string {
   const labels: Record<string, string> = {
-    free: '묶뤂',
+    free: '무료',
     low: '저렴',
     medium: '중간',
     high: '고가',

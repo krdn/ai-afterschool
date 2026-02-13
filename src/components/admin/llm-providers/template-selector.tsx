@@ -210,7 +210,7 @@ function getCapabilityLabel(capability: string): string {
 
 function getCostTierLabel(tier: string): string {
   const labels: Record<string, string> = {
-    free: '묶뤂',
+    free: '무료',
     low: '저렴',
     medium: '중간',
     high: '고가',
