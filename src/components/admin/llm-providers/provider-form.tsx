@@ -398,7 +398,7 @@ export function ProviderForm({ provider, template, onSuccess }: ProviderFormProp
                   </FormLabel>
                   {isEditing && provider?.hasApiKey && (
                     <FormDescription className="text-sm text-muted-foreground">
-                      API 키: sk-***...***125
+                      API 키 등록됨
                     </FormDescription>
                   )}
                   <FormControl>
@@ -426,7 +426,7 @@ export function ProviderForm({ provider, template, onSuccess }: ProviderFormProp
                   </FormControl>
                   {isEditing && provider?.hasApiKey && field.value && (
                     <FormDescription>
-                      새 키를 입력하면 기존 키가 대첸됩니다.
+                      새 키를 입력하면 기존 키가 대체됩니다.
                     </FormDescription>
                   )}
                   {template?.apiKeyInstructions && (
@@ -514,7 +514,7 @@ export function ProviderForm({ provider, template, onSuccess }: ProviderFormProp
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="free">묶뤂</SelectItem>
+                      <SelectItem value="free">무료</SelectItem>
                       <SelectItem value="low">저렴</SelectItem>
                       <SelectItem value="medium">중간</SelectItem>
                       <SelectItem value="high">고가</SelectItem>

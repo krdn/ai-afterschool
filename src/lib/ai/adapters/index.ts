@@ -10,6 +10,8 @@ import { OpenAIAdapter } from './openai';
 import { AnthropicAdapter } from './anthropic';
 import { GoogleAdapter } from './google';
 import { OllamaAdapter } from './ollama';
+import { ZhipuAdapter } from './zhipu';
+import { MoonshotAdapter } from './moonshot';
 
 /**
  * 어댑터 팩토리 클래스
@@ -30,14 +32,8 @@ class AdapterFactory {
     this.adapters.set('anthropic', AnthropicAdapter);
     this.adapters.set('google', GoogleAdapter);
     this.adapters.set('ollama', OllamaAdapter);
-    // TODO: 추가 어댑터 등록
-    // this.adapters.set('deepseek', DeepSeekAdapter);
-    // this.adapters.set('mistral', MistralAdapter);
-    // this.adapters.set('cohere', CohereAdapter);
-    // this.adapters.set('xai', XAIAdapter);
-    // this.adapters.set('zhipu', ZhipuAdapter);
-    // this.adapters.set('moonshot', MoonshotAdapter);
-    // this.adapters.set('custom', CustomAdapter);
+    this.adapters.set('zhipu', ZhipuAdapter);
+    this.adapters.set('moonshot', MoonshotAdapter);
   }
 
   /**
@@ -165,9 +161,11 @@ export function getRegisteredTypes(): ProviderType[] {
   return adapterFactory.getRegisteredTypes();
 }
 
-// 어댑터 클래스 재낳ㅇ
+// 어댑터 클래스 재export
 export { BaseAdapter } from './base';
 export { OpenAIAdapter } from './openai';
 export { AnthropicAdapter } from './anthropic';
 export { GoogleAdapter } from './google';
 export { OllamaAdapter } from './ollama';
+export { ZhipuAdapter } from './zhipu';
+export { MoonshotAdapter } from './moonshot';
