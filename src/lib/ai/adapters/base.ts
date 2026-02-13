@@ -146,7 +146,23 @@ export abstract class BaseAdapter {
   protected handleError(error: unknown, context?: string): Error {
     const errorMessage = error instanceof Error ? error.message : String(error);
     const contextStr = context ? `[${context}] ` : '';
-    
+
     return new Error(`${contextStr}${this.providerType}: ${errorMessage}`);
+  }
+
+  /**
+   * 암호화된 API 키를 복호화합니다.
+   *
+   * @param encrypted - 암호화된 API 키
+   * @returns 복호화된 API 키 (실패 시 빈 문자열)
+   */
+  protected decryptApiKey(encrypted: string | null): string {
+    if (!encrypted) return '';
+    try {
+      const { decryptApiKey } = require('../encryption');
+      return decryptApiKey(encrypted);
+    } catch {
+      return '';
+    }
   }
 }
