@@ -34,6 +34,7 @@ const PROVIDER_COLORS: Record<ProviderName, string> = {
   xai: 'bg-slate-100 text-slate-700 border-slate-200',
   zhipu: 'bg-indigo-100 text-indigo-700 border-indigo-200',
   moonshot: 'bg-violet-100 text-violet-700 border-violet-200',
+  openrouter: 'bg-teal-100 text-teal-700 border-teal-200',
 };
 
 export function ProviderCard({ provider, config, savedConfig }: ProviderCardProps) {
