@@ -21,6 +21,7 @@ export type ProviderType =
   | 'xai'
   | 'zhipu'
   | 'moonshot'
+  | 'openrouter'
   | 'custom';
 
 export type AuthType = 'api_key' | 'bearer' | 'custom_header';
@@ -215,6 +216,7 @@ export const PROVIDER_NAME_TO_TYPE: Record<LegacyProviderName, ProviderType> = {
   xai: 'xai',
   zhipu: 'zhipu',
   moonshot: 'moonshot',
+  openrouter: 'openrouter',
 };
 
 /**
