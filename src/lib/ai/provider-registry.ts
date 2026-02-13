@@ -657,6 +657,37 @@ export class ProviderRegistry {
           isDefault: true,
         },
       ],
+      openrouter: [
+        {
+          modelId: 'openai/gpt-4o',
+          displayName: 'GPT-4o (via OpenRouter)',
+          contextWindow: 128000,
+          supportsVision: true,
+          supportsTools: true,
+          isDefault: true,
+        },
+        {
+          modelId: 'openai/gpt-4o-mini',
+          displayName: 'GPT-4o Mini (via OpenRouter)',
+          contextWindow: 128000,
+          supportsVision: true,
+          supportsTools: true,
+        },
+        {
+          modelId: 'anthropic/claude-sonnet-4-5',
+          displayName: 'Claude Sonnet 4.5 (via OpenRouter)',
+          contextWindow: 200000,
+          supportsVision: true,
+          supportsTools: true,
+        },
+        {
+          modelId: 'google/gemini-2.5-flash',
+          displayName: 'Gemini 2.5 Flash (via OpenRouter)',
+          contextWindow: 1000000,
+          supportsVision: true,
+          supportsTools: true,
+        },
+      ],
       custom: [],
     };
 

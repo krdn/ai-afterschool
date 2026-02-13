@@ -53,7 +53,7 @@ export default function NewProviderPage() {
           : `${selectedTemplate?.name} 설정을 완료하세요`
       }
       breadcrumbs={[
-        { label: 'Universal LLM Hub', href: '/admin/llm-providers' },
+        { label: 'LLM Hub', href: '/admin/llm-providers' },
         { label: '새 제공자 등록' },
       ]}
     >

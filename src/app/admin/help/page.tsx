@@ -8,7 +8,7 @@ import { verifySession } from '@/lib/dal';
 
 export const metadata: Metadata = {
   title: '도움말 센터 | LLM Hub',
-  description: 'Universal LLM Hub 사용 가이드 및 문제 해결',
+  description: 'LLM Hub 사용 가이드 및 문제 해결',
 };
 
 /**
@@ -38,7 +38,7 @@ export default async function HelpPage() {
             도움말 센터
           </h1>
           <p className="text-muted-foreground">
-            Universal LLM Hub 사용 가이드 및 문제 해결
+            LLM Hub 사용 가이드 및 문제 해결
           </p>
         </div>
       </div>

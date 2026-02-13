@@ -54,6 +54,7 @@ export function legacyProviderToNew(provider: LegacyProviderName): string {
     xai: 'xai',
     zhipu: 'zhipu',
     moonshot: 'moonshot',
+    openrouter: 'openrouter',
   };
   return mapping[provider] ?? provider;
 }

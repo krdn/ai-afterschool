@@ -1,23 +1,14 @@
 import { redirect } from 'next/navigation'
 import { verifySession } from '@/lib/dal'
-import { getRBACPrisma } from '@/lib/db/rbac'
 import { AdminTabsWrapper, AdminTabsContent } from '@/components/admin/admin-tabs-wrapper'
-
-// LLM 설정 관련
-import { getAllLLMConfigs, getAllFeatureConfigs, getAllBudgetConfigs } from '@/lib/ai/config'
-import { getBudgetSummary } from '@/lib/ai/smart-routing'
-import { PROVIDER_CONFIGS, type ProviderName } from '@/lib/ai/providers'
-import { ProviderCard } from '@/app/(dashboard)/admin/llm-settings/provider-card'
-import { FeatureMapping } from '@/app/(dashboard)/admin/llm-settings/feature-mapping'
-import { BudgetSettings } from '@/app/(dashboard)/admin/llm-settings/budget-settings'
-import { ProviderSelect } from '@/app/(dashboard)/admin/llm-settings/provider-select'
 
 // LLM 사용량 관련
 import { getCurrentPeriodCost } from '@/lib/ai/usage-tracker'
 import { getUsageStatsByProvider, getUsageStatsByFeature } from '@/lib/ai/usage-tracker'
+import { getBudgetSummary } from '@/lib/ai/smart-routing'
 import { db } from '@/lib/db'
-import { UsageCharts, type DailyUsageData, type ProviderUsageData, type FeatureUsageData } from '@/app/(dashboard)/admin/llm-usage/usage-charts'
-import { CostAlerts, CostSummaryCards } from '@/app/(dashboard)/admin/llm-usage/cost-alerts'
+import type { DailyUsageData, ProviderUsageData, FeatureUsageData } from '@/app/(dashboard)/admin/llm-usage/usage-charts'
+import type { ProviderName } from '@/lib/ai/providers'
 
 // 새로운 탭 컴포넌트
 import { StatusTab } from '@/components/admin/tabs/status-tab'
@@ -28,8 +19,8 @@ import { TeamsTab } from '@/components/admin/tabs/teams-tab'
 import { getTeams } from '@/lib/actions/teams'
 import { pool } from '@/lib/db'
 
-// Universal LLM Hub (Phase 35)
-import { UniversalLLMTab } from '@/components/admin/tabs/universal-llm-tab'
+// LLM Hub
+import { LLMHubTab } from '@/components/admin/tabs/llm-hub-tab'
 import { getProvidersAction } from '@/lib/actions/provider-actions'
 import { getFeatureMappingsAction } from '@/lib/actions/feature-mapping-actions'
 import { existsSync, readdirSync, statSync } from 'fs'
@@ -49,16 +40,6 @@ import { getBuiltInSeedData as getZodiacSeedData } from '@/lib/ai/zodiac-prompts
 export const metadata = {
   title: '관리자 | AI AfterSchool',
   description: '시스템 관리 대시보드',
-}
-
-interface LLMConfigData {
-  provider: string
-  isEnabled: boolean
-  isValidated: boolean
-  validatedAt: Date | null
-  apiKeyMasked: string | null
-  baseUrl: string | null
-  defaultModel: string | null
 }
 
 // 30일 일별 사용량 조회
@@ -280,9 +261,6 @@ export default async function AdminPage() {
 
   // 병렬로 모든 데이터 조회
   const [
-    llmConfigs,
-    featureConfigs,
-    budgetConfigs,
     usageSummary,
     dailyCost,
     weeklyCost,
@@ -294,9 +272,6 @@ export default async function AdminPage() {
     universalProviders,
     universalMappings,
   ] = await Promise.all([
-    getAllLLMConfigs(),
-    getAllFeatureConfigs(),
-    getAllBudgetConfigs(),
     getBudgetSummary(),
     getCurrentPeriodCost('daily'),
     getCurrentPeriodCost('weekly'),
@@ -330,30 +305,6 @@ export default async function AdminPage() {
     zodiac: await getAllPresetsByType('zodiac'),
   }
 
-  const enabledProviders = llmConfigs
-    .filter((c: LLMConfigData) => c.isEnabled && c.isValidated)
-    .map((c: LLMConfigData) => c.provider as ProviderName)
-
-  // Ollama는 내장 제공자 — 항상 사용 가능
-  if (!enabledProviders.includes('ollama')) {
-    enabledProviders.push('ollama')
-  }
-
-  // 현재 기본 제공자 파악
-  const providerCounts = new Map<string, number>()
-  featureConfigs.forEach((c: { primaryProvider: string }) => {
-    providerCounts.set(c.primaryProvider, (providerCounts.get(c.primaryProvider) || 0) + 1)
-  })
-  let currentDefault: ProviderName | null = null
-  if (providerCounts.size > 0) {
-    currentDefault = [...providerCounts.entries()]
-      .sort((a, b) => b[1] - a[1])[0][0] as ProviderName
-  }
-
-  const configMap = new Map<string, LLMConfigData>(
-    llmConfigs.map((c: LLMConfigData) => [c.provider, c])
-  )
-
   // Health 데이터 직접 수집 (self-referencing fetch 방지)
   const healthData = await getHealthData()
 
@@ -366,105 +317,11 @@ export default async function AdminPage() {
         </p>
       </div>
 
-      <AdminTabsWrapper defaultValue="llm-settings">
+      <AdminTabsWrapper defaultValue="llm-hub">
 
-        {/* LLM 설정 탭 */}
-        <AdminTabsContent value="llm-settings">
-          {/* 기본 제공자 선택 섹션 */}
-          <section className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">기본 제공자</h2>
-              {enabledProviders.length > 0 && (
-                <div data-testid="current-provider" className="text-sm text-muted-foreground">
-                  현재 활성: {enabledProviders.length}개 제공자
-                </div>
-              )}
-            </div>
-            <ProviderSelect enabledProviders={enabledProviders} currentDefault={currentDefault} />
-          </section>
-
-          <section className="space-y-4">
-            <h2 className="text-lg font-semibold">제공자 설정</h2>
-            <div className="grid gap-4 md:grid-cols-2">
-              {(Object.entries(PROVIDER_CONFIGS) as [ProviderName, typeof PROVIDER_CONFIGS[ProviderName]][]).map(
-                ([provider, config]) => {
-                  const saved = configMap.get(provider)
-                  return (
-                    <ProviderCard
-                      key={provider}
-                      provider={provider}
-                      config={config}
-                      savedConfig={saved ? {
-                        isEnabled: saved.isEnabled,
-                        isValidated: saved.isValidated,
-                        validatedAt: saved.validatedAt,
-                        apiKeyMasked: saved.apiKeyMasked,
-                        baseUrl: saved.baseUrl,
-                        defaultModel: saved.defaultModel,
-                      } : undefined}
-                    />
-                  )
-                }
-              )}
-            </div>
-          </section>
-
-          <section className="space-y-4">
-            <h2 className="text-lg font-semibold">기능별 매핑</h2>
-            {enabledProviders.length === 0 ? (
-              <div className="bg-muted p-4 rounded-lg text-center">
-                <p className="text-muted-foreground">
-                  먼저 최소 1개의 제공자를 활성화하고 API 키를 검증해주세요.
-                </p>
-              </div>
-            ) : (
-              <FeatureMapping
-                enabledProviders={enabledProviders}
-                savedConfigs={featureConfigs.map((c: { featureType: string; primaryProvider: string; fallbackOrder: unknown }) => ({
-                  featureType: c.featureType,
-                  primaryProvider: c.primaryProvider,
-                  fallbackOrder: c.fallbackOrder as ProviderName[],
-                }))}
-              />
-            )}
-          </section>
-
-          <section className="space-y-4">
-            <h2 className="text-lg font-semibold">예산 관리</h2>
-            <BudgetSettings
-              initialData={budgetConfigs.map((c) => ({
-                period: c.period,
-                budgetUsd: c.budgetUsd,
-                alertAt80: c.alertAt80,
-                alertAt100: c.alertAt100,
-              }))}
-              usageSummary={usageSummary.map((s) => ({
-                period: s.period,
-                currentCost: s.currentCost,
-                percentUsed: s.percentUsed,
-              }))}
-            />
-          </section>
-        </AdminTabsContent>
-
-        {/* 토큰 사용량 탭 */}
-        <AdminTabsContent value="llm-usage">
-          <CostSummaryCards
-            dailyCost={dailyCost}
-            weeklyCost={weeklyCost}
-            monthlyCost={monthlyCost}
-          />
-          <UsageCharts
-            dailyData={dailyUsageData}
-            providerData={providerUsageData}
-            featureData={featureUsageData}
-          />
-          <CostAlerts initialData={usageSummary} />
-        </AdminTabsContent>
-
-        {/* Universal LLM Hub 탭 (Phase 35) */}
-        <AdminTabsContent value="universal-llm">
-          <UniversalLLMTab
+        {/* LLM Hub 통합 탭 */}
+        <AdminTabsContent value="llm-hub">
+          <LLMHubTab
             providers={universalProviders}
             mappings={universalMappings.success ? universalMappings.data?.map((m) => ({
               id: (m as unknown as Record<string, string>).id || '',
@@ -477,6 +334,20 @@ export default async function AdminPage() {
               fallbackMode: (m as unknown as Record<string, string>).fallbackMode as import('@/lib/ai/types').FallbackMode,
               specificModel: null,
             })) || [] : []}
+            dailyCost={dailyCost}
+            weeklyCost={weeklyCost}
+            monthlyCost={monthlyCost}
+            dailyUsageData={dailyUsageData}
+            providerUsageData={providerUsageData}
+            featureUsageData={featureUsageData}
+            usageSummary={usageSummary.map((s) => ({
+              period: s.period,
+              budget: s.budget,
+              currentCost: s.currentCost,
+              percentUsed: s.percentUsed,
+              remaining: s.remaining,
+              isOverBudget: s.isOverBudget,
+            }))}
           />
         </AdminTabsContent>
 

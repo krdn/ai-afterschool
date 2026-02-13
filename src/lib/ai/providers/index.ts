@@ -15,6 +15,11 @@ const moonshotProvider = createOpenAICompatible({
   baseURL: 'https://api.moonshot.ai/v1',
 });
 
+const openrouterProvider = createOpenAICompatible({
+  name: 'openrouter',
+  baseURL: 'https://openrouter.ai/api/v1',
+});
+
 export const providers = {
   anthropic: (model?: string) => anthropic(model || 'claude-sonnet-4-5'),
   openai: (model?: string) => openai(model || 'gpt-4o'),
@@ -29,6 +34,7 @@ export const providers = {
   xai: (model?: string) => xai(model || 'grok-3'),
   zhipu: (model?: string) => zhipu(model || 'glm-4v-plus'),
   moonshot: (model?: string) => moonshotProvider.chatModel(model || 'kimi-k2.5-preview'),
+  openrouter: (model?: string) => openrouterProvider.chatModel(model || 'openai/gpt-4o'),
 } as const;
 
 /**

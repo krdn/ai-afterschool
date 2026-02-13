@@ -193,6 +193,9 @@ export class OpenRouterAdapter extends BaseAdapter {
   }
 
   private formatDisplayName(modelId: string): string {
+    // TODO(human): 모델 ID를 사람이 읽기 좋은 표시명으로 변환
+    // 현재: 'meta-llama/llama-3.3-70b-instruct' → 'llama-3.3-70b-instruct (via OpenRouter)'
+    // 목표: 더 읽기 좋은 이름 (예: 'Llama 3.3 70B Instruct (via OpenRouter)')
     const parts = modelId.split('/');
     const name = parts.length > 1 ? parts[1] : parts[0];
     return `${name} (via OpenRouter)`;

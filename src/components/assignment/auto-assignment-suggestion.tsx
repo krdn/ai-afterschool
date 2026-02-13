@@ -27,8 +27,14 @@ interface Student {
   teacherId: string | null
 }
 
+interface Teacher {
+  id: string
+  name: string
+}
+
 interface AutoAssignmentSuggestionProps {
   allStudents: Student[]
+  allTeachers: Teacher[]
 }
 
 interface SuggestionResult {
@@ -45,26 +51,24 @@ interface SuggestionResult {
 
 export function AutoAssignmentSuggestion({
   allStudents,
+  allTeachers,
 }: AutoAssignmentSuggestionProps) {
   const router = useRouter()
   const [isGenerating, setIsGenerating] = useState(false)
   const [suggestion, setSuggestion] = useState<SuggestionResult | null>(null)
   const [isApplying, setIsApplying] = useState(false)
 
-  // 현재 미배정 학생 필터링 (teacherId가 없는 학생 - 실제로는 스키마상 불가능하지만 UI용으로 유지)
-  const unassignedStudents = allStudents.filter((s) => !s.teacherId)
-
   const handleGenerate = async () => {
-    if (unassignedStudents.length === 0) {
+    if (allStudents.length === 0) {
       toast.error('배정할 학생이 없습니다.')
       return
     }
 
     setIsGenerating(true)
     try {
-      const studentIds = unassignedStudents.map((s) => s.id)
+      const studentIds = allStudents.map((s) => s.id)
       const result = await generateAutoAssignmentSuggestions(studentIds, {
-        maxStudentsPerTeacher: Math.ceil(allStudents.length / 3) + 2, // 평균 + 여유
+        maxStudentsPerTeacher: Math.ceil(allStudents.length / 3) + 2,
       })
       setSuggestion(result)
       toast.success('자동 배정 제안이 생성되었습니다.')
@@ -111,6 +115,11 @@ export function AutoAssignmentSuggestion({
     return allStudents.find((s) => s.id === id)?.name || 'Unknown'
   }
 
+  // 선생님 ID로 이름 조회
+  const getTeacherName = (id: string) => {
+    return allTeachers.find((t) => t.id === id)?.name || 'Unknown'
+  }
+
   return (
     <div className="space-y-6">
       {/* 제안 생성 버튼 */}
@@ -121,22 +130,15 @@ export function AutoAssignmentSuggestion({
             AI 자동 배정
           </CardTitle>
           <CardDescription>
-            {unassignedStudents.length > 0 ? (
-              <>
-                <span data-testid="unassigned-student">미배정 학생 {unassignedStudents.length}명</span>에 대한 자동 배정을
-                생성합니다.
-                <br />
-                궁합 점수와 부하 분산을 고려하여 최적의 배정을 제안합니다.
-              </>
-            ) : (
-              <>현재 모든 학생이 배정되어 있습니다.</>
-            )}
+            전체 학생 <span data-testid="unassigned-student">{allStudents.length}명</span>을 대상으로 최적의 학생-선생님 배정을 제안합니다.
+            <br />
+            궁합 점수와 부하 분산을 고려하여 기존 배정을 포함한 전체 재배정안을 생성합니다.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Button
             onClick={handleGenerate}
-            disabled={isGenerating || unassignedStudents.length === 0}
+            disabled={isGenerating || allStudents.length === 0}
             className="w-full sm:w-auto"
             data-testid={isGenerating ? "assignment-loading" : "generate-assignment-button"}
           >
@@ -287,6 +289,7 @@ export function AutoAssignmentSuggestion({
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-4 py-2 text-left font-medium">학생</th>
+                      <th className="px-4 py-2 text-left font-medium">배정 선생님</th>
                       <th className="px-4 py-2 text-left font-medium">총점</th>
                       <th className="px-4 py-2 text-left font-medium">세부 점수</th>
                       <th className="px-4 py-2 text-left font-medium">추천 이유</th>
@@ -306,6 +309,11 @@ export function AutoAssignmentSuggestion({
                           </p>
                         </td>
                         <td className="px-4 py-3">
+                          <p className="font-medium">
+                            {getTeacherName(assignment.teacherId)}
+                          </p>
+                        </td>
+                        <td className="px-4 py-3">
                           <span className="font-medium text-lg">
                             {Math.round(assignment.score.overall)}
                           </span>
@@ -313,28 +321,28 @@ export function AutoAssignmentSuggestion({
                         </td>
                         <td className="px-4 py-3">
                           <div className="space-y-1 text-xs">
-                            <div className="flex justify-between">
+                            <div className="flex justify-between gap-4">
                               <span className="text-gray-500">MBTI</span>
-                              <span>{Math.round(assignment.score.breakdown.mbti * 100)}%</span>
+                              <span>{Math.round(assignment.score.breakdown.mbti / 25 * 100)}%</span>
                             </div>
-                            <div className="flex justify-between">
+                            <div className="flex justify-between gap-4">
                               <span className="text-gray-500">학습 스타일</span>
                               <span>
-                                {Math.round(assignment.score.breakdown.learningStyle * 100)}%
+                                {Math.round(assignment.score.breakdown.learningStyle / 25 * 100)}%
                               </span>
                             </div>
-                            <div className="flex justify-between">
+                            <div className="flex justify-between gap-4">
                               <span className="text-gray-500">사주</span>
-                              <span>{Math.round(assignment.score.breakdown.saju * 100)}%</span>
+                              <span>{Math.round(assignment.score.breakdown.saju / 20 * 100)}%</span>
                             </div>
-                            <div className="flex justify-between">
+                            <div className="flex justify-between gap-4">
                               <span className="text-gray-500">성명학</span>
-                              <span>{Math.round(assignment.score.breakdown.name * 100)}%</span>
+                              <span>{Math.round(assignment.score.breakdown.name / 15 * 100)}%</span>
                             </div>
-                            <div className="flex justify-between">
+                            <div className="flex justify-between gap-4">
                               <span className="text-gray-500">부하 분산</span>
                               <span>
-                                {Math.round(assignment.score.breakdown.loadBalance * 100)}%
+                                {Math.round(assignment.score.breakdown.loadBalance / 15 * 100)}%
                               </span>
                             </div>
                           </div>
