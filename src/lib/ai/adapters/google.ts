@@ -178,14 +178,4 @@ export class GoogleAdapter extends BaseAdapter {
   protected getDefaultBaseUrl(): string {
     return 'https://generativelanguage.googleapis.com/v1beta';
   }
-
-  private decryptApiKey(encrypted: string | null): string {
-    if (!encrypted) return '';
-    try {
-      const { decryptApiKey } = require('../encryption');
-      return decryptApiKey(encrypted);
-    } catch {
-      return '';
-    }
-  }
 }
