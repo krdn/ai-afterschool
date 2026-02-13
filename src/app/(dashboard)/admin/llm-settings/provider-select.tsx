@@ -24,6 +24,7 @@ const PROVIDER_ICONS: Record<ProviderName, string> = {
   xai: 'X',
   zhipu: 'Z',
   moonshot: 'K',
+  openrouter: 'R',
 }
 
 const PROVIDER_COLORS: Record<ProviderName, { bg: string; selected: string }> = {
@@ -37,6 +38,7 @@ const PROVIDER_COLORS: Record<ProviderName, { bg: string; selected: string }> = 
   xai: { bg: 'bg-slate-50 border-slate-200 hover:bg-slate-100', selected: 'bg-slate-100 border-slate-500 ring-2 ring-slate-300' },
   zhipu: { bg: 'bg-indigo-50 border-indigo-200 hover:bg-indigo-100', selected: 'bg-indigo-100 border-indigo-500 ring-2 ring-indigo-300' },
   moonshot: { bg: 'bg-violet-50 border-violet-200 hover:bg-violet-100', selected: 'bg-violet-100 border-violet-500 ring-2 ring-violet-300' },
+  openrouter: { bg: 'bg-teal-50 border-teal-200 hover:bg-teal-100', selected: 'bg-teal-100 border-teal-500 ring-2 ring-teal-300' },
 }
 
 export function ProviderSelect({ enabledProviders, currentDefault }: ProviderSelectProps) {

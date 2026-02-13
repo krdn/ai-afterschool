@@ -102,7 +102,7 @@ export function ProviderForm({ provider, template, onSuccess }: ProviderFormProp
 
   // 폼 초기화
   const form = useForm<ProviderFormValues>({
-    resolver: zodResolver(providerFormSchema),
+    resolver: zodResolver(providerFormSchema) as never,
     defaultValues: {
       name: '',
       providerType: 'custom',
