@@ -59,6 +59,8 @@ export interface GenerateOptions {
   maxOutputTokens?: number;
   temperature?: number;
   system?: string;
+  /** 특정 제공자를 지정하여 호출 (지정하지 않으면 FeatureResolver 자동 라우팅) */
+  providerId?: string;
 }
 
 /**
@@ -211,9 +213,27 @@ async function getProviderOrder(
  * 텍스트를 생성합니다.
  */
 export async function generateWithProvider(options: GenerateOptions): Promise<GenerateResult> {
-  const { prompt, featureType, teacherId, maxOutputTokens, temperature, system } = options;
-  
-  const providerOrder = await getProviderOrder(featureType);
+  const { prompt, featureType, teacherId, maxOutputTokens, temperature, system, providerId } = options;
+
+  let providerOrder: Array<{ provider: Provider; model: Model }>;
+
+  if (providerId) {
+    // 특정 제공자가 지정된 경우: 해당 제공자의 기본 모델 사용
+    const provider = await db.provider.findUnique({
+      where: { id: providerId },
+      include: { models: true },
+    });
+    if (!provider || !provider.isEnabled) {
+      throw new Error(`Provider "${providerId}" not found or disabled`);
+    }
+    const defaultModel = provider.models.find((m: Model) => m.isDefault) || provider.models[0];
+    if (!defaultModel) {
+      throw new Error(`Provider "${provider.name}" has no models configured`);
+    }
+    providerOrder = [{ provider: provider as unknown as Provider, model: defaultModel as unknown as Model }];
+  } else {
+    providerOrder = await getProviderOrder(featureType);
+  }
 
   let lastError: Error | null = null;
   let failoverFrom: string | undefined;

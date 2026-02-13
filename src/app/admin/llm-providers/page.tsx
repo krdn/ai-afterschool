@@ -25,7 +25,7 @@ export default async function LLMProvidersPage() {
       title="LLM 제공자 관리"
       description="AI 기능에 사용될 LLM 제공자를 등록하고 관리합니다"
       breadcrumbs={[
-        { label: 'Universal LLM Hub', href: '/admin' },
+        { label: 'LLM Hub', href: '/admin' },
         { label: '제공자 관리' },
       ]}
       actions={

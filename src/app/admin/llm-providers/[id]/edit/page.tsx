@@ -87,7 +87,7 @@ export default function EditProviderPage({ params }: EditProviderPageProps) {
         title="제공자 수정"
         description="제공자 정보를 불러오는 중..."
         breadcrumbs={[
-          { label: 'Universal LLM Hub', href: '/admin/llm-providers' },
+          { label: 'LLM Hub', href: '/admin/llm-providers' },
           { label: '제공자 수정' },
         ]}
       >
@@ -108,7 +108,7 @@ export default function EditProviderPage({ params }: EditProviderPageProps) {
         title="제공자 수정"
         description="제공자를 찾을 수 없습니다."
         breadcrumbs={[
-          { label: 'Universal LLM Hub', href: '/admin/llm-providers' },
+          { label: 'LLM Hub', href: '/admin/llm-providers' },
           { label: '제공자 수정' },
         ]}
       >
@@ -128,7 +128,7 @@ export default function EditProviderPage({ params }: EditProviderPageProps) {
       title={`${provider.name} 수정`}
       description="제공자 설정을 수정합니다."
       breadcrumbs={[
-        { label: 'Universal LLM Hub', href: '/admin/llm-providers' },
+        { label: 'LLM Hub', href: '/admin/llm-providers' },
         { label: provider.name, href: `/admin/llm-providers` },
         { label: '수정' },
       ]}

@@ -30,6 +30,7 @@ const FEATURE_LABELS: Record<FeatureType, string> = {
   vark_analysis: 'VARK 학습유형 해석',
   name_analysis: '이름풀이 해석',
   zodiac_analysis: '별자리 운세 해석',
+  compatibility_analysis: '궁합 분석',
 };
 
 const VISION_FEATURES: FeatureType[] = ['face_analysis', 'palm_analysis'];

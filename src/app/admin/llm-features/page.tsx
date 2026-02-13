@@ -36,7 +36,7 @@ export default async function LLMFeaturesPage() {
       title="기능별 LLM 매핑"
       description="각 기능에 사용될 LLM 모델의 매핑 규칙을 설정하고 관리합니다."
       breadcrumbs={[
-        { label: 'Universal LLM Hub', href: '/admin' },
+        { label: 'LLM Hub', href: '/admin' },
         { label: '기능별 매핑' },
       ]}
     >

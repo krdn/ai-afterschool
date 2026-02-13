@@ -15,6 +15,9 @@ import { ManualAssignmentForm } from '@/components/assignment/manual-assignment-
 import { BatchAssignment } from '@/components/assignment/batch-assignment'
 import { TeacherAssignmentTable } from '@/components/assignment/teacher-assignment-table'
 import { MatchingHistoryTab } from '@/components/matching/MatchingHistoryTab'
+import { SmartMatchingSection } from '@/components/matching/smart-matching-section'
+import type { UnassignedStudent, AssignedStudent } from '@/components/matching/unassigned-student-combobox'
+import type { LlmProviderOption } from '@/components/matching/matching-model-selector'
 import { Brain, ArrowRight, History } from 'lucide-react'
 import type { Teacher } from '@prisma/client'
 
@@ -34,21 +37,38 @@ interface MatchingPageTabsProps {
     name: string
     school: string
     grade: number
-    teacherId: string
+    teacherId: string | null
   }[]
   teachersList: {
     id: string
     name: string
     role: string
   }[]
+  unassignedStudents: UnassignedStudent[]
+  llmProviders?: LlmProviderOption[]
 }
 
 export function MatchingPageTabs({
   teachers,
   allStudents,
   teachersList,
+  unassignedStudents,
+  llmProviders = [],
 }: MatchingPageTabsProps) {
   const [activeTab, setActiveTab] = useState('current')
+
+  // 배정된 학생 목록 (선생님 이름 포함)
+  const teacherNameMap = new Map(teachers.map((t) => [t.id, t.name]))
+  const assignedStudents: AssignedStudent[] = allStudents
+    .filter((s) => s.teacherId)
+    .map((s) => ({
+      id: s.id,
+      name: s.name,
+      school: s.school,
+      grade: s.grade,
+      teacherId: s.teacherId!,
+      teacherName: teacherNameMap.get(s.teacherId!) ?? "알 수 없음",
+    }))
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
@@ -63,6 +83,13 @@ export function MatchingPageTabs({
       </TabsList>
 
       <TabsContent value="current" className="space-y-6">
+        {/* 스마트 배정 섹션 */}
+        <SmartMatchingSection
+          unassignedStudents={unassignedStudents}
+          assignedStudents={assignedStudents}
+          llmProviders={llmProviders}
+        />
+
         <Card>
           <CardHeader>
             <CardTitle>배정 작업</CardTitle>

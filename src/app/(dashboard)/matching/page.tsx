@@ -1,19 +1,13 @@
-import Link from "next/link"
 import { verifySession } from "@/lib/dal"
 import { db } from "@/lib/db"
-import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { ManualAssignmentForm } from "@/components/assignment/manual-assignment-form"
-import { BatchAssignment } from "@/components/assignment/batch-assignment"
-import { TeacherAssignmentTable } from "@/components/assignment/teacher-assignment-table"
-import { MatchingHistoryTab } from "@/components/matching/MatchingHistoryTab"
-import { Users, Brain, ArrowRight } from "lucide-react"
+import { Users, Brain, UserX } from "lucide-react"
+import { MatchingPageTabs } from "./matching-tabs"
 
 export default async function MatchingPage() {
   await verifySession()
@@ -56,10 +50,36 @@ export default async function MatchingPage() {
     },
   })
 
+  const unassignedStudents = allStudents.filter((s) => !s.teacherId)
+  const assignedCount = totalStudents - unassignedStudents.length
+
   const teachersList = teachers.map((t) => ({
     id: t.id,
     name: t.name,
     role: t.role,
+  }))
+
+  // 활성 LLM 제공자 목록 조회
+  const enabledProviders = await db.provider.findMany({
+    where: { isEnabled: true },
+    select: {
+      id: true,
+      name: true,
+      providerType: true,
+      models: {
+        where: { isDefault: true },
+        select: { modelId: true, displayName: true },
+        take: 1,
+      },
+    },
+    orderBy: { createdAt: "asc" },
+  })
+
+  const llmProviders = enabledProviders.map((p) => ({
+    id: p.id,
+    name: p.name,
+    providerType: p.providerType,
+    defaultModel: p.models[0]?.displayName ?? p.models[0]?.modelId ?? "모델 없음",
   }))
 
   return (
@@ -71,7 +91,7 @@ export default async function MatchingPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">전체 학생</CardTitle>
@@ -80,7 +100,22 @@ export default async function MatchingPage() {
           <CardContent>
             <div className="text-2xl font-bold">{totalStudents}명</div>
             <p className="text-xs text-muted-foreground">
-              {teachers.length}명의 선생님에게 배정됨
+              배정 완료 {assignedCount}명
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">미배정</CardTitle>
+            <UserX className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className={`text-2xl font-bold ${unassignedStudents.length > 0 ? "text-orange-600" : "text-green-600"}`}>
+              {unassignedStudents.length}명
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {unassignedStudents.length > 0 ? "배정이 필요합니다" : "모두 배정 완료"}
             </p>
           </CardContent>
         </Card>
@@ -99,15 +134,18 @@ export default async function MatchingPage() {
         </Card>
       </div>
 
-      {/* Tabs UI - 기존 컨텐츠를 배정 현황 탭으로 이동 */}
       <MatchingPageTabs
         teachers={teachers}
         allStudents={allStudents}
         teachersList={teachersList}
+        unassignedStudents={unassignedStudents.map((s) => ({
+          id: s.id,
+          name: s.name,
+          school: s.school,
+          grade: s.grade,
+        }))}
+        llmProviders={llmProviders}
       />
     </div>
   )
 }
-
-// 별도의 Client Component로 탭 상태 관리
-import { MatchingPageTabs } from "./matching-tabs"

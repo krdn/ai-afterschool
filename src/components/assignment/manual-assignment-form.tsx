@@ -48,9 +48,12 @@ export function ManualAssignmentForm({
   const [selectedTeacherId, setSelectedTeacherId] = useState<string>("")
   const [isLoading, setIsLoading] = useState(false)
 
-  const availableStudents = studentId
+  // 선생님 ID→이름 매핑 (배정된 학생의 현재 담당 표시용)
+  const teacherMap = new Map(teachers.map((t) => [t.id, t.name]))
+
+  const displayStudents = studentId
     ? students.filter((s) => s.id === studentId)
-    : students.filter((s) => !s.teacherId)
+    : students
 
   const handleOpen = () => setIsOpen(true)
   const handleClose = () => {
@@ -117,9 +120,14 @@ export function ManualAssignmentForm({
                   <SelectValue placeholder="학생을 선택하세요" />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableStudents.map((student) => (
+                  {displayStudents.map((student) => (
                     <SelectItem key={student.id} value={student.id}>
                       {student.name} ({student.school} {student.grade}학년)
+                      {student.teacherId && (
+                        <span className="text-muted-foreground ml-1">
+                          — {teacherMap.get(student.teacherId) ?? "배정됨"}
+                        </span>
+                      )}
                     </SelectItem>
                   ))}
                 </SelectContent>

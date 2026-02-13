@@ -1,11 +1,13 @@
 "use client"
 
+import { UserPlus, Loader2 } from "lucide-react"
 import type { CompatibilityScore } from "@/lib/analysis/compatibility-scoring"
 
 export interface TeacherRecommendation {
   teacherId: string
   teacherName: string
   teacherRole: string
+  currentStudentCount?: number
   score: CompatibilityScore
   breakdown: CompatibilityScore["breakdown"]
   reasons: string[]
@@ -14,6 +16,8 @@ export interface TeacherRecommendation {
 interface TeacherRecommendationListProps {
   recommendations: TeacherRecommendation[]
   currentTeacherId?: string | null
+  onAssign?: (teacherId: string) => void
+  assigningTeacherId?: string | null
 }
 
 /**
@@ -24,6 +28,8 @@ interface TeacherRecommendationListProps {
 export function TeacherRecommendationList({
   recommendations,
   currentTeacherId,
+  onAssign,
+  assigningTeacherId,
 }: TeacherRecommendationListProps) {
   if (recommendations.length === 0) {
     return (
@@ -77,6 +83,11 @@ export function TeacherRecommendationList({
                   <span className="rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700">
                     {getRoleLabel(recommendation.teacherRole)}
                   </span>
+                  {recommendation.currentStudentCount != null && (
+                    <span className="rounded-full bg-purple-100 px-2 py-1 text-xs font-medium text-purple-700">
+                      담당 {recommendation.currentStudentCount}명
+                    </span>
+                  )}
                   {isCurrentTeacher && (
                     <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700">
                       현재 배정
@@ -150,6 +161,23 @@ export function TeacherRecommendationList({
                   </div>
                 )}
               </div>
+
+              {onAssign && !isCurrentTeacher && (
+                <div className="ml-4 flex shrink-0 items-start">
+                  <button
+                    onClick={() => onAssign(recommendation.teacherId)}
+                    disabled={assigningTeacherId === recommendation.teacherId}
+                    className="inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700 disabled:opacity-50"
+                  >
+                    {assigningTeacherId === recommendation.teacherId ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <UserPlus className="h-4 w-4" />
+                    )}
+                    배정하기
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         )

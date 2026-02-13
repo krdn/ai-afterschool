@@ -310,6 +310,7 @@ export async function getTeacherRecommendations(studentId: string) {
       teacherId: teacher.id,
       teacherName: teacher.name,
       teacherRole: teacher.role,
+      currentStudentCount: teacher._count.students,
       score,
       breakdown: score.breakdown,
       reasons: score.reasons,
