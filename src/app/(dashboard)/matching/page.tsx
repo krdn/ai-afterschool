@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/card"
 import { Users, Brain, UserX } from "lucide-react"
 import { MatchingPageTabs } from "./matching-tabs"
+import { AssignmentHelpDialog } from "@/components/assignment/assignment-help-dialog"
 
 export default async function MatchingPage() {
   await verifySession()
@@ -89,6 +90,7 @@ export default async function MatchingPage() {
           <h1 className="text-2xl font-bold">배정 관리</h1>
           <p className="text-gray-500">학생-선생님 배정 현황 및 관리</p>
         </div>
+        <AssignmentHelpDialog />
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
