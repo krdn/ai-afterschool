@@ -45,10 +45,11 @@ export default defineConfig({
         // },
     ],
 
-    /* Run your local dev server before starting the tests */
-    // webServer: {
-    //   command: 'npm run dev',
-    //   url: 'http://localhost:3000',
-    //   reuseExistingServer: !process.env.CI,
-    // },
+    /* CI에서는 빌드된 앱 시작, 로컬에서는 이미 실행 중인 서버 재사용 */
+    webServer: {
+        command: process.env.CI ? 'npm start' : 'npm run dev',
+        url: 'http://localhost:3000',
+        reuseExistingServer: !process.env.CI,
+        timeout: 120000,
+    },
 });
