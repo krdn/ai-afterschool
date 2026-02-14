@@ -368,7 +368,7 @@ export default async function AdminPage() {
 
         {/* 데이터베이스 탭 */}
         <AdminTabsContent value="database">
-          <DatabaseTab />
+          <DatabaseTab userRole={session.role} />
         </AdminTabsContent>
 
         {/* 감사 로그 탭 */}
