@@ -58,6 +58,14 @@ export default async function DashboardLayout({
                     </Link>
                   </>
                 )}
+                {teacher.role === "DIRECTOR" && (
+                  <Link
+                    href="/issues"
+                    className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                  >
+                    이슈
+                  </Link>
+                )}
                 {(teacher.role === "DIRECTOR" || teacher.role === "TEAM_LEADER") && (
                   <Link
                     href="/admin"
