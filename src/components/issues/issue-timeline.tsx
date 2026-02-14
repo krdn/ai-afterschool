@@ -1,9 +1,10 @@
+import type { Prisma } from '@prisma/client'
 import { GitBranch, Tag, RefreshCw, UserPlus, CheckCircle, Plus } from 'lucide-react'
 
 interface TimelineEvent {
   id: string
   eventType: string
-  metadata: Record<string, unknown> | null
+  metadata: Prisma.JsonValue
   createdAt: string | Date
   performer: { name: string }
 }
