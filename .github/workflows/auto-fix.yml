@@ -1,0 +1,233 @@
+name: Auto Fix Issue
+
+on:
+  repository_dispatch:
+    types: [auto-fix-issue]
+
+env:
+  NODE_VERSION: '20'
+  ISSUE_NUMBER: ${{ github.event.client_payload.issue_number }}
+  BRANCH_NAME: ${{ github.event.client_payload.branch_name }}
+  ISSUE_CATEGORY: ${{ github.event.client_payload.category }}
+  ISSUE_TITLE: ${{ github.event.client_payload.title }}
+  ISSUE_DESCRIPTION: ${{ github.event.client_payload.description }}
+  SCREENSHOT_URL: ${{ github.event.client_payload.screenshot_url }}
+  ISSUE_ID: ${{ github.event.client_payload.issue_id }}
+
+jobs:
+  auto-fix:
+    runs-on: [self-hosted, linux, ai-fix]
+    timeout-minutes: 30
+
+    steps:
+      # ── 1. Setup ──
+      - name: Checkout issue branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BRANCH_NAME }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      # ── 2. 상태 업데이트: IN_PROGRESS ──
+      - name: Update issue status to IN_PROGRESS
+        if: env.ISSUE_ID != ''
+        run: |
+          curl -sf -X POST \
+            "${{ secrets.APP_URL }}/api/internal/issues/${ISSUE_ID}/events" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.INTERNAL_API_SECRET }}" \
+            -d "{\"eventType\":\"auto_fix_started\",\"status\":\"IN_PROGRESS\",\"metadata\":{\"runId\":\"${{ github.run_id }}\"}}" \
+          || echo "::warning::Status update failed (non-critical)"
+
+      # ── 3. AI 코드 수정 ──
+      - name: Prepare prompt
+        id: prompt
+        run: |
+          # 프롬프트 템플릿 읽기 및 플레이스홀더 치환
+          PROMPT=$(cat scripts/auto-fix-prompt.md)
+          PROMPT=$(echo "$PROMPT" | sed "s|{{ISSUE_TITLE}}|${ISSUE_TITLE}|g")
+          PROMPT=$(echo "$PROMPT" | sed "s|{{ISSUE_DESCRIPTION}}|${ISSUE_DESCRIPTION}|g")
+          PROMPT=$(echo "$PROMPT" | sed "s|{{ISSUE_CATEGORY}}|${ISSUE_CATEGORY}|g")
+          PROMPT=$(echo "$PROMPT" | sed "s|{{SCREENSHOT_URL}}|${SCREENSHOT_URL}|g")
+
+          # 멀티라인 출력
+          {
+            echo "prompt<<PROMPT_EOF"
+            echo "$PROMPT"
+            echo "PROMPT_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Run Claude Code
+        id: claude
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          MAX_ATTEMPTS=3
+          ATTEMPT=0
+          SUCCESS=false
+
+          while [ "$ATTEMPT" -lt "$MAX_ATTEMPTS" ] && [ "$SUCCESS" = "false" ]; do
+            ATTEMPT=$((ATTEMPT + 1))
+            echo "=== Claude Code 실행 (시도 $ATTEMPT/$MAX_ATTEMPTS) ==="
+
+            claude -p "${{ steps.prompt.outputs.prompt }}" \
+              --allowedTools "Edit,Read,Write,Glob,Grep,Bash(npm test),Bash(npm run lint)" \
+              --max-turns 20 \
+            || true
+
+            # 변경 파일 확인
+            CHANGED=$(git diff --name-only)
+            if [ -n "$CHANGED" ]; then
+              echo "변경된 파일:"
+              echo "$CHANGED"
+              SUCCESS=true
+            else
+              echo "변경 사항 없음. 재시도..."
+              sleep 5
+            fi
+          done
+
+          if [ "$SUCCESS" = "false" ]; then
+            echo "claude_success=false" >> "$GITHUB_OUTPUT"
+            echo "::error::Claude Code가 코드를 수정하지 못했습니다 (${MAX_ATTEMPTS}회 시도)"
+            exit 1
+          fi
+
+          echo "claude_success=true" >> "$GITHUB_OUTPUT"
+
+      - name: Commit AI changes
+        if: steps.claude.outputs.claude_success == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "fix: 이슈 #${ISSUE_NUMBER} 자동 수정
+
+          Claude Code에 의한 자동 수정
+          이슈: ${ISSUE_TITLE}
+          카테고리: ${ISSUE_CATEGORY}
+
+          Co-Authored-By: Claude <noreply@anthropic.com>"
+          git push origin "${BRANCH_NAME}"
+
+      # ── 4. 테스트 스위트 ──
+      - name: Run unit tests
+        run: npm test
+
+      - name: Run lint
+        run: npm run lint
+
+      - name: Build verification
+        run: npm run build
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL_TEST || 'postgresql://dummy:dummy@localhost:5432/test' }}
+          SESSION_SECRET: test-secret-for-build
+          NEXT_PUBLIC_APP_URL: http://localhost:3000
+
+      - name: Run E2E tests (category-based)
+        id: e2e
+        continue-on-error: true
+        run: |
+          case "${ISSUE_CATEGORY}" in
+            BUG|FEATURE|SECURITY)
+              echo "전체 E2E 테스트 실행"
+              npx playwright test
+              ;;
+            UI_UX)
+              echo "UI 관련 E2E 테스트 실행"
+              npx playwright test --grep "ui|visual|layout"
+              ;;
+            PERFORMANCE)
+              echo "E2E 스킵 (빌드 검증만)"
+              ;;
+            *)
+              echo "기본 E2E 스킵"
+              ;;
+          esac
+
+      # ── 5. PR 생성 ──
+      - name: Create Pull Request
+        if: success()
+        id: pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # E2E 결과 텍스트
+          if [ "${{ steps.e2e.outcome }}" = "success" ]; then
+            E2E_RESULT="✅ 통과"
+          elif [ "${{ steps.e2e.outcome }}" = "skipped" ]; then
+            E2E_RESULT="⏭️ 스킵"
+          else
+            E2E_RESULT="⚠️ 일부 실패 (확인 필요)"
+          fi
+
+          PR_URL=$(gh pr create \
+            --base main \
+            --head "${BRANCH_NAME}" \
+            --title "fix: 이슈 #${ISSUE_NUMBER} - ${ISSUE_TITLE}" \
+            --body "## 자동 수정 PR
+
+          **이슈:** #${ISSUE_NUMBER} - ${ISSUE_TITLE}
+          **카테고리:** ${ISSUE_CATEGORY}
+
+          ### 수정 내용
+          Claude Code에 의해 자동 생성된 수정사항입니다.
+          코드 리뷰 후 Approve하면 자동으로 머지 및 배포됩니다.
+
+          ### 테스트 결과
+          - Unit 테스트: ✅ 통과
+          - Lint: ✅ 통과
+          - 빌드: ✅ 통과
+          - E2E: ${E2E_RESULT}
+
+          ---
+          🤖 이 PR은 이슈 자동 해결 파이프라인에 의해 생성되었습니다." \
+            --label "auto-fix" 2>&1)
+
+          echo "PR 생성됨: $PR_URL"
+          echo "pr_url=$PR_URL" >> "$GITHUB_OUTPUT"
+
+      - name: Update issue status to IN_REVIEW
+        if: success() && env.ISSUE_ID != ''
+        run: |
+          curl -sf -X POST \
+            "${{ secrets.APP_URL }}/api/internal/issues/${ISSUE_ID}/events" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.INTERNAL_API_SECRET }}" \
+            -d "{\"eventType\":\"pr_created\",\"status\":\"IN_REVIEW\",\"metadata\":{\"runId\":\"${{ github.run_id }}\",\"prUrl\":\"${{ steps.pr.outputs.pr_url }}\"}}" \
+          || echo "::warning::Status update failed (non-critical)"
+
+      # ── 6. 실패 처리 ──
+      - name: Handle failure - update status
+        if: failure() && env.ISSUE_ID != ''
+        run: |
+          curl -sf -X POST \
+            "${{ secrets.APP_URL }}/api/internal/issues/${ISSUE_ID}/events" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.INTERNAL_API_SECRET }}" \
+            -d "{\"eventType\":\"auto_fix_failed\",\"status\":\"OPEN\",\"metadata\":{\"runId\":\"${{ github.run_id }}\"}}" \
+          || echo "::warning::Status update failed (non-critical)"
+
+      - name: Handle failure - comment on issue
+        if: failure() && env.ISSUE_NUMBER != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue comment "${ISSUE_NUMBER}" \
+            --body "⚠️ **자동 수정 실패**
+
+          파이프라인이 이슈를 자동으로 수정하지 못했습니다.
+          수동 개입이 필요합니다.
+
+          - Run: [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          - 브랜치: \`${BRANCH_NAME}\`"
