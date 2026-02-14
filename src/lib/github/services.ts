@@ -299,3 +299,61 @@ ${description || '설명 없음'}
 
   return body
 }
+
+/**
+ * 이슈 자동 수정 파이프라인 트리거
+ *
+ * repository_dispatch 이벤트를 발행하여 auto-fix.yml 워크플로우를 시작한다.
+ * GitHub 미설정이거나 실패 시 false 반환 (파이프라인 트리거는 optional).
+ */
+export async function dispatchAutoFix(params: {
+  issueNumber: number
+  branchName: string
+  category: IssueCategory
+  title: string
+  description?: string
+  screenshotUrl?: string
+  issueId: string
+}): Promise<boolean> {
+  if (!isGitHubConfigured()) {
+    return false
+  }
+
+  try {
+    const octokit = getOctokit()
+    const { owner, repo } = getRepoConfig()
+
+    await octokit.rest.repos.createDispatchEvent({
+      owner,
+      repo,
+      event_type: 'auto-fix-issue',
+      client_payload: {
+        issue_number: params.issueNumber,
+        branch_name: params.branchName,
+        category: params.category,
+        title: params.title,
+        description: params.description || '',
+        screenshot_url: params.screenshotUrl || '',
+        issue_id: params.issueId,
+      },
+    })
+
+    await logSystemAction({
+      level: 'INFO',
+      message: `자동 수정 파이프라인 트리거: Issue #${params.issueNumber}`,
+      context: { issueNumber: params.issueNumber, branchName: params.branchName },
+    })
+
+    return true
+  } catch (error) {
+    await logSystemAction({
+      level: 'WARN',
+      message: '자동 수정 파이프라인 트리거 실패 (무시하고 진행)',
+      context: {
+        error: error instanceof Error ? error.message : String(error),
+        issueNumber: params.issueNumber,
+      },
+    })
+    return false
+  }
+}

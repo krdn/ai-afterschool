@@ -3,7 +3,7 @@
 import { verifySession, logAuditAction } from "@/lib/dal"
 import { db } from "@/lib/db"
 import { IssueSchema, type IssueFormState } from "@/lib/validations/issues"
-import { createGitHubIssue, ensureLabel, createIssueBranch, generateIssueBody } from "@/lib/github/services"
+import { createGitHubIssue, ensureLabel, createIssueBranch, generateIssueBody, dispatchAutoFix } from "@/lib/github/services"
 import { CATEGORY_LABEL_MAP } from "@/lib/github/constants"
 import { isGitHubConfigured } from "@/lib/github/client"
 import { Prisma, type IssueCategory, type IssuePriority, type IssueStatus } from "@prisma/client"
@@ -156,6 +156,19 @@ export async function createIssue(
                 },
               },
             })
+
+            // 자동 수정 파이프라인 트리거
+            if (githubIssueNumber) {
+              await dispatchAutoFix({
+                issueNumber: githubIssueNumber,
+                branchName,
+                category: category as IssueCategory,
+                title,
+                description: description || undefined,
+                screenshotUrl: screenshotUrl || undefined,
+                issueId: issue.id,
+              })
+            }
           } else {
             partialGitHubFailure = true
           }
