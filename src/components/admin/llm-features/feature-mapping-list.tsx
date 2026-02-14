@@ -6,7 +6,8 @@
  * 기능별 매핑 규칙 목록을 표시하고 관리하는 컴포넌트
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -79,10 +80,11 @@ interface FeatureMappingWithDetails {
 interface FeatureMappingListProps {
   mappings: FeatureMappingWithDetails[];
   providers: ProviderWithModels[];
-  onRefresh: () => void;
 }
 
-export function FeatureMappingList({ mappings, providers, onRefresh }: FeatureMappingListProps) {
+export function FeatureMappingList({ mappings, providers }: FeatureMappingListProps) {
+  const router = useRouter();
+  const onRefresh = useCallback(() => router.refresh(), [router]);
   const [editingMapping, setEditingMapping] = useState<FeatureMappingWithDetails | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
