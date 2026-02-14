@@ -409,3 +409,72 @@ export async function updateIssueStatus(
     }
   }
 }
+
+/**
+ * 이슈 담당자 할당 Server Action
+ *
+ * DIRECTOR 전용
+ * 담당자 변경 + IssueEvent 기록 + AuditLog
+ */
+export async function assignIssue(
+  issueId: string,
+  assignedTo: string | null
+): Promise<{ success: boolean; error?: string }> {
+  const session = await verifySession()
+
+  if (session.role !== 'DIRECTOR') {
+    return {
+      success: false,
+      error: "이슈 담당자를 변경할 권한이 없어요",
+    }
+  }
+
+  try {
+    const issue = await db.issue.findUnique({
+      where: { id: issueId },
+      select: { assignedTo: true },
+    })
+
+    if (!issue) {
+      return {
+        success: false,
+        error: "이슈를 찾을 수 없어요",
+      }
+    }
+
+    await db.issue.update({
+      where: { id: issueId },
+      data: { assignedTo },
+    })
+
+    await db.issueEvent.create({
+      data: {
+        issueId,
+        eventType: 'assigned',
+        performedBy: session.userId,
+        metadata: {
+          from: issue.assignedTo,
+          to: assignedTo,
+        },
+      },
+    })
+
+    await logAuditAction({
+      action: 'ISSUE_ASSIGNED',
+      entityType: 'Issue',
+      entityId: issueId,
+      changes: {
+        from: issue.assignedTo,
+        to: assignedTo,
+      },
+    })
+
+    return { success: true }
+  } catch (error) {
+    console.error("Failed to assign issue:", error)
+    return {
+      success: false,
+      error: "담당자 변경 중 오류가 발생했어요",
+    }
+  }
+}
