@@ -106,6 +106,7 @@ describe('ProviderRegistry', () => {
       createdAt: new Date(),
       updatedAt: new Date(),
       models: [],
+      hasApiKey: true,
     };
 
     it('should register a new provider with API key encryption', async () => {
@@ -275,6 +276,7 @@ describe('ProviderRegistry', () => {
       createdAt: new Date(),
       updatedAt: new Date(),
       models: [],
+      hasApiKey: true,
     };
 
     it('should get provider by id with caching', async () => {
@@ -341,6 +343,7 @@ describe('ProviderRegistry', () => {
       createdAt: new Date(),
       updatedAt: new Date(),
       models: [],
+      hasApiKey: true,
     };
 
     it('should validate provider connection successfully', async () => {
@@ -420,6 +423,7 @@ describe('ProviderRegistry', () => {
       createdAt: new Date(),
       updatedAt: new Date(),
       models: [],
+      hasApiKey: true,
     };
 
     const mockModels = [
@@ -561,6 +565,7 @@ describe('ProviderRegistry', () => {
       createdAt: new Date(),
       updatedAt: new Date(),
       models: [],
+      hasApiKey: true,
     };
 
     it('should cache provider data', async () => {
