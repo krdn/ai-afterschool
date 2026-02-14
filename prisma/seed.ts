@@ -1,8 +1,8 @@
 import "dotenv/config"
 import { PrismaClient } from "@prisma/client"
 import { PrismaPg } from "@prisma/adapter-pg"
-import argon2 from "argon2"
 import { Pool } from "pg"
+import { runSeed } from "../src/lib/db/seed-core"
 
 const databaseUrl = process.env.DATABASE_URL
 if (!databaseUrl) {
@@ -13,48 +13,15 @@ const adapter = new PrismaPg(pool)
 const prisma = new PrismaClient({ adapter })
 
 async function main() {
-  // Create test teacher
-  const existingTeacher = await prisma.teacher.findUnique({
-    where: { email: "test@afterschool.com" },
-  })
+  console.log("시드 데이터 로드를 시작합니다...")
+  const result = await runSeed(prisma)
 
-  if (!existingTeacher) {
-    const hashedPassword = await argon2.hash("test1234")
-
-    await prisma.teacher.create({
-      data: {
-        name: "테스트 선생님",
-        email: "test@afterschool.com",
-        password: hashedPassword,
-      },
-    })
-
-    console.log("Test teacher created: test@afterschool.com / test1234")
-  } else {
-    console.log("Test teacher already exists")
+  console.log("\n=== 시드 결과 ===")
+  for (const [model, counts] of Object.entries(result)) {
+    const { created, updated } = counts as { created: number; updated: number }
+    console.log(`  ${model}: 생성 ${created}건, 갱신 ${updated}건`)
   }
-
-  // Create admin user
-  const existingAdmin = await prisma.teacher.findUnique({
-    where: { email: "admin@afterschool.com" },
-  })
-
-  if (!existingAdmin) {
-    const hashedPassword = await argon2.hash("admin1234")
-
-    await prisma.teacher.create({
-      data: {
-        name: "관리자",
-        email: "admin@afterschool.com",
-        password: hashedPassword,
-        role: "DIRECTOR",
-      },
-    })
-
-    console.log("Admin user created: admin@afterschool.com / admin1234")
-  } else {
-    console.log("Admin user already exists")
-  }
+  console.log("\n시드 완료!")
 }
 
 main()
