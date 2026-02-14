@@ -127,11 +127,6 @@ export default async function LLMFeaturesPage() {
           name: p.name,
           models: p.models || [],
         }))}
-        onRefresh={async () => {
-          // 서버 컴포넌트에서 실행될 새로고침 로직
-          'use server';
-          // 서버 액션으로 클라이언트에 신호를 본니다
-        }}
       />
 
       {/* 퀵 헬프 섹션 */}
