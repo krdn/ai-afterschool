@@ -25,12 +25,25 @@ export function ScreenshotCapture({ onCapture, onError }: ScreenshotCaptureProps
     setState('capturing')
 
     try {
+      // Dialog 관련 요소를 캡처에서 제외 (overlay, dialog, focus guard)
+      const dialogElements = new Set(
+        document.querySelectorAll(
+          '[role="dialog"], [data-slot="dialog-overlay"], [data-radix-focus-guard], [data-radix-portal]'
+        )
+      )
+
       const blob = await captureScreenshot({
         type: 'image/png',
         quality: 0.9,
+        // DOM 클론 시 모달 관련 노드를 제외 (해당 노드와 모든 자식이 제외됨)
+        filter: (node: Node) => {
+          if (node instanceof Element) {
+            return !dialogElements.has(node)
+          }
+          return true
+        },
       })
 
-      // Create preview URL from blob
       const url = URL.createObjectURL(blob)
       setCapturedBlob(blob)
       setPreviewUrl(url)
