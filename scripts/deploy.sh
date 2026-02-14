@@ -169,9 +169,9 @@ health_check() {
 deploy_new_version() {
     log_info "Deploying new version..."
 
-    # Pull latest images (for postgres, minio, caddy)
+    # Pull latest images (for postgres, minio)
     log_info "Pulling latest images..."
-    docker compose -f "$COMPOSE_FILE" pull postgres minio caddy 2>/dev/null || true
+    docker compose -f "$COMPOSE_FILE" pull postgres minio 2>/dev/null || true
 
     # Start new containers
     log_info "Starting new containers..."
