@@ -7,3 +7,5 @@ export { IssueStatusBadge, IssueCategoryBadge, IssuePriorityBadge } from './issu
 export { IssueFilters } from './issue-filters'
 export { IssueTable } from './issue-table'
 export { IssueTimeline } from './issue-timeline'
+export { IssueDetail } from './issue-detail'
+export { IssueAssignSelect } from './issue-assign-select'
