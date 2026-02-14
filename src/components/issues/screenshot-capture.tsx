@@ -4,7 +4,6 @@ import { useState, useCallback } from 'react'
 import { Camera, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { captureScreenshot, blobToFile } from '@/lib/screenshot/capture'
-import { imageStorage } from '@/lib/storage/image-storage'
 import { ScreenshotPreview } from './screenshot-preview'
 
 export interface ScreenshotCaptureProps {
@@ -52,11 +51,25 @@ export function ScreenshotCapture({ onCapture, onError }: ScreenshotCaptureProps
     try {
       const filename = `screenshot-${Date.now()}.png`
       const file = blobToFile(capturedBlob, filename)
-      const result = await imageStorage.uploadImage(file, filename)
 
-      setUploadedUrl(result.url)
+      // 서버 API Route를 통해 업로드 (클라이언트에서 S3 직접 접근 불가)
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const response = await fetch('/api/upload/screenshot', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || '업로드에 실패했습니다.')
+      }
+
+      const data = await response.json()
+      setUploadedUrl(data.url)
       setState('uploaded')
-      onCapture(result.url)
+      onCapture(data.url)
 
       // Clean up preview URL
       URL.revokeObjectURL(previewUrl)
