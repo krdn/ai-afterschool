@@ -65,6 +65,7 @@ jobs:
       CLOUDINARY_CLOUD_NAME: ci-dummy
       CLOUDINARY_API_KEY: ci-dummy-key
       CLOUDINARY_API_SECRET: ci-dummy-secret
+      NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: ci-dummy
 
     steps:
     - uses: actions/checkout@v4
@@ -94,6 +95,7 @@ jobs:
       run: npm run build
       env:
         NEXT_PUBLIC_APP_URL: http://localhost:3000
+        NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: ci-dummy
 
     - name: Run E2E Tests
       run: npx playwright test
