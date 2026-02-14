@@ -5,50 +5,126 @@ on:
     branches: [main]
   workflow_dispatch:
 
+env:
+  IMAGE_NAME: ai-afterschool
+  IMAGE_TAG: ${{ github.sha }}
+  REMOTE_DIR: /home/gon/projects/ai/ai-afterschool
+
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+
     steps:
+      # ── 1. 빌드 ──
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy to server
-        id: deploy
-        uses: appleboy/ssh-action@v1.0.0
-        continue-on-error: true
+      - name: Build Docker image
+        run: |
+          docker build \
+            -f Dockerfile.prod \
+            --build-arg SESSION_SECRET=build-time-placeholder-min-32-chars-long \
+            --build-arg NEXT_PUBLIC_APP_URL=${{ secrets.APP_URL || 'http://192.168.0.5:3001' }} \
+            -t ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} \
+            .
+
+      - name: Save Docker image
+        run: |
+          docker save ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} | gzip > /tmp/image.tar.gz
+          ls -lh /tmp/image.tar.gz
+
+      # ── 2. 전송 ──
+      - name: Copy image to server
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST }}
-          port: ${{ secrets.SERVER_PORT }}
+          port: ${{ secrets.SERVER_PORT || '22' }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd /home/gon/projects/ai/ai-afterschool
-            git pull origin main
-            ./scripts/deploy.sh --force --tag=${{ github.sha }}
+          source: /tmp/image.tar.gz
+          target: /tmp
+          strip_components: 1
 
+      # ── 3. 배포 ──
+      - name: Deploy on server
+        id: deploy
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          port: ${{ secrets.SERVER_PORT || '22' }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script_stop: true
+          script: |
+            set -e
+
+            echo "=== Docker 이미지 로드 ==="
+            docker load < /tmp/image.tar.gz
+            rm -f /tmp/image.tar.gz
+
+            echo "=== 배포 시작 ==="
+            cd ${{ env.REMOTE_DIR }}
+
+            # 현재 이미지 태그 백업 (롤백용)
+            CURRENT_TAG=$(docker inspect --format='{{index .Config.Image}}' ai-afterschool-app 2>/dev/null | cut -d: -f2 || echo "none")
+            echo "$CURRENT_TAG" > .deploy-backup-tag
+
+            # docker-compose에서 사용할 VERSION 설정
+            export VERSION="${{ env.IMAGE_TAG }}"
+
+            # DB 마이그레이션 실행
+            echo "=== DB 마이그레이션 ==="
+            docker compose -f docker-compose.prod.yml run --rm --no-build migrate
+
+            # 앱 컨테이너만 재시작 (postgres, minio는 유지)
+            echo "=== 앱 재시작 ==="
+            docker compose -f docker-compose.prod.yml up -d --no-build app
+
+            # Health check (최대 60초)
+            echo "=== Health Check ==="
+            ELAPSED=0
+            while [ $ELAPSED -lt 60 ]; do
+              if curl -sf http://localhost:3001/api/health > /dev/null 2>&1; then
+                echo "앱이 정상 동작합니다"
+                break
+              fi
+              echo "대기 중... ($ELAPSED초)"
+              sleep 3
+              ELAPSED=$((ELAPSED + 3))
+            done
+
+            if [ $ELAPSED -ge 60 ]; then
+              echo "Health check 실패"
+              exit 1
+            fi
+
+            # 이전 이미지 정리
+            docker image prune -f || true
+
+            echo "=== 배포 완료 ==="
+
+      # ── 4. 실패 시 롤백 ──
       - name: Rollback on failure
         if: failure() && steps.deploy.outcome == 'failure'
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.SERVER_HOST }}
-          port: ${{ secrets.SERVER_PORT }}
+          port: ${{ secrets.SERVER_PORT || '22' }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /home/gon/projects/ai/ai-afterschool
-            ./scripts/rollback.sh --force
+            cd ${{ env.REMOTE_DIR }}
+            BACKUP_TAG=$(cat .deploy-backup-tag 2>/dev/null || echo "")
+            if [ -n "$BACKUP_TAG" ] && [ "$BACKUP_TAG" != "none" ]; then
+              echo "롤백: $BACKUP_TAG"
+              VERSION="$BACKUP_TAG" docker compose -f docker-compose.prod.yml up -d app
+              sleep 10
+              curl -f http://localhost:3001/api/health || echo "롤백 후 health check 실패"
+            else
+              echo "롤백할 이전 버전 없음"
+            fi
 
-      - name: Verify rollback health
-        if: failure() && steps.deploy.outcome == 'failure'
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          port: ${{ secrets.SERVER_PORT }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            curl -f http://localhost:3001/api/health || exit 1
-
-      - name: Fail workflow
+      - name: Fail workflow on deploy error
         if: failure() && steps.deploy.outcome == 'failure'
         run: exit 1
