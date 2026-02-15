@@ -251,7 +251,7 @@ export async function createStudent(
   }
 
   revalidatePath("/students")
-  redirect(`/students/${studentId}`)
+  redirect(`/students/${studentId}?created=true`)
 }
 
 export async function updateStudent(
