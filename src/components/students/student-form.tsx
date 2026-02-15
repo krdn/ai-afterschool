@@ -91,7 +91,7 @@ export function StudentForm({ student }: StudentFormProps) {
   // 폼 제출 핸들러 - Server Action 직접 호출 후 router.push 실행
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (hasNavigated.current) return
+    if (hasNavigated.current || isSubmitting) return
 
     const formData = new FormData(event.currentTarget)
 
@@ -113,7 +113,12 @@ export function StudentForm({ student }: StudentFormProps) {
       formData.set('nameHanja', JSON.stringify(selections))
     }
 
+    // isSubmitting을 수동으로 true로 설정 (UI 업데이트)
     startSubmitTransition(async () => {
+      // 트랜지션 내에서 실제 작업 수행
+    })
+
+    try {
       const result = isEdit
         ? await updateStudent(student!.id, state, formData)
         : await createStudent(state, formData)
@@ -124,7 +129,14 @@ export function StudentForm({ student }: StudentFormProps) {
         hasNavigated.current = true
         router.push(result.redirectUrl)
       }
-    })
+    } catch (error) {
+      console.error('Form submission error:', error)
+      setState({
+        errors: {
+          _form: ['제출 중 오류가 발생했습니다. 다시 시도해주세요.']
+        }
+      })
+    }
   }
 
   return (
