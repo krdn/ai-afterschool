@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache"
 import { after } from "next/server"
-import { generateWithVision, generateVisionWithSpecificProvider, FailoverError } from "@/lib/ai/router"
+import { generateWithVision, generateVisionWithSpecificProvider, FailoverError } from "@/lib/ai/universal-router"
 import { FACE_READING_PROMPT, PALM_READING_PROMPT } from "@/lib/ai/prompts"
 import { getFacePrompt, type FacePromptId } from "@/lib/ai/face-prompts"
 import { getPalmPrompt, type PalmPromptId } from "@/lib/ai/palm-prompts"

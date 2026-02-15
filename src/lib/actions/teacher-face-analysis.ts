@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache"
 import { after } from "next/server"
-import { generateWithVision, FailoverError } from "@/lib/ai/router"
+import { generateWithVision, FailoverError } from "@/lib/ai/universal-router"
 import { FACE_READING_PROMPT } from "@/lib/ai/prompts"
 import { verifySession } from "@/lib/dal"
 import { db } from "@/lib/db"

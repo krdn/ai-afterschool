@@ -11,7 +11,7 @@ import { IssueAssignSelect } from './issue-assign-select'
 import { updateIssueStatus } from '@/lib/actions/issues'
 import { toast } from 'sonner'
 import { ExternalLink } from 'lucide-react'
-import type { IssueStatus } from '@prisma/client'
+import type { IssueStatus, IssueCategory, IssuePriority } from '@prisma/client'
 
 const STATUS_OPTIONS: { value: IssueStatus; label: string }[] = [
   { value: 'OPEN', label: '열림' },
@@ -144,11 +144,11 @@ export function IssueDetail({ issue, teachers }: IssueDetailProps) {
           <CardContent className="space-y-3">
             <div className="flex justify-between items-center">
               <span className="text-sm text-gray-500">카테고리</span>
-              <IssueCategoryBadge category={issue.category as any} />
+              <IssueCategoryBadge category={issue.category as IssueCategory} />
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm text-gray-500">우선순위</span>
-              <IssuePriorityBadge priority={issue.priority as any} />
+              <IssuePriorityBadge priority={issue.priority as IssuePriority} />
             </div>
           </CardContent>
         </Card>
