@@ -1,12 +1,10 @@
 name: Deploy to Production
 
 on:
-  push:
+  workflow_run:
+    workflows: ["AI QA Pipeline"]
+    types: [completed]
     branches: [main]
-    paths-ignore:
-      - '**.md'
-      - '.planning/**'
-      - 'docs/**'
   workflow_dispatch:
 
 env:
@@ -14,6 +12,10 @@ env:
 
 jobs:
   deploy:
+    # QA 성공 시에만 배포, 또는 수동 트리거
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success')
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -31,7 +33,7 @@ jobs:
           script: |
             cd /home/gon/projects/ai/ai-afterschool
             git pull origin main
-            ./scripts/deploy.sh --force --tag=${{ github.sha }}
+            ./scripts/deploy.sh --force --tag=${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Rollback on failure
         if: failure() && steps.deploy.outcome == 'failure'
