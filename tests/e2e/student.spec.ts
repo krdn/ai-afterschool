@@ -42,18 +42,42 @@ test.describe('학생 데이터 관리 (Student)', () => {
       await page.fill('input[name="parentPhone"]', data.parentPhone);
     }
 
-    // SPA 네비게이션 대기 - waitForURL은 router.push를 감지하지 못함
-    // 버튼 클릭
+    // 폼 제출
     await page.locator('[data-testid="submit-student-button"]').click();
 
-    // waitForFunction으로 URL 변경 감지 (SPA 네비게이션)
-    await page.waitForFunction(
-      () => {
-        const url = window.location.href;
-        return /\/students\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i.test(url) && !url.includes('/new');
-      },
-      { timeout: 60000 }
-    );
+    // 에러 메시지 확인 (있으면 실패)
+    const errorVisible = await page.locator('.bg-red-50, .text-red-500').isVisible({ timeout: 2000 }).catch(() => false);
+    if (errorVisible) {
+      const errorText = await page.locator('.bg-red-50, .text-red-500').first().textContent();
+      throw new Error(`Form submission error: ${errorText}`);
+    }
+
+    // SPA 네비게이션 또는 서버 리다이렉트 대기
+    // 두 가지 방식 모두 지원: waitForURL (서버 리다이렉트) + waitForFunction (SPA 네비게이션)
+    try {
+      await Promise.race([
+        // 서버 리다이렉트 (페이지 새로고침)
+        page.waitForURL(
+          /\/students\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i,
+          { timeout: 60000, waitUntil: 'domcontentloaded' }
+        ),
+        // SPA 네비게이션 (URL 변경 감지)
+        page.waitForFunction(
+          () => {
+            const url = window.location.href;
+            return /\/students\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i.test(url) && !url.includes('/new');
+          },
+          { timeout: 60000 }
+        )
+      ]);
+    } catch {
+      // 타임아웃 시 현재 상태 로깅
+      const currentUrl = page.url();
+      const pageContent = await page.content();
+      console.log('Current URL:', currentUrl);
+      console.log('Page has errors:', pageContent.includes('bg-red-50') || pageContent.includes('text-red-500'));
+      throw new Error(`Navigation timeout. Current URL: ${currentUrl}`);
+    }
 
     // /students/new 가 아닌 /students/[id] 에 있는지 한번 더 확인
     const currentUrl = page.url();
