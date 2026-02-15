@@ -6,7 +6,7 @@ import { verifySession } from "@/lib/dal"
 import { db } from "@/lib/db"
 import { getUnifiedPersonalityData, upsertPersonalitySummary } from "@/lib/db/personality-summary"
 import { getCompatibilityResult } from "@/lib/db/compatibility-result"
-import { generateWithProvider, FailoverError } from "@/lib/ai/router"
+import { generateWithProvider, FailoverError } from "@/lib/ai/universal-router"
 import { buildCounselingSummaryPrompt, buildPersonalitySummaryPrompt } from "@/lib/ai/counseling-prompts"
 
 // Validation schemas

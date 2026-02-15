@@ -12,7 +12,7 @@
  *   --rollback   마이그레이션 실행 취소 (백업 데이터 필요)
  */
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, type LLMConfig, type LLMFeatureConfig } from '@prisma/client';
 
 const prisma = new PrismaClient({
   log: ['query', 'info', 'warn', 'error'],
@@ -131,8 +131,8 @@ interface MigrationContext {
   dryRun: boolean;
   rollback: boolean;
   backupData?: {
-    llmConfigs: any[];
-    llmFeatureConfigs: any[];
+    llmConfigs: LLMConfig[];
+    llmFeatureConfigs: LLMFeatureConfig[];
   };
 }
 
@@ -361,7 +361,7 @@ async function verifyMigration(): Promise<void> {
   }
 }
 
-async function backupExistingData(): Promise<{ llmConfigs: any[]; llmFeatureConfigs: any[] }> {
+async function backupExistingData(): Promise<{ llmConfigs: LLMConfig[]; llmFeatureConfigs: LLMFeatureConfig[] }> {
   console.log('\n📋 Backing up existing data...\n');
 
   const llmConfigs = await prisma.lLMConfig.findMany();
@@ -373,7 +373,7 @@ async function backupExistingData(): Promise<{ llmConfigs: any[]; llmFeatureConf
   return { llmConfigs, llmFeatureConfigs };
 }
 
-async function rollbackMigration(backupData: { llmConfigs: any[]; llmFeatureConfigs: any[] }): Promise<void> {
+async function rollbackMigration(backupData: { llmConfigs: LLMConfig[]; llmFeatureConfigs: LLMFeatureConfig[] }): Promise<void> {
   console.log('\n📋 Rolling back migration...\n');
 
   // Delete in reverse order to respect foreign keys

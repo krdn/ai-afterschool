@@ -6,7 +6,7 @@ import { db } from "@/lib/db"
 import { verifySession } from "@/lib/dal"
 import { calculateNameNumerology, generateNameInterpretation } from "@/lib/analysis/name-numerology"
 import { getNameAnalysis as getNameAnalysisDb, upsertNameAnalysis } from "@/lib/db/name-analysis"
-import { generateWithProvider, generateWithSpecificProvider } from "@/lib/ai/router"
+import { generateWithProvider, generateWithSpecificProvider } from "@/lib/ai/universal-router"
 import { getNamePrompt, type NamePromptId } from "@/lib/ai/name-prompts"
 import type { ProviderName } from "@/lib/ai/providers/types"
 

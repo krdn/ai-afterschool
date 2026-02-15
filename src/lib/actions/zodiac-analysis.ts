@@ -5,7 +5,7 @@ import { db } from "@/lib/db"
 import { verifySession } from "@/lib/dal"
 import { getZodiacSign } from "@/lib/analysis/zodiac"
 import { getZodiacAnalysis as getZodiacAnalysisDb, upsertZodiacAnalysis } from "@/lib/db/zodiac-analysis"
-import { generateWithProvider, generateWithSpecificProvider } from "@/lib/ai/router"
+import { generateWithProvider, generateWithSpecificProvider } from "@/lib/ai/universal-router"
 import { getZodiacPrompt, type ZodiacPromptId } from "@/lib/ai/zodiac-prompts"
 import type { ProviderName } from "@/lib/ai/providers/types"
 

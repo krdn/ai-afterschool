@@ -49,8 +49,13 @@ export async function addGrade(prevState: unknown, formData: FormData) {
 
         revalidatePath(`/students/${validatedData.studentId}`);
         return { success: true, message: "성적이 등록되었습니다." };
-    } catch (error: any) {
-        if (error.digest?.startsWith('NEXT_REDIRECT')) {
+    } catch (error: unknown) {
+        if (
+            error instanceof Error &&
+            "digest" in error &&
+            typeof (error as { digest?: string }).digest === "string" &&
+            (error as { digest: string }).digest.startsWith('NEXT_REDIRECT')
+        ) {
             throw error;
         }
         console.error(error);
