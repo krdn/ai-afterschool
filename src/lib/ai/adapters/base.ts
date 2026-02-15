@@ -159,6 +159,7 @@ export abstract class BaseAdapter {
   protected decryptApiKey(encrypted: string | null): string {
     if (!encrypted) return '';
     try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { decryptApiKey } = require('../encryption');
       return decryptApiKey(encrypted);
     } catch {

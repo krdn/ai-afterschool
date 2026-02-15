@@ -16,6 +16,8 @@ const eslintConfig = defineConfig([
     ".agent/**",
     "scripts/**",
     "prisma.config.ts",
+    "playwright-report/**",
+    "test-results/**",
   ]),
 ]);
 

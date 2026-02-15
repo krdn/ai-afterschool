@@ -1,7 +1,12 @@
 import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+import { getSession } from '@/lib/session'
 
-export async function GET(req: NextRequest) {
+export async function POST() {
+  const session = await getSession()
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   const response = NextResponse.json({ success: true })
 
   // Clear session cookie
