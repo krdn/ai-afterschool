@@ -12,7 +12,10 @@ import type { Role, ParentRelation } from "@prisma/client"
 // 팀
 // ---------------------------------------------------------------------------
 
-export const SEED_TEAMS = [] as const
+export const SEED_TEAMS = [
+  { name: "중등부" },
+  { name: "고등부" },
+] as const
 
 // ---------------------------------------------------------------------------
 // 선생님
@@ -29,9 +32,12 @@ export type SeedTeacher = {
   birthTimeHour: number | null
   birthTimeMinute: number | null
   nameHanja: unknown | null
+  /** 로컬 이미지 파일 경로 (시드 실행 시 Cloudinary 업로드) */
+  imagePath: string | null
 }
 
 export const SEED_TEACHERS: SeedTeacher[] = [
+  // 원장 (팀 미배정)
   {
     email: "admin@afterschool.com",
     name: "관리자",
@@ -43,6 +49,100 @@ export const SEED_TEACHERS: SeedTeacher[] = [
     birthTimeHour: null,
     birthTimeMinute: null,
     nameHanja: null,
+    imagePath: null,
+  },
+  // ── 중등부 선생님 ──
+  {
+    email: "kimkyungmin@afterschool.com",
+    name: "김경민",
+    password: "teacher1234",
+    phone: "010-3100-1001",
+    role: "TEAM_LEADER",
+    teamName: "중등부",
+    birthDate: "1983-04-12",
+    birthTimeHour: 8,
+    birthTimeMinute: 30,
+    nameHanja: ["金", "景", "民"],
+    imagePath: "docs/images/teachers/김경민.jpg",
+  },
+  {
+    email: "kimminjun@afterschool.com",
+    name: "김민준",
+    password: "teacher1234",
+    phone: "010-3100-1002",
+    role: "TEACHER",
+    teamName: "중등부",
+    birthDate: "1986-09-23",
+    birthTimeHour: 14,
+    birthTimeMinute: 15,
+    nameHanja: ["金", "民", "俊"],
+    imagePath: "docs/images/teachers/김민준.jpg",
+  },
+  {
+    email: "noyuna@afterschool.com",
+    name: "노윤아",
+    password: "teacher1234",
+    phone: "010-3100-1003",
+    role: "TEACHER",
+    teamName: "중등부",
+    birthDate: "1988-01-07",
+    birthTimeHour: 6,
+    birthTimeMinute: 45,
+    nameHanja: ["盧", "允", "雅"],
+    imagePath: "docs/images/teachers/노윤아.jpg",
+  },
+  // ── 고등부 선생님 ──
+  {
+    email: "sonseokgu@afterschool.com",
+    name: "손석구",
+    password: "teacher1234",
+    phone: "010-3100-1004",
+    role: "TEAM_LEADER",
+    teamName: "고등부",
+    birthDate: "1981-11-15",
+    birthTimeHour: 22,
+    birthTimeMinute: 10,
+    nameHanja: ["孫", "碩", "求"],
+    imagePath: "docs/images/teachers/손석구.jpg",
+  },
+  {
+    email: "wangjihyun@afterschool.com",
+    name: "왕지현",
+    password: "teacher1234",
+    phone: "010-3100-1005",
+    role: "TEACHER",
+    teamName: "고등부",
+    birthDate: "1985-06-30",
+    birthTimeHour: 11,
+    birthTimeMinute: 0,
+    nameHanja: ["王", "智", "賢"],
+    imagePath: "docs/images/teachers/왕지현.jpg",
+  },
+  {
+    email: "jangdoyun@afterschool.com",
+    name: "장도윤",
+    password: "teacher1234",
+    phone: "010-3100-1006",
+    role: "TEACHER",
+    teamName: "고등부",
+    birthDate: "1990-03-18",
+    birthTimeHour: 16,
+    birthTimeMinute: 50,
+    nameHanja: ["張", "道", "潤"],
+    imagePath: "docs/images/teachers/장도윤.jpg",
+  },
+  {
+    email: "jungwoojin@afterschool.com",
+    name: "정우진",
+    password: "teacher1234",
+    phone: "010-3100-1007",
+    role: "MANAGER",
+    teamName: "고등부",
+    birthDate: "1987-12-05",
+    birthTimeHour: 3,
+    birthTimeMinute: 20,
+    nameHanja: ["鄭", "祐", "鎭"],
+    imagePath: "docs/images/teachers/정우진.jpg",
   },
 ]
 
@@ -61,9 +161,105 @@ export type SeedStudent = {
   phone: string | null
   teacherEmail: string
   teamName: string
+  /** 로컬 프로필 이미지 파일 경로 (시드 실행 시 Cloudinary 업로드) */
+  imagePath: string | null
 }
 
-export const SEED_STUDENTS: SeedStudent[] = []
+export const SEED_STUDENTS: SeedStudent[] = [
+  // ── 중등부 학생 (중학교 1~3학년, 2011~2013년생) ──
+  {
+    name: "김나경",
+    school: "서울중학교",
+    grade: 7,
+    birthDate: "2012-05-20",
+    birthTimeHour: 9,
+    birthTimeMinute: 30,
+    nameHanja: ["金", "나", "景"],
+    phone: "010-5500-2001",
+    teacherEmail: "kimkyungmin@afterschool.com",
+    teamName: "중등부",
+    imagePath: "docs/images/students/김나경.jpg",
+  },
+  {
+    name: "윤지민",
+    school: "한강중학교",
+    grade: 8,
+    birthDate: "2011-08-14",
+    birthTimeHour: 15,
+    birthTimeMinute: 10,
+    nameHanja: ["尹", "智", "旼"],
+    phone: "010-5500-2002",
+    teacherEmail: "kimminjun@afterschool.com",
+    teamName: "중등부",
+    imagePath: "docs/images/students/윤지민.jpg",
+  },
+  {
+    name: "이원희",
+    school: "강남중학교",
+    grade: 9,
+    birthDate: "2011-02-03",
+    birthTimeHour: 7,
+    birthTimeMinute: 45,
+    nameHanja: ["李", "元", "熙"],
+    phone: null,
+    teacherEmail: "noyuna@afterschool.com",
+    teamName: "중등부",
+    imagePath: "docs/images/students/이원희.jpg",
+  },
+  // ── 고등부 학생 (고등학교 1~3학년, 2008~2010년생) ──
+  {
+    name: "이채영",
+    school: "서울고등학교",
+    grade: 10,
+    birthDate: "2010-11-25",
+    birthTimeHour: 12,
+    birthTimeMinute: 0,
+    nameHanja: ["李", "彩", "英"],
+    phone: "010-5500-2003",
+    teacherEmail: "sonseokgu@afterschool.com",
+    teamName: "고등부",
+    imagePath: "docs/images/students/이채영.jpg",
+  },
+  {
+    name: "이현서",
+    school: "명문고등학교",
+    grade: 11,
+    birthDate: "2009-07-09",
+    birthTimeHour: 20,
+    birthTimeMinute: 35,
+    nameHanja: ["李", "賢", "瑞"],
+    phone: "010-5500-2004",
+    teacherEmail: "wangjihyun@afterschool.com",
+    teamName: "고등부",
+    imagePath: "docs/images/students/이현서.jpg",
+  },
+  {
+    name: "정수민",
+    school: "한빛고등학교",
+    grade: 12,
+    birthDate: "2008-03-30",
+    birthTimeHour: 5,
+    birthTimeMinute: 15,
+    nameHanja: ["鄭", "秀", "旻"],
+    phone: "010-5500-2005",
+    teacherEmail: "jangdoyun@afterschool.com",
+    teamName: "고등부",
+    imagePath: "docs/images/students/정수민.jpg",
+  },
+  {
+    name: "최수아",
+    school: "서울고등학교",
+    grade: 10,
+    birthDate: "2010-09-12",
+    birthTimeHour: 18,
+    birthTimeMinute: 20,
+    nameHanja: ["崔", "秀", "雅"],
+    phone: null,
+    teacherEmail: "jungwoojin@afterschool.com",
+    teamName: "고등부",
+    imagePath: "docs/images/students/최수아.jpg",
+  },
+]
 
 // ---------------------------------------------------------------------------
 // 학부모
@@ -76,7 +272,29 @@ export type SeedParent = {
   studentName: string
 }
 
-export const SEED_PARENTS: SeedParent[] = []
+export const SEED_PARENTS: SeedParent[] = [
+  // 김나경 학부모
+  { name: "김태호", phone: "010-7700-3001", relation: "FATHER", studentName: "김나경" },
+  { name: "박서연", phone: "010-7700-3002", relation: "MOTHER", studentName: "김나경" },
+  // 윤지민 학부모
+  { name: "윤상철", phone: "010-7700-3003", relation: "FATHER", studentName: "윤지민" },
+  { name: "한미영", phone: "010-7700-3004", relation: "MOTHER", studentName: "윤지민" },
+  // 이원희 학부모
+  { name: "이정훈", phone: "010-7700-3005", relation: "FATHER", studentName: "이원희" },
+  { name: "최윤정", phone: "010-7700-3006", relation: "MOTHER", studentName: "이원희" },
+  // 이채영 학부모
+  { name: "이동수", phone: "010-7700-3007", relation: "FATHER", studentName: "이채영" },
+  { name: "김혜진", phone: "010-7700-3008", relation: "MOTHER", studentName: "이채영" },
+  // 이현서 학부모
+  { name: "이민재", phone: "010-7700-3009", relation: "FATHER", studentName: "이현서" },
+  { name: "정은주", phone: "010-7700-3010", relation: "MOTHER", studentName: "이현서" },
+  // 정수민 학부모
+  { name: "정대현", phone: "010-7700-3011", relation: "FATHER", studentName: "정수민" },
+  { name: "오수진", phone: "010-7700-3012", relation: "MOTHER", studentName: "정수민" },
+  // 최수아 학부모
+  { name: "최영호", phone: "010-7700-3013", relation: "FATHER", studentName: "최수아" },
+  { name: "송미래", phone: "010-7700-3014", relation: "MOTHER", studentName: "최수아" },
+]
 
 // ---------------------------------------------------------------------------
 // LLM 설정
