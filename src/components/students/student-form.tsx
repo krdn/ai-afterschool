@@ -123,14 +123,18 @@ export function StudentForm({ student }: StudentFormProps) {
         ? await updateStudent(student!.id, state, formData)
         : await createStudent(state, formData)
 
+      console.log('[StudentForm] Server Action result:', result)
       setState(result)
 
       if (result.success && result.redirectUrl && !hasNavigated.current) {
+        console.log('[StudentForm] Navigating to:', result.redirectUrl)
         hasNavigated.current = true
         router.push(result.redirectUrl)
+      } else if (!result.success) {
+        console.log('[StudentForm] Submission failed, errors:', result.errors)
       }
     } catch (error) {
-      console.error('Form submission error:', error)
+      console.error('[StudentForm] Submission error:', error)
       setState({
         errors: {
           _form: ['제출 중 오류가 발생했습니다. 다시 시도해주세요.']
