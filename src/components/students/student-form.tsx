@@ -1,6 +1,7 @@
 "use client"
 
-import { useActionState, useState, useTransition } from "react"
+import { useFormState, useFormStatus } from "react-dom"
+import { useState, useTransition } from "react"
 import { toast } from "sonner"
 import {
   createStudent,
@@ -51,6 +52,21 @@ function extractInitialHanjaText(raw: unknown): string {
   return ""
 }
 
+// Submit 버튼 컴포넌트 (useFormStatus 사용을 위해 분리)
+function SubmitButton({ isEdit }: { isEdit: boolean }) {
+  const { pending } = useFormStatus()
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full font-bold disabled:opacity-50"
+      data-testid="submit-student-button"
+    >
+      {pending ? "저장 중..." : isEdit ? "수정" : "등록"}
+    </button>
+  )
+}
+
 export function StudentForm({ student }: StudentFormProps) {
   const isEdit = !!student
   const existingProfile = student?.images?.find(
@@ -67,13 +83,15 @@ export function StudentForm({ student }: StudentFormProps) {
     () => student ? extractInitialHanjaText(student.nameHanja) : ""
   )
 
+  // Server Action 바인딩
   const action = isEdit
     ? updateStudent.bind(null, student.id)
     : createStudent
 
-  const [state, formAction, pending] = useActionState(action, initialState)
+  const [state, formAction] = useFormState(action, initialState)
 
-  function handleSubmit(formData: FormData) {
+  // 폼 데이터 전처리 후 제출
+  function clientAction(formData: FormData) {
     if (profileImage) {
       formData.set("profileImage", JSON.stringify(profileImage))
     }
@@ -88,12 +106,12 @@ export function StudentForm({ student }: StudentFormProps) {
       }))
       formData.set("nameHanja", JSON.stringify(selections))
     }
-    formAction(formData)
+    return formAction(formData)
   }
 
   return (
     <form
-      action={handleSubmit}
+      action={clientAction}
       className="space-y-4 max-w-md mx-auto p-4 border rounded-lg bg-white"
     >
       {state.errors?._form && (
@@ -355,14 +373,7 @@ export function StudentForm({ student }: StudentFormProps) {
         />
       </div>
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full font-bold disabled:opacity-50"
-        data-testid="submit-student-button"
-      >
-        {pending ? "저장 중..." : isEdit ? "수정" : "등록"}
-      </button>
+      <SubmitButton isEdit={isEdit} />
     </form>
   )
 }
