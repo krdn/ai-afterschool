@@ -1,7 +1,8 @@
 "use client"
 
 import { useFormState, useFormStatus } from "react-dom"
-import { useState, useTransition } from "react"
+import { useState, useTransition, useEffect, useRef } from "react"
+import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import {
   createStudent,
@@ -72,6 +73,8 @@ export function StudentForm({ student }: StudentFormProps) {
   const existingProfile = student?.images?.find(
     (img) => img.type === "profile"
   )
+  const router = useRouter()
+  const hasNavigated = useRef(false)
 
   const [profileImage, setProfileImage] = useState<StudentImagePayload | null>(
     null
@@ -89,6 +92,14 @@ export function StudentForm({ student }: StudentFormProps) {
     : createStudent
 
   const [state, formAction] = useFormState(action, initialState)
+
+  // 성공 시 네비게이션
+  useEffect(() => {
+    if (state.success && state.redirectUrl && !hasNavigated.current) {
+      hasNavigated.current = true
+      router.push(state.redirectUrl)
+    }
+  }, [state.success, state.redirectUrl, router])
 
   // 폼 데이터 전처리 후 제출
   function clientAction(formData: FormData) {
