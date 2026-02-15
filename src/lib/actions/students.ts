@@ -159,8 +159,8 @@ export async function createStudent(
   const validatedFields = CreateStudentSchema.safeParse({
     name: formData.get("name"),
     birthDate: formData.get("birthDate"),
-    birthTimeHour: formData.get("birthTimeHour"),
-    birthTimeMinute: formData.get("birthTimeMinute"),
+    birthTimeHour: formData.get("birthTimeHour") || undefined,
+    birthTimeMinute: formData.get("birthTimeMinute") || undefined,
     phone: formData.get("phone") || undefined,
     school: formData.get("school"),
     grade: formData.get("grade"),
@@ -282,8 +282,8 @@ export async function updateStudent(
   const validatedFields = UpdateStudentSchema.safeParse({
     name: formData.get("name"),
     birthDate: formData.get("birthDate"),
-    birthTimeHour: formData.get("birthTimeHour"),
-    birthTimeMinute: formData.get("birthTimeMinute"),
+    birthTimeHour: formData.get("birthTimeHour") || undefined,
+    birthTimeMinute: formData.get("birthTimeMinute") || undefined,
     phone: formData.get("phone") || undefined,
     school: formData.get("school"),
     grade: formData.get("grade"),

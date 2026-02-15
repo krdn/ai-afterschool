@@ -1,4 +1,36 @@
-import { Page } from '@playwright/test';
+import { Page, expect } from '@playwright/test';
+
+/**
+ * 로그인 공통 로직
+ *
+ * Next.js 15 + useActionState 조합에서 Server Action redirect()가
+ * 브라우저 URL을 즉시 업데이트하지 않는 문제를 우회합니다.
+ * waitForURL 대신 세션 쿠키 설정을 확인한 후 직접 네비게이션합니다.
+ */
+async function performLogin(page: Page, email: string, password: string) {
+    await page.goto('/auth/login');
+    await page.waitForLoadState('domcontentloaded');
+
+    await page.fill('[data-testid="email-input"]', email);
+    await page.fill('[data-testid="password-input"]', password);
+    await page.click('[data-testid="login-button"]');
+
+    // 세션 쿠키가 설정될 때까지 폴링 (Server Action이 쿠키를 설정하면 성공)
+    await expect.poll(async () => {
+        const cookies = await page.context().cookies();
+        return cookies.some(c => c.name === 'session');
+    }, {
+        message: '로그인 후 세션 쿠키가 설정되지 않음',
+        timeout: 15000,
+        intervals: [500, 1000, 1000, 2000],
+    }).toBeTruthy();
+
+    // 세션 쿠키 확인 후 진행 중인 네비게이션 완료 대기
+    await page.waitForLoadState('domcontentloaded').catch(() => {});
+
+    // 직접 학생 목록으로 이동 (RSC 스트리밍 redirect와 충돌 방지)
+    await page.goto('/students', { waitUntil: 'load' });
+}
 
 /**
  * 선생님 계정으로 로그인
@@ -6,28 +38,11 @@ import { Page } from '@playwright/test';
  */
 export async function loginAsTeacher(
     page: Page,
-    email: string = 'teacher1@test.com',  // seed-test.ts의 실제 계정
+    email: string = 'teacher1@test.com',
     password: string = 'test1234'
 ) {
-    await page.goto('/auth/login');
-    await page.waitForLoadState('domcontentloaded');
-
-    // 이메일 입력 - data-testid 사용
-    await page.fill('[data-testid="email-input"]', email);
-
-    // 비밀번호 입력 - data-testid 사용
-    await page.fill('[data-testid="password-input"]', password);
-
-    // 로그인 버튼 클릭 - data-testid 사용
-    await page.click('[data-testid="login-button"]');
-
-    // 로그인 후 SPA 네비게이션 대기 - waitUntil: 'domcontentloaded' 필수
-    await page.waitForURL((url) => !url.pathname.includes('/auth/login'), { timeout: 10000, waitUntil: 'domcontentloaded' });
-
-    // 세션 쿠키 확인
-    const cookies = await page.context().cookies();
-    const sessionCookie = cookies.find(c => c.name === 'session' || c.name.includes('session'));
-    return sessionCookie !== undefined;
+    await performLogin(page, email, password);
+    return true;
 }
 
 /**
@@ -36,24 +51,11 @@ export async function loginAsTeacher(
  */
 export async function loginAsAdmin(
     page: Page,
-    email: string = 'admin@test.com',  // seed-test.ts의 실제 계정
+    email: string = 'admin@test.com',
     password: string = 'test1234'
 ) {
-    await page.goto('/auth/login');
-    await page.waitForLoadState('domcontentloaded');
-
-    // data-testid 사용하여 로그인
-    await page.fill('[data-testid="email-input"]', email);
-    await page.fill('[data-testid="password-input"]', password);
-    await page.click('[data-testid="login-button"]');
-
-    // 로그인 후 SPA 네비게이션 대기 - waitUntil: 'domcontentloaded' 필수
-    await page.waitForURL((url) => !url.pathname.includes('/auth/login'), { timeout: 10000, waitUntil: 'domcontentloaded' });
-
-    // 세션 쿠키 확인
-    const cookies = await page.context().cookies();
-    const sessionCookie = cookies.find(c => c.name === 'session' || c.name.includes('session'));
-    return sessionCookie !== undefined;
+    await performLogin(page, email, password);
+    return true;
 }
 
 /**
