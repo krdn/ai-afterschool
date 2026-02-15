@@ -101,7 +101,7 @@ test.describe('학생 데이터 관리 (Student)', () => {
       await page.waitForTimeout(500);
 
       // 4학년 학생만 표시 확인
-      const grade4Students = page.locator('[data-grade="4"], text=/4학년/');
+      const grade4Students = page.locator('[data-grade="4"]').or(page.locator('text=/4학년/'));
       await expect(grade4Students.first()).toBeVisible();
     }
 

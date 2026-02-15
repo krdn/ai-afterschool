@@ -191,7 +191,7 @@ test.describe('상담 관리 (Counseling)', () => {
     
     // 13. 상태가 COMPLETED로 변경되었는지 확인
     await page.waitForTimeout(1000);
-    const statusBadge = page.locator('[data-status="COMPLETED"], text=/완료|Completed/i');
+    const statusBadge = page.locator('[data-status="COMPLETED"]').or(page.locator('text=/완료|Completed/i'));
     await expect(statusBadge).toBeVisible();
     
     // 14. DB 확인: CounselingSession 기록 저장 및 AI 요약문 생성
@@ -299,7 +299,7 @@ test.describe('상담 관리 (Counseling)', () => {
     
     // 5. 상태가 CANCELLED로 변경 확인
     await page.waitForTimeout(1000);
-    const cancelledBadge = page.locator('[data-status="CANCELLED"], text=/취소|Cancelled/i');
+    const cancelledBadge = page.locator('[data-status="CANCELLED"]').or(page.locator('text=/취소|Cancelled/i'));
     await expect(cancelledBadge).toBeVisible();
     
     // 6. 재예약 버튼 확인 및 클릭
@@ -372,7 +372,7 @@ test.describe('상담 관리 (Counseling)', () => {
     await expect(monthlyChart).toBeVisible();
     
     // 3. 선생님별 상담 건수 확인
-    const teacherStats = page.locator('[data-stats="teacher"], text=/선생님별/i');
+    const teacherStats = page.locator('[data-stats="teacher"]').or(page.locator('text=/선생님별/i'));
     await expect(teacherStats).toBeVisible();
     
     // 4. 평균 상담 시간 통계
@@ -402,7 +402,7 @@ test.describe('상담 관리 (Counseling)', () => {
     
     // 4. 상담 1시간 전 리마인더 (시뮬레이션)
     // 실제 환경에서는 이메일/SMS 전송 로그 확인
-    const upcomingWidget = page.locator('[data-widget="upcoming-counseling"], text=/예정된 상담/i');
+    const upcomingWidget = page.locator('[data-widget="upcoming-counseling"]').or(page.locator('text=/예정된 상담/i'));
     if (await upcomingWidget.isVisible({ timeout: 3000 })) {
       await expect(upcomingWidget).toContainText(/오늘|Today|1시간/i);
     }
