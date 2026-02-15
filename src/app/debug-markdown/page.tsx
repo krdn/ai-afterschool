@@ -16,6 +16,9 @@ function decodeHtmlEntities(text: string): string {
 }
 
 export default function DebugMarkdownPage() {
+  const [mounted, setMounted] = useState(false)
+  const [decodedContent, setDecodedContent] = useState("")
+
   // 사용자가 제공한 스크린샷의 실제 텍스트를 시뮬레이션
   const problematicContent = `# 사주 분석 및 조언
 
@@ -36,12 +39,10 @@ export default function DebugMarkdownPage() {
 
 **대인관계 및 적성**: 정제(正財)는 학생이 부모나 교사와의 긍정적인 관계를 유지하며, 책임감 있는 행동을 보일 가능성이 높습니다. 반면에 편인(偏印)은 창조적이고 독특한 성격을 나타낸다.`
 
-  const [mounted, setMounted] = useState(false)
-  const [decodedContent, setDecodedContent] = useState("")
-  
   useEffect(() => {
     setMounted(true)
     setDecodedContent(decodeHtmlEntities(problematicContent))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // 문자 단위 분석
