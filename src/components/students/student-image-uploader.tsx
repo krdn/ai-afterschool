@@ -70,6 +70,9 @@ function extractPublicId(url: string): string {
   return match ? match[1] : url
 }
 
+// Cloudinary 설정 여부 (클라이언트 환경변수)
+const isCloudinaryAvailable = Boolean(process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME)
+
 export function StudentImageUploader({
   type,
   label,
@@ -93,6 +96,23 @@ export function StudentImageUploader({
 
   // Cloudinary publicId 우선 사용, 없으면 URL에서 추출
   const publicId = value?.publicId || (previewUrl ? extractPublicId(previewUrl) : "")
+
+  // Cloudinary 미설정 시 fallback UI
+  if (!isCloudinaryAvailable) {
+    return (
+      <div className="space-y-3">
+        <div>
+          <p className="text-sm font-medium text-gray-900">{label}</p>
+          {description ? (
+            <p className="text-xs text-gray-500">{description}</p>
+          ) : null}
+        </div>
+        <div className="rounded-lg border border-dashed border-gray-200 p-4">
+          <p className="text-sm text-gray-400">이미지 업로드 서비스가 설정되지 않았습니다</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-3">
