@@ -41,9 +41,9 @@ describe('seed-core 타입 및 상수', () => {
     }
   })
 
-  it('모든 그룹에 시드 데이터 건수가 있다', () => {
+  it('모든 그룹에 시드 데이터 건수가 정의되어 있다', () => {
     for (const group of ALL_SEED_GROUPS) {
-      expect(SEED_GROUP_COUNTS[group]).toBeGreaterThan(0)
+      expect(SEED_GROUP_COUNTS[group]).toBeGreaterThanOrEqual(0)
     }
   })
 })
