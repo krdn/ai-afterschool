@@ -1,7 +1,6 @@
 "use client"
 
-import { useFormState, useFormStatus } from "react-dom"
-import { useState, useTransition, useEffect, useRef } from "react"
+import { useState, useTransition, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import {
@@ -53,17 +52,16 @@ function extractInitialHanjaText(raw: unknown): string {
   return ""
 }
 
-// Submit 버튼 컴포넌트 (useFormStatus 사용을 위해 분리)
-function SubmitButton({ isEdit }: { isEdit: boolean }) {
-  const { pending } = useFormStatus()
+// Submit 버튼 컴포넌트
+function SubmitButton({ isEdit, isPending }: { isEdit: boolean; isPending: boolean }) {
   return (
     <button
       type="submit"
-      disabled={pending}
+      disabled={isPending}
       className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full font-bold disabled:opacity-50"
       data-testid="submit-student-button"
     >
-      {pending ? "저장 중..." : isEdit ? "수정" : "등록"}
+      {isPending ? "저장 중..." : isEdit ? "수정" : "등록"}
     </button>
   )
 }
@@ -86,45 +84,20 @@ export function StudentForm({ student }: StudentFormProps) {
     () => student ? extractInitialHanjaText(student.nameHanja) : ""
   )
 
-  // Server Action 바인딩
-  const action = isEdit
-    ? updateStudent.bind(null, student.id)
-    : createStudent
+  // 상태 관리
+  const [state, setState] = useState<StudentFormState>(initialState)
+  const [isSubmitting, startSubmitTransition] = useTransition()
 
-  const [state, formAction] = useFormState(action, initialState)
+  // 폼 제출 핸들러 - Server Action 직접 호출 후 router.push 실행
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (hasNavigated.current) return
 
-  // TODO(human): useFormState는 Server Action의 반환값을 상태로 반영하지 못합니다.
-  // handleSubmit 함수를 구현하여 폼 제출 후 직접 router.push()를 호출하도록 수정해주세요.
-  // 힌텅: useFormState는 오직 pending/success/errors 상태만 관리하며,
-  // Server Action이 반환하는 success/redirectUrl 등의 필드를 state에 반영하지 못합니다.
-  //
-  // 올바른 구현:
-  // 1. handleSubmit 함수를 만들어 formAction 결과를 기다립니다
-  // 2. result.success && result.redirectUrl이면 router.push(result.redirectUrl)를 호출합니다
-  // 3. 그 후 hasNavigated.current 플래그를 업데이트합니다
-  //
-  // 참고: https://react.dev/reference/react/useActionState#returning-structure
-  const hasNavigated = useRef(false)
-
-  // 성공 시 네비게이션 (현재 작동하지 않음 - TODO(human) 참고)
-  useEffect(() => {
-    if (state.success && state.redirectUrl && !hasNavigated.current) {
-      hasNavigated.current = true
-      router.push(state.redirectUrl)
-    }
-  }, [state.success, state.redirectUrl, router])
-
-  // 폼 제출 전 데이터 전처리 - 숨겨진 input으로 전달
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     const formData = new FormData(event.currentTarget)
 
     // profileImage 추가
     if (profileImage) {
-      const profileInput = document.createElement('input')
-      profileInput.type = 'hidden'
-      profileInput.name = 'profileImage'
-      profileInput.value = JSON.stringify(profileImage)
-      event.currentTarget.appendChild(profileInput)
+      formData.set('profileImage', JSON.stringify(profileImage))
     }
 
     // nameHanja 처리
@@ -137,17 +110,25 @@ export function StudentForm({ student }: StudentFormProps) {
         syllable: s,
         hanja: hanjaChars[i] ?? null,
       }))
-      const hanjaInput = document.createElement('input')
-      hanjaInput.type = 'hidden'
-      hanjaInput.name = 'nameHanja'
-      hanjaInput.value = JSON.stringify(selections)
-      event.currentTarget.appendChild(hanjaInput)
+      formData.set('nameHanja', JSON.stringify(selections))
     }
+
+    startSubmitTransition(async () => {
+      const result = isEdit
+        ? await updateStudent(student!.id, state, formData)
+        : await createStudent(state, formData)
+
+      setState(result)
+
+      if (result.success && result.redirectUrl && !hasNavigated.current) {
+        hasNavigated.current = true
+        router.push(result.redirectUrl)
+      }
+    })
   }
 
   return (
     <form
-      action={formAction}
       onSubmit={handleSubmit}
       className="space-y-4 max-w-md mx-auto p-4 border rounded-lg bg-white"
     >
@@ -410,7 +391,7 @@ export function StudentForm({ student }: StudentFormProps) {
         />
       </div>
 
-      <SubmitButton isEdit={isEdit} />
+      <SubmitButton isEdit={isEdit} isPending={isSubmitting} />
     </form>
   )
 }
