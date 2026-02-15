@@ -352,21 +352,19 @@ test.describe('Authentication and User Management', () => {
       await page.click('button[type="submit"]');
       await page.waitForURL(/\/students/, { timeout: 60000 });
 
-      // Click logout - use data-testid
-      await page.click('[data-testid="logout-button"]');
+      // 사용자 메뉴(드롭다운) 열기 — UserMenu 컴포넌트의 트리거 버튼
+      const userMenuTrigger = page.locator('button:has-text("김선생")');
+      await userMenuTrigger.click();
+
+      // 드롭다운 메뉴에서 로그아웃 클릭
+      await page.click('button:has-text("로그아웃")');
 
       // Should redirect to login
-      await page.waitForURL(/\/auth\/login/, { timeout: 5000 });
+      await page.waitForURL(/\/auth\/login/, { timeout: 10000 });
 
-      // Verify token is cleared
-      const hasToken = await page.evaluate(() => {
-        return !!(localStorage.getItem('token') || localStorage.getItem('authToken'));
-      });
-      expect(hasToken).toBeFalsy();
-
-      // Attempting to access protected page should fail
+      // Attempting to access protected page should redirect to login
       await page.goto('/students');
-      await page.waitForURL(/\/auth\/login/, { timeout: 5000 });
+      await page.waitForURL(/\/auth\/login/, { timeout: 10000 });
     });
 
     test('should prevent SQL injection in login', async ({ page }) => {

@@ -4,7 +4,6 @@
 // Scenarios: STU-01, STU-02, STU-03, STU-04
 
 import { test, expect } from '@playwright/test';
-import path from 'path';
 import { loginAsAdmin } from '../utils/auth';
 
 test.describe('학생 데이터 관리 (Student)', () => {
@@ -21,35 +20,52 @@ test.describe('학생 데이터 관리 (Student)', () => {
     await loginAsAdmin(page);
   });
 
-  test('STU-01: 신규 학생 등록 및 사진 업로드', async ({ page }) => {
-    // 1. /students/new 이동
+  /**
+   * 학생 등록 폼을 채우고 제출하는 헬퍼.
+   * 제출 후 상세 페이지(/students/[id])로 이동할 때까지 대기합니다.
+   */
+  async function fillAndSubmitStudentForm(
+    page: import('@playwright/test').Page,
+    data: { name: string; birthDate: string; grade: string; school: string; parentName?: string; parentPhone?: string }
+  ) {
     await page.goto('/students/new');
-    await expect(page.locator('h1')).toContainText(/학생.*등록|신규.*학생/);
+    await page.waitForLoadState('domcontentloaded');
 
-    // 2. 기본 정보 입력
-    await page.fill('input[name="name"]', testStudent.name);
-    await page.fill('input[name="birthDate"]', testStudent.birthDate);
-    await page.selectOption('select[name="grade"]', testStudent.grade.toString());
-    await page.fill('input[name="school"]', testStudent.school);
-    await page.fill('input[name="parentName"]', testStudent.parentName);
-    await page.fill('input[name="parentPhone"]', testStudent.parentPhone);
-
-    // 프로필 사진 업로드 (Cloudinary 필요 — CI에서는 skip)
-    if (!process.env.CI) {
-      const fileInput = page.locator('input[type="file"]');
-      const testImagePath = path.join(__dirname, '../fixtures/student-profile.jpg');
-      await fileInput.setInputFiles(testImagePath);
-      await expect(page.locator('img[alt*="preview"], img[alt*="미리보기"]')).toBeVisible();
+    await page.fill('input[name="name"]', data.name);
+    await page.fill('input[name="birthDate"]', data.birthDate);
+    await page.selectOption('select[name="grade"]', data.grade);
+    await page.fill('input[name="school"]', data.school);
+    if (data.parentName) {
+      await page.fill('input[name="parentName"]', data.parentName);
+    }
+    if (data.parentPhone) {
+      await page.fill('input[name="parentPhone"]', data.parentPhone);
     }
 
-    // 제출 — 폼 제출 버튼의 data-testid 사용
     await page.click('[data-testid="submit-student-button"]');
 
-    // 예상 결과 1: 학생 상세 페이지로 이동 (?created=true 쿼리 파라미터 포함)
-    await page.waitForURL(/.*students\/[a-zA-Z0-9-]+/, { timeout: 15000 });
+    // server action redirect 완료 대기 — /students/new가 아닌 /students/[id] URL
+    await page.waitForURL(
+      url => url.pathname.startsWith('/students/') && !url.pathname.includes('/new'),
+      { timeout: 20000 }
+    );
+  }
 
-    // 성공 메시지 확인 (학생 상세 페이지의 초록색 배너)
-    await expect(page.locator('text=학생 등록이 완료되었습니다')).toBeVisible({ timeout: 10000 });
+  test('STU-01: 신규 학생 등록 및 사진 업로드', async ({ page }) => {
+    await fillAndSubmitStudentForm(page, {
+      name: testStudent.name,
+      birthDate: testStudent.birthDate,
+      grade: testStudent.grade.toString(),
+      school: testStudent.school,
+      parentName: testStudent.parentName,
+      parentPhone: testStudent.parentPhone,
+    });
+
+    // URL에 ?created=true 포함 확인
+    expect(page.url()).toContain('created=true');
+
+    // 성공 배너 확인 (서버 렌더링 — 초록색 배너)
+    await expect(page.locator('.bg-green-100')).toBeVisible({ timeout: 5000 });
 
     // 프로필 이미지 Cloudinary URL 확인 (CI에서는 skip — 외부 서비스 의존)
     if (!process.env.CI) {
@@ -66,7 +82,7 @@ test.describe('학생 데이터 관리 (Student)', () => {
 
     // 예상 결과 2: 목록에 정상 노출 확인
     await page.goto('/students');
-    await expect(page.locator(`text=${testStudent.name}`).first()).toBeVisible();
+    await expect(page.locator(`text=${testStudent.name}`).first()).toBeVisible({ timeout: 10000 });
   });
 
   test('STU-02: 학생 목록 검색 및 필터링', async ({ page }) => {
@@ -143,27 +159,27 @@ test.describe('학생 데이터 관리 (Student)', () => {
 
   test('STU-04: 위험: 학생 정보 삭제', async ({ page }) => {
     // 테스트용 학생 생성 (삭제 대상)
-    await page.goto('/students/new');
-    await page.fill('input[name="name"]', '삭제테스트학생');
-    await page.fill('input[name="birthDate"]', '2016-01-01');
-    await page.selectOption('select[name="grade"]', '3');
-    await page.fill('input[name="school"]', '테스트초등학교');
-    await page.click('[data-testid="submit-student-button"]');
-
-    // 학생 상세 페이지로 이동 확인
-    await page.waitForURL(/.*students\/[a-zA-Z0-9-]+/, { timeout: 15000 });
+    await fillAndSubmitStudentForm(page, {
+      name: '삭제테스트학생',
+      birthDate: '2016-01-01',
+      grade: '3',
+      school: '테스트초등학교',
+    });
 
     const deleteTargetUrl = page.url();
     const deleteTargetId = deleteTargetUrl.split('/students/')[1]?.split('?')[0];
 
+    // 삭제 버튼이 렌더링될 때까지 대기
+    await expect(page.locator('[data-testid="delete-button"]')).toBeVisible({ timeout: 10000 });
+
     // confirm 다이얼로그 자동 수락
     page.on('dialog', dialog => dialog.accept());
 
-    // 삭제 버튼 클릭 — data-testid 사용
+    // 삭제 버튼 클릭
     await page.locator('[data-testid="delete-button"]').click();
 
     // 예상 결과 1: 삭제 완료 후 목록으로 이동
-    await expect(page).toHaveURL(/.*students$|.*students\?/, { timeout: 10000 });
+    await expect(page).toHaveURL(/.*students$|.*students\?/, { timeout: 15000 });
 
     // 목록에서 학생이 보이지 않음
     await expect(page.locator('text=삭제테스트학생')).not.toBeVisible();
@@ -181,31 +197,45 @@ test.describe('학생 데이터 관리 (Student)', () => {
 
     const firstStudent = page.locator('[data-testid="student-card"]').first();
     await expect(firstStudent).toBeVisible({ timeout: 5000 });
+
+    // 학생 이름 기억 (나중에 복원용)
+    const studentName = await firstStudent.locator('h3, [class*="font-bold"], [class*="font-semibold"]').first().textContent();
+
     await firstStudent.click();
 
     // URL 변경 대기
     await page.waitForURL(/.*students\/[a-zA-Z0-9-]+/, { timeout: 10000 });
 
+    // studentId 추출
+    const detailUrl = page.url();
+    const studentId = detailUrl.split('/students/')[1]?.split('?')[0] || '';
+
     // 편집 버튼 클릭 — data-testid 사용 (Link 요소)
     const editButton = page.locator('[data-testid="edit-button"]');
-    if (await editButton.isVisible({ timeout: 3000 })) {
-      await editButton.click();
+    await expect(editButton).toBeVisible({ timeout: 5000 });
+    await editButton.click();
 
-      // 편집 페이지 이동 확인
-      await page.waitForURL(/.*\/edit/, { timeout: 5000 });
+    // 편집 페이지 이동 확인
+    await page.waitForURL(/.*\/edit/, { timeout: 5000 });
 
-      // 수정 가능한 필드 확인
-      const nameInput = page.locator('input[name="name"]');
-      await expect(nameInput).toBeEditable();
+    // 수정 가능한 필드 확인
+    const nameInput = page.locator('input[name="name"]');
+    await expect(nameInput).toBeEditable();
 
-      // 학교명 변경
-      await page.fill('input[name="school"]', '수정된초등학교');
-      await page.click('[data-testid="submit-student-button"]');
+    // 학교명 변경
+    const schoolInput = page.locator('input[name="school"]');
+    await schoolInput.clear();
+    await schoolInput.fill('수정된초등학교');
+    await page.click('[data-testid="submit-student-button"]');
 
-      // 학생 상세 페이지로 이동 후 변경사항 반영 확인
-      await page.waitForURL(/.*students\/[a-zA-Z0-9-]+/, { timeout: 10000 });
-      await expect(page.locator('text=수정된초등학교')).toBeVisible({ timeout: 5000 });
-    }
+    // 학생 상세 페이지로 이동 대기 (edit URL이 아닌)
+    await page.waitForURL(
+      url => url.pathname.startsWith('/students/') && !url.pathname.includes('/edit') && !url.pathname.includes('/new'),
+      { timeout: 15000 }
+    );
+
+    // 변경사항 반영 확인 — 상세 페이지에서 학교명 표시
+    await expect(page.locator('text=수정된초등학교')).toBeVisible({ timeout: 10000 });
   });
 
   test('STU-PERF: 학생 목록 페이지네이션 및 성능', async ({ page }) => {

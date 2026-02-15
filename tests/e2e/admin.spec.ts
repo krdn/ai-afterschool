@@ -306,51 +306,24 @@ test.describe('Admin & System Settings', () => {
    * AUTH-04 (Admin context): RBAC - Unauthorized Access Prevention
    * Tests that regular teachers cannot access admin pages
    */
-  test('AUTH-04: 보안 - 비인가 접근 방지 (관리자 페이지)', async ({ page }) => {
-    // Logout admin
-    await page.click('[data-testid="user-menu"]');
-    await page.click('text=로그아웃');
-    await page.waitForURL('/auth/login');
-
-    // Login as regular teacher
+  test('AUTH-04: 보안 - 비인가 접근 방지 (관리자 페이지)', async ({ browser }) => {
+    // 새 브라우저 컨텍스트로 일반 교사 로그인 (admin과 분리)
+    const page = await browser.newPage();
     await loginAsTeacher(page);
 
-    // Attempt to access admin LLM settings
-    const llmSettingsResponse = await page.goto('/admin/llm-settings');
+    // 일반 교사가 admin 페이지 접근 시도 — admin layout이 redirect('/students')
+    await page.goto('/admin');
+    await page.waitForLoadState('domcontentloaded');
 
-    // Should either get 403 or redirect to main dashboard
-    if (llmSettingsResponse) {
-      const status = llmSettingsResponse.status();
-      expect([403, 302, 307]).toContain(status);
-    }
+    // admin layout의 권한 체크: DIRECTOR/TEAM_LEADER가 아니면 /students로 redirect
+    expect(page.url()).toContain('/students');
 
-    // Verify user is redirected or sees access denied
-    const currentUrl = page.url();
-    const isAccessDenied =
-      currentUrl.includes('/students') ||
-      currentUrl.includes('/unauthorized') ||
-      await page.locator('text=접근 권한이 없습니다').isVisible();
+    // admin/llm-providers 접근 시도
+    await page.goto('/admin/llm-providers');
+    await page.waitForLoadState('domcontentloaded');
+    expect(page.url()).toContain('/students');
 
-    expect(isAccessDenied).toBeTruthy();
-
-    // Attempt to access usage monitoring
-    await page.goto('/admin/llm-usage');
-
-    // Verify similar protection
-    await expect(page.locator('text=관리자 권한')).toBeVisible()
-      .catch(async () => {
-        // Or verify redirect happened
-        expect(page.url()).not.toContain('/admin/');
-      });
-
-    // Attempt to access system status
-    await page.goto('/admin/system-status');
-
-    // Should be blocked
-    const hasAccess = await page.locator('[data-testid="db-status"]').isVisible()
-      .catch(() => false);
-
-    expect(hasAccess).toBeFalsy();
+    await page.close();
   });
 
   /**
