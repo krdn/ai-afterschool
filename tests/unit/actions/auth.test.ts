@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
+import type { Teacher } from "@prisma/client"
 
 // 모킹 설정
 vi.mock("@/lib/db", () => ({
@@ -80,7 +81,7 @@ describe("login", () => {
   })
 
   it("올바른 자격증명으로 로그인에 성공한다", async () => {
-    mockDb.teacher.findUnique.mockResolvedValue(MOCK_TEACHER as any)
+    mockDb.teacher.findUnique.mockResolvedValue(MOCK_TEACHER as Teacher)
     mockArgon2.verify.mockResolvedValue(true)
     mockCreateSession.mockResolvedValue(undefined)
 
@@ -107,7 +108,7 @@ describe("login", () => {
   })
 
   it("잘못된 비밀번호로 로그인에 실패한다", async () => {
-    mockDb.teacher.findUnique.mockResolvedValue(MOCK_TEACHER as any)
+    mockDb.teacher.findUnique.mockResolvedValue(MOCK_TEACHER as Teacher)
     mockArgon2.verify.mockResolvedValue(false)
 
     const formData = createFormData({
