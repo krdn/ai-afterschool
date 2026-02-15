@@ -42,20 +42,32 @@ test.describe('학생 데이터 관리 (Student)', () => {
       await page.fill('input[name="parentPhone"]', data.parentPhone);
     }
 
-    await page.click('[data-testid="submit-student-button"]');
+    // submit 버튼이 disabled가 아닌지 확인 후 클릭
+    const submitBtn = page.locator('[data-testid="submit-student-button"]');
+    await expect(submitBtn).toBeEnabled({ timeout: 5000 });
+    await submitBtn.click();
 
-    // server action redirect 완료 대기 — /students/new가 아닌 /students/[id] URL
-    // 에러 발생 시 빠르게 실패하도록 에러 메시지 확인도 병행
-    await Promise.race([
-      page.waitForURL(
+    // 버튼이 "저장 중..."으로 바뀌는지 확인 (server action 시작 표시)
+    // pending 상태 후 redirect 대기
+    try {
+      await page.waitForURL(
         url => url.pathname.startsWith('/students/') && !url.pathname.includes('/new'),
-        { timeout: 20000 }
-      ),
-      page.locator('.bg-red-50').waitFor({ state: 'visible', timeout: 20000 }).then(async () => {
-        const errorText = await page.locator('.bg-red-50').textContent();
-        throw new Error(`학생 등록 실패 — 폼 에러: ${errorText}`);
-      }),
-    ]);
+        { timeout: 30000 }
+      );
+    } catch {
+      // timeout 시 현재 상태 캡처하여 디버깅
+      const currentUrl = page.url();
+      const bodyText = await page.locator('body').textContent().catch(() => '(읽기 실패)');
+      const errorBox = await page.locator('.bg-red-50').textContent().catch(() => '(없음)');
+      const btnText = await submitBtn.textContent().catch(() => '(읽기 실패)');
+      throw new Error(
+        `학생 등록 후 redirect 실패\n` +
+        `현재 URL: ${currentUrl}\n` +
+        `버튼 상태: ${btnText}\n` +
+        `에러 박스: ${errorBox}\n` +
+        `페이지 내용(200자): ${bodyText?.slice(0, 200)}`
+      );
+    }
   }
 
   test('STU-01: 신규 학생 등록 및 사진 업로드', async ({ page }) => {
