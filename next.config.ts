@@ -2,6 +2,19 @@ import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 import withBundleAnalyzer from "@next/bundle-analyzer";
 
+const securityHeaders = [
+  // 브라우저가 MIME 타입을 추측하지 못하게 함 (MIME 스니핑 공격 방지)
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  // 다른 사이트에서 iframe으로 이 사이트를 삽입하지 못하게 함 (Clickjacking 방지)
+  { key: "X-Frame-Options", value: "DENY" },
+  // 브라우저 내장 XSS 필터 활성화
+  { key: "X-XSS-Protection", value: "1; mode=block" },
+  // 외부 사이트로 이동 시 Referrer 정보 최소화
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  // 불필요한 브라우저 기능(카메라, 마이크, 위치) 비활성화
+  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+];
+
 const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
@@ -16,6 +29,15 @@ const nextConfig: NextConfig = {
         hostname: "res.cloudinary.com",
       },
     ],
+  },
+  async headers() {
+    return [
+      {
+        // 모든 경로에 보안 헤더 적용
+        source: "/:path*",
+        headers: securityHeaders,
+      },
+    ];
   },
 };
 
