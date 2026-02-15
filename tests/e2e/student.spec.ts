@@ -36,28 +36,30 @@ test.describe('학생 데이터 관리 (Student)', () => {
     await page.fill('input[name="parentName"]', testStudent.parentName);
     await page.fill('input[name="parentPhone"]', testStudent.parentPhone);
 
-    // 프로필 사진 업로드
-    const fileInput = page.locator('input[type="file"]');
-    const testImagePath = path.join(__dirname, '../fixtures/student-profile.jpg');
-    await fileInput.setInputFiles(testImagePath);
-
-    // 업로드 프리뷰 확인
-    await expect(page.locator('img[alt*="preview"], img[alt*="미리보기"]')).toBeVisible();
+    // 프로필 사진 업로드 (Cloudinary 필요 — CI에서는 skip)
+    if (!process.env.CI) {
+      const fileInput = page.locator('input[type="file"]');
+      const testImagePath = path.join(__dirname, '../fixtures/student-profile.jpg');
+      await fileInput.setInputFiles(testImagePath);
+      await expect(page.locator('img[alt*="preview"], img[alt*="미리보기"]')).toBeVisible();
+    }
 
     // 제출
     await page.click('[data-testid="add-student-button"], button[type="submit"]:has-text("등록")');
 
-    // 예상 결과 1: 학생 생성 완료 및 Cloudinary 이미지 저장 확인
+    // 예상 결과 1: 학생 생성 완료
     await expect(page).toHaveURL(/.*students\/[a-zA-Z0-9-]+/);
 
     // 성공 메시지 확인
     await expect(page.locator('text=/학생.*등록.*완료|생성.*성공/')).toBeVisible({ timeout: 10000 });
 
-    // 프로필 이미지가 Cloudinary URL로 렌더링되는지 확인
-    const profileImage = page.locator('img[alt*="프로필"], img[class*="profile"]').first();
-    await expect(profileImage).toBeVisible();
-    const imgSrc = await profileImage.getAttribute('src');
-    expect(imgSrc).toMatch(/cloudinary|res\.cloudinary\.com/);
+    // 프로필 이미지 Cloudinary URL 확인 (CI에서는 skip — 외부 서비스 의존)
+    if (!process.env.CI) {
+      const profileImage = page.locator('img[alt*="프로필"], img[class*="profile"]').first();
+      await expect(profileImage).toBeVisible();
+      const imgSrc = await profileImage.getAttribute('src');
+      expect(imgSrc).toMatch(/cloudinary|res\.cloudinary\.com/);
+    }
 
     // studentId 저장 (후속 테스트용)
     const url = page.url();

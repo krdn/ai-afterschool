@@ -62,10 +62,6 @@ jobs:
       SESSION_SECRET: ci-test-session-secret-minimum-32-characters-long
       NEXT_PUBLIC_APP_URL: http://localhost:3000
       NODE_ENV: test
-      CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
-      CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
-      CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
-      NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
 
     steps:
     - uses: actions/checkout@v4
@@ -95,7 +91,6 @@ jobs:
       run: npm run build
       env:
         NEXT_PUBLIC_APP_URL: http://localhost:3000
-        NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
 
     - name: Run E2E Tests
       run: npx playwright test
