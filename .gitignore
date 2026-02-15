@@ -74,3 +74,28 @@ prompt-preview-*.png
 /public/uploads
 .claude/
 .playwright-cli/
+
+# logs (개발/디버그 로그)
+*.log
+
+# test output (테스트 결과 파일)
+test-results*.json
+full-test-results.txt
+
+# debug config (디버그용 yaml)
+*-debug.yaml
+*-preview.yaml
+login-page.yaml
+
+# backup files
+*.bak
+
+# runtime state (배포 상태 파일)
+.deploy-backup-tag
+
+# pnpm (이 프로젝트는 npm 사용)
+pnpm-lock.yaml
+
+# one-off utility scripts in root
+/check-*.js
+/check-*.ts
