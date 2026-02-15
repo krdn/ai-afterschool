@@ -8,6 +8,19 @@ import { CATEGORY_LABEL_MAP } from "@/lib/github/constants"
 import { isGitHubConfigured } from "@/lib/github/client"
 import { Prisma, type IssueCategory, type IssuePriority, type IssueStatus } from "@prisma/client"
 
+/** getIssues에서 include 옵션에 맞는 Issue 타입 */
+type IssueWithRelations = Prisma.IssueGetPayload<{
+  include: {
+    creator: { select: { id: true; name: true; email: true } }
+    assignee: { select: { id: true; name: true; email: true } }
+    events: {
+      include: {
+        performer: { select: { id: true; name: true } }
+      }
+    }
+  }
+}>
+
 /**
  * 이슈 생성 Server Action
  *
@@ -242,7 +255,7 @@ export async function getIssues(params?: {
   category?: IssueCategory
   page?: number
   pageSize?: number
-}): Promise<{ issues: any[]; total: number }> {
+}): Promise<{ issues: IssueWithRelations[]; total: number }> {
   const session = await verifySession()
 
   // 권한 검증: DIRECTOR 전용

@@ -448,6 +448,10 @@ export type StudentWithParents = {
 export type GetStudentsResult = {
   success: boolean
   data?: StudentWithParents[]
+  total?: number
+  page?: number
+  pageSize?: number
+  totalPages?: number
   error?: string
 }
 
@@ -456,8 +460,12 @@ export type GetStudentsResult = {
  * - 인증 체크
  * - TEACHER 역할 시 자신 팀 학생만 조회
  * - 학부모 정보 포함 (include)
+ * - 페이지네이션 지원 (page/pageSize 없으면 전체 조회)
  */
-export async function getStudentsAction(): Promise<GetStudentsResult> {
+export async function getStudentsAction(pagination?: {
+  page?: number
+  pageSize?: number
+}): Promise<GetStudentsResult> {
   const session = await verifySession()
 
   if (!session) {
@@ -468,31 +476,61 @@ export async function getStudentsAction(): Promise<GetStudentsResult> {
   }
 
   try {
-    const students = await db.student.findMany({
-      where: {
-        teacherId: session.userId,
-      },
-      select: {
-        id: true,
-        name: true,
-        school: true,
-        grade: true,
-        parents: {
-          select: {
-            id: true,
-            name: true,
-            relation: true,
-          },
+    const where = {
+      teacherId: session.userId,
+    }
+
+    const selectFields = {
+      id: true,
+      name: true,
+      school: true,
+      grade: true,
+      parents: {
+        select: {
+          id: true,
+          name: true,
+          relation: true,
         },
       },
-      orderBy: {
-        name: "asc",
-      },
-    })
+    } as const
+
+    // 페이지네이션 파라미터가 없으면 기존 동작 유지
+    if (!pagination) {
+      const students = await db.student.findMany({
+        where,
+        select: selectFields,
+        orderBy: { name: "asc" },
+      })
+
+      return {
+        success: true,
+        data: students,
+      }
+    }
+
+    // 페이지네이션 적용
+    const page = Math.max(1, Math.floor(pagination.page ?? 1))
+    const pageSize = Math.min(100, Math.max(1, Math.floor(pagination.pageSize ?? 20)))
+    const skip = (page - 1) * pageSize
+
+    const [students, total] = await Promise.all([
+      db.student.findMany({
+        where,
+        select: selectFields,
+        orderBy: { name: "asc" },
+        skip,
+        take: pageSize,
+      }),
+      db.student.count({ where }),
+    ])
 
     return {
       success: true,
       data: students,
+      total,
+      page,
+      pageSize,
+      totalPages: Math.ceil(total / pageSize),
     }
   } catch (error) {
     console.error("Failed to get students:", error)

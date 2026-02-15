@@ -15,9 +15,10 @@ export async function runSajuAnalysisAction(
   studentId: string,
   provider?: string,
   promptId?: string,
-  additionalRequest?: string
+  additionalRequest?: string,
+  forceRefresh?: boolean
 ) {
-  return runSajuAnalysis(studentId, provider, promptId, additionalRequest)
+  return runSajuAnalysis(studentId, provider, promptId, additionalRequest, forceRefresh)
 }
 
 export async function getSajuAnalysisHistoryAction(studentId: string) {
