@@ -49,9 +49,8 @@ export type FallbackMode = 'next_priority' | 'any_available' | 'fail';
  * DB Provider 모델의 TypeScript 타입
  * Prisma 타입에서 파생
  */
-export interface ProviderConfig extends Provider {
-  // Prisma에서 자동으로 생성된 타입을 사용
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface ProviderConfig extends Provider {}
 
 /**
  * Provider 생성/수정 시 입력 타입
@@ -84,9 +83,8 @@ export interface ProviderWithModels extends Provider {
 /**
  * DB Model 모델의 TypeScript 타입
  */
-export interface ModelConfig extends Model {
-  // Prisma에서 자동으로 생성된 타입을 사용
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface ModelConfig extends Model {}
 
 /**
  * Model 생성/수정 시 입력 타입
@@ -121,9 +119,8 @@ export interface ModelParams {
 /**
  * DB FeatureMapping 모델의 TypeScript 타입
  */
-export interface FeatureMappingConfig extends FeatureMapping {
-  // Prisma에서 자동으로 생성된 타입을 사용
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface FeatureMappingConfig extends FeatureMapping {}
 
 /**
  * FeatureMapping 생성/수정 시 입력 타입
