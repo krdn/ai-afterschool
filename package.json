@@ -47,7 +47,7 @@
     "@tailwindcss/typography": "^0.5.19",
     "@tanstack/react-table": "^8.21.3",
     "@types/bcryptjs": "^2.4.6",
-    "ai": "^6.0.64",
+    "ai": "^6.0.86",
     "argon2": "^0.44.0",
     "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
