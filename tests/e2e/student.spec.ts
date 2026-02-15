@@ -10,7 +10,7 @@ test.describe('학생 데이터 관리 (Student)', () => {
   const testStudent = {
     name: '테스트김철수',
     birthDate: '2015-03-15',
-    grade: 4,
+    grade: 1,
     school: '서울초등학교',
     parentName: '김학부모',
     parentPhone: '010-1234-5678'
@@ -45,10 +45,17 @@ test.describe('학생 데이터 관리 (Student)', () => {
     await page.click('[data-testid="submit-student-button"]');
 
     // server action redirect 완료 대기 — /students/new가 아닌 /students/[id] URL
-    await page.waitForURL(
-      url => url.pathname.startsWith('/students/') && !url.pathname.includes('/new'),
-      { timeout: 20000 }
-    );
+    // 에러 발생 시 빠르게 실패하도록 에러 메시지 확인도 병행
+    await Promise.race([
+      page.waitForURL(
+        url => url.pathname.startsWith('/students/') && !url.pathname.includes('/new'),
+        { timeout: 20000 }
+      ),
+      page.locator('.bg-red-50').waitFor({ state: 'visible', timeout: 20000 }).then(async () => {
+        const errorText = await page.locator('.bg-red-50').textContent();
+        throw new Error(`학생 등록 실패 — 폼 에러: ${errorText}`);
+      }),
+    ]);
   }
 
   test('STU-01: 신규 학생 등록 및 사진 업로드', async ({ page }) => {
@@ -162,7 +169,7 @@ test.describe('학생 데이터 관리 (Student)', () => {
     await fillAndSubmitStudentForm(page, {
       name: '삭제테스트학생',
       birthDate: '2016-01-01',
-      grade: '3',
+      grade: '2',
       school: '테스트초등학교',
     });
 

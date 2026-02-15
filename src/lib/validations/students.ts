@@ -47,7 +47,7 @@ const baseStudentSchema = z.object({
     .number()
     .int()
     .min(1, "학년은 1 이상이어야 해요")
-    .max(12, "학년은 12 이하여야 해요"),
+    .max(3, "학년은 3 이하여야 해요"),
   nationality: z.string().optional(),
   targetUniversity: z.string().optional(),
   targetMajor: z.string().optional(),

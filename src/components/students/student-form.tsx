@@ -217,7 +217,7 @@ export function StudentForm({ student }: StudentFormProps) {
           data-testid="student-grade-select"
         >
           <option value="">선택하세요</option>
-          {[1, 2, 3, 4, 5, 6].map((g) => (
+          {[1, 2, 3].map((g) => (
             <option key={g} value={g}>
               {g}학년
             </option>

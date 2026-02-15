@@ -170,7 +170,7 @@ export const SEED_STUDENTS: SeedStudent[] = [
   {
     name: "김나경",
     school: "서울중학교",
-    grade: 7,
+    grade: 1,
     birthDate: "2012-05-20",
     birthTimeHour: 9,
     birthTimeMinute: 30,
@@ -183,7 +183,7 @@ export const SEED_STUDENTS: SeedStudent[] = [
   {
     name: "윤지민",
     school: "한강중학교",
-    grade: 8,
+    grade: 2,
     birthDate: "2011-08-14",
     birthTimeHour: 15,
     birthTimeMinute: 10,
@@ -196,7 +196,7 @@ export const SEED_STUDENTS: SeedStudent[] = [
   {
     name: "이원희",
     school: "강남중학교",
-    grade: 9,
+    grade: 3,
     birthDate: "2011-02-03",
     birthTimeHour: 7,
     birthTimeMinute: 45,
@@ -210,7 +210,7 @@ export const SEED_STUDENTS: SeedStudent[] = [
   {
     name: "이채영",
     school: "서울고등학교",
-    grade: 10,
+    grade: 1,
     birthDate: "2010-11-25",
     birthTimeHour: 12,
     birthTimeMinute: 0,
@@ -223,7 +223,7 @@ export const SEED_STUDENTS: SeedStudent[] = [
   {
     name: "이현서",
     school: "명문고등학교",
-    grade: 11,
+    grade: 2,
     birthDate: "2009-07-09",
     birthTimeHour: 20,
     birthTimeMinute: 35,
@@ -236,7 +236,7 @@ export const SEED_STUDENTS: SeedStudent[] = [
   {
     name: "정수민",
     school: "한빛고등학교",
-    grade: 12,
+    grade: 3,
     birthDate: "2008-03-30",
     birthTimeHour: 5,
     birthTimeMinute: 15,
@@ -249,7 +249,7 @@ export const SEED_STUDENTS: SeedStudent[] = [
   {
     name: "최수아",
     school: "서울고등학교",
-    grade: 10,
+    grade: 1,
     birthDate: "2010-09-12",
     birthTimeHour: 18,
     birthTimeMinute: 20,
