@@ -5,15 +5,17 @@ const cloudName = process.env.CLOUDINARY_CLOUD_NAME
 const apiKey = process.env.CLOUDINARY_API_KEY
 const apiSecret = process.env.CLOUDINARY_API_SECRET
 
-if (!cloudName || !apiKey || !apiSecret) {
-  throw new Error(
-    "CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET must be set"
+const isCloudinaryConfigured = !!(cloudName && apiKey && apiSecret)
+
+if (!isCloudinaryConfigured) {
+  console.warn(
+    "[cloudinary] CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET 중 일부가 미설정입니다. 이미지 업로드 기능이 비활성화됩니다."
   )
 }
 
-const resolvedCloudName = cloudName
-const resolvedApiKey = apiKey
-const resolvedApiSecret = apiSecret
+const resolvedCloudName = cloudName || "not-configured"
+const resolvedApiKey = apiKey || "not-configured"
+const resolvedApiSecret = apiSecret || "not-configured"
 
 cloudinary.config({
   cloud_name: resolvedCloudName,
@@ -25,7 +27,7 @@ cloudinary.config({
 const SQUARE_SIZE = 512
 const SQUARE_TRANSFORMATION = `c_fill,g_auto,h_${SQUARE_SIZE},w_${SQUARE_SIZE}`
 
-export { cloudinary }
+export { cloudinary, isCloudinaryConfigured }
 
 export function getSquareTransformation(): string {
   return SQUARE_TRANSFORMATION

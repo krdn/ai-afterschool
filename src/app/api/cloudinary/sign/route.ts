@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { z } from "zod"
 import { getSession } from "@/lib/session"
-import { createUploadSignature } from "@/lib/cloudinary"
+import { createUploadSignature, isCloudinaryConfigured } from "@/lib/cloudinary"
 
 const FolderPattern =
   /^(?:students\/(?:drafts\/[a-zA-Z0-9-_]+|[a-zA-Z0-9-_]+)|teachers\/(?:new|[a-zA-Z0-9-_]+))\/(profile|face|palm)$/
@@ -33,6 +33,13 @@ export async function POST(request: Request): Promise<Response> {
 
   if (!session?.userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
+
+  if (!isCloudinaryConfigured) {
+    return NextResponse.json(
+      { error: "이미지 업로드 서비스가 설정되지 않았습니다" },
+      { status: 503 }
+    )
   }
 
   let payload: unknown
