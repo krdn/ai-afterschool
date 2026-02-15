@@ -93,7 +93,20 @@ export function StudentForm({ student }: StudentFormProps) {
 
   const [state, formAction] = useFormState(action, initialState)
 
-  // 성공 시 네비게이션
+  // TODO(human): useFormState는 Server Action의 반환값을 상태로 반영하지 못합니다.
+  // handleSubmit 함수를 구현하여 폼 제출 후 직접 router.push()를 호출하도록 수정해주세요.
+  // 힌텅: useFormState는 오직 pending/success/errors 상태만 관리하며,
+  // Server Action이 반환하는 success/redirectUrl 등의 필드를 state에 반영하지 못합니다.
+  //
+  // 올바른 구현:
+  // 1. handleSubmit 함수를 만들어 formAction 결과를 기다립니다
+  // 2. result.success && result.redirectUrl이면 router.push(result.redirectUrl)를 호출합니다
+  // 3. 그 후 hasNavigated.current 플래그를 업데이트합니다
+  //
+  // 참고: https://react.dev/reference/react/useActionState#returning-structure
+  const hasNavigated = useRef(false)
+
+  // 성공 시 네비게이션 (현재 작동하지 않음 - TODO(human) 참고)
   useEffect(() => {
     if (state.success && state.redirectUrl && !hasNavigated.current) {
       hasNavigated.current = true
@@ -101,11 +114,20 @@ export function StudentForm({ student }: StudentFormProps) {
     }
   }, [state.success, state.redirectUrl, router])
 
-  // 폼 데이터 전처리 후 제출
-  function clientAction(formData: FormData) {
+  // 폼 제출 전 데이터 전처리 - 숨겨진 input으로 전달
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    const formData = new FormData(event.currentTarget)
+
+    // profileImage 추가
     if (profileImage) {
-      formData.set("profileImage", JSON.stringify(profileImage))
+      const profileInput = document.createElement('input')
+      profileInput.type = 'hidden'
+      profileInput.name = 'profileImage'
+      profileInput.value = JSON.stringify(profileImage)
+      event.currentTarget.appendChild(profileInput)
     }
+
+    // nameHanja 처리
     const name = formData.get("name") as string
     const hanja = nameHanjaText.trim()
     if (name && hanja) {
@@ -115,14 +137,18 @@ export function StudentForm({ student }: StudentFormProps) {
         syllable: s,
         hanja: hanjaChars[i] ?? null,
       }))
-      formData.set("nameHanja", JSON.stringify(selections))
+      const hanjaInput = document.createElement('input')
+      hanjaInput.type = 'hidden'
+      hanjaInput.name = 'nameHanja'
+      hanjaInput.value = JSON.stringify(selections)
+      event.currentTarget.appendChild(hanjaInput)
     }
-    return formAction(formData)
   }
 
   return (
     <form
-      action={clientAction}
+      action={formAction}
+      onSubmit={handleSubmit}
       className="space-y-4 max-w-md mx-auto p-4 border rounded-lg bg-white"
     >
       {state.errors?._form && (
