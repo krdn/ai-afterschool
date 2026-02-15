@@ -4,8 +4,27 @@ import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { verifySession } from "@/lib/dal";
 import type { Prisma } from "@/generated/prisma";
+import {
+    type PaginationParams,
+    type PaginatedResult,
+    normalizePaginationParams,
+    getPrismaSkipTake,
+    buildPaginatedResult,
+} from "@/lib/utils/pagination";
 
-export async function getStudents(query?: string) {
+type StudentWithRelations = Prisma.StudentGetPayload<{
+    include: { teacher: true; images: true }
+}>
+
+/**
+ * 학생 목록 조회 (페이지네이션 지원)
+ *
+ * - pagination 파라미터가 없으면 기존처럼 전체 조회 (하위 호환)
+ * - pagination 파라미터가 있으면 PaginatedResult 반환
+ */
+export async function getStudents(query?: string): Promise<StudentWithRelations[]>
+export async function getStudents(query: string | undefined, pagination: PaginationParams): Promise<PaginatedResult<StudentWithRelations>>
+export async function getStudents(query?: string, pagination?: PaginationParams) {
     const session = await verifySession();
 
     const where: Prisma.StudentWhereInput = {};
@@ -17,14 +36,37 @@ export async function getStudents(query?: string) {
         where.teacherId = session.userId;
     }
 
-    return await db.student.findMany({
-        where,
-        orderBy: { createdAt: 'desc' },
-        include: {
-            teacher: true,
-            images: true
-        }
-    });
+    // 페이지네이션 파라미터가 없으면 기존 동작 유지
+    if (!pagination) {
+        return await db.student.findMany({
+            where,
+            orderBy: { createdAt: 'desc' },
+            include: {
+                teacher: true,
+                images: true
+            }
+        });
+    }
+
+    // 페이지네이션 적용
+    const params = normalizePaginationParams(pagination);
+    const { skip, take } = getPrismaSkipTake(params);
+
+    const [data, total] = await Promise.all([
+        db.student.findMany({
+            where,
+            orderBy: { createdAt: 'desc' },
+            include: {
+                teacher: true,
+                images: true
+            },
+            skip,
+            take,
+        }),
+        db.student.count({ where }),
+    ]);
+
+    return buildPaginatedResult(data, total, params);
 }
 
 export async function getStudentById(id: string) {

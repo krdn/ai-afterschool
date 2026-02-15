@@ -1,10 +1,12 @@
 "use server"
 
 import { redirect } from "next/navigation"
+import { headers } from "next/headers"
 import { randomBytes } from "crypto"
 import argon2 from "argon2"
 import { db } from "@/lib/db"
 import { createSession, deleteSession } from "@/lib/session"
+import { rateLimit } from "@/lib/rate-limit"
 import {
   LoginSchema,
   RequestResetSchema,
@@ -62,6 +64,21 @@ export async function login(
   prevState: AuthFormState,
   formData: FormData
 ): Promise<AuthFormState> {
+  // Rate Limiting: 로그인 5회/분
+  const headersList = await headers()
+  const ip = headersList.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown"
+  const { success: rateLimitOk } = rateLimit(`login:${ip}`, {
+    windowMs: 60 * 1000,
+    maxRequests: 5,
+  })
+  if (!rateLimitOk) {
+    return {
+      errors: {
+        _form: ["너무 많은 로그인 시도가 있었어요. 1분 후에 다시 시도해주세요."],
+      },
+    }
+  }
+
   const validatedFields = LoginSchema.safeParse({
     email: formData.get("email"),
     password: formData.get("password"),
@@ -160,8 +177,12 @@ export async function signup(
     })
 
     await createSession(teacher.id, teacher.role, teacher.teamId)
-  } catch (error: any) {
-    if (error.code === "P2002") {
+  } catch (error: unknown) {
+    if (
+      error instanceof Error &&
+      "code" in error &&
+      (error as { code: string }).code === "P2002"
+    ) {
       return {
         errors: {
           email: ["이미 사용 중인 이메일이에요"],
@@ -183,6 +204,21 @@ export async function requestPasswordReset(
   prevState: ResetFormState,
   formData: FormData
 ): Promise<ResetFormState> {
+  // Rate Limiting: 비밀번호 재설정 3회/분
+  const resetHeadersList = await headers()
+  const resetIp = resetHeadersList.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown"
+  const { success: resetRateLimitOk } = rateLimit(`reset:${resetIp}`, {
+    windowMs: 60 * 1000,
+    maxRequests: 3,
+  })
+  if (!resetRateLimitOk) {
+    return {
+      errors: {
+        _form: ["너무 많은 요청이 있었어요. 1분 후에 다시 시도해주세요."],
+      },
+    }
+  }
+
   const validatedFields = RequestResetSchema.safeParse({
     email: formData.get("email"),
   })

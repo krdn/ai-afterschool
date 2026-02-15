@@ -3,6 +3,7 @@
 import { db as prisma } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { Prisma } from "@prisma/client";
 
 // 분석 결과 스키마
 const AnalysisSchema = z.object({
@@ -63,16 +64,16 @@ export async function generateAnalysis(studentId: string) {
             create: {
                 studentId: student.id,
                 coreTraits: mockResult.coreTraits,
-                scores: mockResult.scores as any,
-                learningStrategy: mockResult.learningStrategy as any,
+                scores: mockResult.scores as Prisma.InputJsonValue,
+                learningStrategy: mockResult.learningStrategy as Prisma.InputJsonValue,
                 status: "complete",
                 version: 1,
                 generatedAt: new Date()
             },
             update: {
                 coreTraits: mockResult.coreTraits,
-                scores: mockResult.scores as any,
-                learningStrategy: mockResult.learningStrategy as any,
+                scores: mockResult.scores as Prisma.InputJsonValue,
+                learningStrategy: mockResult.learningStrategy as Prisma.InputJsonValue,
                 status: "complete",
                 generatedAt: new Date(),
                 updatedAt: new Date()
