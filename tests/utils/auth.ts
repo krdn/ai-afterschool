@@ -21,8 +21,8 @@ export async function loginAsTeacher(
     // 로그인 버튼 클릭 - data-testid 사용
     await page.click('[data-testid="login-button"]');
 
-    // 로그인 완료 대기 (로그인 페이지를 벗어나면 성공)
-    await page.waitForURL((url) => !url.pathname.includes('/auth/login'), { timeout: 10000 });
+    // 로그인 후 SPA 네비게이션 대기 - waitUntil: 'domcontentloaded' 필수
+    await page.waitForURL((url) => !url.pathname.includes('/auth/login'), { timeout: 10000, waitUntil: 'domcontentloaded' });
 
     // 세션 쿠키 확인
     const cookies = await page.context().cookies();
@@ -47,7 +47,8 @@ export async function loginAsAdmin(
     await page.fill('[data-testid="password-input"]', password);
     await page.click('[data-testid="login-button"]');
 
-    await page.waitForURL((url) => !url.pathname.includes('/auth/login'), { timeout: 10000 });
+    // 로그인 후 SPA 네비게이션 대기 - waitUntil: 'domcontentloaded' 필수
+    await page.waitForURL((url) => !url.pathname.includes('/auth/login'), { timeout: 10000, waitUntil: 'domcontentloaded' });
 
     // 세션 쿠키 확인
     const cookies = await page.context().cookies();
@@ -66,11 +67,11 @@ export async function logout(page: Page) {
 
     if (isVisible) {
         await logoutButton.click();
-        await page.waitForURL(/\/auth\/login/, { timeout: 5000 });
+        await page.waitForURL(/\/auth\/login/, { timeout: 5000, waitUntil: 'domcontentloaded' });
     } else {
         // 로그아웃 버튼이 없으면 직접 로그아웃 라우트 호출
         await page.goto('/auth/logout');
-        await page.waitForURL(/\/auth\/login/, { timeout: 5000 });
+        await page.waitForURL(/\/auth\/login/, { timeout: 5000, waitUntil: 'domcontentloaded' });
     }
 }
 
