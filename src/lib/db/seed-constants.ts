@@ -62,10 +62,10 @@ export const SEED_GROUP_LABELS: Record<SeedGroup, string> = {
 
 /** 그룹별 시드 데이터 건수 */
 export const SEED_GROUP_COUNTS: Record<SeedGroup, number> = {
-  teams: 0,
-  teachers: 1,
-  students: 0,
-  parents: 0,
+  teams: 2,
+  teachers: 8,
+  students: 7,
+  parents: 14,
   llmConfigs: 6,
   providers: 7,
 }
