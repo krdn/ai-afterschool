@@ -15,6 +15,8 @@ export default defineConfig({
     retries: process.env.CI ? 1 : 0,
     /* GitHub Actions runner: 2 CPU */
     workers: process.env.CI ? 2 : undefined,
+    /* CI 환경: 테스트당 타임아웃 증가 (cold start + DB 쿼리 고려) */
+    timeout: process.env.CI ? 120000 : 30000,
     /* Reporter to use. See https://playwright.dev/docs/test-reporters */
     reporter: 'html',
     /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
