@@ -36,7 +36,6 @@ export type StudentFormState = {
     _form?: string[]
   }
   message?: string
-  redirectTo?: string
 }
 
 type ImageFieldConfig = {
@@ -252,8 +251,7 @@ export async function createStudent(
   }
 
   revalidatePath("/students")
-  // useActionState와 함께 사용 시 redirect() 대신 redirectTo 반환
-  return { redirectTo: `/students/${studentId}?created=true` }
+  redirect(`/students/${studentId}?created=true`)
 }
 
 export async function updateStudent(
@@ -415,8 +413,7 @@ export async function updateStudent(
 
   revalidatePath("/students")
   revalidatePath(`/students/${studentId}`)
-  // useActionState와 함께 사용 시 redirect() 대신 redirectTo 반환
-  return { redirectTo: `/students/${studentId}` }
+  redirect(`/students/${studentId}`)
 }
 
 export async function deleteStudent(studentId: string): Promise<void> {
