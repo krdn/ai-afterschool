@@ -42,18 +42,23 @@ test.describe('학생 데이터 관리 (Student)', () => {
       await page.fill('input[name="parentPhone"]', data.parentPhone);
     }
 
+    // SPA 네비게이션 대기 - waitForURL은 router.push를 감지하지 못함
     // 버튼 클릭
     await page.locator('[data-testid="submit-student-button"]').click();
 
-    // 네비게이션 대기 - /students/new가 아닌 /students/[uuid] 형식 대기
-    // UUID는 8-4-4-4-12 형식이므로 하이픈이 4개 이상인 패턴 사용
-    await page.waitForURL(
-      /\/students\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i,
+    // waitForFunction으로 URL 변경 감지 (SPA 네비게이션)
+    await page.waitForFunction(
+      () => {
+        const url = window.location.href;
+        return /\/students\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i.test(url) && !url.includes('/new');
+      },
       { timeout: 60000 }
     );
 
     // /students/new 가 아닌 /students/[id] 에 있는지 한번 더 확인
-    expect(page.url()).not.toContain('/new');
+    const currentUrl = page.url();
+    expect(currentUrl).not.toContain('/new');
+    expect(currentUrl).toMatch(/\/students\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
   }
 
   test('STU-01: 신규 학생 등록 및 사진 업로드', async ({ page }) => {
