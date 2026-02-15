@@ -1,10 +1,20 @@
 'use client'
 
-import { useEffect, useState, useTransition } from 'react'
-import { getBackupList, type BackupFileEntry } from '@/lib/actions/backup'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { useState, useTransition } from 'react'
+import { runDemoSeedAction } from '@/app/(dashboard)/admin/database/actions'
+import {
+  ALL_SEED_GROUPS,
+  SEED_GROUP_DEPENDENCIES,
+  SEED_GROUP_LABELS,
+  SEED_GROUP_COUNTS,
+  type SeedGroup,
+  type SeedMode,
+} from '@/lib/db/seed-constants'
 import { Button } from '@/components/ui/button'
-import { Download, Database, Loader2 } from 'lucide-react'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
+import { Database, Loader2, AlertTriangle, Eye, EyeOff } from 'lucide-react'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,35 +26,85 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { toast } from 'sonner'
-import { runSeedAction } from '@/app/(dashboard)/admin/database/actions'
-
-function formatBytes(bytes: number): string {
-  if (bytes === 0) return '0 Bytes'
-  const k = 1024
-  const sizes = ['Bytes', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i]
-}
 
 type DatabaseTabProps = {
   userRole?: string
 }
 
 export function DatabaseTab({ userRole }: DatabaseTabProps) {
-  const [backups, setBackups] = useState<BackupFileEntry[]>([])
   const [seedDialogOpen, setSeedDialogOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
 
+  // 그룹 선택 상태
+  const [selectedGroups, setSelectedGroups] = useState<Set<SeedGroup>>(new Set(ALL_SEED_GROUPS))
+  const [modes, setModes] = useState<Record<SeedGroup, SeedMode>>(
+    Object.fromEntries(ALL_SEED_GROUPS.map((g) => [g, 'merge'])) as Record<SeedGroup, SeedMode>
+  )
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+
   const isDirector = userRole === 'DIRECTOR'
 
-  useEffect(() => {
-    getBackupList().then(setBackups)
-  }, [])
+  // 리셋에 의해 자동 강제된 그룹 계산
+  const forcedResetGroups = new Set<SeedGroup>()
+  for (const group of selectedGroups) {
+    if (modes[group] === 'reset') {
+      for (const dep of SEED_GROUP_DEPENDENCIES[group]) {
+        forcedResetGroups.add(dep)
+      }
+    }
+  }
 
-  function handleSeed() {
+  const hasReset = [...selectedGroups].some((g) => modes[g] === 'reset')
+
+  function toggleGroup(group: SeedGroup, checked: boolean) {
+    setSelectedGroups((prev) => {
+      const next = new Set(prev)
+      if (checked) {
+        next.add(group)
+      } else {
+        next.delete(group)
+      }
+      return next
+    })
+  }
+
+  function toggleMode(group: SeedGroup, mode: SeedMode) {
+    setModes((prev) => {
+      const next = { ...prev, [group]: mode }
+      // 리셋 선택 시 하위 의존 그룹도 자동 리셋
+      if (mode === 'reset') {
+        for (const dep of SEED_GROUP_DEPENDENCIES[group]) {
+          next[dep] = 'reset'
+        }
+      }
+      return next
+    })
+  }
+
+  function resetDialogState() {
+    setPassword('')
+    setShowPassword(false)
+    setSelectedGroups(new Set(ALL_SEED_GROUPS))
+    setModes(
+      Object.fromEntries(ALL_SEED_GROUPS.map((g) => [g, 'merge'])) as Record<SeedGroup, SeedMode>
+    )
+  }
+
+  function handleDemoSeed() {
+    if (!password) {
+      toast.error('비밀번호를 입력해주세요')
+      return
+    }
     startTransition(async () => {
-      const result = await runSeedAction()
+      const groups = [...selectedGroups]
+      const modeMap = Object.fromEntries(
+        groups.map((g) => [g, modes[g]])
+      ) as Partial<Record<SeedGroup, SeedMode>>
+
+      const result = await runDemoSeedAction({ groups, modes: modeMap }, password)
       setSeedDialogOpen(false)
+      resetDialogState()
 
       if (result.success) {
         const data = result.data
@@ -70,17 +130,17 @@ export function DatabaseTab({ userRole }: DatabaseTabProps) {
 
   return (
     <div className="space-y-6" data-testid="database-tab">
-      {/* 시드 데이터 초기화 (DIRECTOR만) */}
+      {/* 데모 데이터 관리 (DIRECTOR만) */}
       {isDirector && (
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="font-semibold text-amber-900 flex items-center gap-2">
                 <Database className="w-4 h-4" />
-                시드 데이터 초기화
+                데모 데이터 관리
               </h3>
               <p className="text-sm text-amber-700 mt-1">
-                데모/개발용 기본 데이터를 로드합니다. 기존 데이터를 삭제하지 않으며, 없는 데이터만 추가됩니다 (upsert).
+                데모/개발용 시드 데이터를 선택적으로 로드하거나 리셋합니다.
               </p>
             </div>
             <Button
@@ -92,102 +152,139 @@ export function DatabaseTab({ userRole }: DatabaseTabProps) {
               {isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  로드 중...
+                  실행 중...
                 </>
               ) : (
-                '시드 데이터 로드'
+                '데모 데이터 관리'
               )}
             </Button>
           </div>
         </div>
       )}
 
-      {/* 백업 안내 */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <p className="text-sm text-blue-800">
-          <strong>백업 정보:</strong> 백업 파일은{' '}
-          <code className="bg-blue-100 px-1 rounded">
-            {process.env.NEXT_PUBLIC_BACKUP_DIR || './backups'}
-          </code>
-          디렉토리에 저장됩니다. 자동 백업은 cron으로 설정되어 있어야 합니다.
-        </p>
-      </div>
-
-      {/* 백업 목록 */}
-      <div data-testid="backup-list">
-        {backups.length === 0 ? (
-          <div className="text-center py-12 bg-gray-50 border rounded-lg" data-testid="no-backups">
-            <p className="text-gray-500 mb-2">백업 파일이 없어요</p>
-            <p className="text-sm text-gray-400">
-              자동 백업이 설정되어 있지 않거나 아직 백업이 실행되지 않았습니다.
-            </p>
-          </div>
-        ) : (
-          <div className="border rounded-lg">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>파일명</TableHead>
-                  <TableHead>크기</TableHead>
-                  <TableHead>생성일</TableHead>
-                  <TableHead>관리</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {backups.map((backup) => (
-                  <TableRow key={backup.name} data-testid="backup-row">
-                    <TableCell
-                      className="font-mono text-sm"
-                      data-testid="backup-name"
-                    >
-                      {backup.name}
-                    </TableCell>
-                    <TableCell data-testid="backup-size">
-                      {formatBytes(backup.size)}
-                    </TableCell>
-                    <TableCell data-testid="backup-date">
-                      {backup.createdAt.toLocaleString('ko-KR')}
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        disabled
-                        data-testid="download-backup-button"
-                      >
-                        <Download className="w-4 h-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        )}
-      </div>
-
-      {/* 시드 확인 AlertDialog */}
-      <AlertDialog open={seedDialogOpen} onOpenChange={setSeedDialogOpen}>
-        <AlertDialogContent>
+      {/* 데모 데이터 관리 다이얼로그 */}
+      <AlertDialog open={seedDialogOpen} onOpenChange={(open) => {
+        setSeedDialogOpen(open)
+        if (!open) resetDialogState()
+      }}>
+        <AlertDialogContent className="max-w-lg">
           <AlertDialogHeader>
-            <AlertDialogTitle>시드 데이터 로드</AlertDialogTitle>
-            <AlertDialogDescription className="space-y-2">
-              <span className="block">
-                데모/개발용 기본 데이터를 로드합니다.
-              </span>
-              <span className="block text-sm">
-                기존 데이터를 삭제하지 않으며, 없는 데이터만 추가하고 이미 있는 데이터는 갱신합니다 (upsert).
-                비밀번호, API 키 등 운영 설정은 변경되지 않습니다.
-              </span>
-              <span className="block text-sm font-medium">
-                포함 항목: 팀 3개, 선생님 10명, 학생 8명, 학부모 9명, LLM 설정 6개, Provider 7개
-              </span>
+            <AlertDialogTitle>데모 데이터 관리</AlertDialogTitle>
+            <AlertDialogDescription>
+              시드 데이터를 선택적으로 로드합니다. 각 그룹별로 추가/갱신 또는 리셋을 선택하세요.
             </AlertDialogDescription>
           </AlertDialogHeader>
+
+          {/* 그룹 선택 + 모드 */}
+          <div className="space-y-2 max-h-72 overflow-y-auto">
+            {ALL_SEED_GROUPS.map((group) => {
+              const isSelected = selectedGroups.has(group)
+              const isForced = forcedResetGroups.has(group)
+              const currentMode = modes[group]
+
+              return (
+                <div
+                  key={group}
+                  className={`flex items-center gap-3 p-2.5 rounded-lg border transition-colors ${
+                    isSelected ? 'bg-white border-gray-300' : 'bg-gray-50 border-gray-200'
+                  }`}
+                >
+                  <Checkbox
+                    id={`group-${group}`}
+                    checked={isSelected}
+                    onCheckedChange={(checked) => toggleGroup(group, !!checked)}
+                  />
+                  <Label htmlFor={`group-${group}`} className="flex-1 text-sm cursor-pointer">
+                    {SEED_GROUP_LABELS[group]}{' '}
+                    <span className="text-muted-foreground">({SEED_GROUP_COUNTS[group]}건)</span>
+                  </Label>
+
+                  {isSelected && (
+                    <div className="flex gap-1">
+                      <button
+                        type="button"
+                        onClick={() => toggleMode(group, 'merge')}
+                        disabled={isForced}
+                        className={`px-2 py-0.5 text-xs rounded transition-colors ${
+                          currentMode === 'merge'
+                            ? 'bg-green-100 text-green-800 font-medium'
+                            : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                        } ${isForced ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                      >
+                        추가/갱신
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => toggleMode(group, 'reset')}
+                        className={`px-2 py-0.5 text-xs rounded transition-colors cursor-pointer ${
+                          currentMode === 'reset'
+                            ? 'bg-red-100 text-red-800 font-medium'
+                            : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                        }`}
+                      >
+                        리셋
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+
+          {/* 리셋 경고 */}
+          {hasReset && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex gap-2">
+              <AlertTriangle className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
+              <p className="text-sm text-red-700">
+                리셋 선택된 그룹의 <strong>모든 기존 데이터가 삭제</strong>됩니다.
+                관련 분석 결과, 상담 기록 등도 함께 삭제됩니다.
+              </p>
+            </div>
+          )}
+
+          {/* 비밀번호 입력 */}
+          <div className="space-y-2">
+            <Label htmlFor="admin-password">관리자 비밀번호</Label>
+            <div className="relative">
+              <Input
+                id="admin-password"
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="비밀번호를 입력하세요"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && password && selectedGroups.size > 0 && !isPending) {
+                    handleDemoSeed()
+                  }
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+
           <AlertDialogFooter>
             <AlertDialogCancel>취소</AlertDialogCancel>
-            <AlertDialogAction onClick={handleSeed} disabled={isPending}>
-              {isPending ? '로드 중...' : '시드 로드 실행'}
+            <AlertDialogAction
+              onClick={handleDemoSeed}
+              disabled={isPending || selectedGroups.size === 0 || !password}
+              className={hasReset ? 'bg-red-600 hover:bg-red-700' : ''}
+            >
+              {isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  실행 중...
+                </>
+              ) : hasReset ? (
+                '리셋 포함 실행'
+              ) : (
+                '시드 실행'
+              )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
