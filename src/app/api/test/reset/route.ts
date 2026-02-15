@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
 
     // 트랜잭션으로 안전하게 삭제
     const result = await db.$transaction(async (tx) => {
-      let resetCount = 0
+      const resetCount = 0
 
       // isTest 플래그가 있는 테스트용 학생 조회
       // 참고: 현재 스키마에는 isTest 플래그가 없으므로,

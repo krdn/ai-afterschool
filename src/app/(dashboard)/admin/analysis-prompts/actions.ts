@@ -7,11 +7,14 @@ import {
   createPreset,
   updatePreset,
   deletePreset,
-  type AnalysisType,
   type AnalysisPromptPresetData,
-  type CreatePresetInput,
-  type UpdatePresetInput,
 } from "@/lib/db/analysis-prompt-preset"
+import {
+  AnalysisTypeSchema,
+  CreatePresetSchema,
+  UpdatePresetSchema,
+  PresetIdSchema,
+} from "@/lib/validations/analysis-prompts"
 
 // ---------------------------------------------------------------------------
 // 권한 검증
@@ -34,31 +37,51 @@ async function requireAdmin() {
 
 /** 특정 분석 유형의 전체 프리셋 조회 (관리자용) */
 export async function getPresetsByTypeAction(
-  analysisType: AnalysisType,
+  analysisType: unknown,
 ): Promise<AnalysisPromptPresetData[]> {
   await requireAdmin()
-  return getAllPresetsByType(analysisType)
+  const parsed = AnalysisTypeSchema.safeParse(analysisType)
+  if (!parsed.success) {
+    throw new Error("유효하지 않은 분석 유형입니다.")
+  }
+  return getAllPresetsByType(parsed.data)
 }
 
 /** 프리셋 생성 */
 export async function createPresetAction(
-  input: CreatePresetInput,
+  input: unknown,
 ): Promise<AnalysisPromptPresetData> {
   await requireAdmin()
-  return createPreset(input)
+  const parsed = CreatePresetSchema.safeParse(input)
+  if (!parsed.success) {
+    throw new Error(parsed.error.issues.map((e) => e.message).join(", "))
+  }
+  return createPreset(parsed.data)
 }
 
 /** 프리셋 수정 */
 export async function updatePresetAction(
-  id: string,
-  input: UpdatePresetInput,
+  id: unknown,
+  input: unknown,
 ): Promise<AnalysisPromptPresetData> {
   await requireAdmin()
-  return updatePreset(id, input)
+  const parsedId = PresetIdSchema.safeParse(id)
+  if (!parsedId.success) {
+    throw new Error("유효하지 않은 ID입니다.")
+  }
+  const parsed = UpdatePresetSchema.safeParse(input)
+  if (!parsed.success) {
+    throw new Error(parsed.error.issues.map((e) => e.message).join(", "))
+  }
+  return updatePreset(parsedId.data, parsed.data)
 }
 
 /** 프리셋 삭제 */
-export async function deletePresetAction(id: string): Promise<void> {
+export async function deletePresetAction(id: unknown): Promise<void> {
   await requireAdmin()
-  return deletePreset(id)
+  const parsedId = PresetIdSchema.safeParse(id)
+  if (!parsedId.success) {
+    throw new Error("유효하지 않은 ID입니다.")
+  }
+  return deletePreset(parsedId.data)
 }

@@ -11,7 +11,7 @@ import {
   upsertVarkAnalysis,
   upsertVarkDraft,
 } from "@/lib/db/vark-analysis"
-import { generateWithProvider, generateWithSpecificProvider } from "@/lib/ai/router"
+import { generateWithProvider, generateWithSpecificProvider } from "@/lib/ai/universal-router"
 import { getVarkPrompt, type VarkPromptId } from "@/lib/ai/vark-prompts"
 import type { ProviderName } from "@/lib/ai/providers/types"
 import questions from "@/data/vark/questions.json"

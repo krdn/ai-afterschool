@@ -19,7 +19,8 @@ export async function setRLSSessionContext({
   role,
   teamId,
 }: RLSSessionContext): Promise<void> {
-  // PostgreSQL SET LOCAL은 리터럴 값만 허용하므로 unsafeRaw 사용
+  // PostgreSQL SET LOCAL은 현재 트랜잭션 내에서만 유효
+  // 호출 시 $transaction 블록 내에서 실제 쿼리와 함께 실행해야 RLS가 적용됨
   // 입력값 검증: role은 열거형, ID들은 영숫자와 하이픈만 허용
   const validRoles = ['DIRECTOR', 'TEAM_LEADER', 'MANAGER', 'TEACHER']
   if (!validRoles.includes(role)) {

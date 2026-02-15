@@ -11,7 +11,7 @@ import {
   upsertMbtiAnalysis,
   upsertMbtiDraft,
 } from "@/lib/db/mbti-analysis"
-import { generateWithProvider, generateWithSpecificProvider } from "@/lib/ai/router"
+import { generateWithProvider, generateWithSpecificProvider } from "@/lib/ai/universal-router"
 import { MBTI_INTERPRETATION_PROMPT } from "@/lib/ai/prompts"
 import { getMbtiPrompt, type MbtiPromptId } from "@/lib/ai/mbti-prompts"
 import type { ProviderName } from "@/lib/ai/providers/types"

@@ -24,7 +24,7 @@ import {
   upsertNameAnalysis,
   upsertSajuAnalysis,
 } from "@/lib/db/student-analysis"
-import { generateWithProvider, generateWithSpecificProvider } from "@/lib/ai/router"
+import { generateWithProvider, generateWithSpecificProvider } from "@/lib/ai/universal-router"
 import { getPromptDefinition, buildPromptFromTemplate, type AnalysisPromptId, type StudentInfo } from "@/lib/ai/saju-prompts"
 import { getPresetByKey } from "@/lib/db/saju-prompt-preset"
 import type { ProviderName } from "@/lib/ai/providers/types"
@@ -119,7 +119,7 @@ export async function markRecalculationNeeded(
   revalidatePath(`/students/${studentId}`)
 }
 
-export async function runSajuAnalysis(studentId: string, provider?: string, promptId?: string, additionalRequest?: string) {
+export async function runSajuAnalysis(studentId: string, provider?: string, promptId?: string, additionalRequest?: string, forceRefresh?: boolean) {
   const session = await verifySession()
 
   const where: { id: string; teacherId?: string } = { id: studentId }
@@ -137,6 +137,7 @@ export async function runSajuAnalysis(studentId: string, provider?: string, prom
       grade: true,
       school: true,
       targetMajor: true,
+      calculationRecalculationNeeded: true,
     },
   })
 
@@ -162,12 +163,45 @@ export async function runSajuAnalysis(studentId: string, provider?: string, prom
     promptId: resolvedPromptId,
   }
 
-  // 사주 계산은 항상 알고리즘
+  // 사주 계산은 항상 알고리즘 (동일 입력 = 동일 결과)
   const result = calculateSaju({
     birthDate: student.birthDate,
     time,
     longitude: 127.0,
   })
+
+  // 캐시 확인: forceRefresh가 아니고, 재계산 필요 플래그가 없으며, LLM 제공자를 사용하는 경우
+  const useLLM = provider && provider !== 'built-in'
+  if (!forceRefresh && !student.calculationRecalculationNeeded && useLLM) {
+    const cached = await db.sajuAnalysisHistory.findFirst({
+      where: {
+        studentId,
+        promptId: resolvedPromptId,
+        additionalRequest: additionalRequest || null,
+      },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        interpretation: true,
+        usedProvider: true,
+        usedModel: true,
+      },
+    })
+
+    if (cached?.interpretation) {
+      // 캐시된 결과로 SajuAnalysis도 갱신 (최신 계산 결과 반영)
+      await saveSajuAnalysis(studentId, inputSnapshot, result, cached.interpretation)
+
+      return {
+        result,
+        interpretation: cached.interpretation,
+        llmFailed: false,
+        llmError: undefined,
+        usedProvider: cached.usedProvider,
+        usedModel: cached.usedModel ?? undefined,
+        cached: true,
+      }
+    }
+  }
 
   // 해석만 내장/LLM 분기
   let interpretation: string
@@ -175,7 +209,7 @@ export async function runSajuAnalysis(studentId: string, provider?: string, prom
   let llmError: string | undefined
   let usedProvider = '내장 알고리즘'
   let usedModel: string | undefined
-  if (!provider || provider === 'built-in') {
+  if (!useLLM) {
     interpretation = generateSajuInterpretation(result)
   } else {
     try {
@@ -246,6 +280,7 @@ export async function runSajuAnalysis(studentId: string, provider?: string, prom
     llmError,
     usedProvider,
     usedModel,
+    cached: false,
   }
 }
 
