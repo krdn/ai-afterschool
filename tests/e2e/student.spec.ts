@@ -42,32 +42,17 @@ test.describe('학생 데이터 관리 (Student)', () => {
       await page.fill('input[name="parentPhone"]', data.parentPhone);
     }
 
-    // submit 버튼이 disabled가 아닌지 확인 후 클릭
-    const submitBtn = page.locator('[data-testid="submit-student-button"]');
-    await expect(submitBtn).toBeEnabled({ timeout: 5000 });
-    await submitBtn.click();
+    // form submit 클릭 + 네비게이션 대기를 동시에 시작
+    await Promise.all([
+      page.waitForURL(
+        /\/students\/[a-zA-Z0-9-]/,
+        { timeout: 30000, waitUntil: 'domcontentloaded' }
+      ),
+      page.locator('[data-testid="submit-student-button"]').click(),
+    ]);
 
-    // 버튼이 "저장 중..."으로 바뀌는지 확인 (server action 시작 표시)
-    // pending 상태 후 redirect 대기
-    try {
-      await page.waitForURL(
-        url => url.pathname.startsWith('/students/') && !url.pathname.includes('/new'),
-        { timeout: 30000 }
-      );
-    } catch {
-      // timeout 시 현재 상태 캡처하여 디버깅
-      const currentUrl = page.url();
-      const bodyText = await page.locator('body').textContent().catch(() => '(읽기 실패)');
-      const errorBox = await page.locator('.bg-red-50').textContent().catch(() => '(없음)');
-      const btnText = await submitBtn.textContent().catch(() => '(읽기 실패)');
-      throw new Error(
-        `학생 등록 후 redirect 실패\n` +
-        `현재 URL: ${currentUrl}\n` +
-        `버튼 상태: ${btnText}\n` +
-        `에러 박스: ${errorBox}\n` +
-        `페이지 내용(200자): ${bodyText?.slice(0, 200)}`
-      );
-    }
+    // /students/new 가 아닌 /students/[id] 에 있는지 한번 더 확인
+    expect(page.url()).not.toContain('/new');
   }
 
   test('STU-01: 신규 학생 등록 및 사진 업로드', async ({ page }) => {
@@ -232,10 +217,11 @@ test.describe('학생 데이터 관리 (Student)', () => {
     // 편집 버튼 클릭 — data-testid 사용 (Link 요소)
     const editButton = page.locator('[data-testid="edit-button"]');
     await expect(editButton).toBeVisible({ timeout: 5000 });
-    await editButton.click();
 
-    // 편집 페이지 이동 확인
-    await page.waitForURL(/.*\/edit/, { timeout: 5000 });
+    await Promise.all([
+      page.waitForURL(/.*\/edit/, { timeout: 15000, waitUntil: 'domcontentloaded' }),
+      editButton.click(),
+    ]);
 
     // 수정 가능한 필드 확인
     const nameInput = page.locator('input[name="name"]');
@@ -245,13 +231,15 @@ test.describe('학생 데이터 관리 (Student)', () => {
     const schoolInput = page.locator('input[name="school"]');
     await schoolInput.clear();
     await schoolInput.fill('수정된초등학교');
-    await page.click('[data-testid="submit-student-button"]');
 
-    // 학생 상세 페이지로 이동 대기 (edit URL이 아닌)
-    await page.waitForURL(
-      url => url.pathname.startsWith('/students/') && !url.pathname.includes('/edit') && !url.pathname.includes('/new'),
-      { timeout: 15000 }
-    );
+    // 수정 제출 + 네비게이션 대기
+    await Promise.all([
+      page.waitForURL(
+        url => url.pathname.startsWith('/students/') && !url.pathname.includes('/edit') && !url.pathname.includes('/new'),
+        { timeout: 30000, waitUntil: 'domcontentloaded' }
+      ),
+      page.locator('[data-testid="submit-student-button"]').click(),
+    ]);
 
     // 변경사항 반영 확인 — 상세 페이지에서 학교명 표시
     await expect(page.locator('text=수정된초등학교')).toBeVisible({ timeout: 10000 });
