@@ -2,16 +2,18 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Brain, Pencil, Edit3, Sparkles, AlertCircle } from "lucide-react"
+import { Brain, Pencil, Edit3 } from "lucide-react"
 import { MbtiResultsDisplay } from "@/components/mbti/results-display"
 import { MbtiDirectInputModal } from "@/components/students/mbti-direct-input-modal"
 import { saveMbtiDirectInput, generateMbtiLLMInterpretation } from "@/lib/actions/mbti-survey"
 import type { ProviderName } from "@/lib/ai/providers/types"
-import { ProviderSelector } from "@/components/students/provider-selector"
-import { PromptSelector } from "@/components/students/prompt-selector"
 import type { GenericPromptMeta } from "@/components/students/prompt-selector"
 import { MbtiHelpDialog } from "@/components/students/mbti-help-dialog"
-import { Button } from "@/components/ui/button"
+import {
+  AnalysisErrorBanner,
+  AIInterpretationControls,
+  AnalysisEmptyState,
+} from "@/components/common/analysis-panel"
 
 type MbtiAnalysis = {
   mbtiType: string
@@ -33,8 +35,6 @@ export function MbtiAnalysisPanel({ studentId, studentName, analysis, enabledPro
   const [isSaving, setIsSaving] = useState(false)
   const [isGeneratingAI, setIsGeneratingAI] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const [selectedProvider, setSelectedProvider] = useState('auto')
-  const [selectedPromptId, setSelectedPromptId] = useState('default')
 
   const handleDirectInputSave = async (data: {
     mbtiType: string
@@ -62,6 +62,19 @@ export function MbtiAnalysisPanel({ studentId, studentName, analysis, enabledPro
     }
   }
 
+  const handleLLMInterpretation = async (provider: string, promptId: string) => {
+    setIsGeneratingAI(true)
+    setErrorMessage(null)
+    try {
+      await generateMbtiLLMInterpretation(studentId, provider, promptId)
+      onDataChange?.()
+    } catch (error) {
+      setErrorMessage(`AI 해석에 실패했습니다. (원인: ${error instanceof Error ? error.message : '알 수 없는 오류'})`)
+    } finally {
+      setIsGeneratingAI(false)
+    }
+  }
+
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden">
       <div className="px-6 py-4 border-b flex items-center justify-between">
@@ -74,7 +87,6 @@ export function MbtiAnalysisPanel({ studentId, studentName, analysis, enabledPro
         </div>
         {analysis && (
           <div className="flex items-center gap-2">
-            {/* 직접 입력 버튼 */}
             <button
               onClick={() => setShowDirectInput(true)}
               className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 px-2 py-1 hover:bg-gray-100 rounded-lg transition-colors"
@@ -83,7 +95,6 @@ export function MbtiAnalysisPanel({ studentId, studentName, analysis, enabledPro
               <Edit3 className="w-4 h-4" />
               <span className="hidden sm:inline">직접 입력</span>
             </button>
-            {/* 설문 수정 버튼 */}
             <Link
               href={`/students/${studentId}/mbti`}
               className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 px-2 py-1 hover:bg-gray-100 rounded-lg transition-colors"
@@ -98,64 +109,21 @@ export function MbtiAnalysisPanel({ studentId, studentName, analysis, enabledPro
 
       <div className="p-6 space-y-6">
         {errorMessage && (
-          <div data-testid="analysis-error" className="bg-red-50 border-l-4 border-red-400 p-4">
-            <div className="flex">
-              <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0" />
-              <div className="ml-3">
-                <p className="text-sm text-red-800">{errorMessage}</p>
-                <Button
-                  onClick={() => setErrorMessage(null)}
-                  variant="outline"
-                  size="sm"
-                  className="mt-2"
-                  data-testid="retry-button"
-                >
-                  닫기
-                </Button>
-              </div>
-            </div>
-          </div>
+          <AnalysisErrorBanner
+            message={errorMessage}
+            onDismiss={() => setErrorMessage(null)}
+            testId="analysis-error"
+          />
         )}
 
-        {/* AI 해석 설정 영역 (사주와 동일한 위치) */}
+        {/* AI 해석 설정 영역 */}
         {analysis && (
-          <div className="rounded-md border border-gray-200 p-4">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 flex-wrap">
-              <ProviderSelector
-                selectedProvider={selectedProvider}
-                onProviderChange={setSelectedProvider}
-                availableProviders={enabledProviders}
-                disabled={isGeneratingAI}
-              />
-              {promptOptions.length > 0 && (
-                <PromptSelector
-                  selectedPromptId={selectedPromptId}
-                  onPromptChange={setSelectedPromptId}
-                  promptOptions={promptOptions}
-                  disabled={isGeneratingAI}
-                />
-              )}
-              <Button
-                onClick={async () => {
-                  setIsGeneratingAI(true)
-                  setErrorMessage(null)
-                  try {
-                    await generateMbtiLLMInterpretation(studentId, selectedProvider, selectedPromptId)
-                    onDataChange?.()
-                  } catch (error) {
-                    setErrorMessage(`AI 해석에 실패했습니다. (원인: ${error instanceof Error ? error.message : '알 수 없는 오류'})`)
-                  } finally {
-                    setIsGeneratingAI(false)
-                  }
-                }}
-                disabled={isGeneratingAI}
-                className="w-full sm:w-auto"
-              >
-                <Sparkles className="w-4 h-4 mr-1" />
-                {isGeneratingAI ? "AI 해석 중..." : "AI로 해석하기"}
-              </Button>
-            </div>
-          </div>
+          <AIInterpretationControls
+            enabledProviders={enabledProviders}
+            promptOptions={promptOptions}
+            isGenerating={isGeneratingAI}
+            onGenerate={handleLLMInterpretation}
+          />
         )}
 
         {/* MBTI 결과 표시 */}
@@ -173,11 +141,10 @@ export function MbtiAnalysisPanel({ studentId, studentName, analysis, enabledPro
             }}
           />
         ) : (
-          <div className="text-center py-8">
-            <Brain className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-500 mb-4">
-              아직 MBTI 분석이 없습니다.
-            </p>
+          <AnalysisEmptyState
+            icon={Brain}
+            message="아직 MBTI 분석이 없습니다."
+          >
             <div className="flex gap-3 justify-center">
               <button
                 onClick={() => setShowDirectInput(true)}
@@ -194,7 +161,7 @@ export function MbtiAnalysisPanel({ studentId, studentName, analysis, enabledPro
                 설문 시작
               </Link>
             </div>
-          </div>
+          </AnalysisEmptyState>
         )}
       </div>
 
