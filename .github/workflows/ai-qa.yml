@@ -6,6 +6,8 @@ on:
       - 'src/**'
       - 'tests/**'
       - 'prisma/**'
+      - '.github/workflows/ai-qa.yml'
+      - 'playwright.config.ts'
   pull_request:
     branches: [ main ]
   workflow_dispatch:
@@ -66,9 +68,14 @@ jobs:
   # E2E 테스트 (DB + 앱 서버 필요) — Dependabot PR에서는 skip
   e2e:
     if: github.actor != 'dependabot[bot]'
-    timeout-minutes: 60
+    timeout-minutes: 20
     runs-on: ubuntu-latest
     needs: unit
+    strategy:
+      fail-fast: false
+      matrix:
+        shardIndex: [1, 2, 3]
+        shardTotal: [3]
 
     services:
       postgres:
@@ -115,13 +122,21 @@ jobs:
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps chromium
 
+    - name: Cache Next.js build
+      uses: actions/cache@v4
+      with:
+        path: .next/cache
+        key: nextjs-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**') }}
+        restore-keys: |
+          nextjs-${{ hashFiles('package-lock.json') }}-
+
     - name: Build Application
       run: npm run build
       env:
         NEXT_PUBLIC_APP_URL: http://localhost:3000
 
-    - name: Run E2E Tests
-      run: npx playwright test
+    - name: Run E2E Tests (Shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }})
+      run: npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
       env:
         CI: true
 
@@ -129,6 +144,6 @@ jobs:
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: playwright-report
+        name: playwright-report-shard-${{ matrix.shardIndex }}
         path: playwright-report/
         retention-days: 30
