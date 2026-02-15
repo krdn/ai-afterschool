@@ -7,8 +7,10 @@ type TeacherProfileImageProps = {
   name: string
 }
 
+const isCloudinaryAvailable = Boolean(process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME)
+
 export function TeacherProfileImage({ profileImagePublicId, name }: TeacherProfileImageProps) {
-  if (profileImagePublicId) {
+  if (profileImagePublicId && isCloudinaryAvailable) {
     return (
       <CldImage
         width={96}
