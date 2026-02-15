@@ -1,8 +1,7 @@
 "use client"
 
-import { useFormStatus } from "react-dom"
-import { useState, useTransition, useRef } from "react"
-import { useRouter } from "next/navigation"
+import { useFormState, useFormStatus } from "react-dom"
+import { useState, useTransition } from "react"
 import { toast } from "sonner"
 import {
   createStudent,
@@ -73,7 +72,6 @@ export function StudentForm({ student }: StudentFormProps) {
   const existingProfile = student?.images?.find(
     (img) => img.type === "profile"
   )
-  const router = useRouter()
 
   const [profileImage, setProfileImage] = useState<StudentImagePayload | null>(
     null
@@ -85,13 +83,12 @@ export function StudentForm({ student }: StudentFormProps) {
     () => student ? extractInitialHanjaText(student.nameHanja) : ""
   )
 
-  // 상태 관리
-  const [state, setState] = useState<StudentFormState>(initialState)
-
   // Server Action 바인딩
   const action = isEdit
     ? updateStudent.bind(null, student.id)
     : createStudent
+
+  const [state, formAction] = useFormState(action, initialState)
 
   // 폼 제출 전 데이터 전처리
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -126,13 +123,7 @@ export function StudentForm({ student }: StudentFormProps) {
 
   return (
     <form
-      action={async (formData: FormData) => {
-        const result = await action(state, formData)
-        // 에러가 있으면 상태 업데이트 (redirect는 Server Action 내부에서 처리됨)
-        if (result.errors) {
-          setState(result)
-        }
-      }}
+      action={formAction}
       onSubmit={handleSubmit}
       className="space-y-4 max-w-md mx-auto p-4 border rounded-lg bg-white"
     >
