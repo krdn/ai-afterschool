@@ -5,20 +5,17 @@
  */
 
 import { test, expect, Page } from '@playwright/test';
+import { loginAsAdmin } from '../utils/auth';
 
 test.describe('Admin LLM Providers', () => {
   let page: Page;
 
   test.beforeEach(async ({ browser }) => {
     page = await browser.newPage();
-    
+
     // Login as DIRECTOR
-    await page.goto('/admin/login');
-    await page.fill('[data-testid="email-input"]', 'director@test.com');
-    await page.fill('[data-testid="password-input"]', 'password123');
-    await page.click('[data-testid="login-button"]');
-    await page.waitForURL('/admin');
-    
+    await loginAsAdmin(page);
+
     // Navigate to LLM Providers
     await page.goto('/admin/llm-providers');
     await page.waitForLoadState('networkidle');
@@ -288,9 +285,9 @@ test.describe('Admin LLM Providers', () => {
     test('should handle unauthorized access', async ({ browser }) => {
       // Login as non-DIRECTOR
       const userPage = await browser.newPage();
-      await userPage.goto('/admin/login');
-      await userPage.fill('[data-testid="email-input"]', 'teacher@test.com');
-      await userPage.fill('[data-testid="password-input"]', 'password123');
+      await userPage.goto('/auth/login');
+      await userPage.fill('[data-testid="email-input"]', 'teacher1@test.com');
+      await userPage.fill('[data-testid="password-input"]', 'test1234');
       await userPage.click('[data-testid="login-button"]');
       
       // Try to access admin page

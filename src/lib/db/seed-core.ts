@@ -43,6 +43,7 @@ export {
 export async function runSeed(prisma: PrismaClient, options?: SeedOptions): Promise<SeedResult> {
   const groups = options?.groups ?? ALL_SEED_GROUPS
   const modes = options?.modes ?? {}
+  const excludeTeacherId = options?.excludeTeacherId
   const resetGroups = new Set(groups.filter((g) => modes[g] === 'reset'))
   // 의존성 자동 확장
   for (const group of [...resetGroups]) {
@@ -68,7 +69,25 @@ export async function runSeed(prisma: PrismaClient, options?: SeedOptions): Prom
       switch (group) {
         case 'parents': await tx.parent.deleteMany(); break
         case 'students': await tx.student.deleteMany(); break
-        case 'teachers': await tx.teacher.deleteMany(); break
+        case 'teachers': {
+          // Teacher를 참조하는 onDelete 미설정(Restrict) 테이블 먼저 삭제
+          // IssueEvent → Issue 순서 (IssueEvent가 Issue를 참조)
+          if (excludeTeacherId) {
+            const notMe = { NOT: { performedBy: excludeTeacherId } }
+            await tx.issueEvent.deleteMany({ where: notMe })
+            await tx.issue.deleteMany({ where: { NOT: { createdBy: excludeTeacherId } } })
+            await tx.assignmentProposal.deleteMany({ where: { NOT: { proposedBy: excludeTeacherId } } })
+            await tx.passwordResetToken.deleteMany({ where: { NOT: { teacherId: excludeTeacherId } } })
+            await tx.teacher.deleteMany({ where: { NOT: { id: excludeTeacherId } } })
+          } else {
+            await tx.issueEvent.deleteMany()
+            await tx.issue.deleteMany()
+            await tx.assignmentProposal.deleteMany()
+            await tx.passwordResetToken.deleteMany()
+            await tx.teacher.deleteMany()
+          }
+          break
+        }
         case 'teams': await tx.team.deleteMany(); break
         case 'llmConfigs': await tx.lLMConfig.deleteMany(); break
         case 'providers': await tx.provider.deleteMany(); break

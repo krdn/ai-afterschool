@@ -14,6 +14,8 @@ export type SeedMode = 'merge' | 'reset'
 export type SeedOptions = {
   groups?: SeedGroup[]
   modes?: Partial<Record<SeedGroup, SeedMode>>
+  /** 리셋 시 삭제에서 제외할 선생님 ID (현재 로그인한 사용자 보호) */
+  excludeTeacherId?: string
 }
 
 // ---------------------------------------------------------------------------

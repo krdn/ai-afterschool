@@ -5,6 +5,7 @@
  */
 
 import { test, expect, Page } from '@playwright/test';
+import { loginAsAdmin } from '../utils/auth';
 
 test.describe('Admin LLM Features', () => {
   let page: Page;
@@ -13,11 +14,7 @@ test.describe('Admin LLM Features', () => {
     page = await browser.newPage();
 
     // Login as DIRECTOR
-    await page.goto('/admin/login');
-    await page.fill('[data-testid="email-input"]', 'director@test.com');
-    await page.fill('[data-testid="password-input"]', 'password123');
-    await page.click('[data-testid="login-button"]');
-    await page.waitForURL('/admin');
+    await loginAsAdmin(page);
 
     // Navigate to LLM Features
     await page.goto('/admin/llm-features');

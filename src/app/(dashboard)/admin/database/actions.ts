@@ -85,8 +85,8 @@ export async function runDemoSeedAction(
       return { success: false, error: "비밀번호가 올바르지 않습니다" }
     }
 
-    // 시드 실행
-    const result = await runSeed(db, options)
+    // 시드 실행 (현재 로그인한 선생님은 삭제에서 제외)
+    const result = await runSeed(db, { ...options, excludeTeacherId: session.userId })
 
     // 감사 로그
     await logAuditAction({

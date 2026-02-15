@@ -19,7 +19,7 @@ test.describe('Analysis - 성향 분석 시스템', () => {
     test.setTimeout(60000);
 
     // 테스트 학생 페이지로 이동 (생년월일이 있는 학생)
-    await page.goto('/students/test-student-id');
+    await page.goto('/students/test-student-001');
     await page.waitForLoadState('domcontentloaded');
 
     // 사주/성명학 탭으로 이동
@@ -81,7 +81,7 @@ test.describe('Analysis - 성향 분석 시스템', () => {
     test.setTimeout(90000);
 
     // 학생 페이지로 이동
-    await page.goto('/students/test-student-id');
+    await page.goto('/students/test-student-001');
     await page.waitForLoadState('domcontentloaded');
 
     // 관상 탭으로 이동
@@ -150,7 +150,7 @@ test.describe('Analysis - 성향 분석 시스템', () => {
     test.setTimeout(60000);
 
     // 학생 페이지로 이동
-    await page.goto('/students/test-student-id');
+    await page.goto('/students/test-student-001');
 
     // MBTI 탭으로 이동
     const mbtiTab = page.locator('[data-testid="mbti-tab"]');
@@ -301,7 +301,7 @@ test.describe('Analysis - 성향 분석 시스템', () => {
       });
     });
 
-    await page.goto('/students/test-student-id');
+    await page.goto('/students/test-student-001');
     const faceTab = page.locator('[data-testid="face-tab"]');
     if (await faceTab.isVisible({ timeout: 3000 })) {
       await faceTab.click();
@@ -324,7 +324,7 @@ test.describe('Analysis - 성향 분석 시스템', () => {
     // 타임아웃 증가
     test.setTimeout(60000);
 
-    await page.goto('/students/test-student-id');
+    await page.goto('/students/test-student-001');
     const sajuTab = page.locator('[data-testid="saju-tab"]');
     if (await sajuTab.isVisible({ timeout: 3000 })) {
       await sajuTab.click();
@@ -350,7 +350,7 @@ test.describe('Analysis - 성향 분석 시스템', () => {
     // 타임아웃 증가
     test.setTimeout(60000);
 
-    await page.goto('/students/test-student-id');
+    await page.goto('/students/test-student-001');
     const mbtiTab = page.locator('[data-testid="mbti-tab"]');
     if (await mbtiTab.isVisible({ timeout: 3000 })) {
       await mbtiTab.click();
