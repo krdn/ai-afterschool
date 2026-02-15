@@ -12,11 +12,11 @@ export default defineConfig({
     /* Fail the build on CI if you accidentally left test.only in the source code. */
     forbidOnly: !!process.env.CI,
     /* Retry on CI only */
-    retries: process.env.CI ? 1 : 0,
+    retries: 0,
     /* GitHub Actions runner: 2 CPU */
     workers: process.env.CI ? 2 : undefined,
     /* CI 환경: 테스트당 타임아웃 증가 (cold start + DB 쿼리 고려) */
-    timeout: process.env.CI ? 120000 : 30000,
+    timeout: process.env.CI ? 60_000 : 30_000,
     /* Reporter to use. See https://playwright.dev/docs/test-reporters */
     reporter: 'html',
     /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -25,7 +25,7 @@ export default defineConfig({
         baseURL: 'http://localhost:3000',
 
         /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-        trace: 'on-first-retry',
+        trace: 'retain-on-failure',
         /* 타임아웃 증가 - AI 분석 등 시간이 오래 걸리는 작업 고려 */
         actionTimeout: 60000,
         navigationTimeout: 60000,
