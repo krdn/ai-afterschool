@@ -11,6 +11,28 @@ on:
   workflow_dispatch:
 
 jobs:
+  # 보안 검사 (의존성 취약점 스캔)
+  security:
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run npm audit
+      run: npm audit --audit-level=high --omit=dev
+      # high 이상 취약점 발견 시 경고 (기존 간접 의존성 이슈로 즉시 차단은 보류)
+      continue-on-error: true
+
   # 단위 테스트 (빠르게 실행)
   unit:
     timeout-minutes: 10

@@ -1,0 +1,29 @@
+version: 2
+updates:
+  # npm 패키지 의존성 보안 업데이트
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      timezone: "Asia/Seoul"
+    # 자동 생성 PR 최대 5개 (너무 많으면 관리 부담)
+    open-pull-requests-limit: 5
+    # 보안 업데이트만 우선 처리
+    allow:
+      - dependency-type: "direct"
+    labels:
+      - "dependencies"
+      - "security"
+
+  # GitHub Actions 버전 업데이트
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      timezone: "Asia/Seoul"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "ci"
