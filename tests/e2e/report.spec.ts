@@ -181,7 +181,7 @@ test.describe.skip('Report & Utility Tests - 미구현: Report 생성 E2E 흐름
     await page.waitForURL(/\/students\/\d+/, { timeout: 10000 });
     
     // Monitor network requests for image loading
-    const imageRequests: any[] = [];
+    const imageRequests: Array<{ url: string; status: number }> = [];
     page.on('response', async (response) => {
       const contentType = response.headers()['content-type'] || '';
       if (contentType.includes('image/')) {

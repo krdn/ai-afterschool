@@ -120,7 +120,7 @@ export function HelpCenter({
         {/* 검색 결과 요약 */}
         {searchQuery.trim() && (
           <div className="mt-2 text-sm text-muted-foreground">
-            "{searchQuery}" 검색 결과: {filteredTopics.length}개
+            &ldquo;{searchQuery}&rdquo; 검색 결과: {filteredTopics.length}개
           </div>
         )}
       </div>
