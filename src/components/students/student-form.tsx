@@ -1,5 +1,6 @@
 "use client"
 
+import { useFormStatus } from "react-dom"
 import { useState, useTransition, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
@@ -53,15 +54,16 @@ function extractInitialHanjaText(raw: unknown): string {
 }
 
 // Submit 버튼 컴포넌트
-function SubmitButton({ isEdit, isPending }: { isEdit: boolean; isPending: boolean }) {
+function SubmitButton({ isEdit }: { isEdit: boolean }) {
+  const { pending } = useFormStatus()
   return (
     <button
       type="submit"
-      disabled={isPending}
+      disabled={pending}
       className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full font-bold disabled:opacity-50"
       data-testid="submit-student-button"
     >
-      {isPending ? "저장 중..." : isEdit ? "수정" : "등록"}
+      {pending ? "저장 중..." : isEdit ? "수정" : "등록"}
     </button>
   )
 }
@@ -72,7 +74,6 @@ export function StudentForm({ student }: StudentFormProps) {
     (img) => img.type === "profile"
   )
   const router = useRouter()
-  const hasNavigated = useRef(false)
 
   const [profileImage, setProfileImage] = useState<StudentImagePayload | null>(
     null
@@ -86,21 +87,26 @@ export function StudentForm({ student }: StudentFormProps) {
 
   // 상태 관리
   const [state, setState] = useState<StudentFormState>(initialState)
-  const [isSubmitting, startSubmitTransition] = useTransition()
 
-  // 폼 제출 핸들러 - Server Action 직접 호출 후 router.push 실행
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    if (hasNavigated.current || isSubmitting) return
+  // Server Action 바인딩
+  const action = isEdit
+    ? updateStudent.bind(null, student.id)
+    : createStudent
 
+  // 폼 제출 전 데이터 전처리
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     const formData = new FormData(event.currentTarget)
 
-    // profileImage 추가
+    // profileImage 추가 - 숨겨진 input으로 전달
     if (profileImage) {
-      formData.set('profileImage', JSON.stringify(profileImage))
+      const profileInput = document.createElement('input')
+      profileInput.type = 'hidden'
+      profileInput.name = 'profileImage'
+      profileInput.value = JSON.stringify(profileImage)
+      event.currentTarget.appendChild(profileInput)
     }
 
-    // nameHanja 처리
+    // nameHanja 처리 - 숨겨진 input으로 전달
     const name = formData.get("name") as string
     const hanja = nameHanjaText.trim()
     if (name && hanja) {
@@ -110,41 +116,23 @@ export function StudentForm({ student }: StudentFormProps) {
         syllable: s,
         hanja: hanjaChars[i] ?? null,
       }))
-      formData.set('nameHanja', JSON.stringify(selections))
-    }
-
-    // isSubmitting을 수동으로 true로 설정 (UI 업데이트)
-    startSubmitTransition(async () => {
-      // 트랜지션 내에서 실제 작업 수행
-    })
-
-    try {
-      const result = isEdit
-        ? await updateStudent(student!.id, state, formData)
-        : await createStudent(state, formData)
-
-      console.log('[StudentForm] Server Action result:', result)
-      setState(result)
-
-      if (result.success && result.redirectUrl && !hasNavigated.current) {
-        console.log('[StudentForm] Navigating to:', result.redirectUrl)
-        hasNavigated.current = true
-        router.push(result.redirectUrl)
-      } else if (!result.success) {
-        console.log('[StudentForm] Submission failed, errors:', result.errors)
-      }
-    } catch (error) {
-      console.error('[StudentForm] Submission error:', error)
-      setState({
-        errors: {
-          _form: ['제출 중 오류가 발생했습니다. 다시 시도해주세요.']
-        }
-      })
+      const hanjaInput = document.createElement('input')
+      hanjaInput.type = 'hidden'
+      hanjaInput.name = 'nameHanja'
+      hanjaInput.value = JSON.stringify(selections)
+      event.currentTarget.appendChild(hanjaInput)
     }
   }
 
   return (
     <form
+      action={async (formData: FormData) => {
+        const result = await action(state, formData)
+        // 에러가 있으면 상태 업데이트 (redirect는 Server Action 내부에서 처리됨)
+        if (result.errors) {
+          setState(result)
+        }
+      }}
       onSubmit={handleSubmit}
       className="space-y-4 max-w-md mx-auto p-4 border rounded-lg bg-white"
     >
@@ -407,7 +395,7 @@ export function StudentForm({ student }: StudentFormProps) {
         />
       </div>
 
-      <SubmitButton isEdit={isEdit} isPending={isSubmitting} />
+      <SubmitButton isEdit={isEdit} />
     </form>
   )
 }
