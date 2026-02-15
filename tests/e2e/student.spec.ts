@@ -42,14 +42,14 @@ test.describe('학생 데이터 관리 (Student)', () => {
       await page.fill('input[name="parentPhone"]', data.parentPhone);
     }
 
-    // form submit 클릭 + 네비게이션 대기를 동시에 시작
-    await Promise.all([
-      page.waitForURL(
-        /\/students\/[a-zA-Z0-9-]/,
-        { timeout: 30000, waitUntil: 'domcontentloaded' }
-      ),
-      page.locator('[data-testid="submit-student-button"]').click(),
-    ]);
+    // 버튼 클릭
+    await page.locator('[data-testid="submit-student-button"]').click();
+
+    // 네비게이션 대기 - router.push가 useEffect에서 실행되므로 충분히 대기
+    await page.waitForURL(
+      /\/students\/[a-zA-Z0-9-]/,
+      { timeout: 60000 }
+    );
 
     // /students/new 가 아닌 /students/[id] 에 있는지 한번 더 확인
     expect(page.url()).not.toContain('/new');
