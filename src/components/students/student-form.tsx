@@ -1,7 +1,6 @@
 "use client"
 
-import { useActionState, useState, useTransition, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useActionState, useState, useTransition } from "react"
 import { toast } from "sonner"
 import {
   createStudent,
@@ -57,7 +56,6 @@ export function StudentForm({ student }: StudentFormProps) {
   const existingProfile = student?.images?.find(
     (img) => img.type === "profile"
   )
-  const router = useRouter()
 
   const [profileImage, setProfileImage] = useState<StudentImagePayload | null>(
     null
@@ -74,13 +72,6 @@ export function StudentForm({ student }: StudentFormProps) {
     : createStudent
 
   const [state, formAction, pending] = useActionState(action, initialState)
-
-  // Server Action 성공 시 redirectTo로 네비게이션
-  useEffect(() => {
-    if (state.redirectTo) {
-      router.push(state.redirectTo)
-    }
-  }, [state.redirectTo, router])
 
   function handleSubmit(formData: FormData) {
     if (profileImage) {
