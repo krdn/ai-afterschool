@@ -6,7 +6,6 @@
  */
 
 import { createOllama } from 'ollama-ai-provider-v2';
-import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { generateText, streamText, type LanguageModel } from 'ai';
 import { BaseAdapter } from './base';
 import type {
@@ -31,24 +30,13 @@ export class OllamaAdapter extends BaseAdapter {
 
   createModel(modelId: string, config?: ProviderConfig): LanguageModel {
     const effectiveConfig = config || ({} as ProviderConfig);
-    const effectiveApiKey = effectiveConfig.apiKeyEncrypted
-      ? this.decryptApiKey(effectiveConfig.apiKeyEncrypted)
-      : this.apiKey;
     const effectiveBaseUrl = effectiveConfig.baseUrl || this.baseUrl;
 
-    // API 키가 있으면 Open WebUI 프록시 → OpenAI 호환 API 사용
-    if (effectiveApiKey) {
-      const provider = createOpenAICompatible({
-        name: 'ollama-proxy',
-        baseURL: this.ensureHttps(effectiveBaseUrl),
-        apiKey: effectiveApiKey,
-      });
-      return provider(modelId);
-    }
-
-    // 직접 Ollama 서버 → 네이티브 API
+    // 직접 Ollama 서버 URL이 있으면 네이티브 API 우선 사용
+    // (Open WebUI 프록시에 모델이 미등록되어 있어도 직접 서버에서 실행 가능)
+    const directUrl = this.getDirectUrl(effectiveBaseUrl);
     return createOllama({
-      baseURL: this.ensureHttps(effectiveBaseUrl),
+      baseURL: this.ensureHttps(directUrl),
     })(modelId);
   }
 
@@ -133,6 +121,79 @@ export class OllamaAdapter extends BaseAdapter {
         return {
           isValid: false,
           error: `Ollama 서버 연결 실패: HTTP ${response.status}`,
+        };
+      }
+
+      // 모델 존재 여부로 실제 연결 유효성 검증
+      const modelsController = new AbortController();
+      const modelsTimeout = setTimeout(() => modelsController.abort(), 10000);
+
+      try {
+        let modelsResponse: Response;
+
+        if (apiKey) {
+          // 프록시 모드: Open WebUI /api/models (Bearer 인증 필요)
+          const modelsUrl = baseUrl.replace(/\/api$/, '/api/models');
+          modelsResponse = await fetch(modelsUrl, {
+            signal: modelsController.signal,
+            headers: { 'Authorization': `Bearer ${apiKey}` },
+          });
+        } else {
+          // 직접 연결 모드: Ollama /api/tags (인증 불필요)
+          const tagsUrl = baseUrl.replace(/\/api$/, '/api/tags');
+          modelsResponse = await fetch(tagsUrl, {
+            signal: modelsController.signal,
+            headers,
+          });
+        }
+
+        clearTimeout(modelsTimeout);
+
+        if (!modelsResponse.ok) {
+          return {
+            isValid: false,
+            error: apiKey
+              ? `API 키 인증 실패: HTTP ${modelsResponse.status}`
+              : `모델 목록 조회 실패: HTTP ${modelsResponse.status}`,
+          };
+        }
+
+        // JSON 응답인지 확인 (Open WebUI는 인증 실패 시 HTML 반환)
+        const contentType = modelsResponse.headers.get('content-type') || '';
+        if (!contentType.includes('application/json')) {
+          return {
+            isValid: false,
+            error: 'API 키 인증 실패: 유효하지 않은 응답 형식',
+          };
+        }
+
+        const modelsData = await modelsResponse.json();
+        const modelCount = apiKey
+          ? (modelsData.data?.length ?? 0)
+          : (modelsData.models?.length ?? 0);
+
+        if (modelCount === 0 && apiKey) {
+          // 프록시에서 모델 0개 → 직접 Ollama 서버로 폴백 확인
+          const directUrl = this.getDirectUrl(baseUrl);
+          const directModels = await this.fetchDirectModels(directUrl);
+          if (directModels.length === 0) {
+            return {
+              isValid: true,
+              error: '연결 성공, 그러나 사용 가능한 모델이 없습니다.',
+            };
+          }
+        } else if (modelCount === 0) {
+          return {
+            isValid: true,
+            error: '연결 성공, 그러나 사용 가능한 모델이 없습니다.',
+          };
+        }
+      } catch {
+        clearTimeout(modelsTimeout);
+        // 모델 조회 실패해도 서버 연결 자체는 성공이므로 경고만
+        return {
+          isValid: true,
+          error: '서버 연결 성공, 모델 목록 조회에 실패했습니다.',
         };
       }
 

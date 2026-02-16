@@ -204,11 +204,24 @@ export function ProviderForm({ provider, template, onSuccess }: ProviderFormProp
     setTestResult(null);
 
     try {
+      // 현재 폼 값을 먼저 저장하여 DB와 동기화
+      const values = form.getValues();
+      const input: Partial<ProviderInput> = {
+        ...values,
+        baseUrl: values.baseUrl || undefined,
+        customAuthHeader: values.customAuthHeader || undefined,
+        apiKey: values.apiKey || undefined,
+        capabilities: values.capabilities as Capability[],
+      };
+      await updateProviderAction(provider.id, input);
+
       const result = await validateProviderAction(provider.id);
       setTestResult({
         success: result.isValid,
         message: result.isValid
-          ? '연결 성공!'
+          ? result.error
+            ? `⚠ ${result.error}`
+            : '연결 성공!'
           : `연결 실패: ${result.error || '알 수 없는 오류'}`,
       });
     } catch (error) {
