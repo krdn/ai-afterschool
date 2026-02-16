@@ -1,7 +1,7 @@
 /**
  * 시드 실행 핵심 로직 (CLI + 서버 액션 공용)
  *
- * 실행 순서: 팀 → 선생님 → 학생 → 학부모 → LLMConfig → Provider
+ * 실행 순서: 팀 → 선생님 → 학생 → 학부모 → Provider
  * 멱등성: upsert 패턴으로 여러 번 실행해도 안전합니다.
  */
 
@@ -14,7 +14,6 @@ import {
   SEED_TEACHERS,
   SEED_STUDENTS,
   SEED_PARENTS,
-  SEED_LLM_CONFIGS,
   SEED_PROVIDERS,
 } from "./data"
 import {
@@ -60,12 +59,11 @@ export async function runSeed(prisma: PrismaClient, options?: SeedOptions): Prom
       teachers: { created: 0, updated: 0 },
       students: { created: 0, updated: 0 },
       parents: { created: 0, updated: 0 },
-      llmConfigs: { created: 0, updated: 0 },
       providers: { created: 0, updated: 0 },
     }
 
     // ── 0. 리셋 단계 (FK 역순으로 삭제) ──────────
-    const deleteOrder: SeedGroup[] = ['parents', 'students', 'teachers', 'teams', 'llmConfigs', 'providers']
+    const deleteOrder: SeedGroup[] = ['parents', 'students', 'teachers', 'teams', 'providers']
     for (const group of deleteOrder) {
       if (!resetGroups.has(group) || !groups.includes(group)) continue
       switch (group) {
@@ -91,7 +89,6 @@ export async function runSeed(prisma: PrismaClient, options?: SeedOptions): Prom
           break
         }
         case 'teams': await tx.team.deleteMany(); break
-        case 'llmConfigs': await tx.lLMConfig.deleteMany(); break
         case 'providers': await tx.provider.deleteMany(); break
       }
     }
@@ -247,36 +244,7 @@ export async function runSeed(prisma: PrismaClient, options?: SeedOptions): Prom
       }
     }
 
-    // ── 5. LLMConfig ──────────────────────────────
-    if (groups.includes('llmConfigs')) {
-      for (const config of SEED_LLM_CONFIGS) {
-        const existing = await tx.lLMConfig.findUnique({ where: { provider: config.provider } })
-        if (existing) {
-          // isEnabled, isValidated, apiKeyEncrypted 보존
-          await tx.lLMConfig.update({
-            where: { provider: config.provider },
-            data: {
-              displayName: config.displayName,
-              baseUrl: config.baseUrl,
-              defaultModel: config.defaultModel,
-            },
-          })
-          result.llmConfigs.updated++
-        } else {
-          await tx.lLMConfig.create({
-            data: {
-              provider: config.provider,
-              displayName: config.displayName,
-              baseUrl: config.baseUrl,
-              defaultModel: config.defaultModel,
-            },
-          })
-          result.llmConfigs.created++
-        }
-      }
-    }
-
-    // ── 6. Provider (Universal LLM Hub) ────────────
+    // ── 5. Provider (Universal LLM Hub) ────────────
     if (groups.includes('providers')) {
       for (const provider of SEED_PROVIDERS) {
         const existing = await tx.provider.findFirst({

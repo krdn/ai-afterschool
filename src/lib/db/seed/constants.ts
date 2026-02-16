@@ -8,7 +8,7 @@
 // 시드 옵션 타입
 // ---------------------------------------------------------------------------
 
-export type SeedGroup = 'teams' | 'teachers' | 'students' | 'parents' | 'llmConfigs' | 'providers'
+export type SeedGroup = 'teams' | 'teachers' | 'students' | 'parents' | 'providers'
 export type SeedMode = 'merge' | 'reset'
 
 export type SeedOptions = {
@@ -29,7 +29,6 @@ export type SeedResult = {
   teachers: SeedModelResult
   students: SeedModelResult
   parents: SeedModelResult
-  llmConfigs: SeedModelResult
   providers: SeedModelResult
 }
 
@@ -38,7 +37,7 @@ export type SeedResult = {
 // ---------------------------------------------------------------------------
 
 /** 모든 시드 그룹 (기본값) */
-export const ALL_SEED_GROUPS: SeedGroup[] = ['teams', 'teachers', 'students', 'parents', 'llmConfigs', 'providers']
+export const ALL_SEED_GROUPS: SeedGroup[] = ['teams', 'teachers', 'students', 'parents', 'providers']
 
 /** 그룹별 의존성 (리셋 시 함께 리셋해야 할 하위 그룹) */
 export const SEED_GROUP_DEPENDENCIES: Record<SeedGroup, SeedGroup[]> = {
@@ -46,7 +45,6 @@ export const SEED_GROUP_DEPENDENCIES: Record<SeedGroup, SeedGroup[]> = {
   teachers: ['students', 'parents'],
   students: ['parents'],
   parents: [],
-  llmConfigs: [],
   providers: [],
 }
 
@@ -56,7 +54,6 @@ export const SEED_GROUP_LABELS: Record<SeedGroup, string> = {
   teachers: '선생님',
   students: '학생',
   parents: '학부모',
-  llmConfigs: 'LLM 설정',
   providers: 'Provider',
 }
 
@@ -66,6 +63,5 @@ export const SEED_GROUP_COUNTS: Record<SeedGroup, number> = {
   teachers: 8,
   students: 7,
   parents: 14,
-  llmConfigs: 6,
   providers: 7,
 }

@@ -297,26 +297,6 @@ export const SEED_PARENTS: SeedParent[] = [
 ]
 
 // ---------------------------------------------------------------------------
-// LLM 설정
-// ---------------------------------------------------------------------------
-
-export type SeedLLMConfig = {
-  provider: string
-  displayName: string
-  baseUrl: string | null
-  defaultModel: string | null
-}
-
-export const SEED_LLM_CONFIGS: SeedLLMConfig[] = [
-  { provider: "ollama", displayName: "Ollama (로컬)", baseUrl: "http://localhost:11434", defaultModel: "gemma3:12b" },
-  { provider: "anthropic", displayName: "Anthropic", baseUrl: null, defaultModel: "claude-sonnet-4-5-20250514" },
-  { provider: "openai", displayName: "OpenAI", baseUrl: null, defaultModel: "gpt-4o" },
-  { provider: "google", displayName: "Google AI", baseUrl: null, defaultModel: "gemini-2.0-flash" },
-  { provider: "deepseek", displayName: "DeepSeek", baseUrl: "https://api.deepseek.com", defaultModel: "deepseek-chat" },
-  { provider: "mistral", displayName: "Mistral AI", baseUrl: null, defaultModel: "mistral-large-latest" },
-]
-
-// ---------------------------------------------------------------------------
 // Provider (Universal LLM Hub)
 // ---------------------------------------------------------------------------
 

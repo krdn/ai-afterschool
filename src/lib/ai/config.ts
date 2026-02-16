@@ -11,76 +11,137 @@ interface LLMConfigInput {
   defaultModel?: string;
 }
 
+/**
+ * providers 테이블에서 모든 제공자를 조회하여 레거시 LLMConfig 형태로 반환합니다.
+ */
 export async function getAllLLMConfigs() {
-  const configs = await db.lLMConfig.findMany({
-    orderBy: { provider: 'asc' },
+  const providers = await db.provider.findMany({
+    include: { models: true },
+    orderBy: { createdAt: 'asc' },
   });
 
-  return configs.map((config) => ({
-    ...config,
-    apiKeyMasked: config.apiKeyEncrypted 
-      ? maskApiKey(decryptApiKey(config.apiKeyEncrypted)) 
-      : null,
-    apiKeyEncrypted: undefined,
-    providerConfig: PROVIDER_CONFIGS[config.provider as ProviderName],
-  }));
+  return providers.map((p) => {
+    const providerName = p.providerType as ProviderName;
+    const defaultModel = p.models.find((m) => m.isDefault)?.modelId
+      ?? p.models[0]?.modelId
+      ?? null;
+
+    return {
+      id: p.id,
+      provider: providerName,
+      displayName: p.name,
+      isEnabled: p.isEnabled,
+      isValidated: p.isValidated,
+      validatedAt: p.validatedAt,
+      baseUrl: p.baseUrl,
+      defaultModel,
+      createdAt: p.createdAt,
+      updatedAt: p.updatedAt,
+      apiKeyMasked: p.apiKeyEncrypted
+        ? maskApiKey(decryptApiKey(p.apiKeyEncrypted))
+        : null,
+      apiKeyEncrypted: undefined,
+      providerConfig: PROVIDER_CONFIGS[providerName],
+    };
+  });
 }
 
+/**
+ * providers 테이블에서 특정 providerType을 조회하여 레거시 LLMConfig 형태로 반환합니다.
+ */
 export async function getLLMConfig(provider: ProviderName) {
-  const config = await db.lLMConfig.findUnique({
-    where: { provider },
+  const p = await db.provider.findFirst({
+    where: { providerType: provider },
+    include: { models: true },
   });
 
-  if (!config) {
+  if (!p) {
     return null;
   }
 
+  const defaultModel = p.models.find((m) => m.isDefault)?.modelId
+    ?? p.models[0]?.modelId
+    ?? null;
+
   return {
-    ...config,
-    apiKey: config.apiKeyEncrypted ? decryptApiKey(config.apiKeyEncrypted) : null,
+    id: p.id,
+    provider: p.providerType as ProviderName,
+    displayName: p.name,
+    isEnabled: p.isEnabled,
+    isValidated: p.isValidated,
+    validatedAt: p.validatedAt,
+    baseUrl: p.baseUrl,
+    defaultModel,
+    createdAt: p.createdAt,
+    updatedAt: p.updatedAt,
+    apiKey: p.apiKeyEncrypted ? decryptApiKey(p.apiKeyEncrypted) : null,
     providerConfig: PROVIDER_CONFIGS[provider],
   };
 }
 
+/**
+ * providers 테이블에 제공자를 저장(upsert)합니다.
+ */
 export async function saveLLMConfig(input: LLMConfigInput) {
   const { provider, apiKey, isEnabled, baseUrl, defaultModel } = input;
   const providerConfig = PROVIDER_CONFIGS[provider];
 
-  const baseData = {
-    provider,
-    displayName: providerConfig.displayName,
-    isEnabled,
-    baseUrl: baseUrl || null,
-    defaultModel: defaultModel || providerConfig.defaultModel,
-  };
+  // 기존 provider 레코드 조회
+  const existing = await db.provider.findFirst({
+    where: { providerType: provider },
+  });
 
-  // apiKey가 있으면 새로 암호화, 없으면 기존 값 유지 (update 시 생략)
-  const createData = {
-    ...baseData,
-    apiKeyEncrypted: apiKey ? encryptApiKey(apiKey) : null,
-    isValidated: false,
-    validatedAt: null,
-  };
+  if (existing) {
+    // 업데이트
+    const updateData: Record<string, unknown> = {
+      name: providerConfig.displayName,
+      isEnabled,
+      baseUrl: baseUrl || null,
+    };
 
-  const updateData = {
-    ...baseData,
-    ...(apiKey ? {
-      apiKeyEncrypted: encryptApiKey(apiKey),
+    if (apiKey) {
+      updateData.apiKeyEncrypted = encryptApiKey(apiKey);
+      updateData.isValidated = false;
+      updateData.validatedAt = null;
+    }
+
+    return db.provider.update({
+      where: { id: existing.id },
+      data: updateData,
+    });
+  }
+
+  // 새로 생성
+  return db.provider.create({
+    data: {
+      name: providerConfig.displayName,
+      providerType: provider,
+      isEnabled,
+      baseUrl: baseUrl || null,
+      apiKeyEncrypted: apiKey ? encryptApiKey(apiKey) : null,
+      authType: provider === 'ollama' ? 'none' : 'api_key',
+      capabilities: providerConfig.supportsVision ? ['text', 'vision'] : ['text'],
+      costTier: 'standard',
+      qualityTier: 'medium',
       isValidated: false,
-      validatedAt: null,
-    } : {}),
-  };
-
-  return db.lLMConfig.upsert({
-    where: { provider },
-    create: createData,
-    update: updateData,
+    },
   });
 }
 
+/**
+ * providers 테이블에서 제공자의 검증 상태를 업데이트합니다.
+ */
 export async function markLLMConfigValidated(provider: ProviderName, isValid: boolean) {
-  return db.lLMConfig.update({
-    where: { provider },
+  const existing = await db.provider.findFirst({
+    where: { providerType: provider },
+  });
+
+  if (!existing) {
+    throw new Error(`Provider not found: ${provider}`);
+  }
+
+  return db.provider.update({
+    where: { id: existing.id },
     data: {
       isValidated: isValid,
       validatedAt: isValid ? new Date() : null,

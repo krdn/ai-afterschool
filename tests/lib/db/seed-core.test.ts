@@ -8,13 +8,12 @@ import {
 } from '@/lib/db/seed/core'
 
 describe('seed-core 타입 및 상수', () => {
-  it('ALL_SEED_GROUPS에 6개 그룹이 정의되어 있다', () => {
-    expect(ALL_SEED_GROUPS).toHaveLength(6)
+  it('ALL_SEED_GROUPS에 5개 그룹이 정의되어 있다', () => {
+    expect(ALL_SEED_GROUPS).toHaveLength(5)
     expect(ALL_SEED_GROUPS).toContain('teams')
     expect(ALL_SEED_GROUPS).toContain('teachers')
     expect(ALL_SEED_GROUPS).toContain('students')
     expect(ALL_SEED_GROUPS).toContain('parents')
-    expect(ALL_SEED_GROUPS).toContain('llmConfigs')
     expect(ALL_SEED_GROUPS).toContain('providers')
   })
 
@@ -30,8 +29,7 @@ describe('seed-core 타입 및 상수', () => {
     expect(deps).toEqual(['parents'])
   })
 
-  it('llmConfigs와 providers는 독립 그룹이다', () => {
-    expect(SEED_GROUP_DEPENDENCIES.llmConfigs).toEqual([])
+  it('providers는 독립 그룹이다', () => {
     expect(SEED_GROUP_DEPENDENCIES.providers).toEqual([])
   })
 
