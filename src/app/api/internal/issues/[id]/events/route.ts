@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import type { IssueStatus } from '@prisma/client'
+import type { IssueStatus, Prisma } from '@prisma/client'
 
 const INTERNAL_API_SECRET = process.env.INTERNAL_API_SECRET
 
@@ -64,7 +64,7 @@ export async function POST(
           issueId: id,
           eventType,
           performedBy: issue.createdBy,
-          metadata: metadata ?? undefined,
+          metadata: (metadata ?? undefined) as Prisma.InputJsonValue | undefined,
         },
       })
 

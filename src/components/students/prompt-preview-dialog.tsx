@@ -12,13 +12,13 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { getPromptPreviewAction } from "@/app/(dashboard)/students/[id]/saju/actions"
-import type { AnalysisPromptMeta } from "@/lib/ai/saju-prompts"
+import type { GenericPromptMeta } from "@/components/students/prompt-selector"
 import { MarkdownRenderer } from "@/components/ui/markdown-renderer"
 
 type Props = {
   open: boolean
   onOpenChange: (open: boolean) => void
-  prompt: AnalysisPromptMeta | null
+  prompt: GenericPromptMeta | null
 }
 
 export function PromptPreviewDialog({ open, onOpenChange, prompt }: Props) {

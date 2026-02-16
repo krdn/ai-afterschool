@@ -53,7 +53,7 @@ describe('ProviderRegistry', () => {
     // Reset mocks
     vi.clearAllMocks();
     // Create new instance
-    registry = ProviderRegistry.getInstance(mockPrisma as unknown as Parameters<typeof ProviderRegistry.getInstance>[0]!);
+    registry = ProviderRegistry.getInstance(mockPrisma as unknown as NonNullable<Parameters<typeof ProviderRegistry.getInstance>[0]>);
   });
 
   describe('Singleton Pattern', () => {
@@ -66,7 +66,7 @@ describe('ProviderRegistry', () => {
     it('should reset instance', () => {
       const instance1 = ProviderRegistry.getInstance();
       ProviderRegistry.resetInstance();
-      const instance2 = ProviderRegistry.getInstance(mockPrisma as unknown as Parameters<typeof ProviderRegistry.getInstance>[0]!);
+      const instance2 = ProviderRegistry.getInstance(mockPrisma as unknown as NonNullable<Parameters<typeof ProviderRegistry.getInstance>[0]>);
       expect(instance1).not.toBe(instance2);
     });
 

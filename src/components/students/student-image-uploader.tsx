@@ -191,11 +191,18 @@ export function StudentImageUploader({
               onError={(error) => {
                 console.error("Upload error:", error)
 
+                // error 타입 추출: string | { status; statusText } | null
+                const errorMsg = typeof error === 'string'
+                  ? error
+                  : error && typeof error === 'object' && 'statusText' in error
+                    ? error.statusText
+                    : ''
+
                 // 파일 크기 초과 에러
                 if (
-                  error.message?.includes("File too large") ||
-                  error.message?.includes("exceeds") ||
-                  error.message?.includes("max file size")
+                  errorMsg?.includes("File too large") ||
+                  errorMsg?.includes("exceeds") ||
+                  errorMsg?.includes("max file size")
                 ) {
                   toast.error("파일 크기 초과", {
                     description: "파일은 최대 10MB까지 업로드할 수 있어요",
@@ -206,9 +213,9 @@ export function StudentImageUploader({
 
                 // 형식 불일치 에러
                 if (
-                  error.message?.includes("Invalid") ||
-                  error.message?.includes("format") ||
-                  error.message?.includes("allowed formats")
+                  errorMsg?.includes("Invalid") ||
+                  errorMsg?.includes("format") ||
+                  errorMsg?.includes("allowed formats")
                 ) {
                   toast.error("파일 형식 오류", {
                     description: "JPG, PNG, WebP, HEIC 형식만 지원해요",
@@ -218,7 +225,7 @@ export function StudentImageUploader({
                 }
 
                 // 네트워크 에러
-                if (error.message?.includes("Network") || error.message?.includes("fetch")) {
+                if (errorMsg?.includes("Network") || errorMsg?.includes("fetch")) {
                   toast.error("네트워크 오류", {
                     description: "이미지 업로드 중 연결 오류가 발생했어요. 네트워크 연결을 확인해주세요.",
                     id: "network-error",

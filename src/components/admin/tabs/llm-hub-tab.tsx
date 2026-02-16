@@ -242,11 +242,12 @@ export function LLMHubTab({
               providers={providers.map((p) => ({
                 id: (p as unknown as { id: string }).id,
                 name: p.name,
-                models: p.models || [],
+                models: (p.models || []).map((m) => ({
+                  id: m.id,
+                  modelId: m.modelId,
+                  displayName: m.displayName,
+                })),
               }))}
-              onRefresh={async () => {
-                window.location.reload();
-              }}
             />
           )}
         </TabsContent>

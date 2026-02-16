@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { PerformanceDashboard } from "@/components/analytics/PerformanceDashboard"
+import { TrendDataPoint as GradeTrendDataPoint } from "@/components/analytics/GradeTrendChart"
 import { PerformanceTrendChart, TrendDataPoint } from "@/components/statistics/PerformanceTrendChart"
 import { Card, CardContent } from "@/components/ui/card"
 import { Loader2, AlertCircle } from "lucide-react"
@@ -95,7 +96,8 @@ export default function AnalyticsPage() {
         const date = new Date(range.start.getTime() + i * dayMs)
         trendData.push({
           date: date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' }),
-          improvement: Math.random() * 20 - 5 // -5% ~ 15% 랜덤
+          improvement: Math.random() * 20 - 5, // -5% ~ 15% 랜덤
+          score: Math.round(Math.random() * 30 + 60) // 60~90 랜덤 점수
         })
       }
 
@@ -145,7 +147,7 @@ export default function AnalyticsPage() {
       ) : (
         <PerformanceDashboard
           teachers={teachers}
-          gradeTrendData={gradeTrendData}
+          gradeTrendData={gradeTrendData as unknown as GradeTrendDataPoint[]}
           comparisonData={comparisonData}
           counselingStats={counselingStats}
         />

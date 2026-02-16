@@ -28,7 +28,7 @@ describe('FeatureResolver', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    resolver = new FeatureResolver(mockPrisma as unknown as Parameters<typeof FeatureResolver.prototype.constructor>[0]);
+    resolver = new FeatureResolver(mockPrisma as unknown as ConstructorParameters<typeof FeatureResolver>[0]);
   });
 
   // Test fixtures

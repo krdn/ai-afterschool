@@ -116,7 +116,7 @@ export async function logAuditAction(params: {
       action: params.action,
       entityType: params.entityType,
       entityId: params.entityId,
-      changes: params.changes,
+      changes: params.changes as import('@prisma/client').Prisma.InputJsonValue | undefined,
       ipAddress,
       userAgent,
     },
@@ -136,7 +136,7 @@ export async function logSystemAction(params: {
     data: {
       level: params.level,
       message: params.message,
-      context: params.context,
+      context: params.context as import('@prisma/client').Prisma.InputJsonValue | undefined,
     },
   })
 }

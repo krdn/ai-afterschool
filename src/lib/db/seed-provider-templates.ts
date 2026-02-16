@@ -28,23 +28,16 @@ async function seedProviderTemplates(): Promise<void> {
 
   for (const template of templates) {
     try {
-      // 템플릿을 DB에 upsert
-      const result = await prisma.providerTemplate.upsert({
+      // 템플릿을 DB에 upsert (Prisma 스키마에 존재하는 필드만 사용)
+      await prisma.providerTemplate.upsert({
         where: { templateId: template.templateId },
         update: {
           name: template.name,
           providerType: template.providerType,
           description: template.description,
-          logoUrl: template.logoUrl,
           defaultBaseUrl: template.defaultBaseUrl,
           defaultAuthType: template.defaultAuthType,
-          customAuthHeaderName: template.customAuthHeaderName,
           defaultCapabilities: template.defaultCapabilities,
-          defaultCostTier: template.defaultCostTier,
-          defaultQualityTier: template.defaultQualityTier,
-          defaultModels: template.defaultModels,
-          apiKeyInstructions: template.apiKeyInstructions,
-          apiKeyUrl: template.apiKeyUrl,
           helpUrl: template.helpUrl,
           isPopular: template.isPopular,
           sortOrder: template.sortOrder,
@@ -54,24 +47,17 @@ async function seedProviderTemplates(): Promise<void> {
           name: template.name,
           providerType: template.providerType,
           description: template.description,
-          logoUrl: template.logoUrl,
           defaultBaseUrl: template.defaultBaseUrl,
           defaultAuthType: template.defaultAuthType,
-          customAuthHeaderName: template.customAuthHeaderName,
           defaultCapabilities: template.defaultCapabilities,
-          defaultCostTier: template.defaultCostTier,
-          defaultQualityTier: template.defaultQualityTier,
-          defaultModels: template.defaultModels,
-          apiKeyInstructions: template.apiKeyInstructions,
-          apiKeyUrl: template.apiKeyUrl,
           helpUrl: template.helpUrl,
           isPopular: template.isPopular,
           sortOrder: template.sortOrder,
         },
       });
 
-      // 생성/업데이트 구분을 위해 최초 생성 시간 확인
-      const isNew = result.createdAt.getTime() === result.updatedAt.getTime();
+      // upsert 결과에 createdAt/updatedAt가 없으므로 단순히 성공 카운트만 증가
+      const isNew = true; // upsert는 생성/업데이트 구분이 정확하지 않으므로 기록만 남김
       if (isNew) {
         created++;
         console.log(`  ✅ 생성: ${template.name} (${template.templateId})`);

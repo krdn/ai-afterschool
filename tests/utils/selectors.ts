@@ -253,8 +253,8 @@ export const SELECTORS = {
         upcomingCounseling: '[data-widget="upcoming-counseling"]',
     },
 
-    // 인증 (Authentication) 추가
-    auth: {
+    // 인증 확장 (Authentication Extended)
+    authExtended: {
         emailInput: 'input[name="email"]',
         passwordInput: 'input[name="password"]',
         loginButton: 'button[type="submit"]',

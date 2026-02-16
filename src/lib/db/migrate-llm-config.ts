@@ -337,7 +337,7 @@ async function verifyMigration(): Promise<void> {
   // Validate relationships
   const orphanedModels = await prisma.model.count({
     where: {
-      provider: null,
+      provider: { is: undefined },
     },
   });
 

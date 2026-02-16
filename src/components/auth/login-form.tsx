@@ -64,7 +64,6 @@ export function LoginForm() {
             <Label htmlFor="email">이메일</Label>
             <Input
               id="email"
-              name="email"
               type="email"
               placeholder="teacher@school.com"
               autoComplete="email"
@@ -83,7 +82,6 @@ export function LoginForm() {
             <Label htmlFor="password">비밀번호</Label>
             <Input
               id="password"
-              name="password"
               type="password"
               placeholder="••••••••"
               autoComplete="current-password"

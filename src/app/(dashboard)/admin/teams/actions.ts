@@ -37,7 +37,7 @@ export async function createTeamAction(
 
     const validated = TeamSchema.safeParse({ name })
     if (!validated.success) {
-      return { success: false, error: validated.error.errors[0].message }
+      return { success: false, error: validated.error.issues[0].message }
     }
 
     const existing = await db.team.findUnique({ where: { name } })
@@ -70,7 +70,7 @@ export async function updateTeamAction(
 
     const validated = TeamSchema.safeParse({ name })
     if (!validated.success) {
-      return { success: false, error: validated.error.errors[0].message }
+      return { success: false, error: validated.error.issues[0].message }
     }
 
     const existing = await db.team.findUnique({ where: { name } })

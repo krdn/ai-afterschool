@@ -19,9 +19,11 @@ import { SmartMatchingSection } from '@/components/matching/smart-matching-secti
 import type { UnassignedStudent, AssignedStudent } from '@/components/matching/unassigned-student-combobox'
 import type { LlmProviderOption } from '@/components/matching/matching-model-selector'
 import { Brain, ArrowRight, History } from 'lucide-react'
-import type { Teacher } from '@prisma/client'
-
-interface TeacherWithStudents extends Teacher {
+interface TeacherWithStudents {
+  id: string
+  name: string
+  role: string
+  email: string
   students: {
     id: string
     name: string

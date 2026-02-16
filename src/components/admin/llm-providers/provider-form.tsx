@@ -167,6 +167,7 @@ export function ProviderForm({ provider, template, onSuccess }: ProviderFormProp
         baseUrl: values.baseUrl || undefined,
         customAuthHeader: values.customAuthHeader || undefined,
         apiKey: values.apiKey || undefined,
+        capabilities: values.capabilities as Capability[],
       };
 
       if (isEditing && provider) {
