@@ -173,15 +173,21 @@ deploy_new_version() {
     log_info "Pulling latest images..."
     docker compose -f "$COMPOSE_FILE" pull postgres minio 2>/dev/null || true
 
-    # 기존 컨테이너 정리 후 재시작 (컨테이너 ID 충돌 방지)
+    # 기존 컨테이너 + 네트워크 + 볼륨(익명) 완전 정리
     log_info "Stopping existing containers..."
-    docker compose -f "$COMPOSE_FILE" down --remove-orphans || true
+    docker compose -f "$COMPOSE_FILE" down --remove-orphans --timeout 30 || true
 
-    # container_name 충돌 방지: 잔여 컨테이너 강제 제거
+    # 잔여 컨테이너 강제 제거 (container_name 충돌 방지)
     for cname in $(docker ps -a --filter "name=ai-afterschool" --format '{{.Names}}'); do
         log_info "Removing lingering container: $cname"
         docker rm -f "$cname" 2>/dev/null || true
     done
+
+    # 잔여 네트워크 강제 제거 (network not found race condition 방지)
+    docker network rm ai-afterschool_internal 2>/dev/null || true
+
+    # Docker daemon이 리소스 정리를 완료할 시간 확보
+    sleep 2
 
     # Start new containers (migrate → app 순서는 depends_on으로 자동 보장)
     log_info "Starting new containers..."

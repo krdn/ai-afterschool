@@ -97,7 +97,15 @@ rollback_deployment() {
 
     # Stop current containers (--remove-orphans로 고아 컨테이너 정리)
     log_info "Stopping current containers..."
-    docker compose -f "$COMPOSE_FILE" down --remove-orphans
+    docker compose -f "$COMPOSE_FILE" down --remove-orphans --timeout 30
+
+    # 잔여 컨테이너/네트워크 강제 정리
+    for cname in $(docker ps -a --filter "name=ai-afterschool" --format '{{.Names}}'); do
+        log_info "Removing lingering container: $cname"
+        docker rm -f "$cname" 2>/dev/null || true
+    done
+    docker network rm ai-afterschool_internal 2>/dev/null || true
+    sleep 2
 
     # Start with previous version
     log_info "Starting previous version..."
