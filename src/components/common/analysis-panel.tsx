@@ -2,6 +2,7 @@
 
 import { useState, type ReactNode } from "react"
 import { AlertCircle, Sparkles, type LucideIcon } from "lucide-react"
+import { useTranslations } from "next-intl"
 import type { ProviderName } from "@/lib/ai/providers/types"
 import { ProviderSelector } from "@/components/students/provider-selector"
 import { PromptSelector } from "@/components/students/prompt-selector"
@@ -19,6 +20,8 @@ export function AnalysisErrorBanner({
   onDismiss: () => void
   testId?: string
 }) {
+  const t = useTranslations("Common")
+
   return (
     <div data-testid={testId} className="bg-red-50 border-l-4 border-red-400 p-4">
       <div className="flex">
@@ -31,7 +34,7 @@ export function AnalysisErrorBanner({
             size="sm"
             className="mt-2"
           >
-            닫기
+            {t("close")}
           </Button>
         </div>
       </div>
@@ -58,6 +61,7 @@ export function AIInterpretationControls({
   onGenerate,
   providerSelectorProps,
 }: AIInterpretationControlsProps) {
+  const t = useTranslations("Common")
   const [selectedProvider, setSelectedProvider] = useState("auto")
   const [selectedPromptId, setSelectedPromptId] = useState("default")
 
@@ -85,7 +89,7 @@ export function AIInterpretationControls({
           className="w-full sm:w-auto"
         >
           <Sparkles className="w-4 h-4 mr-1" />
-          {isGenerating ? "AI 해석 중..." : "AI로 해석하기"}
+          {isGenerating ? t("aiInterpreting") : t("aiInterpret")}
         </Button>
       </div>
     </div>
@@ -108,6 +112,8 @@ export function AnalysisEmptyState({
   isLoading?: boolean
   children?: ReactNode
 }) {
+  const t = useTranslations("Common")
+
   return (
     <div className="text-center py-8">
       <Icon className="w-12 h-12 text-gray-300 mx-auto mb-3" />
@@ -115,7 +121,7 @@ export function AnalysisEmptyState({
       {children}
       {actionLabel && onAction && (
         <Button onClick={onAction} disabled={isLoading}>
-          {isLoading ? "분석 중..." : actionLabel}
+          {isLoading ? t("analyzing") : actionLabel}
         </Button>
       )}
     </div>
@@ -124,21 +130,25 @@ export function AnalysisEmptyState({
 
 // --- 로딩 상태 ---
 export function AnalysisLoadingState({
-  message = "AI가 분석 중이에요...",
-  subMessage = "10~20초 정도 소요됩니다.",
+  message,
+  subMessage,
   color = "blue",
 }: {
   message?: string
   subMessage?: string
   color?: string
 }) {
+  const t = useTranslations("Common")
+  const displayMessage = message ?? t("aiAnalyzing")
+  const displaySubMessage = subMessage ?? t("aiAnalyzingSubMessage")
+
   return (
     <div className="text-center py-8">
       <div
         className={`animate-spin w-12 h-12 border-4 border-${color}-600 border-t-transparent rounded-full mx-auto mb-4`}
       />
-      <p className="text-gray-600">{message}</p>
-      <p className="text-sm text-gray-500 mt-2">{subMessage}</p>
+      <p className="text-gray-600">{displayMessage}</p>
+      <p className="text-sm text-gray-500 mt-2">{displaySubMessage}</p>
     </div>
   )
 }
@@ -186,10 +196,13 @@ export function AnalysisPanelCard({
 }
 
 // --- 해석 결과 없음 ---
-export function AnalysisNoResult({ label = "해석" }: { label?: string }) {
+export function AnalysisNoResult({ label }: { label?: string }) {
+  const t = useTranslations("Common")
+  const displayLabel = label ?? "해석"
+
   return (
     <div className="rounded-md bg-gray-50 p-4 text-sm text-gray-500">
-      {label}이(가) 아직 생성되지 않았어요.
+      {t("noInterpretation", { label: displayLabel })}
     </div>
   )
 }

@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { getTranslations } from "next-intl/server"
 import { getCurrentTeacher } from "@/lib/dal"
 import { NotificationBell } from "@/components/layout/notification-bell"
 import { UserMenu } from "@/components/layout/user-menu"
@@ -14,6 +15,7 @@ export default async function DashboardLayout({
   children: React.ReactNode
 }) {
   const teacher = await getCurrentTeacher()
+  const t = await getTranslations("Navigation")
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -29,13 +31,13 @@ export default async function DashboardLayout({
                   href="/students"
                   className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
                 >
-                  학생 관리
+                  {t("students")}
                 </Link>
                 <Link
                   href="/counseling"
                   className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
                 >
-                  상담
+                  {t("counseling")}
                 </Link>
                 {(teacher.role === "DIRECTOR" || teacher.role === "TEAM_LEADER") && (
                   <>
@@ -43,19 +45,19 @@ export default async function DashboardLayout({
                       href="/teachers"
                       className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
                     >
-                      선생님
+                      {t("teachers")}
                     </Link>
                     <Link
                       href="/matching"
                       className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
                     >
-                      매칭
+                      {t("matching")}
                     </Link>
                     <Link
                       href="/analytics"
                       className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
                     >
-                      분석
+                      {t("analytics")}
                     </Link>
                   </>
                 )}
@@ -64,7 +66,7 @@ export default async function DashboardLayout({
                     href="/issues"
                     className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
                   >
-                    이슈
+                    {t("issues")}
                   </Link>
                 )}
                 {(teacher.role === "DIRECTOR" || teacher.role === "TEAM_LEADER") && (
@@ -72,7 +74,7 @@ export default async function DashboardLayout({
                     href="/admin"
                     className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
                   >
-                    관리자 도구
+                    {t("admin")}
                   </Link>
                 )}
               </nav>
