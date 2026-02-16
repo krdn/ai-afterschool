@@ -130,7 +130,12 @@ test.describe('Authentication and User Management', () => {
 
       // Should redirect to login
       await page.waitForURL(/\/auth\/login/, { timeout: 10000 });
-      await expect(page.getByRole('heading', { name: '로그인' })).toBeVisible({ timeout: 10000 });
+      // i18n 환경에서 heading 텍스트 또는 로그인 폼 입력 필드 확인
+      await expect(
+        page.getByRole('heading', { name: /로그인|Login/i }).or(
+          page.locator('input[name="email"], input[type="email"]')
+        )
+      ).toBeVisible({ timeout: 10000 });
     });
 
     test('should show error for invalid credentials', async ({ page }) => {
