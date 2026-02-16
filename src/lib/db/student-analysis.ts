@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client"
+import { Prisma, SubjectType } from "@prisma/client"
 import { db } from "@/lib/db"
 
 export type CalculationStatus = {
@@ -18,6 +18,8 @@ type AnalysisPayload = {
   status?: string
   version?: number
   calculatedAt?: Date
+  usedProvider?: string | null
+  usedModel?: string | null
 }
 
 function resolveLatestCalculatedAt(
@@ -42,16 +44,32 @@ export async function getStudentCalculationStatus(
 
   const student = await db.student.findFirst({
     where,
-    include: {
-      sajuAnalysis: true,
-      nameAnalysis: true,
-    },
   })
 
   if (!student) return null
 
-  const sajuCalculatedAt = student.sajuAnalysis?.calculatedAt ?? null
-  const nameCalculatedAt = student.nameAnalysis?.calculatedAt ?? null
+  // subjectType + subjectId로 분석 조회
+  const [sajuAnalysis, nameAnalysis] = await Promise.all([
+    db.sajuAnalysis.findUnique({
+      where: {
+        subjectType_subjectId: {
+          subjectType: 'STUDENT',
+          subjectId: studentId,
+        }
+      }
+    }),
+    db.nameAnalysis.findUnique({
+      where: {
+        subjectType_subjectId: {
+          subjectType: 'STUDENT',
+          subjectId: studentId,
+        }
+      }
+    }),
+  ])
+
+  const sajuCalculatedAt = sajuAnalysis?.calculatedAt ?? null
+  const nameCalculatedAt = nameAnalysis?.calculatedAt ?? null
 
   return {
     studentId: student.id,
@@ -68,8 +86,9 @@ export async function getStudentCalculationStatus(
 }
 
 export async function upsertSajuAnalysis(
-  studentId: string,
-  payload: AnalysisPayload
+  subjectId: string,
+  payload: AnalysisPayload,
+  subjectType: SubjectType = 'STUDENT'
 ) {
   const calculatedAt = payload.calculatedAt ?? new Date()
   const data = {
@@ -79,21 +98,30 @@ export async function upsertSajuAnalysis(
     status: payload.status ?? "complete",
     version: payload.version ?? 1,
     calculatedAt,
+    usedProvider: payload.usedProvider ?? null,
+    usedModel: payload.usedModel ?? null,
   }
 
   return db.sajuAnalysis.upsert({
-    where: { studentId },
+    where: {
+      subjectType_subjectId: {
+        subjectType,
+        subjectId,
+      }
+    },
     update: data,
     create: {
-      studentId,
+      subjectType,
+      subjectId,
       ...data,
     },
   })
 }
 
 export async function upsertNameAnalysis(
-  studentId: string,
-  payload: AnalysisPayload
+  subjectId: string,
+  payload: AnalysisPayload,
+  subjectType: SubjectType = 'STUDENT'
 ) {
   const calculatedAt = payload.calculatedAt ?? new Date()
   const data = {
@@ -106,10 +134,16 @@ export async function upsertNameAnalysis(
   }
 
   return db.nameAnalysis.upsert({
-    where: { studentId },
+    where: {
+      subjectType_subjectId: {
+        subjectType,
+        subjectId,
+      }
+    },
     update: data,
     create: {
-      studentId,
+      subjectType,
+      subjectId,
       ...data,
     },
   })
@@ -209,4 +243,18 @@ export async function clearStudentRecalculationNeeded(
   if (result.count === 0) {
     throw new Error("학생을 찾을 수 없어요.")
   }
+}
+
+/**
+ * 사주 분석 결과 조회 (통합)
+ */
+export async function getSajuAnalysis(subjectType: SubjectType, subjectId: string) {
+  return db.sajuAnalysis.findUnique({
+    where: {
+      subjectType_subjectId: {
+        subjectType,
+        subjectId,
+      }
+    },
+  })
 }

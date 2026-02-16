@@ -1,11 +1,12 @@
 import { db as prisma } from '@/lib/db'
-import { Prisma } from '@prisma/client'
+import { Prisma, SubjectType } from '@prisma/client'
 
 /**
  * 손금 분석 결과 생성
  */
 export async function createPalmAnalysis(data: {
-  studentId: string
+  subjectType: SubjectType
+  subjectId: string
   hand: 'left' | 'right'
   imageUrl: string
   result: unknown
@@ -14,7 +15,8 @@ export async function createPalmAnalysis(data: {
 }) {
   return prisma.palmAnalysis.create({
     data: {
-      studentId: data.studentId,
+      subjectType: data.subjectType,
+      subjectId: data.subjectId,
       hand: data.hand,
       imageUrl: data.imageUrl,
       result: data.result as Prisma.InputJsonValue,
@@ -29,7 +31,8 @@ export async function createPalmAnalysis(data: {
  * 손금 분석 결과 생성/업데이트 (upsert)
  */
 export async function upsertPalmAnalysis(data: {
-  studentId: string
+  subjectType: SubjectType
+  subjectId: string
   hand: 'left' | 'right'
   imageUrl: string
   result: unknown | null
@@ -37,9 +40,15 @@ export async function upsertPalmAnalysis(data: {
   errorMessage?: string
 }) {
   return prisma.palmAnalysis.upsert({
-    where: { studentId: data.studentId },
+    where: {
+      subjectType_subjectId: {
+        subjectType: data.subjectType,
+        subjectId: data.subjectId,
+      }
+    },
     create: {
-      studentId: data.studentId,
+      subjectType: data.subjectType,
+      subjectId: data.subjectId,
       hand: data.hand,
       imageUrl: data.imageUrl,
       result: data.result as Prisma.InputJsonValue,
@@ -60,10 +69,22 @@ export async function upsertPalmAnalysis(data: {
 }
 
 /**
- * 학생 ID로 손금 분석 결과 조회
+ * subjectType + subjectId로 손금 분석 결과 조회
+ */
+export async function getPalmAnalysis(subjectType: SubjectType, subjectId: string) {
+  return prisma.palmAnalysis.findUnique({
+    where: {
+      subjectType_subjectId: {
+        subjectType,
+        subjectId,
+      }
+    }
+  })
+}
+
+/**
+ * 학생 ID로 손금 분석 결과 조회 (하위 호환)
  */
 export async function getPalmAnalysisByStudentId(studentId: string) {
-  return prisma.palmAnalysis.findUnique({
-    where: { studentId }
-  })
+  return getPalmAnalysis('STUDENT', studentId)
 }

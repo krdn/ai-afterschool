@@ -1,20 +1,33 @@
-import { Prisma } from "@prisma/client"
+import { Prisma, SubjectType } from "@prisma/client"
 import { db } from "@/lib/db"
 
 /**
  * 이름 분석 결과 조회
  */
-export async function getNameAnalysis(studentId: string) {
+export async function getNameAnalysis(subjectType: SubjectType, subjectId: string) {
   return db.nameAnalysis.findUnique({
-    where: { studentId },
+    where: {
+      subjectType_subjectId: {
+        subjectType,
+        subjectId,
+      }
+    },
   })
+}
+
+/**
+ * 학생 ID로 이름 분석 결과 조회 (하위 호환)
+ */
+export async function getNameAnalysisByStudentId(studentId: string) {
+  return getNameAnalysis('STUDENT', studentId)
 }
 
 /**
  * 이름 분석 결과 저장/업데이트
  */
-export async function upsertNameAnalysis(
-  studentId: string,
+export async function upsertNameAnalysisGeneric(
+  subjectType: SubjectType,
+  subjectId: string,
   data: {
     inputSnapshot: Prisma.InputJsonValue
     result: Prisma.InputJsonValue
@@ -27,7 +40,12 @@ export async function upsertNameAnalysis(
   const version = data.version ?? 1
 
   return db.nameAnalysis.upsert({
-    where: { studentId },
+    where: {
+      subjectType_subjectId: {
+        subjectType,
+        subjectId,
+      }
+    },
     update: {
       inputSnapshot: data.inputSnapshot,
       result: data.result,
@@ -36,7 +54,8 @@ export async function upsertNameAnalysis(
       calculatedAt,
     },
     create: {
-      studentId,
+      subjectType,
+      subjectId,
       inputSnapshot: data.inputSnapshot,
       result: data.result,
       interpretation: data.interpretation ?? null,

@@ -1,11 +1,12 @@
 import { db as prisma } from '@/lib/db'
-import { Prisma } from '@prisma/client'
+import { Prisma, SubjectType } from '@prisma/client'
 
 /**
  * 관상 분석 결과 생성
  */
 export async function createFaceAnalysis(data: {
-  studentId: string
+  subjectType: SubjectType
+  subjectId: string
   imageUrl: string
   result: unknown
   status: string
@@ -13,7 +14,8 @@ export async function createFaceAnalysis(data: {
 }) {
   return prisma.faceAnalysis.create({
     data: {
-      studentId: data.studentId,
+      subjectType: data.subjectType,
+      subjectId: data.subjectId,
       imageUrl: data.imageUrl,
       result: data.result as Prisma.InputJsonValue,
       status: data.status,
@@ -27,16 +29,23 @@ export async function createFaceAnalysis(data: {
  * 관상 분석 결과 생성/업데이트 (upsert)
  */
 export async function upsertFaceAnalysis(data: {
-  studentId: string
+  subjectType: SubjectType
+  subjectId: string
   imageUrl: string
   result: unknown | null
   status: string
   errorMessage?: string
 }) {
   return prisma.faceAnalysis.upsert({
-    where: { studentId: data.studentId },
+    where: {
+      subjectType_subjectId: {
+        subjectType: data.subjectType,
+        subjectId: data.subjectId,
+      }
+    },
     create: {
-      studentId: data.studentId,
+      subjectType: data.subjectType,
+      subjectId: data.subjectId,
       imageUrl: data.imageUrl,
       result: data.result as Prisma.InputJsonValue,
       status: data.status,
@@ -55,10 +64,22 @@ export async function upsertFaceAnalysis(data: {
 }
 
 /**
- * 학생 ID로 관상 분석 결과 조회
+ * subjectType + subjectId로 관상 분석 결과 조회
+ */
+export async function getFaceAnalysis(subjectType: SubjectType, subjectId: string) {
+  return prisma.faceAnalysis.findUnique({
+    where: {
+      subjectType_subjectId: {
+        subjectType,
+        subjectId,
+      }
+    }
+  })
+}
+
+/**
+ * 학생 ID로 관상 분석 결과 조회 (하위 호환)
  */
 export async function getFaceAnalysisByStudentId(studentId: string) {
-  return prisma.faceAnalysis.findUnique({
-    where: { studentId }
-  })
+  return getFaceAnalysis('STUDENT', studentId)
 }
