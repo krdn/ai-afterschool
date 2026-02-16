@@ -81,7 +81,7 @@ describe("login", () => {
   })
 
   it("올바른 자격증명으로 로그인에 성공한다", async () => {
-    mockDb.teacher.findUnique.mockResolvedValue(MOCK_TEACHER as Teacher)
+    ;(mockDb.teacher.findUnique as any).mockResolvedValue(MOCK_TEACHER as Teacher)
     mockArgon2.verify.mockResolvedValue(true)
     mockCreateSession.mockResolvedValue(undefined)
 
@@ -108,7 +108,7 @@ describe("login", () => {
   })
 
   it("잘못된 비밀번호로 로그인에 실패한다", async () => {
-    mockDb.teacher.findUnique.mockResolvedValue(MOCK_TEACHER as Teacher)
+    ;(mockDb.teacher.findUnique as any).mockResolvedValue(MOCK_TEACHER as Teacher)
     mockArgon2.verify.mockResolvedValue(false)
 
     const formData = createFormData({
@@ -128,7 +128,7 @@ describe("login", () => {
   })
 
   it("존재하지 않는 이메일로 로그인에 실패한다", async () => {
-    mockDb.teacher.findUnique.mockResolvedValue(null)
+    ;(mockDb.teacher.findUnique as any).mockResolvedValue(null)
 
     const formData = createFormData({
       email: "nobody@test.com",

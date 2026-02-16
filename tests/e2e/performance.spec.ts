@@ -224,7 +224,7 @@ test.describe.skip('Performance Analysis & Statistics - 미구현: /analytics, /
       await page.waitForLoadState('networkidle');
       
       // Verify data reloaded successfully
-      await expect(improvementChart).toBeVisible();
+      await expect(page.locator('[data-testid="improvement-chart"], canvas, svg').first()).toBeVisible();
     }
 
     // Verify date range filter if available

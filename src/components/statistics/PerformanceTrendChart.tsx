@@ -125,7 +125,7 @@ export function PerformanceTrendChart({
                   border: '1px solid #e5e7eb',
                   borderRadius: '8px'
                 }}
-                formatter={(value: number) => [`${value.toFixed(1)}%`, '향상률']}
+                formatter={((value: number) => [`${value.toFixed(1)}%`, '향상률']) as import('recharts').TooltipProps<number, string>['formatter']}
                 labelFormatter={(label) => `날짜: ${label}`}
               />
               <Line

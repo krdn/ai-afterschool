@@ -138,7 +138,7 @@ export function StatisticsDashboard({
         <div className="flex gap-2">
           <DateRangeFilter
             value={datePreset}
-            onChange={setDatePreset}
+            onChange={(preset: string) => setDatePreset(preset as DatePreset)}
             variant="dropdown"
           />
           <CsvExportButton

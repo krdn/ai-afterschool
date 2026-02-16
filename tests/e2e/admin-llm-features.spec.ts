@@ -126,11 +126,11 @@ test.describe.skip('Admin LLM Features', () => {
 
       // Select provider
       await page.click('[data-testid="select-provider"]');
-      await page.click('[data-testid="provider-option"]').first();
+      await page.locator('[data-testid="provider-option"]').first().click();
 
       // Select model
       await page.click('[data-testid="select-model"]');
-      await page.click('[data-testid="model-option"]').first();
+      await page.locator('[data-testid="model-option"]').first().click();
 
       // Set priority
       await page.fill('[data-testid="priority-input"]', '1');

@@ -3,7 +3,7 @@
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { verifySession } from "@/lib/dal";
-import type { Prisma } from "@/generated/prisma";
+import type { Prisma } from "@prisma/client";
 import {
     type PaginationParams,
     type PaginatedResult,

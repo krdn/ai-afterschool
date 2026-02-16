@@ -103,7 +103,7 @@ export function PalmAnalysisPanel({
           <AnalysisResult result={analysis.result} imageUrl={analysis.imageUrl} hand={analysis.hand as 'left' | 'right'} />
         ) : analysis?.status === 'failed' || errorMessage ? (
           <ErrorState
-            message={errorMessage || analysis.errorMessage || "이미지 분석에 실패했습니다. 다시 시도해주세요."}
+            message={errorMessage || analysis?.errorMessage || "이미지 분석에 실패했습니다. 다시 시도해주세요."}
             onRetry={handleAnalyze}
             isRetrying={isAnalyzing}
           />

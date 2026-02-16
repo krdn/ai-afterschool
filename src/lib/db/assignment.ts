@@ -104,6 +104,7 @@ export async function getAssignmentProposal(id: string) {
 export async function listAssignmentProposals(options: {
   teamId?: string
   status?: string
+  limit?: number
 } = {}) {
   const where: Prisma.AssignmentProposalWhereInput = {
     ...(options.teamId && { teamId: options.teamId }),
@@ -126,6 +127,7 @@ export async function listAssignmentProposals(options: {
     orderBy: {
       createdAt: "desc",
     },
+    ...(options.limit && { take: options.limit }),
   })
 }
 

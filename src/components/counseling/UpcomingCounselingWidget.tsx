@@ -58,7 +58,7 @@ export function UpcomingCounselingWidget({
           {upcomingCount}개 예정
         </span>
       </AlertTitle>
-      <AlertDescription asChild>
+      <AlertDescription>
         <Collapsible open={isOpen} onOpenChange={setIsOpen}>
           <div className="space-y-2">
             <p>최근 7일 이내 {upcomingCount}개의 상담이 예정되어 있습니다.</p>

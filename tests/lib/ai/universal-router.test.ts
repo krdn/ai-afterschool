@@ -339,7 +339,7 @@ describe('Universal Router', () => {
       ]);
       mockGetAdapter.mockReturnValue(mockAdapter);
 
-      let onFinishCallback: (({ usage }: { usage: { inputTokens: number; outputTokens: number } }) => Promise<void>) | null = null;
+      let onFinishCallback: ((arg: { usage: { inputTokens: number; outputTokens: number } }) => Promise<void>) | null = null;
       mockStreamText.mockImplementation(({ onFinish }: { onFinish: typeof onFinishCallback }) => {
         onFinishCallback = onFinish;
         return { textStream: new ReadableStream() };
@@ -349,7 +349,7 @@ describe('Universal Router', () => {
 
       // Simulate onFinish callback
       if (onFinishCallback) {
-        await onFinishCallback({ usage: { inputTokens: 10, outputTokens: 20 } });
+        await (onFinishCallback as (arg: { usage: { inputTokens: number; outputTokens: number } }) => Promise<void>)({ usage: { inputTokens: 10, outputTokens: 20 } });
       }
 
       expect(mockTrackUsage).toHaveBeenCalledWith(

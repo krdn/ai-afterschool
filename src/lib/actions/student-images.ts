@@ -28,9 +28,9 @@ export async function setStudentImage(
       validatedPayload = StudentImageSchema.parse(payload)
     } catch (error) {
       if (error instanceof z.ZodError) {
-        console.error("Validation error:", error.errors)
+        console.error("Validation error:", error.issues)
         // 사용자 친화적인 에러 메시지 생성
-        const firstError = error.errors[0]
+        const firstError = error.issues[0]
         if (firstError.path.includes("bytes")) {
           return {
             success: false,

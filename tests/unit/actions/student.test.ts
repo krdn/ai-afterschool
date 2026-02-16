@@ -58,7 +58,7 @@ const MOCK_STUDENTS: StudentWithRelations[] = [
     createdAt: new Date("2025-01-01"),
     teacher: { id: "teacher-1", name: "김선생" },
     images: [],
-  } as StudentWithRelations,
+  } as unknown as StudentWithRelations,
   {
     id: "student-2",
     name: "이순신",
@@ -66,7 +66,7 @@ const MOCK_STUDENTS: StudentWithRelations[] = [
     createdAt: new Date("2025-01-02"),
     teacher: { id: "teacher-1", name: "김선생" },
     images: [],
-  } as StudentWithRelations,
+  } as unknown as StudentWithRelations,
 ]
 
 describe("getStudents", () => {
@@ -76,7 +76,7 @@ describe("getStudents", () => {
 
   it("인증된 사용자가 학생 목록을 조회한다", async () => {
     mockVerifySession.mockResolvedValue(DIRECTOR_SESSION)
-    mockDb.student.findMany.mockResolvedValue(MOCK_STUDENTS)
+    ;(mockDb.student.findMany as any).mockResolvedValue(MOCK_STUDENTS)
 
     const result = await getStudents()
 
@@ -91,7 +91,7 @@ describe("getStudents", () => {
 
   it("TEACHER 역할은 자기 학생만 조회한다", async () => {
     mockVerifySession.mockResolvedValue(TEACHER_SESSION)
-    mockDb.student.findMany.mockResolvedValue(MOCK_STUDENTS)
+    ;(mockDb.student.findMany as any).mockResolvedValue(MOCK_STUDENTS)
 
     await getStudents()
 
@@ -104,7 +104,7 @@ describe("getStudents", () => {
 
   it("검색어가 있으면 이름 필터링을 적용한다", async () => {
     mockVerifySession.mockResolvedValue(DIRECTOR_SESSION)
-    mockDb.student.findMany.mockResolvedValue([MOCK_STUDENTS[0]])
+    ;(mockDb.student.findMany as any).mockResolvedValue([MOCK_STUDENTS[0]])
 
     await getStudents("홍길동")
 
@@ -123,7 +123,7 @@ describe("getStudentById", () => {
 
   it("DIRECTOR 역할은 findUnique로 학생을 조회한다", async () => {
     mockVerifySession.mockResolvedValue(DIRECTOR_SESSION)
-    mockDb.student.findUnique.mockResolvedValue(MOCK_STUDENTS[0])
+    ;(mockDb.student.findUnique as any).mockResolvedValue(MOCK_STUDENTS[0])
 
     const result = await getStudentById("student-1")
 
@@ -136,7 +136,7 @@ describe("getStudentById", () => {
 
   it("TEACHER 역할은 findFirst로 자기 학생만 조회한다", async () => {
     mockVerifySession.mockResolvedValue(TEACHER_SESSION)
-    mockDb.student.findFirst.mockResolvedValue(MOCK_STUDENTS[0])
+    ;(mockDb.student.findFirst as any).mockResolvedValue(MOCK_STUDENTS[0])
 
     const result = await getStudentById("student-1")
 
@@ -150,7 +150,7 @@ describe("getStudentById", () => {
 
   it("TEACHER 역할은 다른 교사의 학생을 조회할 수 없다", async () => {
     mockVerifySession.mockResolvedValue(TEACHER_SESSION)
-    mockDb.student.findFirst.mockResolvedValue(null)
+    ;(mockDb.student.findFirst as any).mockResolvedValue(null)
 
     const result = await getStudentById("student-other")
 
@@ -169,7 +169,7 @@ describe("deleteStudent", () => {
 
   it("DIRECTOR 역할은 학생을 정상 삭제한다", async () => {
     mockVerifySession.mockResolvedValue(DIRECTOR_SESSION)
-    mockDb.student.delete.mockResolvedValue(MOCK_STUDENTS[0])
+    ;(mockDb.student.delete as any).mockResolvedValue(MOCK_STUDENTS[0])
 
     await deleteStudent("student-1")
 
@@ -182,8 +182,8 @@ describe("deleteStudent", () => {
 
   it("TEACHER 역할은 자기 학생을 삭제할 수 있다", async () => {
     mockVerifySession.mockResolvedValue(TEACHER_SESSION)
-    mockDb.student.findFirst.mockResolvedValue({ id: "student-1" })
-    mockDb.student.delete.mockResolvedValue(MOCK_STUDENTS[0])
+    ;(mockDb.student.findFirst as any).mockResolvedValue({ id: "student-1" })
+    ;(mockDb.student.delete as any).mockResolvedValue(MOCK_STUDENTS[0])
 
     await deleteStudent("student-1")
 
@@ -199,7 +199,7 @@ describe("deleteStudent", () => {
 
   it("TEACHER 역할은 다른 교사의 학생을 삭제할 수 없다", async () => {
     mockVerifySession.mockResolvedValue(TEACHER_SESSION)
-    mockDb.student.findFirst.mockResolvedValue(null)
+    ;(mockDb.student.findFirst as any).mockResolvedValue(null)
 
     await expect(deleteStudent("student-other")).rejects.toThrow(
       "Forbidden: 해당 학생에 대한 권한이 없습니다"

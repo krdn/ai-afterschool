@@ -196,7 +196,7 @@ export async function runTeacherNameAnalysis(teacherId: string) {
   if (!teacher) throw new Error("Teacher not found")
 
   const hanjaName = teacher.nameHanja
-    ? (teacher.nameHanja as { full?: string })?.full ?? teacher.nameHanja
+    ? (teacher.nameHanja as { full?: string })?.full ?? String(teacher.nameHanja)
     : null
 
   const numerologyOutcome = calculateNameNumerology({
