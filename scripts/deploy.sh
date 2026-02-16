@@ -175,7 +175,13 @@ deploy_new_version() {
 
     # 기존 컨테이너 정리 후 재시작 (컨테이너 ID 충돌 방지)
     log_info "Stopping existing containers..."
-    docker compose -f "$COMPOSE_FILE" down --remove-orphans 2>/dev/null || true
+    docker compose -f "$COMPOSE_FILE" down --remove-orphans || true
+
+    # container_name 충돌 방지: 잔여 컨테이너 강제 제거
+    for cname in $(docker ps -a --filter "name=ai-afterschool" --format '{{.Names}}'); do
+        log_info "Removing lingering container: $cname"
+        docker rm -f "$cname" 2>/dev/null || true
+    done
 
     # Start new containers (migrate → app 순서는 depends_on으로 자동 보장)
     log_info "Starting new containers..."
