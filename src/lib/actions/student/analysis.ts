@@ -4,6 +4,7 @@ import { db as prisma } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { Prisma } from "@prisma/client";
+import { eventBus } from "@/lib/events/event-bus";
 
 // 분석 결과 스키마
 const AnalysisSchema = z.object({
@@ -80,7 +81,17 @@ export async function generateAnalysis(studentId: string) {
             }
         });
 
-        // 4. 페이지 갱신
+        // 4. 이벤트 발행
+        eventBus.emitEvent({
+            type: 'analysis:complete',
+            analysisType: 'saju',
+            subjectType: 'STUDENT',
+            subjectId: studentId,
+            subjectName: student.name,
+            timestamp: new Date().toISOString(),
+        });
+
+        // 5. 페이지 갱신
         revalidatePath(`/students/${studentId}`);
 
         return { success: true, data: mockResult };

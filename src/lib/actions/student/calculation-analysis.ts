@@ -28,6 +28,7 @@ import { generateWithProvider, generateWithSpecificProvider } from "@/lib/ai/uni
 import { getPromptDefinition, buildPromptFromTemplate, type AnalysisPromptId, type StudentInfo } from "@/lib/ai/saju-prompts"
 import { getPresetByKey } from "@/lib/db/analysis/saju-prompt-preset"
 import type { ProviderName } from "@/lib/ai/providers/types"
+import { eventBus } from "@/lib/events/event-bus"
 
 type AnalysisInput = Prisma.JsonValue
 type AnalysisResult = Prisma.JsonValue
@@ -131,6 +132,7 @@ export async function runSajuAnalysis(studentId: string, provider?: string, prom
     where,
     select: {
       id: true,
+      name: true,
       birthDate: true,
       birthTimeHour: true,
       birthTimeMinute: true,
@@ -273,6 +275,16 @@ export async function runSajuAnalysis(studentId: string, provider?: string, prom
     usedModel: usedModel ?? null,
   })
 
+  // 이벤트 발행
+  eventBus.emitEvent({
+    type: 'analysis:complete',
+    analysisType: 'saju',
+    subjectType: 'STUDENT',
+    subjectId: studentId,
+    subjectName: student.name,
+    timestamp: new Date().toISOString(),
+  })
+
   return {
     result,
     interpretation,
@@ -325,6 +337,16 @@ export async function runNameAnalysis(studentId: string) {
   const interpretation = generateNameInterpretation(outcome.result)
 
   await saveNameAnalysis(studentId, inputSnapshot, outcome.result, interpretation)
+
+  // 이벤트 발행
+  eventBus.emitEvent({
+    type: 'analysis:complete',
+    analysisType: 'name',
+    subjectType: 'STUDENT',
+    subjectId: studentId,
+    subjectName: student.name,
+    timestamp: new Date().toISOString(),
+  })
 
   return {
     result: outcome.result,

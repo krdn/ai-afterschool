@@ -5,6 +5,7 @@ import { db } from "@/lib/db"
 import { verifySession } from "@/lib/dal"
 import { getZodiacSign } from "@/lib/analysis/zodiac"
 import { getZodiacAnalysis as getZodiacAnalysisDb, upsertZodiacAnalysis } from "@/lib/db/student/zodiac-analysis"
+import { eventBus } from "@/lib/events/event-bus"
 import { generateWithProvider, generateWithSpecificProvider } from "@/lib/ai/universal-router"
 import { getZodiacPrompt, type ZodiacPromptId } from "@/lib/ai/zodiac-prompts"
 import type { ProviderName } from "@/lib/ai/providers/types"
@@ -88,6 +89,16 @@ ${zodiac.learningStyle}
       elementName: zodiac.elementName,
     },
     interpretation,
+  })
+
+  // 이벤트 발행
+  eventBus.emitEvent({
+    type: 'analysis:complete',
+    analysisType: 'zodiac',
+    subjectType: 'STUDENT',
+    subjectId: studentId,
+    subjectName: student.name,
+    timestamp: new Date().toISOString(),
   })
 
   revalidatePath(`/students/${studentId}`)

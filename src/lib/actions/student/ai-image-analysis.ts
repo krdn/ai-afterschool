@@ -12,6 +12,7 @@ import { extractJsonFromLLM } from "@/lib/utils/extract-json"
 import { upsertFaceAnalysis } from "@/lib/db/analysis/face-analysis"
 import { upsertPalmAnalysis } from "@/lib/db/analysis/palm-analysis"
 import type { ProviderName } from "@/lib/ai/providers/types"
+import { eventBus } from "@/lib/events/event-bus"
 
 /**
  * 학생 관상 분석 (통합 LLM 라우터 사용)
@@ -75,6 +76,16 @@ export async function analyzeFaceImage(studentId: string, imageUrl: string, prov
         imageUrl,
         result,
         status: 'complete'
+      })
+
+      // 이벤트 발행
+      eventBus.emitEvent({
+        type: 'analysis:complete',
+        analysisType: 'face',
+        subjectType: 'STUDENT',
+        subjectId: studentId,
+        subjectName: student.name,
+        timestamp: new Date().toISOString(),
       })
 
       revalidatePath(`/students/${studentId}`)
@@ -176,6 +187,16 @@ export async function analyzePalmImage(
         imageUrl,
         result,
         status: 'complete'
+      })
+
+      // 이벤트 발행
+      eventBus.emitEvent({
+        type: 'analysis:complete',
+        analysisType: 'palm',
+        subjectType: 'STUDENT',
+        subjectId: studentId,
+        subjectName: student.name,
+        timestamp: new Date().toISOString(),
       })
 
       revalidatePath(`/students/${studentId}`)

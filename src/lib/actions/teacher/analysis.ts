@@ -20,6 +20,7 @@ import { getNamePrompt, type NamePromptId } from "@/lib/ai/name-prompts"
 import { getPromptDefinition, type AnalysisPromptId } from "@/lib/ai/saju-prompts"
 import { getPresetByKey } from "@/lib/db/analysis/saju-prompt-preset"
 import type { ProviderName } from "@/lib/ai/providers/types"
+import { eventBus } from "@/lib/events/event-bus"
 import questions from "@/data/mbti/questions.json"
 import descriptions from "@/data/mbti/descriptions.json"
 
@@ -156,6 +157,16 @@ export async function runTeacherSajuAnalysis(
     usedModel,
   }, 'TEACHER')
 
+  // 이벤트 발행
+  eventBus.emitEvent({
+    type: 'analysis:complete',
+    analysisType: 'saju',
+    subjectType: 'TEACHER',
+    subjectId: teacherId,
+    subjectName: teacher.name,
+    timestamp: new Date().toISOString(),
+  })
+
   revalidatePath(`/teachers/${teacherId}`)
 
   return {
@@ -225,6 +236,16 @@ export async function runTeacherNameAnalysis(teacherId: string) {
     calculatedAt: new Date(),
   }, 'TEACHER')
 
+  // 이벤트 발행
+  eventBus.emitEvent({
+    type: 'analysis:complete',
+    analysisType: 'name',
+    subjectType: 'TEACHER',
+    subjectId: teacherId,
+    subjectName: teacher.name,
+    timestamp: new Date().toISOString(),
+  })
+
   revalidatePath(`/teachers/${teacherId}`)
 
   return { success: true, result, interpretation }
@@ -287,6 +308,22 @@ ${typeDescription.famousPeople.join(", ")}
     version: 1,
     calculatedAt: new Date(),
   })
+
+  // 이벤트 발행
+  const teacher = await db.teacher.findUnique({
+    where: { id: teacherId },
+    select: { name: true },
+  })
+  if (teacher) {
+    eventBus.emitEvent({
+      type: 'analysis:complete',
+      analysisType: 'mbti',
+      subjectType: 'TEACHER',
+      subjectId: teacherId,
+      subjectName: teacher.name,
+      timestamp: new Date().toISOString(),
+    })
+  }
 
   revalidatePath(`/teachers/${teacherId}`)
 
@@ -354,6 +391,22 @@ ${typeDescription.famousPeople.join(", ")}
     version: 1,
     calculatedAt: new Date(),
   })
+
+  // 이벤트 발행
+  const teacher = await db.teacher.findUnique({
+    where: { id: teacherId },
+    select: { name: true },
+  })
+  if (teacher) {
+    eventBus.emitEvent({
+      type: 'analysis:complete',
+      analysisType: 'mbti',
+      subjectType: 'TEACHER',
+      subjectId: teacherId,
+      subjectName: teacher.name,
+      timestamp: new Date().toISOString(),
+    })
+  }
 
   revalidatePath(`/teachers/${teacherId}`)
 

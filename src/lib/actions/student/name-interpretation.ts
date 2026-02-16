@@ -7,6 +7,7 @@ import { verifySession } from "@/lib/dal"
 import { calculateNameNumerology, generateNameInterpretation } from "@/lib/analysis/name-numerology"
 import { getNameAnalysis as getNameAnalysisDb } from "@/lib/db/student/name-analysis"
 import { upsertNameAnalysis } from "@/lib/db/student/analysis"
+import { eventBus } from "@/lib/events/event-bus"
 import { generateWithProvider, generateWithSpecificProvider } from "@/lib/ai/universal-router"
 import { getNamePrompt, type NamePromptId } from "@/lib/ai/name-prompts"
 import type { ProviderName } from "@/lib/ai/providers/types"
@@ -91,6 +92,16 @@ AI 해석을 통해 이름의 음운과 의미를 분석해보세요.`
     } as unknown as Prisma.JsonValue,
     result: result as unknown as Prisma.JsonValue,
     interpretation,
+  })
+
+  // 이벤트 발행
+  eventBus.emitEvent({
+    type: 'analysis:complete',
+    analysisType: 'name',
+    subjectType: 'STUDENT',
+    subjectId: studentId,
+    subjectName: student.name,
+    timestamp: new Date().toISOString(),
   })
 
   revalidatePath(`/students/${studentId}`)

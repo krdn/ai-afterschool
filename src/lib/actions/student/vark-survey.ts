@@ -14,6 +14,7 @@ import {
 import { generateWithProvider, generateWithSpecificProvider } from "@/lib/ai/universal-router"
 import { getVarkPrompt, type VarkPromptId } from "@/lib/ai/vark-prompts"
 import type { ProviderName } from "@/lib/ai/providers/types"
+import { eventBus } from "@/lib/events/event-bus"
 import questions from "@/data/vark/questions.json"
 import descriptions from "@/data/vark/descriptions.json"
 
@@ -119,6 +120,22 @@ ${desc.careers.join(", ")}
     await deleteVarkDraft(studentId)
   } catch {
     // Draft가 없으면 무시
+  }
+
+  // 이벤트 발행
+  const student = await db.student.findUnique({
+    where: { id: studentId },
+    select: { name: true },
+  })
+  if (student) {
+    eventBus.emitEvent({
+      type: 'analysis:complete',
+      analysisType: 'vark',
+      subjectType: 'STUDENT',
+      subjectId: studentId,
+      subjectName: student.name,
+      timestamp: new Date().toISOString(),
+    })
   }
 
   revalidatePath(`/students/${studentId}`)

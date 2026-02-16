@@ -15,6 +15,7 @@ import { generateWithProvider, generateWithSpecificProvider } from "@/lib/ai/uni
 import { MBTI_INTERPRETATION_PROMPT } from "@/lib/ai/prompts"
 import { getMbtiPrompt, type MbtiPromptId } from "@/lib/ai/mbti-prompts"
 import type { ProviderName } from "@/lib/ai/providers/types"
+import { eventBus } from "@/lib/events/event-bus"
 import questions from "@/data/mbti/questions.json"
 import descriptions from "@/data/mbti/descriptions.json"
 
@@ -139,6 +140,22 @@ ${typeDescription.famousPeople.join(", ")}
     // Draft가 없으면 무시
   }
 
+  // 이벤트 발행
+  const student = await db.student.findUnique({
+    where: { id: studentId },
+    select: { name: true },
+  })
+  if (student) {
+    eventBus.emitEvent({
+      type: 'analysis:complete',
+      analysisType: 'mbti',
+      subjectType: 'STUDENT',
+      subjectId: studentId,
+      subjectName: student.name,
+      timestamp: new Date().toISOString(),
+    })
+  }
+
   // 캐시 무효화
   revalidatePath(`/students/${studentId}`)
 
@@ -239,6 +256,22 @@ ${typeDescription.famousPeople.join(", ")}
     await deleteMbtiDraft(studentId)
   } catch {
     // Draft가 없으면 무시
+  }
+
+  // 이벤트 발행
+  const student = await db.student.findUnique({
+    where: { id: studentId },
+    select: { name: true },
+  })
+  if (student) {
+    eventBus.emitEvent({
+      type: 'analysis:complete',
+      analysisType: 'mbti',
+      subjectType: 'STUDENT',
+      subjectId: studentId,
+      subjectName: student.name,
+      timestamp: new Date().toISOString(),
+    })
   }
 
   // 캐시 무효화

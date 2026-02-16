@@ -5,8 +5,10 @@ import { after } from "next/server"
 import { generateWithVision, FailoverError } from "@/lib/ai/universal-router"
 import { PALM_READING_PROMPT } from "@/lib/ai/prompts"
 import { verifySession } from "@/lib/dal"
+import { db } from "@/lib/db"
 import { upsertPalmAnalysis, getPalmAnalysis } from "@/lib/db/analysis/palm-analysis"
 import { extractJsonFromLLM } from "@/lib/utils/extract-json"
+import { eventBus } from "@/lib/events/event-bus"
 
 /**
  * 선생님 손금 분석 실행 (통합 LLM 라우터 사용)
@@ -59,6 +61,22 @@ export async function runTeacherPalmAnalysis(
         result,
         status: 'complete'
       })
+
+      // 이벤트 발행
+      const teacher = await db.teacher.findUnique({
+        where: { id: teacherId },
+        select: { name: true },
+      })
+      if (teacher) {
+        eventBus.emitEvent({
+          type: 'analysis:complete',
+          analysisType: 'palm',
+          subjectType: 'TEACHER',
+          subjectId: teacherId,
+          subjectName: teacher.name,
+          timestamp: new Date().toISOString(),
+        })
+      }
 
       revalidatePath(`/teachers/${teacherId}`)
 

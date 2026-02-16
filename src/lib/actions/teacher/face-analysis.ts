@@ -8,6 +8,7 @@ import { verifySession } from "@/lib/dal"
 import { db } from "@/lib/db"
 import { upsertFaceAnalysis, getFaceAnalysis } from "@/lib/db/analysis/face-analysis"
 import { extractJsonFromLLM } from "@/lib/utils/extract-json"
+import { eventBus } from "@/lib/events/event-bus"
 
 /**
  * 선생님 관상 분석 실행 (통합 LLM 라우터 사용)
@@ -69,6 +70,18 @@ export async function runTeacherFaceAnalysis(teacherId: string, imageUrl: string
         result,
         status: 'complete'
       })
+
+      // 이벤트 발행
+      if (teacher) {
+        eventBus.emitEvent({
+          type: 'analysis:complete',
+          analysisType: 'face',
+          subjectType: 'TEACHER',
+          subjectId: teacherId,
+          subjectName: teacher.name,
+          timestamp: new Date().toISOString(),
+        })
+      }
 
       revalidatePath(`/teachers/${teacherId}`)
 
