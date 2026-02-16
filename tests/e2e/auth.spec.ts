@@ -130,11 +130,9 @@ test.describe('Authentication and User Management', () => {
 
       // Should redirect to login
       await page.waitForURL(/\/auth\/login/, { timeout: 10000 });
-      // i18n 환경에서 heading 텍스트 또는 로그인 폼 입력 필드 확인
+      // 로그인 페이지 도달 확인: 이메일 입력 필드 존재 여부
       await expect(
-        page.getByRole('heading', { name: /로그인|Login/i }).or(
-          page.locator('input[name="email"], input[type="email"]')
-        )
+        page.locator('input[name="email"], input[type="email"]').first()
       ).toBeVisible({ timeout: 10000 });
     });
 
