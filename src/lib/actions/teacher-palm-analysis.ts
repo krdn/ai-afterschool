@@ -5,8 +5,7 @@ import { after } from "next/server"
 import { generateWithVision, FailoverError } from "@/lib/ai/universal-router"
 import { PALM_READING_PROMPT } from "@/lib/ai/prompts"
 import { verifySession } from "@/lib/dal"
-import { db } from "@/lib/db"
-import { upsertTeacherPalmAnalysis } from "@/lib/db/teacher-palm-analysis"
+import { upsertPalmAnalysis, getPalmAnalysis } from "@/lib/db/palm-analysis"
 import { extractJsonFromLLM } from "@/lib/utils/extract-json"
 
 /**
@@ -51,9 +50,10 @@ export async function runTeacherPalmAnalysis(
         )
       }
 
-      // DB 저장
-      await upsertTeacherPalmAnalysis({
-        teacherId,
+      // DB 저장 (통합 테이블, subjectType='TEACHER')
+      await upsertPalmAnalysis({
+        subjectType: 'TEACHER',
+        subjectId: teacherId,
         hand,
         imageUrl,
         result,
@@ -74,8 +74,9 @@ export async function runTeacherPalmAnalysis(
       }
 
       // 에러 상태 저장
-      await upsertTeacherPalmAnalysis({
-        teacherId,
+      await upsertPalmAnalysis({
+        subjectType: 'TEACHER',
+        subjectId: teacherId,
         hand,
         imageUrl,
         result: null,
@@ -98,17 +99,10 @@ export async function runTeacherPalmAnalysis(
 /**
  * 선생님 손금 분석 결과 조회
  */
-export async function getTeacherPalmAnalysis(teacherId: string) {
+export async function getTeacherPalmAnalysisAction(teacherId: string) {
   const session = await verifySession()
 
-  const analysis = await db.teacherPalmAnalysis.findUnique({
-    where: { teacherId },
-    include: {
-      teacher: {
-        select: { id: true }
-      }
-    }
-  })
+  const analysis = await getPalmAnalysis('TEACHER', teacherId)
 
   // TODO: Add RBAC check based on teacher roles when needed
   // For now, teachers can view their own analysis

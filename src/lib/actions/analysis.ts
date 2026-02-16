@@ -136,7 +136,7 @@ export async function getAnalysisHistory(
                 }
                 // 이력 테이블에 없으면 기존 SajuAnalysis에서 폴백
                 const sajuAnalysis = await prisma.sajuAnalysis.findUnique({
-                    where: { studentId }
+                    where: { subjectType_subjectId: { subjectType: 'STUDENT', subjectId: studentId } }
                 })
                 if (sajuAnalysis) {
                     historyItem = {
@@ -151,7 +151,7 @@ export async function getAnalysisHistory(
             }
             case 'face':
                 const faceAnalysis = await prisma.faceAnalysis.findUnique({
-                    where: { studentId }
+                    where: { subjectType_subjectId: { subjectType: 'STUDENT', subjectId: studentId } }
                 })
                 if (faceAnalysis) {
                     historyItem = {
@@ -165,7 +165,7 @@ export async function getAnalysisHistory(
                 break
             case 'palm':
                 const palmAnalysis = await prisma.palmAnalysis.findUnique({
-                    where: { studentId }
+                    where: { subjectType_subjectId: { subjectType: 'STUDENT', subjectId: studentId } }
                 })
                 if (palmAnalysis) {
                     historyItem = {
@@ -179,7 +179,7 @@ export async function getAnalysisHistory(
                 break
             case 'mbti':
                 const mbtiAnalysis = await prisma.mbtiAnalysis.findUnique({
-                    where: { studentId }
+                    where: { subjectType_subjectId: { subjectType: 'STUDENT', subjectId: studentId } }
                 })
                 if (mbtiAnalysis) {
                     historyItem = {
@@ -213,7 +213,7 @@ export async function getAnalysisHistory(
                 break
             case 'name':
                 const nameAnalysis = await prisma.nameAnalysis.findUnique({
-                    where: { studentId }
+                    where: { subjectType_subjectId: { subjectType: 'STUDENT', subjectId: studentId } }
                 })
                 if (nameAnalysis) {
                     historyItem = {

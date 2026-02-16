@@ -70,7 +70,8 @@ export async function analyzeFaceImage(studentId: string, imageUrl: string, prov
 
       // DB에 저장
       await upsertFaceAnalysis({
-        studentId,
+        subjectType: 'STUDENT',
+        subjectId: studentId,
         imageUrl,
         result,
         status: 'complete'
@@ -91,7 +92,8 @@ export async function analyzeFaceImage(studentId: string, imageUrl: string, prov
 
       // 에러 상태 저장
       await upsertFaceAnalysis({
-        studentId,
+        subjectType: 'STUDENT',
+        subjectId: studentId,
         imageUrl,
         result: null,
         status: 'failed',
@@ -168,7 +170,8 @@ export async function analyzePalmImage(
       }
 
       await upsertPalmAnalysis({
-        studentId,
+        subjectType: 'STUDENT',
+        subjectId: studentId,
         hand,
         imageUrl,
         result,
@@ -189,7 +192,8 @@ export async function analyzePalmImage(
       }
 
       await upsertPalmAnalysis({
-        studentId,
+        subjectType: 'STUDENT',
+        subjectId: studentId,
         hand,
         imageUrl,
         result: null,
@@ -216,18 +220,23 @@ export async function getFaceAnalysis(studentId: string) {
   const session = await verifySession()
 
   const analysis = await db.faceAnalysis.findUnique({
-    where: { studentId },
-    include: {
-      student: {
-        select: { teacherId: true }
+    where: {
+      subjectType_subjectId: {
+        subjectType: 'STUDENT',
+        subjectId: studentId,
       }
-    }
+    },
   })
 
   if (!analysis) return null
+
   // TEACHER는 본인 학생만, DIRECTOR/ADMIN은 전체 접근
-  if (session.role === 'TEACHER' && analysis.student.teacherId !== session.userId) {
-    return null
+  if (session.role === 'TEACHER') {
+    const student = await db.student.findFirst({
+      where: { id: studentId, teacherId: session.userId },
+      select: { id: true },
+    })
+    if (!student) return null
   }
 
   return analysis
@@ -240,18 +249,23 @@ export async function getPalmAnalysis(studentId: string) {
   const session = await verifySession()
 
   const analysis = await db.palmAnalysis.findUnique({
-    where: { studentId },
-    include: {
-      student: {
-        select: { teacherId: true }
+    where: {
+      subjectType_subjectId: {
+        subjectType: 'STUDENT',
+        subjectId: studentId,
       }
-    }
+    },
   })
 
   if (!analysis) return null
+
   // TEACHER는 본인 학생만, DIRECTOR/ADMIN은 전체 접근
-  if (session.role === 'TEACHER' && analysis.student.teacherId !== session.userId) {
-    return null
+  if (session.role === 'TEACHER') {
+    const student = await db.student.findFirst({
+      where: { id: studentId, teacherId: session.userId },
+      select: { id: true },
+    })
+    if (!student) return null
   }
 
   return analysis

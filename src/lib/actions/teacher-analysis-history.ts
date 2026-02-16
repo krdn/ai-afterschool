@@ -4,8 +4,7 @@ import { db as prisma } from "@/lib/db"
 
 /**
  * 선생님 분석 이력 조회
- * 참고: 선생님 분석 테이블은 각 선생님당 1개만 존재합니다 (@unique 제약조건).
- * 별도 이력 테이블이 없으므로 최신 분석 결과를 반환합니다.
+ * 통합 테이블에서 subjectType='TEACHER'로 조회합니다.
  */
 export async function getTeacherAnalysisHistory(
   teacherId: string,
@@ -16,8 +15,13 @@ export async function getTeacherAnalysisHistory(
 
     switch (type) {
       case 'saju': {
-        const analysis = await prisma.teacherSajuAnalysis.findUnique({
-          where: { teacherId }
+        const analysis = await prisma.sajuAnalysis.findUnique({
+          where: {
+            subjectType_subjectId: {
+              subjectType: 'TEACHER',
+              subjectId: teacherId,
+            }
+          }
         })
         if (analysis) {
           historyItem = {
@@ -31,8 +35,13 @@ export async function getTeacherAnalysisHistory(
         break
       }
       case 'face': {
-        const analysis = await prisma.teacherFaceAnalysis.findUnique({
-          where: { teacherId }
+        const analysis = await prisma.faceAnalysis.findUnique({
+          where: {
+            subjectType_subjectId: {
+              subjectType: 'TEACHER',
+              subjectId: teacherId,
+            }
+          }
         })
         if (analysis) {
           historyItem = {
@@ -46,8 +55,13 @@ export async function getTeacherAnalysisHistory(
         break
       }
       case 'palm': {
-        const analysis = await prisma.teacherPalmAnalysis.findUnique({
-          where: { teacherId }
+        const analysis = await prisma.palmAnalysis.findUnique({
+          where: {
+            subjectType_subjectId: {
+              subjectType: 'TEACHER',
+              subjectId: teacherId,
+            }
+          }
         })
         if (analysis) {
           historyItem = {
@@ -61,8 +75,13 @@ export async function getTeacherAnalysisHistory(
         break
       }
       case 'mbti': {
-        const analysis = await prisma.teacherMbtiAnalysis.findUnique({
-          where: { teacherId }
+        const analysis = await prisma.mbtiAnalysis.findUnique({
+          where: {
+            subjectType_subjectId: {
+              subjectType: 'TEACHER',
+              subjectId: teacherId,
+            }
+          }
         })
         if (analysis) {
           historyItem = {
@@ -79,8 +98,13 @@ export async function getTeacherAnalysisHistory(
         break
       }
       case 'name': {
-        const analysis = await prisma.teacherNameAnalysis.findUnique({
-          where: { teacherId }
+        const analysis = await prisma.nameAnalysis.findUnique({
+          where: {
+            subjectType_subjectId: {
+              subjectType: 'TEACHER',
+              subjectId: teacherId,
+            }
+          }
         })
         if (analysis) {
           historyItem = {

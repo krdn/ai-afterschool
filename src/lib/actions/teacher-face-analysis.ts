@@ -6,7 +6,7 @@ import { generateWithVision, FailoverError } from "@/lib/ai/universal-router"
 import { FACE_READING_PROMPT } from "@/lib/ai/prompts"
 import { verifySession } from "@/lib/dal"
 import { db } from "@/lib/db"
-import { upsertTeacherFaceAnalysis } from "@/lib/db/teacher-face-analysis"
+import { upsertFaceAnalysis, getFaceAnalysis } from "@/lib/db/face-analysis"
 import { extractJsonFromLLM } from "@/lib/utils/extract-json"
 
 /**
@@ -61,9 +61,10 @@ export async function runTeacherFaceAnalysis(teacherId: string, imageUrl: string
         )
       }
 
-      // DB에 저장
-      await upsertTeacherFaceAnalysis({
-        teacherId,
+      // DB에 저장 (통합 테이블, subjectType='TEACHER')
+      await upsertFaceAnalysis({
+        subjectType: 'TEACHER',
+        subjectId: teacherId,
         imageUrl,
         result,
         status: 'complete'
@@ -83,8 +84,9 @@ export async function runTeacherFaceAnalysis(teacherId: string, imageUrl: string
       }
 
       // 에러 상태 저장
-      await upsertTeacherFaceAnalysis({
-        teacherId,
+      await upsertFaceAnalysis({
+        subjectType: 'TEACHER',
+        subjectId: teacherId,
         imageUrl,
         result: null,
         status: 'failed',
@@ -109,17 +111,10 @@ export async function runTeacherFaceAnalysis(teacherId: string, imageUrl: string
 export async function getTeacherFaceAnalysisAction(teacherId: string) {
   const session = await verifySession()
 
-  const analysis = await db.teacherFaceAnalysis.findUnique({
-    where: { teacherId },
-    include: {
-      teacher: {
-        select: { id: true }
-      }
-    }
-  })
+  const analysis = await getFaceAnalysis('TEACHER', teacherId)
 
   // 본인 또는 DIRECTOR만 조회 가능
-  if (!analysis || (analysis.teacherId !== session.userId && session.role !== 'DIRECTOR')) {
+  if (!analysis || (teacherId !== session.userId && session.role !== 'DIRECTOR')) {
     return null
   }
 

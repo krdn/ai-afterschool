@@ -137,16 +137,30 @@ export async function fetchReportData(studentId: string, teacherId: string) {
     },
     include: {
       images: true,
-      sajuAnalysis: true,
-      nameAnalysis: true,
-      mbtiAnalysis: true,
-      faceAnalysis: true,
-      palmAnalysis: true,
       personalitySummary: true,
     },
   })
 
   if (!student) return null
+
+  // 분석 데이터 일괄 조회 (통합 테이블)
+  const [sajuAnalysis, nameAnalysis, mbtiAnalysis, faceAnalysis, palmAnalysis] = await Promise.all([
+    db.sajuAnalysis.findUnique({
+      where: { subjectType_subjectId: { subjectType: 'STUDENT', subjectId: studentId } },
+    }),
+    db.nameAnalysis.findUnique({
+      where: { subjectType_subjectId: { subjectType: 'STUDENT', subjectId: studentId } },
+    }),
+    db.mbtiAnalysis.findUnique({
+      where: { subjectType_subjectId: { subjectType: 'STUDENT', subjectId: studentId } },
+    }),
+    db.faceAnalysis.findUnique({
+      where: { subjectType_subjectId: { subjectType: 'STUDENT', subjectId: studentId } },
+    }),
+    db.palmAnalysis.findUnique({
+      where: { subjectType_subjectId: { subjectType: 'STUDENT', subjectId: studentId } },
+    }),
+  ])
 
   return {
     student: {
@@ -159,39 +173,39 @@ export async function fetchReportData(studentId: string, teacherId: string) {
       bloodType: student.bloodType,
     },
     analyses: {
-      saju: student.sajuAnalysis
+      saju: sajuAnalysis
         ? {
-            result: student.sajuAnalysis.result,
-            interpretation: student.sajuAnalysis.interpretation,
-            calculatedAt: student.sajuAnalysis.calculatedAt,
+            result: sajuAnalysis.result,
+            interpretation: sajuAnalysis.interpretation,
+            calculatedAt: sajuAnalysis.calculatedAt,
           }
         : null,
-      name: student.nameAnalysis
+      name: nameAnalysis
         ? {
-            result: student.nameAnalysis.result,
-            interpretation: student.nameAnalysis.interpretation,
-            calculatedAt: student.nameAnalysis.calculatedAt,
+            result: nameAnalysis.result,
+            interpretation: nameAnalysis.interpretation,
+            calculatedAt: nameAnalysis.calculatedAt,
           }
         : null,
-      mbti: student.mbtiAnalysis
+      mbti: mbtiAnalysis
         ? {
-            mbtiType: student.mbtiAnalysis.mbtiType,
-            percentages: student.mbtiAnalysis.percentages as Record<string, number>,
-            calculatedAt: student.mbtiAnalysis.calculatedAt,
+            mbtiType: mbtiAnalysis.mbtiType,
+            percentages: mbtiAnalysis.percentages as Record<string, number>,
+            calculatedAt: mbtiAnalysis.calculatedAt,
           }
         : null,
-      face: student.faceAnalysis
+      face: faceAnalysis
         ? {
-            result: student.faceAnalysis.result,
-            status: student.faceAnalysis.status,
-            errorMessage: student.faceAnalysis.errorMessage,
+            result: faceAnalysis.result,
+            status: faceAnalysis.status,
+            errorMessage: faceAnalysis.errorMessage,
           }
         : null,
-      palm: student.palmAnalysis
+      palm: palmAnalysis
         ? {
-            result: student.palmAnalysis.result,
-            status: student.palmAnalysis.status,
-            errorMessage: student.palmAnalysis.errorMessage,
+            result: palmAnalysis.result,
+            status: palmAnalysis.status,
+            errorMessage: palmAnalysis.errorMessage,
           }
         : null,
     },

@@ -10,11 +10,9 @@ import {
   generateNameInterpretation,
 } from "@/lib/analysis/name-numerology"
 import { scoreMbti } from "@/lib/analysis/mbti-scoring"
-import { upsertTeacherSajuAnalysis } from "@/lib/db/teacher-saju-analysis"
-import { upsertTeacherNameAnalysis } from "@/lib/db/teacher-name-analysis"
-import { upsertTeacherMbtiAnalysis } from "@/lib/db/teacher-mbti-analysis"
-import { getTeacherMbtiAnalysis } from "@/lib/db/teacher-mbti-analysis"
-import { getTeacherNameAnalysis } from "@/lib/db/teacher-name-analysis"
+import { upsertSajuAnalysis, upsertNameAnalysis } from "@/lib/db/student-analysis"
+import { upsertMbtiAnalysisGeneric, getMbtiAnalysisGeneric } from "@/lib/db/mbti-analysis"
+import { getNameAnalysis } from "@/lib/db/name-analysis"
 import { generateWithProvider, generateWithSpecificProvider } from "@/lib/ai/universal-router"
 import { MBTI_INTERPRETATION_PROMPT } from "@/lib/ai/prompts"
 import { getMbtiPrompt, type MbtiPromptId } from "@/lib/ai/mbti-prompts"
@@ -146,7 +144,8 @@ export async function runTeacherSajuAnalysis(
     promptId: resolvedPromptId,
   }
 
-  await upsertTeacherSajuAnalysis(teacherId, {
+  // 통합 DB 함수 사용 (subjectType='TEACHER')
+  await upsertSajuAnalysis(teacherId, {
     inputSnapshot,
     result: sajuResult,
     interpretation,
@@ -155,7 +154,7 @@ export async function runTeacherSajuAnalysis(
     calculatedAt: new Date(),
     usedProvider,
     usedModel,
-  })
+  }, 'TEACHER')
 
   revalidatePath(`/teachers/${teacherId}`)
 
@@ -170,12 +169,6 @@ export async function runTeacherSajuAnalysis(
   }
 }
 
-/**
- * 선생님 성명학 분석 실행
- *
- * Teacher.name과 nameHanja로 성명학을 계산하고 DB에 저장합니다.
- * 기존 calculateNameNumerology 순수 함수를 재사용합니다.
- */
 /**
  * 선생님 성명학 분석 실행 (한자 기반 수리 or 한글 기본)
  */
@@ -222,14 +215,15 @@ export async function runTeacherNameAnalysis(teacherId: string) {
     birthDate: teacher.birthDate?.toISOString(),
   }
 
-  await upsertTeacherNameAnalysis(teacherId, {
+  // 통합 DB 함수 사용 (subjectType='TEACHER')
+  await upsertNameAnalysis(teacherId, {
     inputSnapshot: inputSnapshot as Prisma.JsonValue,
     result: result as Prisma.JsonValue,
     interpretation,
     status: "complete",
     version: 1,
     calculatedAt: new Date(),
-  })
+  }, 'TEACHER')
 
   revalidatePath(`/teachers/${teacherId}`)
 
@@ -238,12 +232,6 @@ export async function runTeacherNameAnalysis(teacherId: string) {
 
 /**
  * 선생님 MBTI 분석 실행
- *
- * MBTI 설문 응답으로 점수를 계산하고 DB에 저장합니다.
- * 기존 scoreMbti 순수 함수를 재사용합니다.
- *
- * @param teacherId - 선생님 ID
- * @param responses - 설문 응답 ({"1": 3, "2": 5, ...})
  */
 export async function runTeacherMbtiAnalysis(
   teacherId: string,
@@ -289,8 +277,8 @@ ${typeDescription.careers.join(", ")}
 ${typeDescription.famousPeople.join(", ")}
 `
 
-  // DB 저장
-  await upsertTeacherMbtiAnalysis(teacherId, {
+  // DB 저장 (통합 함수 사용)
+  await upsertMbtiAnalysisGeneric('TEACHER', teacherId, {
     responses,
     scores: mbtiResult.scores,
     mbtiType: mbtiResult.mbtiType,
@@ -357,7 +345,7 @@ ${typeDescription.famousPeople.join(", ")}
 
   const scores = { e: 0, i: 0, s: 0, n: 0, t: 0, f: 0, j: 0, p: 0 }
 
-  await upsertTeacherMbtiAnalysis(teacherId, {
+  await upsertMbtiAnalysisGeneric('TEACHER', teacherId, {
     responses: {},
     scores,
     mbtiType: data.mbtiType,
@@ -390,7 +378,7 @@ export async function generateTeacherMbtiLLMInterpretation(
   const session = await verifySession()
   if (!session) throw new Error("Unauthorized")
 
-  const analysis = await getTeacherMbtiAnalysis(teacherId)
+  const analysis = await getMbtiAnalysisGeneric('TEACHER', teacherId)
   if (!analysis) {
     throw new Error("MBTI 분석 결과가 없습니다. 먼저 MBTI 유형을 입력해주세요.")
   }
@@ -421,8 +409,14 @@ export async function generateTeacherMbtiLLMInterpretation(
         maxOutputTokens: 2048,
       })
 
-  await db.teacherMbtiAnalysis.update({
-    where: { teacherId },
+  // 통합 테이블에서 업데이트
+  await db.mbtiAnalysis.update({
+    where: {
+      subjectType_subjectId: {
+        subjectType: 'TEACHER',
+        subjectId: teacherId,
+      }
+    },
     data: { interpretation: llmResult.text },
   })
 
@@ -442,7 +436,7 @@ export async function generateTeacherNameLLMInterpretation(
   const session = await verifySession()
   if (!session) throw new Error("Unauthorized")
 
-  const analysis = await getTeacherNameAnalysis(teacherId)
+  const analysis = await getNameAnalysis('TEACHER', teacherId)
   if (!analysis) {
     throw new Error("이름 분석 결과가 없습니다. 먼저 분석을 실행해주세요.")
   }
@@ -492,8 +486,14 @@ export async function generateTeacherNameLLMInterpretation(
         maxOutputTokens: 2048,
       })
 
-  await db.teacherNameAnalysis.update({
-    where: { teacherId },
+  // 통합 테이블에서 업데이트
+  await db.nameAnalysis.update({
+    where: {
+      subjectType_subjectId: {
+        subjectType: 'TEACHER',
+        subjectId: teacherId,
+      }
+    },
     data: { interpretation: llmResult.text },
   })
 

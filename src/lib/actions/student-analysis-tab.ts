@@ -5,8 +5,9 @@ import { getFaceAnalysisByStudentId } from "@/lib/db/face-analysis"
 import { getPalmAnalysisByStudentId } from "@/lib/db/palm-analysis"
 import { getMbtiAnalysis } from "@/lib/db/mbti-analysis"
 import { getVarkAnalysis } from "@/lib/db/vark-analysis"
-import { getNameAnalysis } from "@/lib/db/name-analysis"
+import { getNameAnalysisByStudentId } from "@/lib/db/name-analysis"
 import { getZodiacAnalysis } from "@/lib/db/zodiac-analysis"
+import { getSajuAnalysis } from "@/lib/db/student-analysis"
 import { getEnabledProviders } from "@/lib/ai/config"
 import { getActivePresetsByType } from "@/lib/db/analysis-prompt-preset"
 import type { ProviderName } from "@/lib/ai/providers/types"
@@ -99,7 +100,6 @@ export async function getStudentAnalysisData(studentId: string): Promise<Student
       db.student.findUnique({
         where: { id: studentId },
         include: {
-          sajuAnalysis: true,
           images: true
         }
       }),
@@ -145,13 +145,14 @@ export async function getStudentAnalysisData(studentId: string): Promise<Student
       }
     }
 
-    // Fetch face, palm, mbti, vark, name, zodiac analysis, and latest saju history in parallel
-    const [faceAnalysis, palmAnalysis, mbtiAnalysis, varkAnalysis, nameAnalysis, zodiacAnalysis, sajuHistory] = await Promise.all([
+    // Fetch all analysis types in parallel from unified tables
+    const [sajuAnalysis, faceAnalysis, palmAnalysis, mbtiAnalysis, varkAnalysis, nameAnalysis, zodiacAnalysis, sajuHistory] = await Promise.all([
+      getSajuAnalysis('STUDENT', studentId),
       getFaceAnalysisByStudentId(studentId),
       getPalmAnalysisByStudentId(studentId),
       getMbtiAnalysis(studentId),
       getVarkAnalysis(studentId),
-      getNameAnalysis(studentId),
+      getNameAnalysisByStudentId(studentId),
       getZodiacAnalysis(studentId),
       db.sajuAnalysisHistory.findFirst({
         where: { studentId },
@@ -168,7 +169,11 @@ export async function getStudentAnalysisData(studentId: string): Promise<Student
         birthDate: student.birthDate,
         birthTimeHour: student.birthTimeHour,
         birthTimeMinute: student.birthTimeMinute,
-        sajuAnalysis: student.sajuAnalysis,
+        sajuAnalysis: sajuAnalysis ? {
+          result: sajuAnalysis.result,
+          interpretation: sajuAnalysis.interpretation,
+          calculatedAt: sajuAnalysis.calculatedAt,
+        } : null,
         images: student.images
       },
       faceAnalysis,

@@ -25,26 +25,11 @@ export async function analyzeCompatibility(
 ) {
   await verifySession() // RLS 적용을 위해 세션 확인
 
-  // Teacher 조회 (관련 분석 포함)
+  // Teacher 조회
   const teacher = await db.teacher.findUnique({
     where: { id: teacherId },
     select: {
       id: true,
-      teacherMbtiAnalysis: {
-        select: {
-          percentages: true,
-        },
-      },
-      teacherSajuAnalysis: {
-        select: {
-          result: true,
-        },
-      },
-      teacherNameAnalysis: {
-        select: {
-          result: true,
-        },
-      },
       _count: {
         select: {
           students: true,
@@ -57,45 +42,50 @@ export async function analyzeCompatibility(
     throw new Error("선생님을 찾을 수 없어요.")
   }
 
-  // Student 조회 (관련 분석 포함)
-  const student = await db.student.findUnique({
-    where: { id: studentId },
-    select: {
-      id: true,
-      mbtiAnalysis: {
-        select: {
-          percentages: true,
-        },
-      },
-      sajuAnalysis: {
-        select: {
-          result: true,
-        },
-      },
-      nameAnalysis: {
-        select: {
-          result: true,
-        },
-      },
-    },
-  })
+  // Teacher 분석 데이터 조회 (통합 테이블에서)
+  const [teacherMbti, teacherSaju, teacherName] = await Promise.all([
+    db.mbtiAnalysis.findUnique({
+      where: { subjectType_subjectId: { subjectType: 'TEACHER', subjectId: teacherId } },
+      select: { percentages: true },
+    }),
+    db.sajuAnalysis.findUnique({
+      where: { subjectType_subjectId: { subjectType: 'TEACHER', subjectId: teacherId } },
+      select: { result: true },
+    }),
+    db.nameAnalysis.findUnique({
+      where: { subjectType_subjectId: { subjectType: 'TEACHER', subjectId: teacherId } },
+      select: { result: true },
+    }),
+  ])
 
-  if (!student) {
-    throw new Error("학생을 찾을 수 없어요.")
-  }
+  // Student 분석 데이터 조회 (통합 테이블에서)
+  const [studentMbti, studentSaju, studentName] = await Promise.all([
+    db.mbtiAnalysis.findUnique({
+      where: { subjectType_subjectId: { subjectType: 'STUDENT', subjectId: studentId } },
+      select: { percentages: true },
+    }),
+    db.sajuAnalysis.findUnique({
+      where: { subjectType_subjectId: { subjectType: 'STUDENT', subjectId: studentId } },
+      select: { result: true },
+    }),
+    db.nameAnalysis.findUnique({
+      where: { subjectType_subjectId: { subjectType: 'STUDENT', subjectId: studentId } },
+      select: { result: true },
+    }),
+  ])
 
   // 궁합 점수 계산
   const score = calculateCompatibilityScore(
     {
-      mbti: (teacher.teacherMbtiAnalysis?.percentages as unknown as MbtiPercentages | null) ?? null,
-      saju: (teacher.teacherSajuAnalysis?.result as unknown as SajuResult | null) ?? null,
-      name: (teacher.teacherNameAnalysis?.result as unknown as NameNumerologyResult | null) ?? null,
+      mbti: (teacherMbti?.percentages as unknown as MbtiPercentages | null) ?? null,
+      saju: (teacherSaju?.result as unknown as SajuResult | null) ?? null,
+      name: (teacherName?.result as unknown as NameNumerologyResult | null) ?? null,
       currentLoad: teacher._count.students,
     },
     {
-      mbti: (student.mbtiAnalysis?.percentages as unknown as MbtiPercentages | null) ?? null,
-      saju: (student.sajuAnalysis?.result as unknown as SajuResult | null) ?? null,
-      name: (student.nameAnalysis?.result as unknown as NameNumerologyResult | null) ?? null,
+      mbti: (studentMbti?.percentages as unknown as MbtiPercentages | null) ?? null,
+      saju: (studentSaju?.result as unknown as SajuResult | null) ?? null,
+      name: (studentName?.result as unknown as NameNumerologyResult | null) ?? null,
     }
   )
 
@@ -114,17 +104,10 @@ export async function analyzeCompatibility(
 
 /**
  * 다수 학생에 대해 궁합 분석 일괄 실행
- *
- * 팀 내 모든 Teacher와 각 Student 쌍에 대해 궁합 분석을 실행합니다.
- * 병렬 처리로 성능을 최적화합니다.
- *
- * @param studentIds - 학생 ID 배열
- * @returns 각 학생별 궁합 분석 결과
  */
 export async function batchAnalyzeCompatibility(studentIds: string[]) {
-  await verifySession() // RLS 적용을 위해 세션 확인
+  await verifySession()
 
-  // 팀 내 모든 선생님 조회
   const teachers = await db.teacher.findMany({
     select: {
       id: true,
@@ -135,7 +118,6 @@ export async function batchAnalyzeCompatibility(studentIds: string[]) {
     throw new Error("팀에 선생님이 없어요.")
   }
 
-  // 각 학생에 대해 모든 선생님과의 궁합 분석 실행
   const results = await Promise.all(
     studentIds.map(async (studentId) => {
       const compatibilityResults = await Promise.all(

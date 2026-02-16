@@ -134,21 +134,28 @@ export async function getLLMTeacherRecommendations(studentId: string, providerId
     select: {
       id: true,
       name: true,
-      mbtiAnalysis: {
-        select: { percentages: true },
-      },
-      sajuAnalysis: {
-        select: { result: true },
-      },
-      nameAnalysis: {
-        select: { result: true },
-      },
     },
   })
 
   if (!student) {
     throw new Error("학생을 찾을 수 없어요.")
   }
+
+  // 학생 분석 데이터 조회 (통합 테이블)
+  const [studentMbti, studentSaju, studentNameAnalysis] = await Promise.all([
+    db.mbtiAnalysis.findUnique({
+      where: { subjectType_subjectId: { subjectType: 'STUDENT', subjectId: studentId } },
+      select: { percentages: true },
+    }),
+    db.sajuAnalysis.findUnique({
+      where: { subjectType_subjectId: { subjectType: 'STUDENT', subjectId: studentId } },
+      select: { result: true },
+    }),
+    db.nameAnalysis.findUnique({
+      where: { subjectType_subjectId: { subjectType: 'STUDENT', subjectId: studentId } },
+      select: { result: true },
+    }),
+  ])
 
   // 선생님 목록 조회
   const teachers = await db.teacher.findMany({
@@ -159,20 +166,32 @@ export async function getLLMTeacherRecommendations(studentId: string, providerId
       id: true,
       name: true,
       role: true,
-      teacherMbtiAnalysis: {
-        select: { percentages: true },
-      },
-      teacherSajuAnalysis: {
-        select: { result: true },
-      },
-      teacherNameAnalysis: {
-        select: { result: true },
-      },
       _count: {
         select: { students: true },
       },
     },
   })
+
+  // 선생님 분석 데이터 일괄 조회 (통합 테이블)
+  const teacherIds = teachers.map(t => t.id)
+  const [teacherMbtis, teacherSajus, teacherNames] = await Promise.all([
+    db.mbtiAnalysis.findMany({
+      where: { subjectType: 'TEACHER', subjectId: { in: teacherIds } },
+      select: { subjectId: true, percentages: true },
+    }),
+    db.sajuAnalysis.findMany({
+      where: { subjectType: 'TEACHER', subjectId: { in: teacherIds } },
+      select: { subjectId: true, result: true },
+    }),
+    db.nameAnalysis.findMany({
+      where: { subjectType: 'TEACHER', subjectId: { in: teacherIds } },
+      select: { subjectId: true, result: true },
+    }),
+  ])
+
+  const teacherMbtiMap = new Map(teacherMbtis.map(m => [m.subjectId, m]))
+  const teacherSajuMap = new Map(teacherSajus.map(s => [s.subjectId, s]))
+  const teacherNameMap = new Map(teacherNames.map(n => [n.subjectId, n]))
 
   if (teachers.length === 0) {
     return {
@@ -186,18 +205,18 @@ export async function getLLMTeacherRecommendations(studentId: string, providerId
   const studentData: StudentData = {
     id: student.id,
     name: student.name,
-    mbti: (student.mbtiAnalysis?.percentages as unknown as MbtiPercentages) ?? null,
-    saju: (student.sajuAnalysis?.result as unknown as SajuResult) ?? null,
-    nameAnalysis: (student.nameAnalysis?.result as unknown as NameNumerologyResult) ?? null,
+    mbti: (studentMbti?.percentages as unknown as MbtiPercentages) ?? null,
+    saju: (studentSaju?.result as unknown as SajuResult) ?? null,
+    nameAnalysis: (studentNameAnalysis?.result as unknown as NameNumerologyResult) ?? null,
   }
 
   const teacherDataList: TeacherData[] = teachers.map((t) => ({
     id: t.id,
     name: t.name,
     role: t.role,
-    mbti: (t.teacherMbtiAnalysis?.percentages as unknown as MbtiPercentages) ?? null,
-    saju: (t.teacherSajuAnalysis?.result as unknown as SajuResult) ?? null,
-    nameAnalysis: (t.teacherNameAnalysis?.result as unknown as NameNumerologyResult) ?? null,
+    mbti: (teacherMbtiMap.get(t.id)?.percentages as unknown as MbtiPercentages) ?? null,
+    saju: (teacherSajuMap.get(t.id)?.result as unknown as SajuResult) ?? null,
+    nameAnalysis: (teacherNameMap.get(t.id)?.result as unknown as NameNumerologyResult) ?? null,
     currentStudentCount: t._count.students,
   }))
 

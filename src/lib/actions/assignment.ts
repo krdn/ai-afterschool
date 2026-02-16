@@ -214,33 +214,34 @@ export async function assignStudentBatch(
 export async function getTeacherRecommendations(studentId: string) {
   await verifySession() // RLS 적용을 위해 세션 확인
 
-  // Student 조회 (관련 분석 포함)
+  // Student 조회
   const student = await db.student.findUnique({
     where: { id: studentId },
     select: {
       id: true,
       name: true,
-      mbtiAnalysis: {
-        select: {
-          percentages: true,
-        },
-      },
-      sajuAnalysis: {
-        select: {
-          result: true,
-        },
-      },
-      nameAnalysis: {
-        select: {
-          result: true,
-        },
-      },
     },
   })
 
   if (!student) {
     throw new Error("학생을 찾을 수 없어요.")
   }
+
+  // 학생 분석 데이터 조회 (통합 테이블)
+  const [studentMbti, studentSaju, studentName] = await Promise.all([
+    db.mbtiAnalysis.findUnique({
+      where: { subjectType_subjectId: { subjectType: 'STUDENT', subjectId: studentId } },
+      select: { percentages: true },
+    }),
+    db.sajuAnalysis.findUnique({
+      where: { subjectType_subjectId: { subjectType: 'STUDENT', subjectId: studentId } },
+      select: { result: true },
+    }),
+    db.nameAnalysis.findUnique({
+      where: { subjectType_subjectId: { subjectType: 'STUDENT', subjectId: studentId } },
+      select: { result: true },
+    }),
+  ])
 
   // 팀 내 Teacher 목록 조회 (role이 TEACHER, MANAGER, TEAM_LEADER인 경우)
   const teachers = await db.teacher.findMany({
@@ -253,21 +254,6 @@ export async function getTeacherRecommendations(studentId: string) {
       id: true,
       name: true,
       role: true,
-      teacherMbtiAnalysis: {
-        select: {
-          percentages: true,
-        },
-      },
-      teacherSajuAnalysis: {
-        select: {
-          result: true,
-        },
-      },
-      teacherNameAnalysis: {
-        select: {
-          result: true,
-        },
-      },
       _count: {
         select: {
           students: true,
@@ -284,6 +270,27 @@ export async function getTeacherRecommendations(studentId: string) {
     }
   }
 
+  // 선생님 분석 데이터 일괄 조회 (통합 테이블)
+  const teacherIds = teachers.map(t => t.id)
+  const [teacherMbtis, teacherSajus, teacherNames] = await Promise.all([
+    db.mbtiAnalysis.findMany({
+      where: { subjectType: 'TEACHER', subjectId: { in: teacherIds } },
+      select: { subjectId: true, percentages: true },
+    }),
+    db.sajuAnalysis.findMany({
+      where: { subjectType: 'TEACHER', subjectId: { in: teacherIds } },
+      select: { subjectId: true, result: true },
+    }),
+    db.nameAnalysis.findMany({
+      where: { subjectType: 'TEACHER', subjectId: { in: teacherIds } },
+      select: { subjectId: true, result: true },
+    }),
+  ])
+
+  const teacherMbtiMap = new Map(teacherMbtis.map(m => [m.subjectId, m]))
+  const teacherSajuMap = new Map(teacherSajus.map(s => [s.subjectId, s]))
+  const teacherNameMap = new Map(teacherNames.map(n => [n.subjectId, n]))
+
   // 전체 Student/Teacher 수로 averageLoad 계산
   const totalStudentCount = await db.student.count()
   const totalTeacherCount = teachers.length
@@ -293,15 +300,15 @@ export async function getTeacherRecommendations(studentId: string) {
   const recommendations = teachers.map((teacher) => {
     const score = calculateCompatibilityScore(
       {
-        mbti: (teacher.teacherMbtiAnalysis?.percentages as unknown as MbtiPercentages | null) ?? null,
-        saju: (teacher.teacherSajuAnalysis?.result as unknown as SajuResult | null) ?? null,
-        name: (teacher.teacherNameAnalysis?.result as unknown as NameNumerologyResult | null) ?? null,
+        mbti: (teacherMbtiMap.get(teacher.id)?.percentages as unknown as MbtiPercentages | null) ?? null,
+        saju: (teacherSajuMap.get(teacher.id)?.result as unknown as SajuResult | null) ?? null,
+        name: (teacherNameMap.get(teacher.id)?.result as unknown as NameNumerologyResult | null) ?? null,
         currentLoad: teacher._count.students,
       },
       {
-        mbti: (student.mbtiAnalysis?.percentages as unknown as MbtiPercentages | null) ?? null,
-        saju: (student.sajuAnalysis?.result as unknown as SajuResult | null) ?? null,
-        name: (student.nameAnalysis?.result as unknown as NameNumerologyResult | null) ?? null,
+        mbti: (studentMbti?.percentages as unknown as MbtiPercentages | null) ?? null,
+        saju: (studentSaju?.result as unknown as SajuResult | null) ?? null,
+        name: (studentName?.result as unknown as NameNumerologyResult | null) ?? null,
       },
       averageLoad
     )

@@ -45,49 +45,63 @@ export async function getUnifiedPersonalityData(
   studentId: string,
   teacherId: string
 ): Promise<UnifiedPersonalityData | null> {
+  // 학생 소유권 확인
   const student = await db.student.findFirst({
     where: {
       id: studentId,
       teacherId,
     },
-    include: {
-      sajuAnalysis: true,
-      nameAnalysis: true,
-      mbtiAnalysis: true,
-      faceAnalysis: true,
-      palmAnalysis: true,
-    },
+    select: { id: true },
   })
 
   if (!student) return null
 
+  // 분석 데이터 일괄 조회 (통합 테이블)
+  const [sajuAnalysis, nameAnalysis, mbtiAnalysis, faceAnalysis, palmAnalysis] = await Promise.all([
+    db.sajuAnalysis.findUnique({
+      where: { subjectType_subjectId: { subjectType: 'STUDENT', subjectId: studentId } },
+    }),
+    db.nameAnalysis.findUnique({
+      where: { subjectType_subjectId: { subjectType: 'STUDENT', subjectId: studentId } },
+    }),
+    db.mbtiAnalysis.findUnique({
+      where: { subjectType_subjectId: { subjectType: 'STUDENT', subjectId: studentId } },
+    }),
+    db.faceAnalysis.findUnique({
+      where: { subjectType_subjectId: { subjectType: 'STUDENT', subjectId: studentId } },
+    }),
+    db.palmAnalysis.findUnique({
+      where: { subjectType_subjectId: { subjectType: 'STUDENT', subjectId: studentId } },
+    }),
+  ])
+
   return {
     saju: {
-      result: student.sajuAnalysis?.result ?? null,
-      calculatedAt: student.sajuAnalysis?.calculatedAt ?? null,
-      interpretation: student.sajuAnalysis?.interpretation ?? null,
+      result: sajuAnalysis?.result ?? null,
+      calculatedAt: sajuAnalysis?.calculatedAt ?? null,
+      interpretation: sajuAnalysis?.interpretation ?? null,
     },
     name: {
-      result: student.nameAnalysis?.result ?? null,
-      calculatedAt: student.nameAnalysis?.calculatedAt ?? null,
-      interpretation: student.nameAnalysis?.interpretation ?? null,
+      result: nameAnalysis?.result ?? null,
+      calculatedAt: nameAnalysis?.calculatedAt ?? null,
+      interpretation: nameAnalysis?.interpretation ?? null,
     },
     mbti: {
-      result: student.mbtiAnalysis
+      result: mbtiAnalysis
         ? {
-            mbtiType: student.mbtiAnalysis.mbtiType,
-            percentages: student.mbtiAnalysis.percentages as Record<string, number>,
+            mbtiType: mbtiAnalysis.mbtiType,
+            percentages: mbtiAnalysis.percentages as Record<string, number>,
           }
         : null,
-      calculatedAt: student.mbtiAnalysis?.calculatedAt ?? null,
+      calculatedAt: mbtiAnalysis?.calculatedAt ?? null,
     },
     face: {
-      result: student.faceAnalysis?.result ?? null,
-      analyzedAt: student.faceAnalysis?.analyzedAt ?? null,
+      result: faceAnalysis?.result ?? null,
+      analyzedAt: faceAnalysis?.analyzedAt ?? null,
     },
     palm: {
-      result: student.palmAnalysis?.result ?? null,
-      analyzedAt: student.palmAnalysis?.analyzedAt ?? null,
+      result: palmAnalysis?.result ?? null,
+      analyzedAt: palmAnalysis?.analyzedAt ?? null,
     },
   }
 }

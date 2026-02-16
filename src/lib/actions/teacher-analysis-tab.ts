@@ -1,10 +1,11 @@
 'use server'
 
 import { db } from "@/lib/db"
-import { getTeacherFaceAnalysis } from "@/lib/db/teacher-face-analysis"
-import { getTeacherPalmAnalysis } from "@/lib/db/teacher-palm-analysis"
-import { getTeacherMbtiAnalysis } from "@/lib/db/teacher-mbti-analysis"
-import { getTeacherNameAnalysis } from "@/lib/db/teacher-name-analysis"
+import { getFaceAnalysis } from "@/lib/db/face-analysis"
+import { getPalmAnalysis } from "@/lib/db/palm-analysis"
+import { getMbtiAnalysisGeneric } from "@/lib/db/mbti-analysis"
+import { getNameAnalysis } from "@/lib/db/name-analysis"
+import { getSajuAnalysis } from "@/lib/db/student-analysis"
 import { getEnabledProviders } from "@/lib/ai/config"
 import { getActivePresetsByType } from "@/lib/db/analysis-prompt-preset"
 import type { ProviderName } from "@/lib/ai/providers/types"
@@ -74,9 +75,6 @@ export async function getTeacherAnalysisData(teacherId: string): Promise<Teacher
     const [teacher, enabledProviders, facePresets, palmPresets, mbtiPresets, namePresets] = await Promise.all([
       db.teacher.findUnique({
         where: { id: teacherId },
-        include: {
-          teacherSajuAnalysis: true,
-        }
       }),
       getEnabledProviders().catch(() => [] as ProviderName[]),
       getActivePresetsByType("face").catch(() => []),
@@ -114,15 +112,16 @@ export async function getTeacherAnalysisData(teacherId: string): Promise<Teacher
       }
     }
 
-    const [faceAnalysis, palmAnalysis, mbtiAnalysis, nameAnalysis] = await Promise.all([
-      getTeacherFaceAnalysis(teacherId),
-      getTeacherPalmAnalysis(teacherId),
-      getTeacherMbtiAnalysis(teacherId),
-      getTeacherNameAnalysis(teacherId),
+    // 통합 테이블에서 TEACHER 타입으로 조회
+    const [sajuAnalysis, faceAnalysis, palmAnalysis, mbtiAnalysis, nameAnalysis] = await Promise.all([
+      getSajuAnalysis('TEACHER', teacherId),
+      getFaceAnalysis('TEACHER', teacherId),
+      getPalmAnalysis('TEACHER', teacherId),
+      getMbtiAnalysisGeneric('TEACHER', teacherId),
+      getNameAnalysis('TEACHER', teacherId),
     ])
 
     // 사주 분석에서 사용된 provider와 model 정보 추출
-    const sajuAnalysis = teacher.teacherSajuAnalysis as typeof teacher.teacherSajuAnalysis & { usedProvider?: string | null; usedModel?: string | null } | null
     const lastUsedProvider = sajuAnalysis?.usedProvider ?? null
     const lastUsedModel = sajuAnalysis?.usedModel ?? null
 
@@ -134,7 +133,11 @@ export async function getTeacherAnalysisData(teacherId: string): Promise<Teacher
         birthDate: teacher.birthDate,
         birthTimeHour: teacher.birthTimeHour,
         birthTimeMinute: teacher.birthTimeMinute,
-        sajuAnalysis: teacher.teacherSajuAnalysis,
+        sajuAnalysis: sajuAnalysis ? {
+          result: sajuAnalysis.result,
+          interpretation: sajuAnalysis.interpretation,
+          calculatedAt: sajuAnalysis.calculatedAt,
+        } : null,
         profileImage: teacher.profileImage,
       },
       faceAnalysis: faceAnalysis ? {
