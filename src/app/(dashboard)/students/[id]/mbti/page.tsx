@@ -31,7 +31,7 @@ export default async function MbtiSurveyPage({
   }
 
   const existingAnalysis = await db.mbtiAnalysis.findUnique({
-    where: { studentId: id },
+    where: { subjectType_subjectId: { subjectType: 'STUDENT', subjectId: id } },
     select: { id: true }
   })
 
@@ -76,7 +76,7 @@ export default async function MbtiSurveyPage({
 
 async function loadAnalysisResponses(studentId: string) {
   const analysis = await db.mbtiAnalysis.findUnique({
-    where: { studentId },
+    where: { subjectType_subjectId: { subjectType: 'STUDENT', subjectId: studentId } },
     select: { responses: true }
   })
   return (analysis?.responses as Record<string, number>) || {}

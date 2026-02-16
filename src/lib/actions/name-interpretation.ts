@@ -5,7 +5,8 @@ import { Prisma } from "@prisma/client"
 import { db } from "@/lib/db"
 import { verifySession } from "@/lib/dal"
 import { calculateNameNumerology, generateNameInterpretation } from "@/lib/analysis/name-numerology"
-import { getNameAnalysis as getNameAnalysisDb, upsertNameAnalysis } from "@/lib/db/name-analysis"
+import { getNameAnalysis as getNameAnalysisDb } from "@/lib/db/name-analysis"
+import { upsertNameAnalysis } from "@/lib/db/student-analysis"
 import { generateWithProvider, generateWithSpecificProvider } from "@/lib/ai/universal-router"
 import { getNamePrompt, type NamePromptId } from "@/lib/ai/name-prompts"
 import type { ProviderName } from "@/lib/ai/providers/types"
@@ -87,8 +88,8 @@ AI 해석을 통해 이름의 음운과 의미를 분석해보세요.`
       name: student.name,
       hanjaName,
       birthDate: student.birthDate.toISOString(),
-    } as Prisma.InputJsonValue,
-    result: result as Prisma.InputJsonValue,
+    } as unknown as Prisma.JsonValue,
+    result: result as unknown as Prisma.JsonValue,
     interpretation,
   })
 
@@ -114,7 +115,7 @@ export async function generateNameLLMInterpretation(
   const session = await verifySession()
   await ensureStudentAccess(studentId, session)
 
-  const analysis = await getNameAnalysisDb(studentId)
+  const analysis = await getNameAnalysisDb('STUDENT', studentId)
   if (!analysis) {
     throw new Error("이름 분석 결과가 없습니다. 먼저 분석을 실행해주세요.")
   }
@@ -166,7 +167,7 @@ export async function generateNameLLMInterpretation(
       })
 
   await db.nameAnalysis.update({
-    where: { studentId },
+    where: { subjectType_subjectId: { subjectType: 'STUDENT', subjectId: studentId } },
     data: { interpretation: llmResult.text },
   })
 

@@ -301,7 +301,7 @@ export async function generateMbtiLLMInterpretation(
 
   // DB의 interpretation 필드 업데이트
   await db.mbtiAnalysis.update({
-    where: { studentId },
+    where: { subjectType_subjectId: { subjectType: 'STUDENT', subjectId: studentId } },
     data: { interpretation: llmResult.text },
   })
 
