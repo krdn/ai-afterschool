@@ -43,6 +43,11 @@
     "birthDate": "Birth Date",
     "teacher": "Teacher"
   },
+  "Language": {
+    "switchLanguage": "Change language",
+    "korean": "한국어",
+    "english": "English"
+  },
   "Analysis": {
     "saju": "Saju Analysis",
     "mbti": "MBTI Analysis",
