@@ -1,7 +1,7 @@
 "use client"
 
-import { useFormState, useFormStatus } from "react-dom"
-import { useState, useTransition } from "react"
+import { useFormStatus } from "react-dom"
+import { useActionState, useState, useTransition } from "react"
 import { toast } from "sonner"
 import {
   createStudent,
@@ -88,7 +88,7 @@ export function StudentForm({ student }: StudentFormProps) {
     ? updateStudent.bind(null, student.id)
     : createStudent
 
-  const [state, formAction] = useFormState(action, initialState)
+  const [state, formAction] = useActionState(action, initialState)
 
   // 폼 제출 전 데이터 전처리
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
