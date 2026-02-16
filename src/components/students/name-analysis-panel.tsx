@@ -4,7 +4,7 @@ import { useState, useTransition } from "react"
 import { format } from "date-fns"
 import { ko } from "date-fns/locale"
 import { Sparkles, AlertCircle, Type } from "lucide-react"
-import { runNameAnalysisAction } from "../../app/(dashboard)/students/[id]/name/actions"
+import { runNameAnalysisAction } from "@/app/[locale]/(dashboard)/students/[id]/name/actions"
 import { runNameAnalysis, generateNameLLMInterpretation } from "@/lib/actions/student/name-interpretation"
 import type { NameNumerologyResult } from "@/lib/analysis/name-numerology"
 import {

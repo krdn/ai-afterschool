@@ -22,7 +22,7 @@ import {
   createPresetAction,
   updatePresetAction,
   deletePresetAction,
-} from "@/app/(dashboard)/admin/analysis-prompts/actions"
+} from "@/app/[locale]/(dashboard)/admin/analysis-prompts/actions"
 import type { AnalysisType, AnalysisPromptPresetData } from "@/lib/db/analysis/prompt-preset"
 
 type Props = {

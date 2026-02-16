@@ -95,7 +95,7 @@ export function TeacherSajuPanel({
 
   // DB에서 프롬프트 옵션 실시간 로드
   useEffect(() => {
-    import("../../app/(dashboard)/students/[id]/saju/actions")
+    import("@/app/[locale]/(dashboard)/students/[id]/saju/actions")
       .then(mod => mod.getMergedPromptOptionsAction())
       .then(setPromptOptions)
       .catch(console.error)

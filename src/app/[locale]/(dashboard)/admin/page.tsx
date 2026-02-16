@@ -7,7 +7,7 @@ import { getCurrentPeriodCost } from '@/lib/ai/usage-tracker'
 import { getUsageStatsByProvider, getUsageStatsByFeature } from '@/lib/ai/usage-tracker'
 import { getBudgetSummary } from '@/lib/ai/smart-routing'
 import { db } from '@/lib/db'
-import type { DailyUsageData, ProviderUsageData, FeatureUsageData } from '@/app/(dashboard)/admin/llm-usage/usage-charts'
+import type { DailyUsageData, ProviderUsageData, FeatureUsageData } from '@/app/[locale]/(dashboard)/admin/llm-usage/usage-charts'
 import type { ProviderName } from '@/lib/ai/providers'
 
 // 새로운 탭 컴포넌트

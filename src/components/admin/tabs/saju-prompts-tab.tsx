@@ -21,7 +21,7 @@ import {
   createPresetAction,
   updatePresetAction,
   deletePresetAction,
-} from "@/app/(dashboard)/admin/saju-prompts/actions"
+} from "@/app/[locale]/(dashboard)/admin/saju-prompts/actions"
 import type { SajuPromptPresetData } from "@/lib/db/analysis/saju-prompt-preset"
 
 type Props = {
