@@ -22,7 +22,7 @@ jobs:
     steps:
       # ── 1. Setup ──
       - name: Checkout issue branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ env.BRANCH_NAME }}
           fetch-depth: 0
