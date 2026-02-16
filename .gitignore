@@ -102,3 +102,6 @@ pnpm-lock.yaml
 
 # external agent tools (submodule 아님)
 .agent/external/
+
+# entire (외부 도구 메타데이터)
+.entire/
