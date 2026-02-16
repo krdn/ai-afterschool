@@ -192,33 +192,31 @@ deploy_new_version() {
         return 1
     fi
 
-    # migrate 컨테이너 완료 대기 (depends_on condition에서 처리되지만 로그 확인용)
-    log_info "Waiting for database migrations to complete..."
-    if docker compose -f "$COMPOSE_FILE" wait migrate 2>/dev/null; then
-        log_success "Database migrations applied successfully"
-    else
-        # wait 명령이 없는 Compose 버전 대비 fallback
-        local migrate_timeout=60
-        local elapsed=0
-        while [ $elapsed -lt $migrate_timeout ]; do
-            local status=$(docker compose -f "$COMPOSE_FILE" ps migrate --format '{{.State}}' 2>/dev/null || echo "")
-            if [ "$status" = "exited" ]; then
-                local exit_code=$(docker compose -f "$COMPOSE_FILE" ps migrate --format '{{.ExitCode}}' 2>/dev/null || echo "1")
-                if [ "$exit_code" = "0" ]; then
-                    log_success "Database migrations applied successfully"
-                    break
-                else
-                    log_error "Migration failed - check logs with: docker compose -f $COMPOSE_FILE logs migrate"
-                    return 1
-                fi
+    # migrate 컨테이너 완료 확인
+    # depends_on: service_completed_successfully가 app 시작 전 migrate 완료를 보장하므로
+    # app이 시작됐다면 migrate는 이미 성공. 종료 코드만 확인.
+    log_info "Checking database migration status..."
+    local migrate_timeout=60
+    local elapsed=0
+    while [ $elapsed -lt $migrate_timeout ]; do
+        # -a 플래그로 종료된 컨테이너도 조회
+        local status=$(docker inspect ai-afterschool-migrate --format '{{.State.Status}}' 2>/dev/null || echo "")
+        if [ "$status" = "exited" ]; then
+            local exit_code=$(docker inspect ai-afterschool-migrate --format '{{.State.ExitCode}}' 2>/dev/null || echo "1")
+            if [ "$exit_code" = "0" ]; then
+                log_success "Database migrations applied successfully"
+                break
+            else
+                log_error "Migration failed (exit code: $exit_code) - check logs with: docker compose -f $COMPOSE_FILE logs migrate"
+                return 1
             fi
-            sleep 2
-            elapsed=$((elapsed + 2))
-        done
-        if [ $elapsed -ge $migrate_timeout ]; then
-            log_error "Migration timed out"
-            return 1
         fi
+        sleep 2
+        elapsed=$((elapsed + 2))
+    done
+    if [ $elapsed -ge $migrate_timeout ]; then
+        log_error "Migration timed out"
+        return 1
     fi
 
     # Wait for app to be healthy
