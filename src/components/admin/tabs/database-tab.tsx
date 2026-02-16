@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { runDemoSeedAction } from '@/app/(dashboard)/admin/database/actions'
+import { runDemoSeedAction } from '@/app/[locale]/(dashboard)/admin/database/actions'
 import {
   ALL_SEED_GROUPS,
   SEED_GROUP_DEPENDENCIES,
@@ -9,7 +9,7 @@ import {
   SEED_GROUP_COUNTS,
   type SeedGroup,
   type SeedMode,
-} from '@/lib/db/seed-constants'
+} from '@/lib/db/seed/constants'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'

@@ -25,7 +25,7 @@ import { FeatureMappingForm } from './feature-mapping-form';
 import {
   deleteFeatureMappingAction,
   updateFeatureMappingAction,
-} from '@/lib/actions/feature-mapping-actions';
+} from '@/lib/actions/admin/feature-mappings';
 import type { MatchMode, FallbackMode } from '@/lib/ai/types';
 
 // Feature 타입 목록

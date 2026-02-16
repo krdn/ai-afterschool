@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 import withBundleAnalyzer from "@next/bundle-analyzer";
+import createNextIntlPlugin from "next-intl/plugin";
+
+const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const securityHeaders = [
   // 브라우저가 MIME 타입을 추측하지 못하게 함 (MIME 스니핑 공격 방지)
@@ -50,7 +53,7 @@ const withAnalyzer = withBundleAnalyzer({
 
 // Sentry wrapper configuration for source maps upload
 // @see https://docs.sentry.io/platforms/javascript/guides/nextjs/sourcemaps/
-export default withSentryConfig(withAnalyzer(nextConfig), {
+export default withSentryConfig(withNextIntl(withAnalyzer(nextConfig)), {
   // Sentry organization and project
   org: process.env.SENTRY_ORG,
   project: process.env.SENTRY_PROJECT,

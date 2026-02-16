@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react"
 import Image from "next/image"
 import { Hand, Sparkles, AlertCircle, RefreshCw, Loader2 } from "lucide-react"
-import { analyzePalmImage } from "@/lib/actions/ai-image-analysis"
+import { analyzePalmImage } from "@/lib/actions/student/ai-image-analysis"
 import { DISCLAIMER_TEXT } from "@/lib/ai/prompts"
 import type { ProviderName } from "@/lib/ai/providers/types"
 import { ProviderSelector } from "@/components/students/provider-selector"

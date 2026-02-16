@@ -1,0 +1,59 @@
+{
+  "Common": {
+    "save": "저장",
+    "cancel": "취소",
+    "delete": "삭제",
+    "edit": "수정",
+    "search": "검색",
+    "loading": "로딩 중...",
+    "error": "오류가 발생했습니다",
+    "confirm": "확인",
+    "back": "뒤로",
+    "noData": "데이터가 없습니다",
+    "close": "닫기",
+    "analyzing": "분석 중...",
+    "aiInterpreting": "AI 해석 중...",
+    "aiInterpret": "AI로 해석하기",
+    "noInterpretation": "{label}이(가) 아직 생성되지 않았어요.",
+    "aiAnalyzing": "AI가 분석 중이에요...",
+    "aiAnalyzingSubMessage": "10~20초 정도 소요됩니다."
+  },
+  "Auth": {
+    "login": "로그인",
+    "logout": "로그아웃",
+    "email": "이메일",
+    "password": "비밀번호",
+    "forgotPassword": "비밀번호를 잊으셨나요?",
+    "loggingIn": "로그인 중...",
+    "welcome": "AI AfterSchool에 오신 것을 환영합니다"
+  },
+  "Navigation": {
+    "students": "학생 관리",
+    "teachers": "선생님",
+    "counseling": "상담",
+    "matching": "매칭",
+    "analytics": "분석",
+    "admin": "관리자 도구",
+    "issues": "이슈"
+  },
+  "Student": {
+    "title": "학생 관리",
+    "addNew": "신규 학생 등록",
+    "name": "이름",
+    "birthDate": "생년월일",
+    "teacher": "담당 선생님"
+  },
+  "Analysis": {
+    "saju": "사주 분석",
+    "mbti": "MBTI 분석",
+    "vark": "VARK 분석",
+    "face": "관상 분석",
+    "palm": "수상 분석",
+    "name": "이름풀이",
+    "zodiac": "별자리 분석",
+    "startAnalysis": "분석 시작",
+    "reAnalyze": "재분석",
+    "completed": "분석 완료",
+    "inProgress": "분석 중..."
+  }
+}

@@ -27,7 +27,7 @@ import { ResolutionPreview } from './resolution-preview';
 import {
   createFeatureMappingAction,
   updateFeatureMappingAction,
-} from '@/lib/actions/feature-mapping-actions';
+} from '@/lib/actions/admin/feature-mappings';
 import type {
   FeatureMappingInput,
   MatchMode,

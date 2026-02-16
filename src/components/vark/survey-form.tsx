@@ -4,7 +4,7 @@ import { useForm, FormProvider } from "react-hook-form"
 import { useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { useVarkAutosave } from "@/lib/hooks/use-vark-autosave"
-import { saveVarkDraft, submitVarkSurvey } from "@/lib/actions/vark-survey"
+import { saveVarkDraft, submitVarkSurvey } from "@/lib/actions/student/vark-survey"
 import questions from "@/data/vark/questions.json"
 
 type FormData = {

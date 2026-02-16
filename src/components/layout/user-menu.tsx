@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { logout } from "@/lib/actions/auth"
+import { logout } from "@/lib/actions/auth/login"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,

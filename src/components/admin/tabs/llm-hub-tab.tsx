@@ -10,7 +10,7 @@ import { ProviderList } from '@/components/admin/llm-providers/provider-list';
 import { FeatureMappingList } from '@/components/admin/llm-features/feature-mapping-list';
 import type { ProviderWithModels } from '@/lib/ai/types';
 import type { MatchMode, FallbackMode } from '@/lib/ai/types';
-import type { DailyUsageData, ProviderUsageData, FeatureUsageData } from '@/app/(dashboard)/admin/llm-usage/usage-charts';
+import type { DailyUsageData, ProviderUsageData, FeatureUsageData } from '@/app/[locale]/(dashboard)/admin/llm-usage/usage-charts';
 
 interface FeatureMapping {
   id: string;
@@ -275,17 +275,17 @@ export function LLMHubTab({
 import dynamic from 'next/dynamic';
 
 const UsageCharts = dynamic(
-  () => import('@/app/(dashboard)/admin/llm-usage/usage-charts').then((mod) => mod.UsageCharts),
+  () => import('@/app/[locale]/(dashboard)/admin/llm-usage/usage-charts').then((mod) => mod.UsageCharts),
   { ssr: false, loading: () => <div className="h-64 animate-pulse bg-muted rounded-lg" /> }
 );
 
 const CostSummaryCards = dynamic(
-  () => import('@/app/(dashboard)/admin/llm-usage/cost-alerts').then((mod) => mod.CostSummaryCards),
+  () => import('@/app/[locale]/(dashboard)/admin/llm-usage/cost-alerts').then((mod) => mod.CostSummaryCards),
   { ssr: false }
 );
 
 const CostAlerts = dynamic(
-  () => import('@/app/(dashboard)/admin/llm-usage/cost-alerts').then((mod) => mod.CostAlerts),
+  () => import('@/app/[locale]/(dashboard)/admin/llm-usage/cost-alerts').then((mod) => mod.CostAlerts),
   { ssr: false }
 );
 

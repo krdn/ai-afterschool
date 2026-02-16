@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
-import { assignStudentBatch } from "@/lib/actions/assignment"
+import { assignStudentBatch } from "@/lib/actions/matching/assignment"
 import { toast } from "sonner"
 
 interface Student {

@@ -14,8 +14,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ReservationCalendar } from "./ReservationCalendar"
 import { TimeSlotGrid } from "./TimeSlotGrid"
-import { createReservationAction, getReservationsAction } from "@/lib/actions/reservations"
-import { getStudentsAction, type StudentWithParents } from "@/lib/actions/students"
+import { createReservationAction, getReservationsAction } from "@/lib/actions/counseling/reservations"
+import { getStudentsAction, type StudentWithParents } from "@/lib/actions/student/crud"
 import { toast } from "sonner"
 import { ReservationStatus } from "@prisma/client"
 

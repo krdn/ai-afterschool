@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import {
   generateCounselingSummaryAction,
   generateCounselingSummaryFromContentAction,
-} from "@/lib/actions/counseling-ai"
+} from "@/lib/actions/counseling/ai"
 
 interface AISummaryGeneratorProps {
   sessionId?: string // 기존 상담 수정 시

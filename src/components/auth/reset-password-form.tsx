@@ -2,7 +2,7 @@
 
 import { useActionState } from "react"
 import Link from "next/link"
-import { requestPasswordReset, type ResetFormState } from "@/lib/actions/auth"
+import { requestPasswordReset, type ResetFormState } from "@/lib/actions/auth/login"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"

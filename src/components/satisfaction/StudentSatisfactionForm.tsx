@@ -6,7 +6,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { recordSatisfactionAction } from "@/lib/actions/performance"
+import { recordSatisfactionAction } from "@/lib/actions/common/performance"
 import { satisfactionSchema, type SatisfactionFormData } from "@/lib/validations/satisfaction"
 import { toast } from "sonner"
 

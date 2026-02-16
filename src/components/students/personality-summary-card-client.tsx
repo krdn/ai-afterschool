@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { generateLearningStrategy } from "@/lib/actions/personality-integration"
+import { generateLearningStrategy } from "@/lib/actions/student/personality-integration"
 
 /**
  * AI 통합 분석 생성 버튼 (Client Component)

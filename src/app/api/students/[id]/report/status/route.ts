@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifySession } from '@/lib/dal'
-import { getStudentReportPDF } from '@/lib/db/reports'
+import { getStudentReportPDF } from '@/lib/db/counseling/reports'
 import { logger } from '@/lib/logger'
 
 /**

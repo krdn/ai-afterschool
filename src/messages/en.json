@@ -1,0 +1,59 @@
+{
+  "Common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "search": "Search",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "confirm": "Confirm",
+    "back": "Back",
+    "noData": "No data available",
+    "close": "Close",
+    "analyzing": "Analyzing...",
+    "aiInterpreting": "AI interpreting...",
+    "aiInterpret": "Interpret with AI",
+    "noInterpretation": "{label} has not been generated yet.",
+    "aiAnalyzing": "AI is analyzing...",
+    "aiAnalyzingSubMessage": "This may take 10-20 seconds."
+  },
+  "Auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot your password?",
+    "loggingIn": "Logging in...",
+    "welcome": "Welcome to AI AfterSchool"
+  },
+  "Navigation": {
+    "students": "Students",
+    "teachers": "Teachers",
+    "counseling": "Counseling",
+    "matching": "Matching",
+    "analytics": "Analytics",
+    "admin": "Admin Tools",
+    "issues": "Issues"
+  },
+  "Student": {
+    "title": "Student Management",
+    "addNew": "Register New Student",
+    "name": "Name",
+    "birthDate": "Birth Date",
+    "teacher": "Teacher"
+  },
+  "Analysis": {
+    "saju": "Saju Analysis",
+    "mbti": "MBTI Analysis",
+    "vark": "VARK Analysis",
+    "face": "Face Reading",
+    "palm": "Palm Reading",
+    "name": "Name Analysis",
+    "zodiac": "Zodiac Analysis",
+    "startAnalysis": "Start Analysis",
+    "reAnalyze": "Re-analyze",
+    "completed": "Analysis Complete",
+    "inProgress": "Analyzing..."
+  }
+}

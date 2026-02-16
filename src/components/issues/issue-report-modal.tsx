@@ -12,7 +12,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { CheckCircle2 } from 'lucide-react'
 import { ScreenshotCapture } from './screenshot-capture'
 import { IssueForm, type IssueFormData } from './issue-form'
-import { createIssue } from '@/lib/actions/issues'
+import { createIssue } from '@/lib/actions/common/issues'
 
 interface IssueReportModalProps {
   isOpen: boolean

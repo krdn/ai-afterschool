@@ -37,7 +37,7 @@ import {
   createTeamAction,
   updateTeamAction,
   deleteTeamAction,
-} from "@/app/(dashboard)/admin/teams/actions"
+} from "@/app/[locale]/(dashboard)/admin/teams/actions"
 
 // ---------------------------------------------------------------------------
 // 타입

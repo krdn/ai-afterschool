@@ -2,7 +2,7 @@
  * AI 자동 배정 알고리즘 (Greedy with Load Balancing)
  *
  * 선생님-학생 궁합 최대화와 부하 분산 최적화를 목표로
- * 탐욕(Greedy) 알고리즘을 사용하여 O(students × teachers) 복잡도로
+ * 탐욕(Greedy) 알고리즘을 사용하여 O(students x teachers) 복잡도로
  * 최적의 배정을 찾습니다.
  */
 
@@ -33,61 +33,7 @@ export type AutoAssignmentOptions = {
 }
 
 /**
- * 선생님 분석 데이터 포맷
- */
-type TeacherAnalysisData = {
-  id: string
-  name: string
-  email: string
-  role: string
-  teacherMbtiAnalysis: {
-    percentages: unknown // Prisma JsonValue
-  } | null
-  teacherSajuAnalysis: {
-    result: unknown // Prisma JsonValue
-  } | null
-  teacherNameAnalysis: {
-    result: unknown // Prisma JsonValue
-  } | null
-  _count: {
-    students: number
-  }
-}
-
-/**
- * 학생 분석 데이터 포맷
- */
-type StudentAnalysisData = {
-  id: string
-  name: string
-  mbtiAnalysis: {
-    percentages: unknown // Prisma JsonValue
-  } | null
-  sajuAnalysis: {
-    result: unknown // Prisma JsonValue
-  } | null
-  nameAnalysis: {
-    result: unknown // Prisma JsonValue
-  } | null
-}
-
-/**
  * AI 자동 배정 알고리즘 (Greedy approach with load balancing)
- *
- * 목적:
- * 1. 전체 궁합 점수 합 maximization
- * 2. 선생님 간 부하 분산 (각 선생님의 학생 수 표준편차 최소화)
- *
- * 알고리즘:
- * 1. 모든 teacher-student 쌍에 대해 궁합 점수 계산
- * 2. 학생 순회하며, 현재 가장 낮은 부하의 선생님 중 최고 궁합 선택
- * 3. maxStudentsPerTeacher 제약 조건 확인
- *
- * 복잡도: O(students × teachers) - 단순하지만 효과적
- *
- * @param studentIds - 배정할 학생 ID 목록
- * @param options - 배정 옵션
- * @returns 배정 결과 배열
  */
 export async function generateAutoAssignment(
   studentIds: string[],
@@ -104,12 +50,13 @@ export async function generateAutoAssignment(
         in: ["TEACHER", "MANAGER", "TEAM_LEADER"],
       },
     },
-    include: {
-      teacherMbtiAnalysis: true,
-      teacherSajuAnalysis: true,
-      teacherNameAnalysis: true,
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
       _count: {
-        select: { students: true }, // 현재 담당 학생 수
+        select: { students: true },
       },
     },
   })
@@ -118,21 +65,62 @@ export async function generateAutoAssignment(
     throw new Error("배정 가능한 선생님이 없습니다.")
   }
 
+  // 선생님 분석 데이터 일괄 조회 (통합 테이블)
+  const teacherIds = teachers.map(t => t.id)
+  const [teacherMbtis, teacherSajus, teacherNames] = await Promise.all([
+    db.mbtiAnalysis.findMany({
+      where: { subjectType: 'TEACHER', subjectId: { in: teacherIds } },
+      select: { subjectId: true, percentages: true },
+    }),
+    db.sajuAnalysis.findMany({
+      where: { subjectType: 'TEACHER', subjectId: { in: teacherIds } },
+      select: { subjectId: true, result: true },
+    }),
+    db.nameAnalysis.findMany({
+      where: { subjectType: 'TEACHER', subjectId: { in: teacherIds } },
+      select: { subjectId: true, result: true },
+    }),
+  ])
+
+  const teacherMbtiMap = new Map(teacherMbtis.map(m => [m.subjectId, m]))
+  const teacherSajuMap = new Map(teacherSajus.map(s => [s.subjectId, s]))
+  const teacherNameMap = new Map(teacherNames.map(n => [n.subjectId, n]))
+
   // 학생 목록 조회
   const students = await db.student.findMany({
     where: {
       id: { in: studentIds },
     },
-    include: {
-      mbtiAnalysis: true,
-      sajuAnalysis: true,
-      nameAnalysis: true,
+    select: {
+      id: true,
+      name: true,
     },
   })
 
   if (students.length === 0) {
     return []
   }
+
+  // 학생 분석 데이터 일괄 조회 (통합 테이블)
+  const studentIdsArr = students.map(s => s.id)
+  const [studentMbtis, studentSajus, studentNames] = await Promise.all([
+    db.mbtiAnalysis.findMany({
+      where: { subjectType: 'STUDENT', subjectId: { in: studentIdsArr } },
+      select: { subjectId: true, percentages: true },
+    }),
+    db.sajuAnalysis.findMany({
+      where: { subjectType: 'STUDENT', subjectId: { in: studentIdsArr } },
+      select: { subjectId: true, result: true },
+    }),
+    db.nameAnalysis.findMany({
+      where: { subjectType: 'STUDENT', subjectId: { in: studentIdsArr } },
+      select: { subjectId: true, result: true },
+    }),
+  ])
+
+  const studentMbtiMap = new Map(studentMbtis.map(m => [m.subjectId, m]))
+  const studentSajuMap = new Map(studentSajus.map(s => [s.subjectId, s]))
+  const studentNameMap = new Map(studentNames.map(n => [n.subjectId, n]))
 
   // 평균 담당 학생 수 계산
   const totalStudents = students.length
@@ -152,7 +140,7 @@ export async function generateAutoAssignment(
 
   // 학생별로 최적 선생님 찾기 (Greedy)
   for (const student of students) {
-    let bestTeacher: TeacherAnalysisData | null = null
+    let bestTeacherId: string | null = null
     let bestScore: CompatibilityScore | null = null
 
     // 모든 선생님에 대해 궁합 점수 계산
@@ -168,18 +156,18 @@ export async function generateAutoAssignment(
       const score = calculateCompatibilityScore(
         {
           mbti:
-            (teacher.teacherMbtiAnalysis?.percentages as MbtiPercentages | null) ??
+            (teacherMbtiMap.get(teacher.id)?.percentages as MbtiPercentages | null) ??
             null,
-          saju: (teacher.teacherSajuAnalysis?.result as SajuResult | null) ?? null,
+          saju: (teacherSajuMap.get(teacher.id)?.result as SajuResult | null) ?? null,
           name:
-            (teacher.teacherNameAnalysis?.result as NameNumerologyResult | null) ??
+            (teacherNameMap.get(teacher.id)?.result as NameNumerologyResult | null) ??
             null,
           currentLoad,
         },
         {
-          mbti: (student.mbtiAnalysis?.percentages as MbtiPercentages | null) ?? null,
-          saju: (student.sajuAnalysis?.result as SajuResult | null) ?? null,
-          name: (student.nameAnalysis?.result as NameNumerologyResult | null) ?? null,
+          mbti: (studentMbtiMap.get(student.id)?.percentages as MbtiPercentages | null) ?? null,
+          saju: (studentSajuMap.get(student.id)?.result as SajuResult | null) ?? null,
+          name: (studentNameMap.get(student.id)?.result as NameNumerologyResult | null) ?? null,
         },
         averageLoad
       )
@@ -194,21 +182,21 @@ export async function generateAutoAssignment(
 
       // 최고 궁합 선택 (Greedy)
       if (!bestScore || score.overall > bestScore.overall) {
-        bestTeacher = teacher
+        bestTeacherId = teacher.id
         bestScore = score
       }
     }
 
     // 배정
-    if (bestTeacher) {
+    if (bestTeacherId) {
       assignments.push({
         studentId: student.id,
-        teacherId: bestTeacher.id,
+        teacherId: bestTeacherId,
         score: bestScore!,
       })
 
       // 부하 업데이트
-      teacherLoads.set(bestTeacher.id, teacherLoads.get(bestTeacher.id)! + 1)
+      teacherLoads.set(bestTeacherId, teacherLoads.get(bestTeacherId)! + 1)
     } else {
       console.warn(`Cannot assign student ${student.id}: no suitable teacher found`)
     }
@@ -219,9 +207,6 @@ export async function generateAutoAssignment(
 
 /**
  * 부하 분산 통계 계산
- *
- * @param teacherLoads - 선생님별 학생 수 Map
- * @returns 부하 분산 통계
  */
 export function calculateLoadStats(teacherLoads: Map<string, number>) {
   const loads = Array.from(teacherLoads.values())
@@ -256,9 +241,6 @@ export function calculateLoadStats(teacherLoads: Map<string, number>) {
 
 /**
  * 배정 결과 요약 생성
- *
- * @param assignments - 배정 결과 배열
- * @returns 요약 정보
  */
 export function summarizeAssignments(assignments: Assignment[]) {
   if (assignments.length === 0) {

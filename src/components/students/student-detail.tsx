@@ -5,11 +5,11 @@ import { useState, useTransition } from "react"
 import { format } from "date-fns"
 import { ko } from "date-fns/locale"
 import { toast } from "sonner"
-import { deleteStudent } from "@/lib/actions/students"
+import { deleteStudent } from "@/lib/actions/student/crud"
 import {
   deleteStudentImage,
   setStudentImage,
-} from "@/lib/actions/student-images"
+} from "@/lib/actions/student/images"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -19,7 +19,7 @@ import {
 } from "@/components/students/student-image-uploader"
 import { StudentImageTabs } from "@/components/students/student-image-tabs"
 import { StudentAnalysisStatus } from "@/components/students/student-analysis-status"
-import type { CalculationStatus } from "@/lib/db/student-analysis"
+import type { CalculationStatus } from "@/lib/db/student/analysis"
 
 type StudentDetailProps = {
   student: {

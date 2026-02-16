@@ -19,11 +19,11 @@ interface TeacherData {
   id: string
   name: string
   role: string
-  teacherMbtiAnalysis?: {
+  mbtiAnalysis?: {
     mbtiType: string
     percentages: Prisma.JsonValue
   } | null
-  teacherSajuAnalysis?: {
+  sajuAnalysis?: {
     result: Prisma.JsonValue
   } | null
   createdAt: Date
@@ -36,8 +36,6 @@ export async function analyzeTeamComposition(teamId: string): Promise<TeamCompos
   const teachers = await db.teacher.findMany({
     where: { teamId },
     include: {
-      teacherMbtiAnalysis: true,
-      teacherSajuAnalysis: true,
       students: {
         select: { grade: true },
       },
@@ -45,13 +43,45 @@ export async function analyzeTeamComposition(teamId: string): Promise<TeamCompos
     orderBy: { name: 'asc' },
   })
 
-  const teacherCount = teachers.length
+  // 선생님 분석 데이터 일괄 조회 (통합 테이블)
+  const teacherIds = teachers.map(t => t.id)
+  const [mbtiAnalyses, sajuAnalyses] = await Promise.all([
+    db.mbtiAnalysis.findMany({
+      where: { subjectType: 'TEACHER', subjectId: { in: teacherIds } },
+      select: { subjectId: true, mbtiType: true, percentages: true },
+    }),
+    db.sajuAnalysis.findMany({
+      where: { subjectType: 'TEACHER', subjectId: { in: teacherIds } },
+      select: { subjectId: true, result: true },
+    }),
+  ])
 
-  const mbtiDistribution = analyzeMBTIDistribution(teachers)
-  const learningStyleDistribution = analyzeLearningStyleDistribution(teachers)
-  const sajuElementsDistribution = analyzeSajuElementsDistribution(teachers)
-  const expertiseCoverage = analyzeExpertiseCoverage(teachers)
-  const roleDistribution = analyzeRoleDistribution(teachers)
+  const mbtiMap = new Map(mbtiAnalyses.map(m => [m.subjectId, m]))
+  const sajuMap = new Map(sajuAnalyses.map(s => [s.subjectId, s]))
+
+  // 분석 데이터를 병합한 TeacherData 배열 구성
+  const teacherDataList: TeacherData[] = teachers.map(t => ({
+    id: t.id,
+    name: t.name,
+    role: t.role,
+    createdAt: t.createdAt,
+    students: t.students,
+    mbtiAnalysis: mbtiMap.get(t.id) ? {
+      mbtiType: mbtiMap.get(t.id)!.mbtiType,
+      percentages: mbtiMap.get(t.id)!.percentages,
+    } : null,
+    sajuAnalysis: sajuMap.get(t.id) ? {
+      result: sajuMap.get(t.id)!.result,
+    } : null,
+  }))
+
+  const teacherCount = teacherDataList.length
+
+  const mbtiDistribution = analyzeMBTIDistribution(teacherDataList)
+  const learningStyleDistribution = analyzeLearningStyleDistribution(teacherDataList)
+  const sajuElementsDistribution = analyzeSajuElementsDistribution(teacherDataList)
+  const expertiseCoverage = analyzeExpertiseCoverage(teacherDataList)
+  const roleDistribution = analyzeRoleDistribution(teacherDataList)
 
   const composition: TeamComposition = {
     teamId,
@@ -79,7 +109,7 @@ function analyzeMBTIDistribution(teachers: TeacherData[]): MBTIDistribution {
   let e = 0, i = 0, s = 0, n = 0, t = 0, f = 0, j = 0, p = 0
 
   for (const teacher of teachers) {
-    const mbti = teacher.teacherMbtiAnalysis?.mbtiType
+    const mbti = teacher.mbtiAnalysis?.mbtiType
     if (!mbti) continue
 
     typeCounts[mbti] = (typeCounts[mbti] || 0) + 1
@@ -123,7 +153,7 @@ function analyzeLearningStyleDistribution(teachers: TeacherData[]): LearningStyl
   let count = 0
 
   for (const teacher of teachers) {
-    const percentages = teacher.teacherMbtiAnalysis?.percentages as Record<string, number> | null
+    const percentages = teacher.mbtiAnalysis?.percentages as Record<string, number> | null
     if (!percentages) continue
 
     visual += percentages.visual || 0
@@ -161,7 +191,7 @@ function analyzeSajuElementsDistribution(teachers: TeacherData[]): SajuElementsD
   const elementCounts = { wood: 0, fire: 0, earth: 0, metal: 0, water: 0 }
 
   for (const teacher of teachers) {
-    const result = teacher.teacherSajuAnalysis?.result as { fiveElements?: Record<string, number> } | null
+    const result = teacher.sajuAnalysis?.result as { fiveElements?: Record<string, number> } | null
     if (!result?.fiveElements) continue
 
     const elements = result.fiveElements

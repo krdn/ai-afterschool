@@ -17,8 +17,8 @@ import { AISummaryGenerator } from "@/components/counseling/AISummaryGenerator"
 import {
   getStudentAISupportDataAction,
   type AISupportData,
-} from "@/lib/actions/counseling-ai"
-import { analyzeCompatibility } from "@/lib/actions/compatibility"
+} from "@/lib/actions/counseling/ai"
+import { analyzeCompatibility } from "@/lib/actions/matching/compatibility"
 
 interface AISupportPanelProps {
   studentId: string

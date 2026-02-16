@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import {
   generateAutoAssignmentSuggestions,
   applyAutoAssignment,
-} from '@/lib/actions/assignment'
+} from '@/lib/actions/matching/assignment'
 import type { Assignment } from '@/lib/optimization/auto-assignment'
 import type { FairnessMetrics } from '@/lib/analysis/fairness-metrics'
 import { Button } from '@/components/ui/button'

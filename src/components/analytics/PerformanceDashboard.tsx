@@ -11,7 +11,7 @@ import { MultiSubjectChart, SubjectAverage } from "./MultiSubjectChart"
 import { ControlVariablePanel } from "./ControlVariablePanel"
 import { TeacherWithMetrics } from "./TeacherPerformanceCard"
 import { BarChart3, Users, TrendingUp, FileDown } from "lucide-react"
-import { CounselingStats } from "@/lib/actions/analytics"
+import { CounselingStats } from "@/lib/actions/common/analytics"
 
 interface TeacherGradeComparison {
   teacherId: string

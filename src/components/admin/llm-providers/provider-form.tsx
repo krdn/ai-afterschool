@@ -36,7 +36,7 @@ import {
   validateProviderAction,
   syncProviderModelsAction,
   setDefaultModelAction,
-} from '@/lib/actions/provider-actions';
+} from '@/lib/actions/admin/providers';
 import type { ProviderWithModels, ProviderInput, Capability } from '@/lib/ai/types';
 import type { ProviderTemplate } from '@/lib/ai/templates';
 

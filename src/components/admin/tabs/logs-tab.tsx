@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { getSystemLogs, type SystemLogEntry } from '@/lib/actions/system'
+import { getSystemLogs, type SystemLogEntry } from '@/lib/actions/admin/system'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 interface LogsTabProps {

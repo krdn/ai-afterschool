@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Star } from "lucide-react"
-import { runZodiacAnalysis, generateZodiacLLMInterpretation } from "@/lib/actions/zodiac-analysis"
+import { runZodiacAnalysis, generateZodiacLLMInterpretation } from "@/lib/actions/student/zodiac-analysis"
 import type { ProviderName } from "@/lib/ai/providers/types"
 import type { GenericPromptMeta } from "@/components/students/prompt-selector"
 import { Button } from "@/components/ui/button"

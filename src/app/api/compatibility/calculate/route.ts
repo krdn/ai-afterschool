@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { z } from "zod"
 import { verifySession } from "@/lib/dal"
-import { analyzeCompatibility } from "@/lib/actions/compatibility"
+import { analyzeCompatibility } from "@/lib/actions/matching/compatibility"
 
 /**
  * Request body schema for compatibility calculation

@@ -1,4 +1,4 @@
-import type { UnifiedPersonalityData } from "@/lib/db/personality-summary"
+import type { UnifiedPersonalityData } from "@/lib/db/student/personality-summary"
 
 /**
  * 학습 전략 생성 프롬프트 빌더

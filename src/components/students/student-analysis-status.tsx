@@ -1,6 +1,6 @@
 import { format } from "date-fns"
 import { ko } from "date-fns/locale"
-import type { CalculationStatus } from "@/lib/db/student-analysis"
+import type { CalculationStatus } from "@/lib/db/student/analysis"
 
 type StudentAnalysisStatusProps = {
   status: CalculationStatus | null

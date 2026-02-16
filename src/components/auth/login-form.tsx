@@ -5,7 +5,8 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import Link from "next/link"
 import { toast } from "sonner"
-import { login, type AuthFormState } from "@/lib/actions/auth"
+import { useTranslations } from "next-intl"
+import { login, type AuthFormState } from "@/lib/actions/auth/login"
 import { LoginSchema, type LoginInput } from "@/lib/validations/auth"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -20,6 +21,7 @@ import {
 } from "@/components/ui/card"
 
 export function LoginForm() {
+  const t = useTranslations("Auth")
   const [state, formAction, pending] = useActionState<AuthFormState, FormData>(
     login,
     { errors: {} }
@@ -47,9 +49,9 @@ export function LoginForm() {
   return (
     <Card>
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold text-center">로그인</CardTitle>
+        <CardTitle className="text-2xl font-bold text-center">{t("login")}</CardTitle>
         <CardDescription className="text-center">
-          AI AfterSchool에 오신 것을 환영합니다
+          {t("welcome")}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -61,7 +63,7 @@ export function LoginForm() {
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="email">이메일</Label>
+            <Label htmlFor="email">{t("email")}</Label>
             <Input
               id="email"
               type="email"
@@ -79,7 +81,7 @@ export function LoginForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">비밀번호</Label>
+            <Label htmlFor="password">{t("password")}</Label>
             <Input
               id="password"
               type="password"
@@ -97,7 +99,7 @@ export function LoginForm() {
           </div>
 
           <Button type="submit" className="w-full" disabled={pending} data-testid="login-button">
-            {pending ? "로그인 중..." : "로그인"}
+            {pending ? t("loggingIn") : t("login")}
           </Button>
         </form>
       </CardContent>
@@ -107,7 +109,7 @@ export function LoginForm() {
           className="text-sm text-gray-600 hover:text-gray-900 hover:underline"
           data-testid="reset-password-link"
         >
-          비밀번호를 잊으셨나요?
+          {t("forgotPassword")}
         </Link>
       </CardFooter>
     </Card>

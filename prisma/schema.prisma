@@ -31,11 +31,6 @@ model Teacher {
   students                   Student[]
   studentSatisfactions       StudentSatisfaction[]
   team                       Team?                         @relation(fields: [teamId], references: [id])
-  teacherFaceAnalysis        TeacherFaceAnalysis?
-  teacherMbtiAnalysis        TeacherMbtiAnalysis?
-  teacherNameAnalysis        TeacherNameAnalysis?
-  teacherPalmAnalysis        TeacherPalmAnalysis?
-  teacherSajuAnalysis        TeacherSajuAnalysis?
   auditLogs                  AuditLog[]
   issuesCreated              Issue[]                   @relation("IssueCreator")
   issuesAssigned             Issue[]                   @relation("IssueAssignee")
@@ -80,16 +75,11 @@ model Student {
   nationality                    String?                       @default("한국")
   compatibilityResults           CompatibilityResult[]
   counselingSessions             CounselingSession[]
-  faceAnalysis                   FaceAnalysis?
   gradeHistory                   GradeHistory[]
-  mbtiAnalysis                   MbtiAnalysis?
   mbtiSurveyDraft                MbtiSurveyDraft?
-  nameAnalysis                   NameAnalysis?
-  palmAnalysis                   PalmAnalysis?
   parents                        Parent[]                      @relation("StudentParents")
   counselingReservations         ParentCounselingReservation[]
   personalitySummary             PersonalitySummary?
-  sajuAnalysis                   SajuAnalysis?
   primaryParent                  Parent?                       @relation("StudentPrimaryParent", fields: [primaryParentId], references: [id])
   teacher                        Teacher?                      @relation(fields: [teacherId], references: [id])
   team                           Team?                         @relation(fields: [teamId], references: [id])
@@ -110,17 +100,22 @@ model Student {
 }
 
 model SajuAnalysis {
-  id             String   @id @default(cuid())
-  studentId      String   @unique
+  id             String      @id @default(cuid())
+  subjectType    SubjectType
+  subjectId      String
   inputSnapshot  Json
   result         Json
   interpretation String?
-  status         String   @default("complete")
-  version        Int      @default(1)
+  status         String      @default("complete")
+  version        Int         @default(1)
   calculatedAt   DateTime
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  student        Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  usedProvider   String?
+  usedModel      String?
+
+  @@unique([subjectType, subjectId])
+  @@index([subjectId])
 }
 
 model SajuAnalysisHistory {
@@ -140,17 +135,20 @@ model SajuAnalysisHistory {
 }
 
 model NameAnalysis {
-  id             String   @id @default(cuid())
-  studentId      String   @unique
+  id             String      @id @default(cuid())
+  subjectType    SubjectType
+  subjectId      String
   inputSnapshot  Json
   result         Json
   interpretation String?
-  status         String   @default("complete")
-  version        Int      @default(1)
+  status         String      @default("complete")
+  version        Int         @default(1)
   calculatedAt   DateTime
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  student        Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  @@unique([subjectType, subjectId])
+  @@index([subjectId])
 }
 
 model MbtiSurveyDraft {
@@ -166,70 +164,23 @@ model MbtiSurveyDraft {
 }
 
 model MbtiAnalysis {
-  id             String   @id @default(cuid())
-  studentId      String   @unique
+  id             String      @id @default(cuid())
+  subjectType    SubjectType
+  subjectId      String
   responses      Json
   scores         Json
   mbtiType       String
   percentages    Json
   interpretation String?
-  version        Int      @default(1)
+  version        Int         @default(1)
   calculatedAt   DateTime
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  student        Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  @@unique([subjectType, subjectId])
+  @@index([subjectId])
 }
 
-model TeacherSajuAnalysis {
-  id             String   @id @default(cuid())
-  teacherId      String   @unique
-  inputSnapshot  Json
-  result         Json
-  interpretation String?
-  status         String   @default("complete")
-  version        Int      @default(1)
-  calculatedAt   DateTime
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  usedProvider   String?
-  usedModel      String?
-  teacher        Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
-
-  @@index([teacherId])
-}
-
-model TeacherMbtiAnalysis {
-  id             String   @id @default(cuid())
-  teacherId      String   @unique
-  responses      Json
-  scores         Json
-  mbtiType       String
-  percentages    Json
-  interpretation String?
-  version        Int      @default(1)
-  calculatedAt   DateTime
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  teacher        Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
-
-  @@index([teacherId])
-}
-
-model TeacherNameAnalysis {
-  id             String   @id @default(cuid())
-  teacherId      String   @unique
-  inputSnapshot  Json
-  result         Json
-  interpretation String?
-  status         String   @default("complete")
-  version        Int      @default(1)
-  calculatedAt   DateTime
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  teacher        Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
-
-  @@index([teacherId])
-}
 
 model StudentImage {
   id          String           @id @default(cuid())
@@ -261,70 +212,40 @@ model PasswordResetToken {
 }
 
 model FaceAnalysis {
-  id           String   @id @default(cuid())
-  studentId    String   @unique
+  id           String      @id @default(cuid())
+  subjectType  SubjectType
+  subjectId    String
   imageUrl     String
   result       Json
-  status       String   @default("complete")
+  status       String      @default("complete")
   errorMessage String?
-  version      Int      @default(1)
+  version      Int         @default(1)
   analyzedAt   DateTime
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  student      Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 
-  @@index([studentId])
+  @@unique([subjectType, subjectId])
+  @@index([subjectId])
 }
 
 model PalmAnalysis {
-  id           String   @id @default(cuid())
-  studentId    String   @unique
+  id           String      @id @default(cuid())
+  subjectType  SubjectType
+  subjectId    String
   hand         String
   imageUrl     String
   result       Json
-  status       String   @default("complete")
+  status       String      @default("complete")
   errorMessage String?
-  version      Int      @default(1)
+  version      Int         @default(1)
   analyzedAt   DateTime
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  student      Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 
-  @@index([studentId])
+  @@unique([subjectType, subjectId])
+  @@index([subjectId])
 }
 
-model TeacherPalmAnalysis {
-  id           String   @id @default(cuid())
-  teacherId    String   @unique
-  hand         String
-  imageUrl     String
-  result       Json
-  status       String   @default("complete")
-  errorMessage String?
-  version      Int      @default(1)
-  analyzedAt   DateTime
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  teacher      Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
-
-  @@index([teacherId])
-}
-
-model TeacherFaceAnalysis {
-  id           String   @id @default(cuid())
-  teacherId    String   @unique
-  imageUrl     String
-  result       Json
-  status       String   @default("complete")
-  errorMessage String?
-  version      Int      @default(1)
-  analyzedAt   DateTime
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  teacher      Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
-
-  @@index([teacherId])
-}
 
 model CompatibilityResult {
   id           String   @id @default(cuid())
@@ -825,6 +746,11 @@ model ZodiacAnalysis {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   student        Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+}
+
+enum SubjectType {
+  STUDENT
+  TEACHER
 }
 
 enum Role {
