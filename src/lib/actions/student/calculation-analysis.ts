@@ -77,7 +77,9 @@ export async function saveSajuAnalysis(
   studentId: string,
   inputSnapshot: AnalysisInput,
   result: AnalysisResult,
-  interpretation?: string | null
+  interpretation?: string | null,
+  usedProvider?: string | null,
+  usedModel?: string | null
 ) {
   const session = await verifySession()
   await ensureStudentAccess(studentId, session)
@@ -86,6 +88,8 @@ export async function saveSajuAnalysis(
     inputSnapshot,
     result,
     interpretation,
+    usedProvider,
+    usedModel,
   })
 
   await clearStudentRecalculationNeeded(studentId, ownerTeacherId(session))
@@ -180,6 +184,7 @@ export async function runSajuAnalysis(studentId: string, provider?: string, prom
         studentId,
         promptId: resolvedPromptId,
         additionalRequest: additionalRequest || null,
+        usedProvider: provider === 'auto' ? { not: '내장 알고리즘' } : provider,
       },
       orderBy: { createdAt: 'desc' },
       select: {
@@ -191,7 +196,7 @@ export async function runSajuAnalysis(studentId: string, provider?: string, prom
 
     if (cached?.interpretation) {
       // 캐시된 결과로 SajuAnalysis도 갱신 (최신 계산 결과 반영)
-      await saveSajuAnalysis(studentId, inputSnapshot, result, cached.interpretation)
+      await saveSajuAnalysis(studentId, inputSnapshot, result, cached.interpretation, cached.usedProvider, cached.usedModel)
 
       return {
         result,
@@ -262,7 +267,7 @@ export async function runSajuAnalysis(studentId: string, provider?: string, prom
     }
   }
 
-  await saveSajuAnalysis(studentId, inputSnapshot, result, interpretation)
+  await saveSajuAnalysis(studentId, inputSnapshot, result, interpretation, usedProvider, usedModel)
 
   // 이력 테이블에 저장
   await createSajuHistory({
