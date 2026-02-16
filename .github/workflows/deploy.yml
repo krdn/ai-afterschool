@@ -32,7 +32,8 @@ jobs:
           command_timeout: 15m
           script: |
             cd /home/gon/projects/ai/ai-afterschool
-            git pull origin main
+            git fetch origin main
+            git reset --hard origin/main
             ./scripts/deploy.sh --force --tag=${{ github.sha }}
 
       - name: Rollback on failure
