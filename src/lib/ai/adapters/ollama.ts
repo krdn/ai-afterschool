@@ -171,10 +171,68 @@ export class OllamaAdapter extends BaseAdapter {
     const isProxy = !!apiKey;
 
     try {
-      const modelsUrl = isProxy
-        ? baseUrl.replace(/\/api$/, '/api/models')
-        : baseUrl.replace(/\/api$/, '/api/tags');
+      // 프록시 모드: Open WebUI /api/models 먼저 시도
+      if (isProxy) {
+        const proxyModels = await this.fetchProxyModels(baseUrl, apiKey);
+        if (proxyModels.length > 0) {
+          return proxyModels;
+        }
+        // 프록시에서 모델을 가져오지 못하면 직접 Ollama /api/tags 폴백
+        // OLLAMA_DIRECT_URL이 설정되어 있으면 해당 URL을 사용
+        const directUrl = this.getDirectUrl(baseUrl);
+        console.log('[OllamaAdapter] 프록시에서 모델 없음, 직접 Ollama 서버로 폴백:', directUrl);
+        return await this.fetchDirectModels(directUrl);
+      }
 
+      // 직접 Ollama /api/tags
+      return await this.fetchDirectModels(baseUrl);
+    } catch {
+      return [];
+    }
+  }
+
+  /**
+   * Open WebUI 프록시에서 모델 목록을 가져옵니다.
+   */
+  private async fetchProxyModels(baseUrl: string, apiKey: string): Promise<ModelInfo[]> {
+    try {
+      const modelsUrl = baseUrl.replace(/\/api$/, '/api/models');
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10000);
+
+      const response = await fetch(modelsUrl, {
+        signal: controller.signal,
+        headers: { 'Authorization': `Bearer ${apiKey}` },
+      });
+
+      clearTimeout(timeout);
+
+      if (!response.ok) return [];
+
+      const data = await response.json();
+      if (!data.data) return [];
+
+      return data.data
+        .filter((m: { ollama?: unknown }) => m.ollama)
+        .map((m: { id: string; name: string; ollama?: { size?: number } }) => ({
+          id: m.id,
+          modelId: m.id,
+          displayName: m.name || m.id,
+          contextWindow: 8192,
+          supportsVision: m.id.includes('vision') || m.id.includes('llava'),
+          supportsTools: false,
+        }));
+    } catch {
+      return [];
+    }
+  }
+
+  /**
+   * 직접 Ollama 서버에서 모델 목록을 가져옵니다.
+   */
+  private async fetchDirectModels(baseUrl: string, apiKey?: string): Promise<ModelInfo[]> {
+    try {
+      const tagsUrl = baseUrl.replace(/\/api$/, '/api/tags');
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 10000);
 
@@ -183,34 +241,16 @@ export class OllamaAdapter extends BaseAdapter {
         headers['Authorization'] = `Bearer ${apiKey}`;
       }
 
-      const response = await fetch(modelsUrl, {
+      const response = await fetch(tagsUrl, {
         signal: controller.signal,
         headers,
       });
 
       clearTimeout(timeout);
 
-      if (!response.ok) {
-        return [];
-      }
+      if (!response.ok) return [];
 
       const data = await response.json();
-
-      // Open WebUI 프록시
-      if (isProxy && data.data) {
-        return data.data
-          .filter((m: { ollama?: unknown }) => m.ollama)
-          .map((m: { id: string; name: string; ollama?: { size?: number } }) => ({
-            id: m.id,
-            modelId: m.id,
-            displayName: m.name || m.id,
-            contextWindow: 8192,
-            supportsVision: m.id.includes('vision') || m.id.includes('llava'),
-            supportsTools: false,
-          }));
-      }
-
-      // 직접 Ollama
       const models = data.models || [];
       return models.map((m: { name: string }) => ({
         id: m.name,
@@ -256,6 +296,19 @@ export class OllamaAdapter extends BaseAdapter {
 
   protected getDefaultBaseUrl(): string {
     return 'http://localhost:11434/api';
+  }
+
+  /**
+   * 프록시 폴백 시 직접 Ollama 서버 URL을 반환합니다.
+   * OLLAMA_DIRECT_URL 환경변수가 있으면 우선 사용, 없으면 기본 URL 사용.
+   */
+  private getDirectUrl(_proxyBaseUrl: string): string {
+    const directUrl = process.env.OLLAMA_DIRECT_URL;
+    if (directUrl) {
+      return this.ensureHttps(directUrl);
+    }
+    // 환경변수 없으면 기본 로컬 Ollama 서버
+    return this.getDefaultBaseUrl();
   }
 
   /**

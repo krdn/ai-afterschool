@@ -71,8 +71,9 @@ export async function testOllamaConnection(options?: { baseUrl?: string; apiKey?
   const startTime = Date.now();
 
   try {
-    // Open WebUI: /api/version, 직접 Ollama: /api/version (둘 다 지원)
-    const versionUrl = baseUrl.replace(/\/api$/, '/api/version');
+    // URL 정규화 후 /api/version 경로 생성
+    const normalizedUrl = baseUrl.replace(/\/api\/?$/, '').replace(/\/$/, '');
+    const versionUrl = `${normalizedUrl}/api/version`;
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 5000);
 
@@ -124,10 +125,12 @@ export async function getOllamaModels(options?: { baseUrl?: string; apiKey?: str
   const isProxy = !!options?.apiKey;
 
   try {
+    // URL 정규화: /api로 끝나면 제거, 슬래시도 제거
+    const normalizedUrl = baseUrl.replace(/\/api\/?$/, '').replace(/\/$/, '');
     // Open WebUI 프록시: /api/models (OpenAI 형식), 직접 Ollama: /api/tags
     const modelsUrl = isProxy
-      ? baseUrl.replace(/\/api$/, '/api/models')
-      : baseUrl.replace(/\/api$/, '/api/tags');
+      ? `${normalizedUrl}/api/models`
+      : `${normalizedUrl}/api/tags`;
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 10000);
