@@ -357,9 +357,11 @@ export async function updateStudent(
     })
 
     if (shouldMarkRecalculation || nameHanjaChanged || birthTimeChanged) {
+      // 원장/팀장은 다른 선생님의 학생도 수정 가능 → teacherId를 null로 전달하여 소유권 체크 스킵
+      const recalcTeacherId = session.role === "TEACHER" ? session.userId : null
       await markStudentRecalculationNeeded(
         studentId,
-        session.userId,
+        recalcTeacherId,
         birthTimeChanged
           ? "학생 출생 시간 변경"
           : nameHanjaChanged
