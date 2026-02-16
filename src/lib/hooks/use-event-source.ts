@@ -25,52 +25,9 @@ export function useEventSource({ url, onMessage, maxRetries = 10 }: UseEventSour
   const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const onMessageRef = useRef(onMessage)
 
-  // 최신 콜백 참조 유지
-  onMessageRef.current = onMessage
-
-  const connectRef = useRef<() => void>(() => {})
-
-  const connect = useCallback(() => {
-    // 기존 연결 정리
-    if (eventSourceRef.current) {
-      eventSourceRef.current.close()
-    }
-
-    setStatus('connecting')
-    const es = new EventSource(url)
-    eventSourceRef.current = es
-
-    es.onopen = () => {
-      retryCountRef.current = 0
-      setStatus('connected')
-    }
-
-    es.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data)
-        onMessageRef.current(data)
-      } catch {
-        // JSON 파싱 실패 시 무시
-      }
-    }
-
-    es.onerror = () => {
-      es.close()
-      setStatus('disconnected')
-
-      // exponential backoff 재연결
-      if (retryCountRef.current < maxRetries) {
-        const delay = Math.min(1000 * Math.pow(2, retryCountRef.current), 30000)
-        retryCountRef.current += 1
-
-        retryTimerRef.current = setTimeout(() => {
-          connectRef.current()
-        }, delay)
-      }
-    }
-  }, [url, maxRetries])
-
-  connectRef.current = connect
+  useEffect(() => {
+    onMessageRef.current = onMessage
+  }, [onMessage])
 
   const disconnect = useCallback(() => {
     if (retryTimerRef.current) {
@@ -86,9 +43,97 @@ export function useEventSource({ url, onMessage, maxRetries = 10 }: UseEventSour
   }, [])
 
   useEffect(() => {
-    connect()
-    return () => disconnect()
-  }, [connect, disconnect])
+    let cancelled = false
 
-  return { status, disconnect, reconnect: connect }
+    function createConnection() {
+      if (cancelled) return
+
+      // 기존 연결 정리
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close()
+      }
+
+      setStatus('connecting')
+      const es = new EventSource(url)
+      eventSourceRef.current = es
+
+      es.onopen = () => {
+        if (cancelled) return
+        retryCountRef.current = 0
+        setStatus('connected')
+      }
+
+      es.onmessage = (event) => {
+        if (cancelled) return
+        try {
+          const data = JSON.parse(event.data)
+          onMessageRef.current(data)
+        } catch {
+          // JSON 파싱 실패 시 무시
+        }
+      }
+
+      es.onerror = () => {
+        if (cancelled) return
+        es.close()
+        setStatus('disconnected')
+
+        // exponential backoff 재연결
+        if (retryCountRef.current < maxRetries) {
+          const delay = Math.min(1000 * Math.pow(2, retryCountRef.current), 30000)
+          retryCountRef.current += 1
+
+          retryTimerRef.current = setTimeout(() => {
+            createConnection()
+          }, delay)
+        }
+      }
+    }
+
+    createConnection()
+
+    return () => {
+      cancelled = true
+      if (retryTimerRef.current) {
+        clearTimeout(retryTimerRef.current)
+        retryTimerRef.current = null
+      }
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close()
+        eventSourceRef.current = null
+      }
+      retryCountRef.current = 0
+    }
+  }, [url, maxRetries])
+
+  const reconnect = useCallback(() => {
+    disconnect()
+    // 다음 틱에서 재연결 (disconnect 후 상태 정리를 위해)
+    setTimeout(() => {
+      const es = new EventSource(url)
+      eventSourceRef.current = es
+      setStatus('connecting')
+
+      es.onopen = () => {
+        retryCountRef.current = 0
+        setStatus('connected')
+      }
+
+      es.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data)
+          onMessageRef.current(data)
+        } catch {
+          // JSON 파싱 실패 시 무시
+        }
+      }
+
+      es.onerror = () => {
+        es.close()
+        setStatus('disconnected')
+      }
+    }, 0)
+  }, [url, disconnect])
+
+  return { status, disconnect, reconnect }
 }
