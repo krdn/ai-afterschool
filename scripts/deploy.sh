@@ -173,7 +173,11 @@ deploy_new_version() {
     log_info "Pulling latest images..."
     docker compose -f "$COMPOSE_FILE" pull postgres minio 2>/dev/null || true
 
-    # Start new containers
+    # 기존 컨테이너 정리 후 재시작 (컨테이너 ID 충돌 방지)
+    log_info "Stopping existing containers..."
+    docker compose -f "$COMPOSE_FILE" down --remove-orphans 2>/dev/null || true
+
+    # Start new containers (migrate → app 순서는 depends_on으로 자동 보장)
     log_info "Starting new containers..."
     if docker compose -f "$COMPOSE_FILE" up -d; then
         log_success "Containers started"
@@ -182,13 +186,33 @@ deploy_new_version() {
         return 1
     fi
 
-    # Wait for migration to complete
+    # migrate 컨테이너 완료 대기 (depends_on condition에서 처리되지만 로그 확인용)
     log_info "Waiting for database migrations to complete..."
-    if docker compose -f "$COMPOSE_FILE" up migrate --exit-code-from migrate; then
+    if docker compose -f "$COMPOSE_FILE" wait migrate 2>/dev/null; then
         log_success "Database migrations applied successfully"
     else
-        log_error "Migration failed - check logs with: docker compose -f $COMPOSE_FILE logs migrate"
-        return 1
+        # wait 명령이 없는 Compose 버전 대비 fallback
+        local migrate_timeout=60
+        local elapsed=0
+        while [ $elapsed -lt $migrate_timeout ]; do
+            local status=$(docker compose -f "$COMPOSE_FILE" ps migrate --format '{{.State}}' 2>/dev/null || echo "")
+            if [ "$status" = "exited" ]; then
+                local exit_code=$(docker compose -f "$COMPOSE_FILE" ps migrate --format '{{.ExitCode}}' 2>/dev/null || echo "1")
+                if [ "$exit_code" = "0" ]; then
+                    log_success "Database migrations applied successfully"
+                    break
+                else
+                    log_error "Migration failed - check logs with: docker compose -f $COMPOSE_FILE logs migrate"
+                    return 1
+                fi
+            fi
+            sleep 2
+            elapsed=$((elapsed + 2))
+        done
+        if [ $elapsed -ge $migrate_timeout ]; then
+            log_error "Migration timed out"
+            return 1
+        fi
     fi
 
     # Wait for app to be healthy

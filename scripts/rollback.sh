@@ -95,9 +95,9 @@ rollback_deployment() {
 
     log_info "Rolling back to: $target_tag"
 
-    # Stop current containers
+    # Stop current containers (--remove-orphans로 고아 컨테이너 정리)
     log_info "Stopping current containers..."
-    docker compose -f "$COMPOSE_FILE" down
+    docker compose -f "$COMPOSE_FILE" down --remove-orphans
 
     # Start with previous version
     log_info "Starting previous version..."
