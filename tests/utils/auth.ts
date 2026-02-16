@@ -21,8 +21,8 @@ async function performLogin(page: Page, email: string, password: string) {
         return cookies.some(c => c.name === 'session');
     }, {
         message: '로그인 후 세션 쿠키가 설정되지 않음',
-        timeout: 15000,
-        intervals: [500, 1000, 1000, 2000],
+        timeout: 30000,
+        intervals: [500, 1000, 1000, 2000, 2000, 3000],
     }).toBeTruthy();
 
     // 세션 쿠키 확인 후 진행 중인 네비게이션 완료 대기

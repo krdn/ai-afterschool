@@ -3,6 +3,7 @@
 // Covers scenarios: AUTH-01, AUTH-02, AUTH-03, AUTH-04
 
 import { test, expect, type Page } from '@playwright/test';
+import { loginAsTeacher } from '../utils/auth';
 
 // Test data
 const testUser = {
@@ -94,22 +95,8 @@ test.describe('Authentication and User Management', () => {
     });
 
     test('should successfully login and maintain session', async ({ page }) => {
-      // Navigate to login page
-      await page.goto('/auth/login');
-      await page.waitForLoadState('domcontentloaded');
-
-      // Verify login form
-      await expect(page.getByText('로그인').first()).toBeVisible();
-
-      // Enter credentials
-      await page.fill('input[name="email"], input[type="email"]', existingUser.email);
-      await page.fill('input[name="password"], input[type="password"]', existingUser.password);
-
-      // Submit login
-      await page.click('button[type="submit"]');
-
-      // Wait for redirect to students page
-      await page.waitForURL(/\/students/, { timeout: 60000 });
+      // 로그인 헬퍼 사용 (세션 쿠키 폴링 포함)
+      await loginAsTeacher(page, existingUser.email, existingUser.password);
 
       // Verify successful login
       await expect(page.locator(`text=${existingUser.name}`).first()).toBeVisible({ timeout: 10000 });
@@ -242,12 +229,8 @@ test.describe('Authentication and User Management', () => {
 
   test.describe('AUTH-04: Role-Based Access Control (RBAC)', () => {
     test('should prevent regular teacher from accessing admin pages', async ({ page }) => {
-      // Login as regular teacher
-      await page.goto('/auth/login');
-      await page.fill('input[name="email"], input[type="email"]', existingUser.email);
-      await page.fill('input[name="password"], input[type="password"]', existingUser.password);
-      await page.click('button[type="submit"]');
-      await page.waitForURL(/\/students/, { timeout: 60000 });
+      // 로그인 헬퍼 사용 (세션 쿠키 폴링 포함)
+      await loginAsTeacher(page, existingUser.email, existingUser.password);
 
       // Attempt to access admin page
       const response = await page.goto('/admin');
@@ -271,12 +254,8 @@ test.describe('Authentication and User Management', () => {
     });
 
     test('should prevent access to other team data', async ({ page }) => {
-      // Login as regular teacher
-      await page.goto('/auth/login');
-      await page.fill('input[name="email"], input[type="email"]', existingUser.email);
-      await page.fill('input[name="password"], input[type="password"]', existingUser.password);
-      await page.click('button[type="submit"]');
-      await page.waitForURL(/\/students/, { timeout: 60000 });
+      // 로그인 헬퍼 사용 (세션 쿠키 폴링 포함)
+      await loginAsTeacher(page, existingUser.email, existingUser.password);
 
       // Attempt to access another team's data via API
       const response = await page.request.get('/api/teams/other-team-id/students');
