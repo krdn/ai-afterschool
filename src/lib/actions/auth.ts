@@ -64,18 +64,20 @@ export async function login(
   prevState: AuthFormState,
   formData: FormData
 ): Promise<AuthFormState> {
-  // Rate Limiting: 로그인 5회/분
-  const headersList = await headers()
-  const ip = headersList.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown"
-  const { success: rateLimitOk } = rateLimit(`login:${ip}`, {
-    windowMs: 60 * 1000,
-    maxRequests: 5,
-  })
-  if (!rateLimitOk) {
-    return {
-      errors: {
-        _form: ["너무 많은 로그인 시도가 있었어요. 1분 후에 다시 시도해주세요."],
-      },
+  // Rate Limiting: 로그인 5회/분 (테스트 환경에서는 비활성화)
+  if (process.env.NODE_ENV !== 'test') {
+    const headersList = await headers()
+    const ip = headersList.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown"
+    const { success: rateLimitOk } = rateLimit(`login:${ip}`, {
+      windowMs: 60 * 1000,
+      maxRequests: 5,
+    })
+    if (!rateLimitOk) {
+      return {
+        errors: {
+          _form: ["너무 많은 로그인 시도가 있었어요. 1분 후에 다시 시도해주세요."],
+        },
+      }
     }
   }
 

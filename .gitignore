@@ -99,3 +99,6 @@ pnpm-lock.yaml
 # one-off utility scripts in root
 /check-*.js
 /check-*.ts
+
+# external agent tools (submodule 아님)
+.agent/external/

@@ -3,7 +3,7 @@
 // Covers scenarios: AUTH-01, AUTH-02, AUTH-03, AUTH-04
 
 import { test, expect, type Page } from '@playwright/test';
-import { loginAsTeacher } from '../utils/auth';
+import { loginAsTeacher, loginAsAdmin } from '../utils/auth';
 
 // Test data
 const testUser = {
@@ -270,14 +270,8 @@ test.describe('Authentication and User Management', () => {
         password: 'test1234',
       };
 
-      // Login as director
-      await page.goto('/auth/login');
-      await page.waitForLoadState('domcontentloaded');
-
-      await page.fill('input[name="email"], input[type="email"]', adminUser.email);
-      await page.fill('input[name="password"], input[type="password"]', adminUser.password);
-      await page.click('button[type="submit"]');
-      await page.waitForURL(/\/students/, { timeout: 60000 });
+      // 로그인 헬퍼 사용 (세션 쿠키 폴링 포함)
+      await loginAsAdmin(page, adminUser.email, adminUser.password);
 
       // Should be able to access admin pages
       await page.goto('/admin');
@@ -324,12 +318,8 @@ test.describe('Authentication and User Management', () => {
 
   test.describe('AUTH: Additional Security Tests', () => {
     test('should logout successfully and clear session', async ({ page }) => {
-      // Login first
-      await page.goto('/auth/login');
-      await page.fill('input[name="email"], input[type="email"]', existingUser.email);
-      await page.fill('input[name="password"], input[type="password"]', existingUser.password);
-      await page.click('button[type="submit"]');
-      await page.waitForURL(/\/students/, { timeout: 60000 });
+      // 로그인 헬퍼 사용 (세션 쿠키 폴링 포함)
+      await loginAsTeacher(page, existingUser.email, existingUser.password);
 
       // 사용자 메뉴(드롭다운) 열기 — UserMenu 컴포넌트의 트리거 버튼
       const userMenuTrigger = page.locator('button:has-text("김선생")');
