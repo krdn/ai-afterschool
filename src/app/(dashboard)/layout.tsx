@@ -4,6 +4,7 @@ import { NotificationBell } from "@/components/layout/notification-bell"
 import { UserMenu } from "@/components/layout/user-menu"
 import { DevUserSwitcher } from "@/components/dev/dev-user-switcher"
 import { IssueReportButton } from "@/components/issues/issue-report-button"
+import { NotificationProvider } from "@/components/common/notification-provider"
 
 const isDev = process.env.NODE_ENV === "development"
 
@@ -94,6 +95,7 @@ export default async function DashboardLayout({
       </main>
 
       {isDev && <DevUserSwitcher currentUserId={teacher.id} />}
+      <NotificationProvider />
     </div>
   )
 }
