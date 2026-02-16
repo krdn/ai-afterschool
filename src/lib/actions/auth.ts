@@ -64,8 +64,8 @@ export async function login(
   prevState: AuthFormState,
   formData: FormData
 ): Promise<AuthFormState> {
-  // Rate Limiting: 로그인 5회/분 (테스트 환경에서는 비활성화)
-  if (process.env.NODE_ENV !== 'test') {
+  // Rate Limiting: 로그인 5회/분 (CI 테스트 환경에서는 비활성화)
+  if (!process.env.DISABLE_RATE_LIMIT) {
     const headersList = await headers()
     const ip = headersList.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown"
     const { success: rateLimitOk } = rateLimit(`login:${ip}`, {

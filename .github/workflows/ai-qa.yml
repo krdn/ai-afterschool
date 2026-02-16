@@ -97,6 +97,7 @@ jobs:
       SESSION_SECRET: ci-test-session-secret-minimum-32-characters-long
       NEXT_PUBLIC_APP_URL: http://localhost:3000
       NODE_ENV: test
+      DISABLE_RATE_LIMIT: "true"
 
     steps:
     - uses: actions/checkout@v4
