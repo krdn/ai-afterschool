@@ -40,15 +40,15 @@ export async function setRLSSessionContext({
   await db.$executeRawUnsafe(`SET LOCAL rls.teacher_id = '${safeTeacherId}'`)
   await db.$executeRawUnsafe(`SET LOCAL rls.teacher_role = '${safeRole}'`)
 
-  // teamId 처리: null, undefined, 빈 문자열인 경우 NULL로 설정
+  // teamId 처리: null, undefined, 빈 문자열인 경우 빈 문자열로 설정
   const hasValidTeamId = teamId != null && String(teamId).trim() !== '' && idRegex.test(String(teamId))
 
   if (hasValidTeamId) {
     const safeTeamId = String(teamId).replace(/'/g, "''")
     await db.$executeRawUnsafe(`SET LOCAL rls.team_id = '${safeTeamId}'`)
   } else {
-    // 빈 문자열을 방지하기 위해 빈 따옴표 대신 NULL 사용
-    await db.$executeRawUnsafe('SET LOCAL rls.team_id = NULL')
+    // PostgreSQL SET은 문자열만 허용하므로 빈 문자열로 초기화
+    await db.$executeRawUnsafe("SET LOCAL rls.team_id = ''")
   }
 }
 
