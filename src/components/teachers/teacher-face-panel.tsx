@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useState, useTransition, useEffect, useRef, useCallback } from "react"
 import { Camera, Sparkles, AlertCircle } from "lucide-react"
-import { runTeacherFaceAnalysis } from "@/lib/actions/teacher/face-analysis"
+import { runTeacherFaceAnalysis, getTeacherFaceAnalysisAction } from "@/lib/actions/teacher/face-analysis"
 import { DISCLAIMER_TEXT } from "@/lib/ai/prompts"
 import type { ProviderName } from "@/lib/ai/providers/types"
 import { ProviderSelector } from "@/components/students/provider-selector"
@@ -31,15 +31,45 @@ type Props = {
 export function TeacherFacePanel({
   teacherId,
   teacherName,
-  analysis,
+  analysis: initialAnalysis,
   faceImageUrl,
   enabledProviders = [],
   promptOptions = [],
 }: Props) {
   const [, startTransition] = useTransition()
   const [localStatus, setLocalStatus] = useState<'idle' | 'analyzing'>('idle')
+  const [analysis, setAnalysis] = useState<TeacherFaceAnalysis>(initialAnalysis)
   const [selectedProvider, setSelectedProvider] = useState('auto')
   const [selectedPromptId, setSelectedPromptId] = useState('default')
+  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  // 폴링 정리
+  const stopPolling = useCallback(() => {
+    if (pollingRef.current) {
+      clearInterval(pollingRef.current)
+      pollingRef.current = null
+    }
+  }, [])
+
+  // 분석 완료 대기 폴링
+  const startPolling = useCallback(() => {
+    stopPolling()
+    pollingRef.current = setInterval(async () => {
+      try {
+        const result = await getTeacherFaceAnalysisAction(teacherId)
+        if (result && (result.status === 'complete' || result.status === 'failed')) {
+          setAnalysis(result as TeacherFaceAnalysis)
+          setLocalStatus('idle')
+          stopPolling()
+        }
+      } catch {
+        // 폴링 중 에러는 무시하고 계속 시도
+      }
+    }, 3000) // 3초 간격
+  }, [teacherId, stopPolling])
+
+  // 컴포넌트 언마운트 시 폴링 정리
+  useEffect(() => stopPolling, [stopPolling])
 
   const handleAnalyze = () => {
     if (!faceImageUrl) {
@@ -51,7 +81,8 @@ export function TeacherFacePanel({
     startTransition(async () => {
       const result = await runTeacherFaceAnalysis(teacherId, faceImageUrl)
       if (result.success) {
-        window.location.reload()
+        // 백그라운드 분석 시작됨 → 폴링으로 결과 대기
+        startPolling()
       } else {
         alert(result.error || "분석에 실패했습니다.")
         setLocalStatus('idle')

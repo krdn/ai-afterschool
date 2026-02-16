@@ -347,6 +347,18 @@ export class FeatureResolver {
       });
     }
 
+    // 6. 모델 품질 기반 정렬: 무료(:free) 모델을 뒤로, 유명 모델을 앞으로
+    results.sort((a, b) => {
+      const aIsFree = a.model.modelId.includes(':free');
+      const bIsFree = b.model.modelId.includes(':free');
+      if (aIsFree !== bIsFree) return aIsFree ? 1 : -1;
+
+      // contextWindow가 큰 모델 우선 (일반적으로 더 능력 있는 모델)
+      const aCtx = a.model.contextWindow || 0;
+      const bCtx = b.model.contextWindow || 0;
+      return bCtx - aCtx;
+    });
+
     return results;
   }
 

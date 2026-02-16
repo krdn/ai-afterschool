@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useState, useTransition, useEffect, useRef, useCallback } from "react"
 import { Camera, Sparkles, AlertCircle, RefreshCw, Loader2 } from "lucide-react"
-import { analyzeFaceImage } from "@/lib/actions/student/ai-image-analysis"
+import { analyzeFaceImage, getFaceAnalysis as getFaceAnalysisAction } from "@/lib/actions/student/ai-image-analysis"
 import { DISCLAIMER_TEXT } from "@/lib/ai/prompts"
 import type { ProviderName } from "@/lib/ai/providers/types"
 import { ProviderSelector } from "@/components/students/provider-selector"
@@ -30,7 +30,7 @@ type Props = {
 
 export function FaceAnalysisPanel({
   studentId,
-  analysis,
+  analysis: initialAnalysis,
   faceImageUrl,
   enabledProviders = [],
   promptOptions = [],
@@ -38,9 +38,44 @@ export function FaceAnalysisPanel({
 }: Props) {
   const [, startTransition] = useTransition()
   const [localStatus, setLocalStatus] = useState<'idle' | 'analyzing'>('idle')
+  const [analysis, setAnalysis] = useState<FaceAnalysis>(initialAnalysis)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [selectedProvider, setSelectedProvider] = useState('auto')
   const [selectedPromptId, setSelectedPromptId] = useState('default')
+  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  // props에서 analysis가 변경되면 동기화
+  useEffect(() => {
+    setAnalysis(initialAnalysis)
+  }, [initialAnalysis])
+
+  const stopPolling = useCallback(() => {
+    if (pollingRef.current) {
+      clearInterval(pollingRef.current)
+      pollingRef.current = null
+    }
+  }, [])
+
+  // 분석 완료 대기 폴링
+  const startPolling = useCallback(() => {
+    stopPolling()
+    pollingRef.current = setInterval(async () => {
+      try {
+        const result = await getFaceAnalysisAction(studentId)
+        if (result && (result.status === 'complete' || result.status === 'failed')) {
+          setAnalysis(result as FaceAnalysis)
+          setLocalStatus('idle')
+          stopPolling()
+          onDataChange?.()
+        }
+      } catch {
+        // 폴링 중 에러는 무시하고 계속 시도
+      }
+    }, 3000)
+  }, [studentId, stopPolling, onDataChange])
+
+  // 컴포넌트 언마운트 시 폴링 정리
+  useEffect(() => stopPolling, [stopPolling])
 
   const handleAnalyze = () => {
     if (!faceImageUrl) {
@@ -53,9 +88,8 @@ export function FaceAnalysisPanel({
     startTransition(async () => {
       const result = await analyzeFaceImage(studentId, faceImageUrl, selectedProvider, selectedPromptId)
       if (result.success) {
-        onDataChange?.()
-        // 로컬 상태는 서버의 pending 상태로 전환 (폧링으로 상태 확인)
-        setLocalStatus('idle')
+        // 백그라운드 분석 시작됨 → 폴링으로 결과 대기
+        startPolling()
       } else {
         setErrorMessage(`이미지 분석에 실패했습니다. (원인: ${result.error || '알 수 없는 오류'}) 다시 시도해주세요.`)
         setLocalStatus('idle')

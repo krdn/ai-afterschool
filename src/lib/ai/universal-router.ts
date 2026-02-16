@@ -15,6 +15,24 @@ import { trackUsage, trackFailure } from './usage-tracker';
 import { FailoverError, isRetryableError } from './failover';
 import { decryptApiKey } from './encryption';
 
+// LLM 거부 응답 패턴 감지
+const REFUSAL_PATTERNS = [
+  /^I('m| am) sorry,? I (can't|cannot|won't|will not)/i,
+  /^I('m| am) not able to/i,
+  /^I (can't|cannot) assist with/i,
+  /^I('m| am) unable to/i,
+  /^Sorry,? (but )?I (can't|cannot)/i,
+  /^As an AI,? I (can't|cannot|don't)/i,
+  /^I apologize,? but I (can't|cannot)/i,
+];
+
+function isRefusalResponse(text: string): boolean {
+  const trimmed = text.trim();
+  // 짧은 거부 응답만 감지 (정상 JSON 응답이 이 패턴을 포함할 가능성 배제)
+  if (trimmed.length > 500) return false;
+  return REFUSAL_PATTERNS.some(pattern => pattern.test(trimmed));
+}
+
 // Prisma 모델은 마이그레이션 후 생성됨 - 임시 타입 정의
 type Provider = {
   id: string;
@@ -266,6 +284,15 @@ export async function generateWithProvider(options: GenerateOptions): Promise<Ge
         maxRetries: 0,
       });
 
+      // LLM 거부 응답 감지 — 다음 모델로 폴백
+      if (isRefusalResponse(result.text)) {
+        console.warn(
+          `[Universal Router] Model ${model.modelId} refused the request, trying next provider...`
+        );
+        lastError = new Error(`Model ${model.modelId} refused: ${result.text.slice(0, 100)}`);
+        continue;
+      }
+
       const responseTimeMs = Date.now() - startTime;
 
       await trackUsage({
@@ -515,6 +542,15 @@ export async function generateWithVision(
         temperature,
         maxRetries: 0,
       });
+
+      // LLM 거부 응답 감지 — 다음 모델로 폴백
+      if (isRefusalResponse(result.text)) {
+        console.warn(
+          `[Universal Router] Model ${model.modelId} refused the request, trying next provider...`
+        );
+        lastError = new Error(`Model ${model.modelId} refused: ${result.text.slice(0, 100)}`);
+        continue;
+      }
 
       const responseTimeMs = Date.now() - startTime;
 
