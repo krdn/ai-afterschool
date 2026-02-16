@@ -1,4 +1,4 @@
-import { getStudentById } from "@/lib/actions/student";
+import { getStudentById } from "@/lib/actions/student/detail";
 import AnalysisTab from "@/components/students/tabs/analysis-tab";
 import LearningTab from "@/components/students/tabs/learning-tab";
 import ReportTab from "@/components/students/tabs/report-tab";

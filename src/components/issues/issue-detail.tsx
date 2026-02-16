@@ -8,7 +8,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { IssueStatusBadge, IssueCategoryBadge, IssuePriorityBadge } from './issue-status-badge'
 import { IssueAssignSelect } from './issue-assign-select'
-import { updateIssueStatus } from '@/lib/actions/issues'
+import { updateIssueStatus } from '@/lib/actions/common/issues'
 import { toast } from 'sonner'
 import { ExternalLink } from 'lucide-react'
 import type { IssueStatus, IssueCategory, IssuePriority } from '@prisma/client'

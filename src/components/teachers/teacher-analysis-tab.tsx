@@ -11,10 +11,10 @@ import { TeacherMbtiPanel } from "@/components/teachers/teacher-mbti-panel"
 import { TeacherNamePanel } from "@/components/teachers/teacher-name-panel"
 import { AnalysisHistoryDialog } from "@/components/students/analysis-history-dialog"
 import { AnalysisHistoryDetailDialog } from "@/components/students/analysis-history-detail-dialog"
-import { getTeacherAnalysisData } from "@/lib/actions/teacher-analysis-tab"
-import { getTeacherAnalysisHistory } from "@/lib/actions/teacher-analysis-history"
+import { getTeacherAnalysisData } from "@/lib/actions/teacher/analysis-tab"
+import { getTeacherAnalysisHistory } from "@/lib/actions/teacher/analysis-history"
 import type { AnalysisHistoryItem } from "@/components/students/analysis-history-dialog"
-import type { TeacherAnalysisData } from "@/lib/actions/teacher-analysis-tab"
+import type { TeacherAnalysisData } from "@/lib/actions/teacher/analysis-tab"
 
 export default function TeacherAnalysisTab({ teacherId }: { teacherId: string }) {
   const [subTab, setSubTab] = useState("saju")

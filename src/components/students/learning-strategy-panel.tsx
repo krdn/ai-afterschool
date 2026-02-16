@@ -1,7 +1,7 @@
 import { BookOpen, Sparkles, AlertCircle } from "lucide-react"
 import { format } from "date-fns"
 import { getPersonalitySummary } from "@/lib/db/personality-summary"
-import { generateLearningStrategy } from "@/lib/actions/personality-integration"
+import { generateLearningStrategy } from "@/lib/actions/student/personality-integration"
 import { LearningStrategyRetryButton } from "./learning-strategy-retry-button"
 import type { PersonalitySummary } from "@prisma/client"
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { logout } from "@/lib/actions/auth"
+import { logout } from "@/lib/actions/auth/login"
 import { Button } from "@/components/ui/button"
 
 export function LogoutButton() {

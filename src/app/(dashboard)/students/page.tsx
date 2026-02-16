@@ -1,4 +1,4 @@
-import { getStudents } from "@/lib/actions/student";
+import { getStudents } from "@/lib/actions/student/detail";
 import Link from "next/link";
 import Image from "next/image";
 

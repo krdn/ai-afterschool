@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { verifySession } from '@/lib/dal'
-import { getTeachers } from '@/lib/actions/teachers'
+import { getTeachers } from '@/lib/actions/teacher/crud'
 import { Button } from '@/components/ui/button'
 import { TeacherTable } from '@/components/teachers/teacher-table'
 import { EmptyState } from '@/components/students/empty-state'

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { getTeamById } from '@/lib/actions/teams'
+import { getTeamById } from '@/lib/actions/common/teams'
 import { notFound } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Users, GraduationCap } from 'lucide-react'

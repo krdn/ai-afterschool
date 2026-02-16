@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
-import { assignStudentToTeacher } from "@/lib/actions/assignment"
+import { assignStudentToTeacher } from "@/lib/actions/matching/assignment"
 import { toast } from "sonner"
 
 interface Student {

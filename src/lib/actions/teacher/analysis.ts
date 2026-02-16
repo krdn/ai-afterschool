@@ -509,6 +509,6 @@ export async function simplifyTeacherInterpretation(
   interpretation: string,
   provider: string
 ): Promise<{ text: string; usedProvider: string; usedModel?: string }> {
-  const { simplifyInterpretation } = await import("@/lib/actions/calculation-analysis")
+  const { simplifyInterpretation } = await import("@/lib/actions/student/calculation-analysis")
   return simplifyInterpretation(interpretation, provider)
 }

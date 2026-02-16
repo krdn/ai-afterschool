@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
 import { formatChangesForDiff } from '@/lib/utils/change-formatter'
-import type { AuditLogEntry } from '@/lib/actions/audit'
+import type { AuditLogEntry } from '@/lib/actions/admin/audit'
 
 interface AuditLogDetailDialogProps {
   log: AuditLogEntry | null

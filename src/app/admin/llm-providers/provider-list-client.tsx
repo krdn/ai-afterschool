@@ -8,7 +8,7 @@ import {
   validateProviderAction,
   updateProviderAction,
   deleteProviderAction,
-} from '@/lib/actions/provider-actions';
+} from '@/lib/actions/admin/providers';
 import type { ProviderWithModels } from '@/lib/ai/types';
 
 interface ProviderListClientProps {

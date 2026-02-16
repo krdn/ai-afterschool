@@ -1,7 +1,7 @@
 import { verifySession } from "@/lib/dal"
 import { db } from "@/lib/db"
 import { listAssignmentProposals } from "@/lib/db/assignment"
-import { getAssignmentResults } from "@/lib/actions/assignment-results"
+import { getAssignmentResults } from "@/lib/actions/matching/assignment-results"
 import { AutoAssignmentSuggestion } from "@/components/assignment/auto-assignment-suggestion"
 import { AssignmentResultCard } from "@/components/matching/AssignmentResultCard"
 import {

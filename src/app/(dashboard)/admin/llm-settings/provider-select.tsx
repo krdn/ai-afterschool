@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Label } from "@/components/ui/label"
 import { Loader2, Check } from "lucide-react"
-import { setDefaultProviderAction } from "@/lib/actions/llm-settings"
+import { setDefaultProviderAction } from "@/lib/actions/admin/llm-settings"
 import { PROVIDER_CONFIGS, type ProviderName } from "@/lib/ai/providers/types"
 
 interface ProviderSelectProps {

@@ -3,7 +3,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { formatChangesSummary } from '@/lib/utils/change-formatter'
-import type { AuditLogEntry } from '@/lib/actions/audit'
+import type { AuditLogEntry } from '@/lib/actions/admin/audit'
 
 interface MatchingAuditTableProps {
   logs: AuditLogEntry[]

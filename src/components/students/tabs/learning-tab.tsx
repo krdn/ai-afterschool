@@ -16,7 +16,7 @@ import {
     Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { addGrade, getGrades, deleteGrade } from "@/lib/actions/grade";
+import { addGrade, getGrades, deleteGrade } from "@/lib/actions/student/grade";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { GradeType } from "@prisma/client";

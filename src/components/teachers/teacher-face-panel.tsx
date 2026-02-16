@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react"
 import { Camera, Sparkles, AlertCircle } from "lucide-react"
-import { runTeacherFaceAnalysis } from "@/lib/actions/teacher-face-analysis"
+import { runTeacherFaceAnalysis } from "@/lib/actions/teacher/face-analysis"
 import { DISCLAIMER_TEXT } from "@/lib/ai/prompts"
 import type { ProviderName } from "@/lib/ai/providers/types"
 import { ProviderSelector } from "@/components/students/provider-selector"

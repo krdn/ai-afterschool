@@ -9,7 +9,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { getBudgetStatusSummary } from "@/lib/actions/notifications";
+import { getBudgetStatusSummary } from "@/lib/actions/common/notifications";
 
 interface BudgetStatus {
   period: string;

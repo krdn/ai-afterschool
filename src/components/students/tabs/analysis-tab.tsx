@@ -13,10 +13,10 @@ import { NameAnalysisPanel } from "@/components/students/name-analysis-panel"
 import { ZodiacAnalysisPanel } from "@/components/students/zodiac-analysis-panel"
 import { AnalysisHistoryDialog } from "@/components/students/analysis-history-dialog"
 import { AnalysisHistoryDetailDialog } from "@/components/students/analysis-history-detail-dialog"
-import { getStudentAnalysisData } from "@/lib/actions/student-analysis-tab"
-import { getAnalysisHistory } from "@/lib/actions/analysis"
+import { getStudentAnalysisData } from "@/lib/actions/student/analysis-tab"
+import { getAnalysisHistory } from "@/lib/actions/student/analysis"
 import type { AnalysisHistoryItem } from "@/components/students/analysis-history-dialog"
-import type { StudentAnalysisData } from "@/lib/actions/student-analysis-tab"
+import type { StudentAnalysisData } from "@/lib/actions/student/analysis-tab"
 
 export default function AnalysisTab({ studentId }: { studentId: string }) {
   const [subTab, setSubTab] = useState("saju")

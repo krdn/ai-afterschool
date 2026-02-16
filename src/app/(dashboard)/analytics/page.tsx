@@ -6,10 +6,10 @@ import { TrendDataPoint as GradeTrendDataPoint } from "@/components/analytics/Gr
 import { PerformanceTrendChart, TrendDataPoint } from "@/components/statistics/PerformanceTrendChart"
 import { Card, CardContent } from "@/components/ui/card"
 import { Loader2, AlertCircle } from "lucide-react"
-import { getTeachers } from "@/lib/actions/teachers"
-import { compareTeachersByGradeImprovement, getCounselingStats, CounselingStats } from "@/lib/actions/analytics"
+import { getTeachers } from "@/lib/actions/teacher/crud"
+import { compareTeachersByGradeImprovement, getCounselingStats, CounselingStats } from "@/lib/actions/common/analytics"
 import { TeacherWithMetrics } from "@/components/analytics/TeacherPerformanceCard"
-import { getTeacherStudentMetrics } from "@/lib/actions/teacher-performance"
+import { getTeacherStudentMetrics } from "@/lib/actions/teacher/performance"
 import { DateRange } from "@/types/statistics"
 
 interface TeacherGradeComparison {

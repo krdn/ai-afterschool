@@ -15,7 +15,7 @@ import {
   StudentImageSchema,
   type StudentImageInput,
 } from "@/lib/validations/student-images"
-import { setStudentImage } from "@/lib/actions/student-images"
+import { setStudentImage } from "@/lib/actions/student/images"
 import { markStudentRecalculationNeeded } from "@/lib/db/student-analysis"
 
 export type StudentFormState = {

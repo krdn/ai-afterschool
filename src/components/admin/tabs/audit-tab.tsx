@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { getAuditLogs, type AuditLogEntry } from '@/lib/actions/audit'
+import { getAuditLogs, type AuditLogEntry } from '@/lib/actions/admin/audit'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 interface AuditTabProps {

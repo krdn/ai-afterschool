@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
 import { verifySession } from "@/lib/dal"
 import { db } from "@/lib/db"
-import { getTeacherRecommendations } from "@/lib/actions/assignment"
+import { getTeacherRecommendations } from "@/lib/actions/matching/assignment"
 import { TeacherRecommendationList } from "@/components/matching/teacher-recommendation-list"
 
 export default async function StudentMatchingPage({

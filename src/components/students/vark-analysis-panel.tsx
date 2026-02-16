@@ -4,7 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { BookOpen, Pencil } from "lucide-react"
 import { VarkResultsDisplay } from "@/components/vark/results-display"
-import { generateVarkLLMInterpretation } from "@/lib/actions/vark-survey"
+import { generateVarkLLMInterpretation } from "@/lib/actions/student/vark-survey"
 import type { ProviderName } from "@/lib/ai/providers/types"
 import type { GenericPromptMeta } from "@/components/students/prompt-selector"
 import {

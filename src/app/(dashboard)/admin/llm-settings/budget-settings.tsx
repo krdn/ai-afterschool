@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Loader2, AlertTriangle, CheckCircle } from 'lucide-react';
-import { getBudgetConfigsAction, saveBudgetConfigAction } from '@/lib/actions/llm-settings';
+import { getBudgetConfigsAction, saveBudgetConfigAction } from '@/lib/actions/admin/llm-settings';
 
 interface BudgetConfig {
   period: 'daily' | 'weekly' | 'monthly';

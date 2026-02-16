@@ -19,9 +19,9 @@ import {
   getTeacherMonthlyStatsAction,
   getCounselingTypeDistributionAction,
   getMonthlyTrendAction,
-} from "@/lib/actions/counseling-stats"
+} from "@/lib/actions/counseling/stats"
 import { getDateRangeFromPreset } from "@/lib/utils/date-range"
-import { getFollowUpsAction, completeFollowUpAction } from "@/lib/actions/follow-up"
+import { getFollowUpsAction, completeFollowUpAction } from "@/lib/actions/counseling/follow-up"
 import { toast } from "sonner"
 
 interface DashboardStats {

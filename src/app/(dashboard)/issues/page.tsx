@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { verifySession } from '@/lib/dal'
-import { getIssues } from '@/lib/actions/issues'
+import { getIssues } from '@/lib/actions/common/issues'
 import { IssueTable } from '@/components/issues/issue-table'
 import { IssueFilters } from '@/components/issues/issue-filters'
 import type { IssueStatus, IssueCategory } from '@prisma/client'

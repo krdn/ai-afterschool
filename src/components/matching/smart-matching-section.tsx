@@ -33,8 +33,8 @@ import {
   TeacherRecommendationList,
   type TeacherRecommendation,
 } from "./teacher-recommendation-list"
-import { getTeacherRecommendations, assignStudentToTeacher } from "@/lib/actions/assignment"
-import { getLLMTeacherRecommendations } from "@/lib/actions/llm-compatibility"
+import { getTeacherRecommendations, assignStudentToTeacher } from "@/lib/actions/matching/assignment"
+import { getLLMTeacherRecommendations } from "@/lib/actions/admin/llm-compatibility"
 import { toast } from "sonner"
 
 interface SmartMatchingSectionProps {

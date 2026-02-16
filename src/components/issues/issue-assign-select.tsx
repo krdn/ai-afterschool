@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select'
-import { assignIssue } from '@/lib/actions/issues'
+import { assignIssue } from '@/lib/actions/common/issues'
 import { toast } from 'sonner'
 
 interface Teacher {

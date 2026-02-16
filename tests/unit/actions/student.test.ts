@@ -24,7 +24,7 @@ vi.mock("next/cache", () => ({
 import { db } from "@/lib/db"
 import { verifySession } from "@/lib/dal"
 import { revalidatePath } from "next/cache"
-import { getStudents, getStudentById, deleteStudent } from "@/lib/actions/student"
+import { getStudents, getStudentById, deleteStudent } from "@/lib/actions/student/detail"
 
 const mockDb = vi.mocked(db)
 const mockVerifySession = vi.mocked(verifySession)

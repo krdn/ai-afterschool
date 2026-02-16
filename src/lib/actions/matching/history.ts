@@ -2,7 +2,7 @@
 
 import { verifySession } from '@/lib/dal'
 import { db } from '@/lib/db'
-import type { AuditLogEntry } from '@/lib/actions/audit'
+import type { AuditLogEntry } from '@/lib/actions/admin/audit'
 
 export interface MatchingHistoryParams {
   startDate?: string

@@ -16,7 +16,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
-import { deleteTeacher, getTeacherStudentCount } from '@/lib/actions/teachers'
+import { deleteTeacher, getTeacherStudentCount } from '@/lib/actions/teacher/crud'
 
 type TeacherDeleteDialogProps = {
   teacherId: string

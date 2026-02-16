@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
 import { ko } from 'date-fns/locale'
-import { requestPasswordReset } from '@/lib/actions/auth'
+import { requestPasswordReset } from '@/lib/actions/auth/login'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {

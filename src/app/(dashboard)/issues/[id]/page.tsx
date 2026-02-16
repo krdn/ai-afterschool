@@ -1,7 +1,7 @@
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { verifySession } from '@/lib/dal'
-import { getIssueById } from '@/lib/actions/issues'
+import { getIssueById } from '@/lib/actions/common/issues'
 import { db } from '@/lib/db'
 import { IssueDetail } from '@/components/issues/issue-detail'
 import { IssueTimeline } from '@/components/issues/issue-timeline'

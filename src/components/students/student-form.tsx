@@ -7,8 +7,8 @@ import {
   createStudent,
   updateStudent,
   type StudentFormState,
-} from "@/lib/actions/students"
-import { deleteStudentImage } from "@/lib/actions/student-images"
+} from "@/lib/actions/student/crud"
+import { deleteStudentImage } from "@/lib/actions/student/images"
 import {
   StudentImageUploader,
   type StudentImagePayload,

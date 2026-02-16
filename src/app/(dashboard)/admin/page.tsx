@@ -16,13 +16,13 @@ import { LogsTab } from '@/components/admin/tabs/logs-tab'
 import { DatabaseTab } from '@/components/admin/tabs/database-tab'
 import { AuditTab } from '@/components/admin/tabs/audit-tab'
 import { TeamsTab } from '@/components/admin/tabs/teams-tab'
-import { getTeams } from '@/lib/actions/teams'
+import { getTeams } from '@/lib/actions/common/teams'
 import { pool } from '@/lib/db'
 
 // LLM Hub
 import { LLMHubTab } from '@/components/admin/tabs/llm-hub-tab'
-import { getProvidersAction } from '@/lib/actions/provider-actions'
-import { getFeatureMappingsAction } from '@/lib/actions/feature-mapping-actions'
+import { getProvidersAction } from '@/lib/actions/admin/providers'
+import { getFeatureMappingsAction } from '@/lib/actions/admin/feature-mappings'
 import { existsSync, readdirSync, statSync } from 'fs'
 import { join } from 'path'
 

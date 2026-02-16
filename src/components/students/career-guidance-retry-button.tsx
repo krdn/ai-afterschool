@@ -2,7 +2,7 @@
 
 import { useTransition } from "react"
 import { useRouter } from "next/navigation"
-import { generateCareerGuidance } from "@/lib/actions/personality-integration"
+import { generateCareerGuidance } from "@/lib/actions/student/personality-integration"
 
 type Props = {
   studentId: string

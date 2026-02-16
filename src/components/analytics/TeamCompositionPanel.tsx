@@ -1,6 +1,6 @@
 import type { TeamCompositionAnalysis } from "@/lib/analysis/team-composition-types"
 import { analyzeTeamComposition } from "@/lib/analysis/team-composition"
-import { getTeamById } from "@/lib/actions/teams"
+import { getTeamById } from "@/lib/actions/common/teams"
 import { PersonalityDiversityChart } from "./PersonalityDiversityChart"
 import { MBTIDistributionChart } from "./MBTIDistributionChart"
 import { ExpertiseCoverageChart } from "./ExpertiseCoverageChart"

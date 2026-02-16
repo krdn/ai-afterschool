@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { verifySession } from '@/lib/dal'
 import { getRBACPrisma } from '@/lib/db/rbac'
-import { getTeacherStudents, getTeacherStudentMetrics } from '@/lib/actions/teacher-performance'
+import { getTeacherStudents, getTeacherStudentMetrics } from '@/lib/actions/teacher/performance'
 import { TeacherStudentList } from '@/components/teachers/TeacherStudentList'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'

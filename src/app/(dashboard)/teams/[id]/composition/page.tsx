@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
 import type { TeamCompositionAnalysis } from "@/lib/analysis/team-composition-types"
 import { analyzeTeamComposition } from "@/lib/analysis/team-composition"
-import { getTeamById } from "@/lib/actions/teams"
+import { getTeamById } from "@/lib/actions/common/teams"
 import { TeamCompositionPanel } from "@/components/analytics/TeamCompositionPanel"
 import { Card, CardContent } from "@/components/ui/card"
 

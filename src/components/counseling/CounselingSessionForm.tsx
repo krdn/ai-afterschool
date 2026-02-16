@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { recordCounselingAction } from "@/lib/actions/performance"
+import { recordCounselingAction } from "@/lib/actions/common/performance"
 import { counselingSchema, type CounselingFormData } from "@/lib/validations/counseling"
 import { toast } from "sonner"
 import { AISupportPanel } from "./AISupportPanel"

@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { toast } from "sonner"
-import { createTeacher, updateTeacher, type TeacherFormState } from "@/lib/actions/teachers"
+import { createTeacher, updateTeacher, type TeacherFormState } from "@/lib/actions/teacher/crud"
 import { TeacherSchema } from "@/lib/validations/teachers"
 import {
   StudentImageUploader,

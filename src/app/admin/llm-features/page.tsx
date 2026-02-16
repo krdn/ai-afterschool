@@ -5,8 +5,8 @@ import { AlertCircle, Info } from 'lucide-react';
 import { AdminPageLayout } from '@/components/admin/admin-page-layout';
 import { HelpIntegration, QuickHelpSection } from './help-integration';
 import { FeatureMappingList } from '@/components/admin/llm-features/feature-mapping-list';
-import { getFeatureMappingsAction } from '@/lib/actions/feature-mapping-actions';
-import { getProvidersAction } from '@/lib/actions/provider-actions';
+import { getFeatureMappingsAction } from '@/lib/actions/admin/feature-mappings';
+import { getProvidersAction } from '@/lib/actions/admin/providers';
 import { verifySession } from '@/lib/dal';
 import type { MatchMode, FallbackMode } from '@/lib/ai/types';
 

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { getTeams } from '@/lib/actions/teams'
+import { getTeams } from '@/lib/actions/common/teams'
 import { EmptyState } from '@/components/students/empty-state'
 import { Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'

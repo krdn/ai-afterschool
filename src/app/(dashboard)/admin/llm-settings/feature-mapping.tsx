@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Loader2 } from 'lucide-react';
-import { saveFeatureConfigAction } from '@/lib/actions/llm-settings';
+import { saveFeatureConfigAction } from '@/lib/actions/admin/llm-settings';
 import { PROVIDER_CONFIGS, type ProviderName, type FeatureType } from '@/lib/ai/providers/types';
 
 interface FeatureMappingProps {

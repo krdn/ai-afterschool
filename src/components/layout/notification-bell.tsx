@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import {
   getAllNotifications,
   type Notification,
-} from "@/lib/actions/notifications";
+} from "@/lib/actions/common/notifications";
 
 interface NotificationBellProps {
   className?: string;

@@ -1,4 +1,4 @@
-import { getUpcomingCounseling } from '@/lib/actions/upcoming-counseling'
+import { getUpcomingCounseling } from '@/lib/actions/counseling/upcoming'
 import { UpcomingCounselingWidget } from '@/components/counseling/UpcomingCounselingWidget'
 
 export default async function DashboardPage() {

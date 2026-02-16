@@ -22,7 +22,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { ArrowUpDown, Search, FileText, MessageSquare, User } from 'lucide-react'
 import Link from 'next/link'
-import type { StudentWithMetrics, TeacherStudentMetrics } from '@/lib/actions/teacher-performance'
+import type { StudentWithMetrics, TeacherStudentMetrics } from '@/lib/actions/teacher/performance'
 
 interface TeacherStudentListProps {
   teacherId: string

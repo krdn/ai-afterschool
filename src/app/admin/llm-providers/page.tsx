@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Plus, Settings } from 'lucide-react';
 import { AdminPageLayout } from '@/components/admin/admin-page-layout';
-import { getProvidersAction } from '@/lib/actions/provider-actions';
+import { getProvidersAction } from '@/lib/actions/admin/providers';
 import { ProviderListClient } from './provider-list-client';
 import { HelpIntegration, QuickHelpSection } from './help-integration';
 

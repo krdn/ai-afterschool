@@ -1,6 +1,6 @@
 "use client";
 
-import { deleteStudent } from "@/lib/actions/student";
+import { deleteStudent } from "@/lib/actions/student/detail";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
