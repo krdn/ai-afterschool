@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertCircle, Info } from 'lucide-react';
 import { AdminPageLayout } from '@/components/admin/admin-page-layout';
@@ -101,8 +102,8 @@ export default async function LLMFeaturesPage() {
               <AlertCircle className="h-5 w-5" />
               <span>
                 활성화된 LLM 제공자가 없습니다.
-                <a href="/admin/llm-providers" className="underline font-medium">
-                  제공자 관리 페이지</a>에서 제공자를 먼저 등록해주세요.
+                <Link href="/admin/llm-providers" className="underline font-medium">
+                  제공자 관리 페이지</Link>에서 제공자를 먼저 등록해주세요.
               </span>
             </div>
           </CardContent>

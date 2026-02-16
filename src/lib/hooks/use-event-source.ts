@@ -28,6 +28,8 @@ export function useEventSource({ url, onMessage, maxRetries = 10 }: UseEventSour
   // 최신 콜백 참조 유지
   onMessageRef.current = onMessage
 
+  const connectRef = useRef<() => void>(() => {})
+
   const connect = useCallback(() => {
     // 기존 연결 정리
     if (eventSourceRef.current) {
@@ -62,11 +64,13 @@ export function useEventSource({ url, onMessage, maxRetries = 10 }: UseEventSour
         retryCountRef.current += 1
 
         retryTimerRef.current = setTimeout(() => {
-          connect()
+          connectRef.current()
         }, delay)
       }
     }
   }, [url, maxRetries])
+
+  connectRef.current = connect
 
   const disconnect = useCallback(() => {
     if (retryTimerRef.current) {
