@@ -23,10 +23,10 @@ import {
   markStudentRecalculationNeeded,
   upsertNameAnalysis,
   upsertSajuAnalysis,
-} from "@/lib/db/student-analysis"
+} from "@/lib/db/student/analysis"
 import { generateWithProvider, generateWithSpecificProvider } from "@/lib/ai/universal-router"
 import { getPromptDefinition, buildPromptFromTemplate, type AnalysisPromptId, type StudentInfo } from "@/lib/ai/saju-prompts"
-import { getPresetByKey } from "@/lib/db/saju-prompt-preset"
+import { getPresetByKey } from "@/lib/db/analysis/saju-prompt-preset"
 import type { ProviderName } from "@/lib/ai/providers/types"
 
 type AnalysisInput = Prisma.JsonValue

@@ -11,7 +11,7 @@ import { PrismaClient } from '@prisma/client';
 import {
   getProviderTemplates,
   ProviderTemplate,
-} from '../ai/templates';
+} from '../../ai/templates';
 
 const prisma = new PrismaClient();
 

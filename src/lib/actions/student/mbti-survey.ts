@@ -10,7 +10,7 @@ import {
   getMbtiDraft as getMbtiDraftDb,
   upsertMbtiAnalysis,
   upsertMbtiDraft,
-} from "@/lib/db/mbti-analysis"
+} from "@/lib/db/student/mbti-analysis"
 import { generateWithProvider, generateWithSpecificProvider } from "@/lib/ai/universal-router"
 import { MBTI_INTERPRETATION_PROMPT } from "@/lib/ai/prompts"
 import { getMbtiPrompt, type MbtiPromptId } from "@/lib/ai/mbti-prompts"

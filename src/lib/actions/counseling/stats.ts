@@ -1,7 +1,7 @@
 "use server"
 
 import { verifySession } from "@/lib/dal"
-import { getRBACPrisma } from "@/lib/db/rbac"
+import { getRBACPrisma } from "@/lib/db/common/rbac"
 import { CounselingType, Prisma } from "@prisma/client"
 import { startOfMonth, endOfMonth, subMonths } from "date-fns"
 import type {

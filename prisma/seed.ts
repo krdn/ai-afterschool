@@ -2,7 +2,7 @@ import "dotenv/config"
 import { PrismaClient } from "@prisma/client"
 import { PrismaPg } from "@prisma/adapter-pg"
 import { Pool } from "pg"
-import { runSeed } from "../src/lib/db/seed-core"
+import { runSeed } from "../src/lib/db/seed/core"
 
 const databaseUrl = process.env.DATABASE_URL
 if (!databaseUrl) {

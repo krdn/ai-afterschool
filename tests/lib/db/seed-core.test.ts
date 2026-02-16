@@ -5,7 +5,7 @@ import {
   SEED_GROUP_LABELS,
   SEED_GROUP_COUNTS,
   type SeedGroup,
-} from '@/lib/db/seed-core'
+} from '@/lib/db/seed/core'
 
 describe('seed-core 타입 및 상수', () => {
   it('ALL_SEED_GROUPS에 6개 그룹이 정의되어 있다', () => {

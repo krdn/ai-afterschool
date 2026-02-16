@@ -2,8 +2,8 @@
 
 import { runSajuAnalysis, simplifyInterpretation } from "@/lib/actions/student/calculation-analysis"
 import { getAnalysisHistory } from "@/lib/actions/student/analysis"
-import { getSajuHistoryList } from "@/lib/db/student-analysis"
-import { getActivePresets, getPresetByKey, seedBuiltInPresets } from "@/lib/db/saju-prompt-preset"
+import { getSajuHistoryList } from "@/lib/db/student/analysis"
+import { getActivePresets, getPresetByKey, seedBuiltInPresets } from "@/lib/db/analysis/saju-prompt-preset"
 import {
   getBuiltInSeedData,
   getPromptPreviewText,

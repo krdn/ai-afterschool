@@ -15,7 +15,7 @@ import {
   type AnalysisPromptPresetData,
   type CreatePresetInput as CreatePresetInputGeneric,
   type UpdatePresetInput as UpdatePresetInputGeneric,
-} from "./analysis-prompt-preset"
+} from "./prompt-preset"
 
 // 하위 호환을 위한 타입 재export
 export type SajuPromptPresetData = Omit<AnalysisPromptPresetData, "analysisType">

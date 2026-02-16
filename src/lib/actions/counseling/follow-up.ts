@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { verifySession } from '@/lib/dal';
-import { getRBACPrisma } from '@/lib/db/rbac';
+import { getRBACPrisma } from '@/lib/db/common/rbac';
 import {
   startOfDay,
   endOfDay,

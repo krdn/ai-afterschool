@@ -1,13 +1,13 @@
 'use server'
 
 import { db } from "@/lib/db"
-import { getFaceAnalysis } from "@/lib/db/face-analysis"
-import { getPalmAnalysis } from "@/lib/db/palm-analysis"
-import { getMbtiAnalysisGeneric } from "@/lib/db/mbti-analysis"
-import { getNameAnalysis } from "@/lib/db/name-analysis"
-import { getSajuAnalysis } from "@/lib/db/student-analysis"
+import { getFaceAnalysis } from "@/lib/db/analysis/face-analysis"
+import { getPalmAnalysis } from "@/lib/db/analysis/palm-analysis"
+import { getMbtiAnalysisGeneric } from "@/lib/db/student/mbti-analysis"
+import { getNameAnalysis } from "@/lib/db/student/name-analysis"
+import { getSajuAnalysis } from "@/lib/db/student/analysis"
 import { getEnabledProviders } from "@/lib/ai/config"
-import { getActivePresetsByType } from "@/lib/db/analysis-prompt-preset"
+import { getActivePresetsByType } from "@/lib/db/analysis/prompt-preset"
 import type { ProviderName } from "@/lib/ai/providers/types"
 
 export type PromptOption = {

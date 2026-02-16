@@ -1,8 +1,8 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { verifySession } from '@/lib/dal'
-import { getRBACPrisma } from '@/lib/db/rbac'
-import type { TeacherRole } from '@/lib/db/rbac'
+import { getRBACPrisma } from '@/lib/db/common/rbac'
+import type { TeacherRole } from '@/lib/db/common/rbac'
 import { TeacherDetailActions } from '@/components/teachers/teacher-detail-actions'
 import { TeacherProfileImage } from '@/components/teachers/teacher-profile-image'
 

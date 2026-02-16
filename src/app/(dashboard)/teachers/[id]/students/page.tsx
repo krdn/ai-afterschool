@@ -1,13 +1,13 @@
 import { notFound } from 'next/navigation'
 import { verifySession } from '@/lib/dal'
-import { getRBACPrisma } from '@/lib/db/rbac'
+import { getRBACPrisma } from '@/lib/db/common/rbac'
 import { getTeacherStudents, getTeacherStudentMetrics } from '@/lib/actions/teacher/performance'
 import { TeacherStudentList } from '@/components/teachers/TeacherStudentList'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import Link from 'next/link'
 import { ArrowLeft, Users, TrendingUp, MessageSquare, Heart } from 'lucide-react'
-import type { TeacherRole } from '@/lib/db/rbac'
+import type { TeacherRole } from '@/lib/db/common/rbac'
 
 type PageProps = {
   params: Promise<{ id: string }>

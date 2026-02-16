@@ -1,9 +1,9 @@
 'use server'
 
 import { verifySession } from '@/lib/dal'
-import { getRBACPrisma } from '@/lib/db/rbac'
+import { getRBACPrisma } from '@/lib/db/common/rbac'
 import { db } from '@/lib/db'
-import type { TeacherRole } from '@/lib/db/rbac'
+import type { TeacherRole } from '@/lib/db/common/rbac'
 
 export interface TeacherStudentMetrics {
   totalStudents: number

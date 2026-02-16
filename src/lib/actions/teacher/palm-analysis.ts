@@ -5,7 +5,7 @@ import { after } from "next/server"
 import { generateWithVision, FailoverError } from "@/lib/ai/universal-router"
 import { PALM_READING_PROMPT } from "@/lib/ai/prompts"
 import { verifySession } from "@/lib/dal"
-import { upsertPalmAnalysis, getPalmAnalysis } from "@/lib/db/palm-analysis"
+import { upsertPalmAnalysis, getPalmAnalysis } from "@/lib/db/analysis/palm-analysis"
 import { extractJsonFromLLM } from "@/lib/utils/extract-json"
 
 /**

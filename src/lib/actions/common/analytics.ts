@@ -7,7 +7,7 @@ interface TeacherGradeComparison {
   teacherName: string
   studentImprovements: number[]
 }
-import { getRBACPrisma } from "@/lib/db/rbac"
+import { getRBACPrisma } from "@/lib/db/common/rbac"
 import { db } from "@/lib/db"
 import { calculateImprovementRate, calculateGradeTrend } from "@/lib/analysis/grade-analytics"
 

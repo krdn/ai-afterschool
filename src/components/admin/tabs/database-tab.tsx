@@ -9,7 +9,7 @@ import {
   SEED_GROUP_COUNTS,
   type SeedGroup,
   type SeedMode,
-} from '@/lib/db/seed-constants'
+} from '@/lib/db/seed/constants'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'

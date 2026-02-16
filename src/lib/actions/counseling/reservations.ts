@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/db'
 import { verifySession, getRBACDB } from '@/lib/dal'
-import { getRBACPrisma } from '@/lib/db/rbac'
+import { getRBACPrisma } from '@/lib/db/common/rbac'
 import {
   getReservations,
   getReservationById,
@@ -12,7 +12,7 @@ import {
   deleteReservation,
   transitionReservationStatus,
   type GetReservationsParams,
-} from '@/lib/db/reservations'
+} from '@/lib/db/counseling/reservations'
 import { ReservationStatus } from '@prisma/client'
 import {
   createReservationSchema,

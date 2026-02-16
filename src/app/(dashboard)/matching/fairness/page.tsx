@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation"
 import { verifySession } from "@/lib/dal"
-import { listAssignmentProposals } from "@/lib/db/assignment"
+import { listAssignmentProposals } from "@/lib/db/matching/assignment"
 import { calculateFairnessMetrics } from "@/lib/analysis/fairness-metrics"
 import { FairnessMetricsPanel } from "@/components/compatibility/fairness-metrics-panel"
 

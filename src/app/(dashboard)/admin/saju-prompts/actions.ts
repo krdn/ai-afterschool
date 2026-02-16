@@ -6,7 +6,7 @@ import {
   createPreset,
   updatePreset,
   deletePreset,
-} from "@/lib/db/saju-prompt-preset"
+} from "@/lib/db/analysis/saju-prompt-preset"
 import {
   CreateSajuPresetSchema,
   UpdateSajuPresetSchema,

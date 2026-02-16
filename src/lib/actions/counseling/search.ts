@@ -2,7 +2,7 @@
 
 import { db } from '@/lib/db'
 import { verifySession } from '@/lib/dal'
-import { getRBACPrisma } from '@/lib/db/rbac'
+import { getRBACPrisma } from '@/lib/db/common/rbac'
 import type { CounselingType, Prisma } from '@prisma/client'
 
 /**

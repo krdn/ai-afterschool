@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 import { cache } from 'react'
 import { decrypt, updateSession } from '@/lib/session'
 import { db } from '@/lib/db'
-import { setRLSSessionContext, getRBACPrisma } from '@/lib/db/rbac'
+import { setRLSSessionContext, getRBACPrisma } from '@/lib/db/common/rbac'
 
 export type VerifiedSession = {
   isAuth: true

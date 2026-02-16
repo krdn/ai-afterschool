@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { verifySession } from "@/lib/dal"
-import { getRBACPrisma } from "@/lib/db/rbac"
+import { getRBACPrisma } from "@/lib/db/common/rbac"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { MessageSquare } from "lucide-react"

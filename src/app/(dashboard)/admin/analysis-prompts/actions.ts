@@ -8,7 +8,7 @@ import {
   updatePreset,
   deletePreset,
   type AnalysisPromptPresetData,
-} from "@/lib/db/analysis-prompt-preset"
+} from "@/lib/db/analysis/prompt-preset"
 import {
   AnalysisTypeSchema,
   CreatePresetSchema,

@@ -16,16 +16,16 @@ import {
   SEED_PARENTS,
   SEED_LLM_CONFIGS,
   SEED_PROVIDERS,
-} from "./seed-data"
+} from "./data"
 import {
   ALL_SEED_GROUPS,
   SEED_GROUP_DEPENDENCIES,
   type SeedGroup,
   type SeedOptions,
   type SeedResult,
-} from "./seed-constants"
+} from "./constants"
 
-// 클라이언트에서도 사용할 수 있도록 seed-constants에서 re-export
+// 클라이언트에서도 사용할 수 있도록 constants에서 re-export
 export {
   ALL_SEED_GROUPS,
   SEED_GROUP_DEPENDENCIES,
@@ -36,7 +36,7 @@ export {
   type SeedOptions,
   type SeedModelResult,
   type SeedResult,
-} from "./seed-constants"
+} from "./constants"
 
 // ---------------------------------------------------------------------------
 // 메인 함수

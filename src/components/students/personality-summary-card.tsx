@@ -3,7 +3,7 @@ import { CheckCircle2, Circle, Sparkles } from "lucide-react"
 import {
   getUnifiedPersonalityData,
   getPersonalitySummary,
-} from "@/lib/db/personality-summary"
+} from "@/lib/db/student/personality-summary"
 import { GenerateActionButton } from "./personality-summary-card-client"
 import type { PersonalitySummary } from "@prisma/client"
 

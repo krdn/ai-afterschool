@@ -6,7 +6,7 @@ import { generateWithVision, FailoverError } from "@/lib/ai/universal-router"
 import { FACE_READING_PROMPT } from "@/lib/ai/prompts"
 import { verifySession } from "@/lib/dal"
 import { db } from "@/lib/db"
-import { upsertFaceAnalysis, getFaceAnalysis } from "@/lib/db/face-analysis"
+import { upsertFaceAnalysis, getFaceAnalysis } from "@/lib/db/analysis/face-analysis"
 import { extractJsonFromLLM } from "@/lib/utils/extract-json"
 
 /**

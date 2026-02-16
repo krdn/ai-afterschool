@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache"
 import { verifySession } from "@/lib/dal"
-import { getRBACPrisma } from "@/lib/db/rbac"
+import { getRBACPrisma } from "@/lib/db/common/rbac"
 import {
   createGradeHistory,
   updateGradeHistory,
@@ -13,7 +13,7 @@ import {
   createStudentSatisfaction,
   updateStudentSatisfaction,
   deleteStudentSatisfaction,
-} from "@/lib/db/performance"
+} from "@/lib/db/common/performance"
 import type { GradeType, CounselingType } from "@prisma/client"
 
 /**

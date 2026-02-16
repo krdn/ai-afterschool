@@ -2,7 +2,7 @@
 
 import { verifySession } from '@/lib/dal'
 import { db } from '@/lib/db'
-import { getRBACPrisma } from '@/lib/db/rbac'
+import { getRBACPrisma } from '@/lib/db/common/rbac'
 
 export interface SystemLogEntry {
   id: string

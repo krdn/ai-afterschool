@@ -19,7 +19,7 @@ import {
 } from "@/components/students/student-image-uploader"
 import { StudentImageTabs } from "@/components/students/student-image-tabs"
 import { StudentAnalysisStatus } from "@/components/students/student-analysis-status"
-import type { CalculationStatus } from "@/lib/db/student-analysis"
+import type { CalculationStatus } from "@/lib/db/student/analysis"
 
 type StudentDetailProps = {
   student: {

@@ -12,8 +12,8 @@ import {
   markPDFComplete,
   markPDFFailed,
   fetchReportData,
-} from '@/lib/db/reports'
-import { getPersonalitySummary } from '@/lib/db/personality-summary'
+} from '@/lib/db/counseling/reports'
+import { getPersonalitySummary } from '@/lib/db/student/personality-summary'
 import { ConsultationReport } from '@/lib/pdf/templates/consultation-report'
 import { pdfToBuffer, generateReportFilename } from '@/lib/pdf/generator'
 import { createPDFStorage } from '@/lib/storage/factory'

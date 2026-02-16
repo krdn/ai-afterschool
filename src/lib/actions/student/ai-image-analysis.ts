@@ -9,8 +9,8 @@ import { getPalmPrompt, type PalmPromptId } from "@/lib/ai/palm-prompts"
 import { verifySession } from "@/lib/dal"
 import { db } from "@/lib/db"
 import { extractJsonFromLLM } from "@/lib/utils/extract-json"
-import { upsertFaceAnalysis } from "@/lib/db/face-analysis"
-import { upsertPalmAnalysis } from "@/lib/db/palm-analysis"
+import { upsertFaceAnalysis } from "@/lib/db/analysis/face-analysis"
+import { upsertPalmAnalysis } from "@/lib/db/analysis/palm-analysis"
 import type { ProviderName } from "@/lib/ai/providers/types"
 
 /**
