@@ -50,6 +50,7 @@ services:
         VERSION: ${VERSION:-latest}
         SESSION_SECRET: ${SESSION_SECRET:-default-secret-for-build-min-32-chars-long}
         NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+        NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME:-dummy}
     image: ai-afterschool:${VERSION:-latest}
     container_name: ai-afterschool-migrate
     environment:
@@ -72,6 +73,7 @@ services:
         VERSION: ${VERSION:-latest}
         SESSION_SECRET: ${SESSION_SECRET:-default-secret-for-build-min-32-chars-long}
         NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+        NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME:-dummy}
     image: ai-afterschool:${VERSION:-latest}
     container_name: ai-afterschool-app
     ports:
