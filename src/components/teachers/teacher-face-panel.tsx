@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useTransition, useEffect, useRef, useCallback } from "react"
-import { Camera, Sparkles, AlertCircle } from "lucide-react"
+import { Camera, Sparkles, AlertCircle, RefreshCw, Loader2 } from "lucide-react"
 import { runTeacherFaceAnalysis, getTeacherFaceAnalysisAction } from "@/lib/actions/teacher/face-analysis"
 import { DISCLAIMER_TEXT } from "@/lib/ai/prompts"
 import type { ProviderName } from "@/lib/ai/providers/types"
@@ -17,6 +17,8 @@ type TeacherFaceAnalysis = {
   result: unknown
   imageUrl: string
   errorMessage: string | null
+  usedProvider: string | null
+  usedModel: string | null
 } | null
 
 type Props = {
@@ -41,9 +43,15 @@ export function TeacherFacePanel({
   const [, startTransition] = useTransition()
   const [localStatus, setLocalStatus] = useState<'idle' | 'analyzing'>('idle')
   const [analysis, setAnalysis] = useState<TeacherFaceAnalysis>(initialAnalysis)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [selectedProvider, setSelectedProvider] = useState('auto')
   const [selectedPromptId, setSelectedPromptId] = useState('default')
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  // props에서 analysis가 변경되면 동기화
+  useEffect(() => {
+    setAnalysis(initialAnalysis)
+  }, [initialAnalysis])
 
   // 폴링 정리
   const stopPolling = useCallback(() => {
@@ -80,13 +88,14 @@ export function TeacherFacePanel({
     }
 
     setLocalStatus('analyzing')
+    setErrorMessage(null)
     startTransition(async () => {
       const result = await runTeacherFaceAnalysis(teacherId, faceImageUrl, selectedProvider, selectedPromptId)
       if (result.success) {
         // 백그라운드 분석 시작됨 → 폴링으로 결과 대기
         startPolling()
       } else {
-        alert(result.error || "분석에 실패했습니다.")
+        setErrorMessage(`이미지 분석에 실패했습니다. (원인: ${result.error || '알 수 없는 오류'}) 다시 시도해주세요.`)
         setLocalStatus('idle')
       }
     })
@@ -133,11 +142,12 @@ export function TeacherFacePanel({
       {/* Content */}
       <div className="p-6">
         {analysis?.status === 'complete' && analysis.result ? (
-          <AnalysisResult result={analysis.result} imageUrl={analysis.imageUrl} onReanalyze={handleAnalyze} />
-        ) : analysis?.status === 'failed' ? (
+          <AnalysisResult result={analysis.result} imageUrl={analysis.imageUrl} usedProvider={analysis.usedProvider} usedModel={analysis.usedModel} onReanalyze={handleAnalyze} isReanalyzing={isAnalyzing} />
+        ) : analysis?.status === 'failed' || errorMessage ? (
           <ErrorState
-            message={analysis.errorMessage || "분석에 실패했습니다."}
+            message={errorMessage || analysis?.errorMessage || "분석에 실패했습니다."}
             onRetry={handleAnalyze}
+            isRetrying={isAnalyzing}
           />
         ) : isAnalyzing ? (
           <LoadingState />
@@ -152,7 +162,10 @@ export function TeacherFacePanel({
   )
 }
 
-function AnalysisResult({ result, imageUrl, onReanalyze }: { result: unknown; imageUrl: string | null; onReanalyze: () => void }) {
+function AnalysisResult({ result, imageUrl, usedProvider, usedModel, onReanalyze, isReanalyzing }: { result: unknown; imageUrl: string | null; usedProvider?: string | null; usedModel?: string | null; onReanalyze: () => void; isReanalyzing?: boolean }) {
+  const providerLabel = usedProvider
+    ? `${usedProvider}${usedModel ? ` (${usedModel})` : ''}`
+    : null
   const analysisResult = result as {
     faceShape: string
     features: {
@@ -188,6 +201,15 @@ function AnalysisResult({ result, imageUrl, onReanalyze }: { result: unknown; im
           {DISCLAIMER_TEXT.face}
         </p>
       </div>
+
+      {/* Provider Label */}
+      {providerLabel && (
+        <div className="flex items-center gap-2">
+          <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-200">
+            {providerLabel}
+          </span>
+        </div>
+      )}
 
       <div>
         <h3 className="font-semibold mb-2">얼굴형</h3>
@@ -234,9 +256,18 @@ function AnalysisResult({ result, imageUrl, onReanalyze }: { result: unknown; im
       )}
 
       <div className="pt-4 border-t">
-        <Button variant="outline" onClick={onReanalyze}>
-          <Sparkles className="w-4 h-4 mr-1" />
-          재분석
+        <Button variant="outline" className="w-full" onClick={onReanalyze} disabled={isReanalyzing}>
+          {isReanalyzing ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin mr-2" />
+              분석 중...
+            </>
+          ) : (
+            <>
+              <RefreshCw className="w-4 h-4 mr-2" />
+              다시 분석하기
+            </>
+          )}
         </Button>
       </div>
     </div>
@@ -282,7 +313,7 @@ function EmptyState({ hasImage, onAnalyze }: { hasImage: boolean; onAnalyze: () 
   )
 }
 
-function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
+function ErrorState({ message, onRetry, isRetrying }: { message: string; onRetry: () => void; isRetrying?: boolean }) {
   return (
     <div className="text-center py-8">
       <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-4 text-left">
@@ -293,8 +324,18 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
           </div>
         </div>
       </div>
-      <Button variant="outline" onClick={onRetry}>
-        다시 시도
+      <Button variant="outline" onClick={onRetry} disabled={isRetrying}>
+        {isRetrying ? (
+          <>
+            <Loader2 className="w-4 h-4 animate-spin mr-2" />
+            재시도 중...
+          </>
+        ) : (
+          <>
+            <RefreshCw className="w-4 h-4 mr-2" />
+            다시 시도
+          </>
+        )}
       </Button>
     </div>
   )

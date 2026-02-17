@@ -35,6 +35,8 @@ export async function upsertFaceAnalysis(data: {
   result: unknown | null
   status: string
   errorMessage?: string
+  usedProvider?: string
+  usedModel?: string
 }) {
   return prisma.faceAnalysis.upsert({
     where: {
@@ -50,6 +52,8 @@ export async function upsertFaceAnalysis(data: {
       result: data.result as Prisma.InputJsonValue,
       status: data.status,
       errorMessage: data.errorMessage,
+      usedProvider: data.usedProvider,
+      usedModel: data.usedModel,
       analyzedAt: new Date()
     },
     update: {
@@ -57,6 +61,8 @@ export async function upsertFaceAnalysis(data: {
       result: data.result as Prisma.InputJsonValue,
       status: data.status,
       errorMessage: data.errorMessage,
+      usedProvider: data.usedProvider,
+      usedModel: data.usedModel,
       analyzedAt: new Date(),
       version: { increment: 1 }
     }

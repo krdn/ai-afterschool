@@ -17,6 +17,8 @@ type FaceAnalysis = {
   result: unknown
   imageUrl: string
   errorMessage: string | null
+  usedProvider: string | null
+  usedModel: string | null
 } | null
 
 type Props = {
@@ -114,14 +116,6 @@ export function FaceAnalysisPanel({
           <FaceHelpDialog />
         </div>
         <div className="flex items-center gap-3 flex-wrap">
-          {promptOptions.length > 0 && (
-            <PromptSelector
-              selectedPromptId={selectedPromptId}
-              onPromptChange={setSelectedPromptId}
-              promptOptions={promptOptions}
-              disabled={isAnalyzing}
-            />
-          )}
           <ProviderSelector
             selectedProvider={selectedProvider}
             onProviderChange={setSelectedProvider}
@@ -130,15 +124,25 @@ export function FaceAnalysisPanel({
             visionProviders={visionProviders}
             disabled={isAnalyzing}
           />
+          {promptOptions.length > 0 && (
+            <PromptSelector
+              selectedPromptId={selectedPromptId}
+              onPromptChange={setSelectedPromptId}
+              promptOptions={promptOptions}
+              disabled={isAnalyzing}
+            />
+          )}
         </div>
       </div>
 
       {/* Content */}
       <div className="p-6">
         {analysis?.status === 'complete' && analysis.result ? (
-          <AnalysisResult 
-            result={analysis.result} 
+          <AnalysisResult
+            result={analysis.result}
             imageUrl={analysis.imageUrl}
+            usedProvider={analysis.usedProvider}
+            usedModel={analysis.usedModel}
             onReanalyze={handleAnalyze}
             isReanalyzing={isAnalyzing}
           />
@@ -161,7 +165,10 @@ export function FaceAnalysisPanel({
   )
 }
 
-function AnalysisResult({ result, imageUrl, onReanalyze, isReanalyzing }: { result: unknown; imageUrl: string | null; onReanalyze: () => void; isReanalyzing: boolean }) {
+function AnalysisResult({ result, imageUrl, usedProvider, usedModel, onReanalyze, isReanalyzing }: { result: unknown; imageUrl: string | null; usedProvider?: string | null; usedModel?: string | null; onReanalyze: () => void; isReanalyzing: boolean }) {
+  const providerLabel = usedProvider
+    ? `${usedProvider}${usedModel ? ` (${usedModel})` : ''}`
+    : null
   const analysisResult = result as {
     faceShape: string
     features: {
@@ -199,6 +206,15 @@ function AnalysisResult({ result, imageUrl, onReanalyze, isReanalyzing }: { resu
           {DISCLAIMER_TEXT.face}
         </p>
       </div>
+
+      {/* Provider Label */}
+      {providerLabel && (
+        <div className="flex items-center gap-2">
+          <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-200">
+            {providerLabel}
+          </span>
+        </div>
+      )}
 
       {/* Face Shape */}
       <div>

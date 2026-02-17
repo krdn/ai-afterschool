@@ -36,6 +36,15 @@ export async function runTeacherFaceAnalysis(teacherId: string, imageUrl: string
     return { success: false, error: "선생님을 찾을 수 없어요." }
   }
 
+  // 분석 시작 전에 pending 상태 기록 (폴링이 이전 결과와 구분할 수 있도록)
+  await upsertFaceAnalysis({
+    subjectType: 'TEACHER',
+    subjectId: teacherId,
+    imageUrl,
+    result: null,
+    status: 'pending',
+  })
+
   // 즉시 응답하고 백그라운드에서 분석 실행
   after(async () => {
     try {
@@ -79,7 +88,9 @@ export async function runTeacherFaceAnalysis(teacherId: string, imageUrl: string
         subjectId: teacherId,
         imageUrl,
         result,
-        status: 'complete'
+        status: 'complete',
+        usedProvider: response.provider,
+        usedModel: response.model,
       })
 
       // 이벤트 발행

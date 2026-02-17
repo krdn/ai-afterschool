@@ -219,6 +219,8 @@ model FaceAnalysis {
   result       Json
   status       String      @default("complete")
   errorMessage String?
+  usedProvider String?
+  usedModel    String?
   version      Int         @default(1)
   analyzedAt   DateTime
   createdAt    DateTime    @default(now())

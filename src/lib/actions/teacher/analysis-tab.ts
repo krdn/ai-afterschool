@@ -42,6 +42,8 @@ export type TeacherAnalysisData = {
     result: unknown
     imageUrl: string
     errorMessage: string | null
+    usedProvider: string | null
+    usedModel: string | null
   } | null
   palmAnalysis: {
     id: string
@@ -153,6 +155,8 @@ export async function getTeacherAnalysisData(teacherId: string): Promise<Teacher
         result: faceAnalysis.result,
         imageUrl: faceAnalysis.imageUrl,
         errorMessage: faceAnalysis.errorMessage,
+        usedProvider: faceAnalysis.usedProvider,
+        usedModel: faceAnalysis.usedModel,
       } : null,
       palmAnalysis: palmAnalysis ? {
         id: palmAnalysis.id,

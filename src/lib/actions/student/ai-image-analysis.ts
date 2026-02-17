@@ -32,6 +32,15 @@ export async function analyzeFaceImage(studentId: string, imageUrl: string, prov
     return { success: false, error: "학생을 찾을 수 없어요." }
   }
 
+  // 분석 시작 전에 pending 상태 기록 (폴링이 이전 결과와 구분할 수 있도록)
+  await upsertFaceAnalysis({
+    subjectType: 'STUDENT',
+    subjectId: studentId,
+    imageUrl,
+    result: null,
+    status: 'pending',
+  })
+
   // 즉시 응답하고 백그라운드에서 분석 실행
   after(async () => {
     try {
@@ -75,7 +84,9 @@ export async function analyzeFaceImage(studentId: string, imageUrl: string, prov
         subjectId: studentId,
         imageUrl,
         result,
-        status: 'complete'
+        status: 'complete',
+        usedProvider: response.provider,
+        usedModel: response.model,
       })
 
       // 이벤트 발행

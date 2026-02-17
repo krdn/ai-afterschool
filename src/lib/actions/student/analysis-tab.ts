@@ -48,6 +48,8 @@ export type StudentAnalysisData = {
     result: unknown
     imageUrl: string
     errorMessage: string | null
+    usedProvider: string | null
+    usedModel: string | null
   } | null
   palmAnalysis: {
     id: string

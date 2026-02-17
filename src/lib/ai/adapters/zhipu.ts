@@ -133,7 +133,7 @@ export class ZhipuAdapter extends BaseAdapter {
         modelId: model.id,
         displayName: this.formatDisplayName(model.id),
         contextWindow: 8192,
-        supportsVision: true,
+        supportsVision: this.isVisionModel(model.id),
         supportsTools: true,
       }));
     } catch (error) {
@@ -165,6 +165,14 @@ export class ZhipuAdapter extends BaseAdapter {
         modelId: 'glm-4.5',
         displayName: 'GLM-4.5',
         contextWindow: 8192,
+        supportsVision: false,
+        supportsTools: true,
+      },
+      {
+        id: 'glm-4.5v',
+        modelId: 'glm-4.5v',
+        displayName: 'GLM-4.5V',
+        contextWindow: 128000,
         supportsVision: true,
         supportsTools: true,
       },
@@ -173,6 +181,14 @@ export class ZhipuAdapter extends BaseAdapter {
         modelId: 'glm-4.6',
         displayName: 'GLM-4.6',
         contextWindow: 8192,
+        supportsVision: false,
+        supportsTools: true,
+      },
+      {
+        id: 'glm-4.6v',
+        modelId: 'glm-4.6v',
+        displayName: 'GLM-4.6V',
+        contextWindow: 128000,
         supportsVision: true,
         supportsTools: true,
       },
@@ -181,7 +197,7 @@ export class ZhipuAdapter extends BaseAdapter {
         modelId: 'glm-4.7',
         displayName: 'GLM-4.7',
         contextWindow: 8192,
-        supportsVision: true,
+        supportsVision: false,
         supportsTools: true,
       },
       {
@@ -189,10 +205,19 @@ export class ZhipuAdapter extends BaseAdapter {
         modelId: 'glm-5',
         displayName: 'GLM-5',
         contextWindow: 8192,
-        supportsVision: true,
+        supportsVision: false,
         supportsTools: true,
       },
     ];
+  }
+
+  /**
+   * 모델 ID에 'v' 접미사가 있으면 Vision 모델로 판별
+   * 예: glm-4.5v, glm-4.6v, glm-4.6v-flash, glm-4v-plus → true
+   *     glm-4.5, glm-4.7, glm-5 → false
+   */
+  private isVisionModel(modelId: string): boolean {
+    return /\dv($|-)/.test(modelId);
   }
 
   setApiKey(apiKey: string): void {
