@@ -2,12 +2,14 @@
 
 import { revalidatePath } from "next/cache"
 import { after } from "next/server"
-import { generateWithVision, FailoverError } from "@/lib/ai/universal-router"
+import { generateWithVision, generateVisionWithSpecificProvider, FailoverError } from "@/lib/ai/universal-router"
 import { FACE_READING_PROMPT } from "@/lib/ai/prompts"
+import { getFacePrompt, type FacePromptId } from "@/lib/ai/face-prompts"
 import { verifySession } from "@/lib/dal"
 import { db } from "@/lib/db"
 import { upsertFaceAnalysis, getFaceAnalysis } from "@/lib/db/analysis/face-analysis"
 import { extractJsonFromLLM } from "@/lib/utils/extract-json"
+import type { ProviderName } from "@/lib/ai/providers/types"
 import { eventBus } from "@/lib/events/event-bus"
 
 /**
@@ -16,7 +18,7 @@ import { eventBus } from "@/lib/events/event-bus"
  * Vision을 지원하는 제공자에서 자동 폴백됩니다.
  * (anthropic, openai, google 순)
  */
-export async function runTeacherFaceAnalysis(teacherId: string, imageUrl: string) {
+export async function runTeacherFaceAnalysis(teacherId: string, imageUrl: string, provider?: string, promptId?: string) {
   const session = await verifySession()
 
   // 선생님 접근 권한 확인 (본인 또는 DIRECTOR만 가능)
@@ -42,15 +44,24 @@ export async function runTeacherFaceAnalysis(teacherId: string, imageUrl: string
       const imageBuffer = Buffer.from(await imageResponse.arrayBuffer())
       const base64Image = imageBuffer.toString('base64')
 
-      // 통합 라우터를 통한 Vision API 호출 (자동 폴백)
-      const response = await generateWithVision({
-        featureType: 'face_analysis',
+      // 선택된 프롬프트 또는 기본 프롬프트 사용
+      const selectedPrompt = promptId && promptId !== 'default'
+        ? getFacePrompt(promptId as FacePromptId)?.promptTemplate ?? FACE_READING_PROMPT
+        : FACE_READING_PROMPT
+
+      // Vision API 호출 — provider 분기
+      const visionOptions = {
+        featureType: 'face_analysis' as const,
         teacherId: session.userId,
         imageBase64: base64Image,
-        mimeType: 'image/jpeg',
-        prompt: FACE_READING_PROMPT,
+        mimeType: 'image/jpeg' as const,
+        prompt: selectedPrompt,
         maxOutputTokens: 2048,
-      })
+      }
+
+      const response = (provider && provider !== 'auto')
+        ? await generateVisionWithSpecificProvider(provider as ProviderName, visionOptions)
+        : await generateWithVision(visionOptions)
 
       // JSON 응답 파싱 (마크다운 코드블록 등 LLM 응답 형식 대응)
       const result = extractJsonFromLLM(response.text)

@@ -111,7 +111,7 @@ export async function saveLLMConfig(input: LLMConfigInput) {
     });
   }
 
-  // 새로 생성
+  // 새로 생성 — capabilities는 기본 ['text']로 설정하고 모델 동기화 시 업데이트
   return db.provider.create({
     data: {
       name: providerConfig.displayName,
@@ -120,7 +120,7 @@ export async function saveLLMConfig(input: LLMConfigInput) {
       baseUrl: baseUrl || null,
       apiKeyEncrypted: apiKey ? encryptApiKey(apiKey) : null,
       authType: provider === 'ollama' ? 'none' : 'api_key',
-      capabilities: providerConfig.supportsVision ? ['text', 'vision'] : ['text'],
+      capabilities: ['text'],
       costTier: 'standard',
       qualityTier: 'medium',
       isValidated: false,
@@ -147,6 +147,49 @@ export async function markLLMConfigValidated(provider: ProviderName, isValid: bo
       validatedAt: isValid ? new Date() : null,
     },
   });
+}
+
+/**
+ * 활성화된 제공자 목록과 Vision 모델 보유 여부를 함께 반환합니다.
+ * DB의 Model.supportsVision 필드를 기준으로 판단합니다.
+ */
+export async function getEnabledProvidersWithVision(): Promise<
+  Array<{ name: ProviderName; hasVisionModel: boolean }>
+> {
+  const hubProviders = await db.provider.findMany({
+    where: { isEnabled: true },
+    include: {
+      models: {
+        select: { supportsVision: true },
+      },
+    },
+  });
+
+  const result = hubProviders
+    .map((p) => {
+      const name = providerTypeToName(p.providerType as ProviderType);
+      if (!name) return null;
+      return {
+        name,
+        hasVisionModel: p.models.some((m) => m.supportsVision),
+      };
+    })
+    .filter((item): item is NonNullable<typeof item> => item !== null);
+
+  // 중복 제거 (동일 providerType이 여러 레코드인 경우)
+  const seen = new Set<ProviderName>();
+  const deduped = result.filter((item) => {
+    if (seen.has(item.name)) return false;
+    seen.add(item.name);
+    return true;
+  });
+
+  // Ollama가 없으면 추가 (기본 제공자)
+  if (!deduped.some((p) => p.name === 'ollama')) {
+    deduped.push({ name: 'ollama', hasVisionModel: false });
+  }
+
+  return deduped;
 }
 
 export async function getEnabledProviders(): Promise<ProviderName[]> {

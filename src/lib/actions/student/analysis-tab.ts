@@ -8,7 +8,7 @@ import { getVarkAnalysis } from "@/lib/db/student/vark-analysis"
 import { getNameAnalysisByStudentId } from "@/lib/db/student/name-analysis"
 import { getZodiacAnalysis } from "@/lib/db/student/zodiac-analysis"
 import { getSajuAnalysis } from "@/lib/db/student/analysis"
-import { getEnabledProviders } from "@/lib/ai/config"
+import { getEnabledProviders, getEnabledProvidersWithVision } from "@/lib/ai/config"
 import { getActivePresetsByType } from "@/lib/db/analysis/prompt-preset"
 import type { ProviderName } from "@/lib/ai/providers/types"
 
@@ -83,6 +83,7 @@ export type StudentAnalysisData = {
     calculatedAt: Date | string
   } | null
   enabledProviders: ProviderName[]
+  visionProviders: ProviderName[]
   lastUsedProvider: string | null
   lastUsedModel: string | null
   facePromptOptions: PromptOption[]
@@ -96,7 +97,7 @@ export type StudentAnalysisData = {
 export async function getStudentAnalysisData(studentId: string): Promise<StudentAnalysisData> {
   try {
     // Fetch student data, enabled providers, and prompt options in parallel
-    const [student, enabledProviders, facePresets, palmPresets, mbtiPresets, varkPresets, namePresets, zodiacPresets] = await Promise.all([
+    const [student, enabledProviders, providersWithVision, facePresets, palmPresets, mbtiPresets, varkPresets, namePresets, zodiacPresets] = await Promise.all([
       db.student.findUnique({
         where: { id: studentId },
         include: {
@@ -104,6 +105,7 @@ export async function getStudentAnalysisData(studentId: string): Promise<Student
         }
       }),
       getEnabledProviders().catch(() => [] as ProviderName[]),
+      getEnabledProvidersWithVision().catch(() => []),
       getActivePresetsByType("face").catch(() => []),
       getActivePresetsByType("palm").catch(() => []),
       getActivePresetsByType("mbti").catch(() => []),
@@ -111,6 +113,10 @@ export async function getStudentAnalysisData(studentId: string): Promise<Student
       getActivePresetsByType("name").catch(() => []),
       getActivePresetsByType("zodiac").catch(() => []),
     ])
+
+    const visionProviders = providersWithVision
+      .filter(p => p.hasVisionModel)
+      .map(p => p.name)
 
     const toPromptOptions = (presets: Awaited<ReturnType<typeof getActivePresetsByType>>): PromptOption[] =>
       presets.map(p => ({
@@ -134,6 +140,7 @@ export async function getStudentAnalysisData(studentId: string): Promise<Student
         nameAnalysis: null,
         zodiacAnalysis: null,
         enabledProviders,
+        visionProviders,
         lastUsedProvider: null,
         lastUsedModel: null,
         facePromptOptions: toPromptOptions(facePresets),
@@ -204,6 +211,7 @@ export async function getStudentAnalysisData(studentId: string): Promise<Student
         calculatedAt: zodiacAnalysis.calculatedAt
       } : null,
       enabledProviders,
+      visionProviders,
       lastUsedProvider: sajuHistory?.usedProvider ?? null,
       lastUsedModel: sajuHistory?.usedModel ?? null,
       facePromptOptions: toPromptOptions(facePresets),
@@ -224,6 +232,7 @@ export async function getStudentAnalysisData(studentId: string): Promise<Student
       nameAnalysis: null,
       zodiacAnalysis: null,
       enabledProviders: [],
+      visionProviders: [],
       lastUsedProvider: null,
       lastUsedModel: null,
       facePromptOptions: [],

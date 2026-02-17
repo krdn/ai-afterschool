@@ -26,6 +26,7 @@ type Props = {
   analysis: PalmAnalysis
   palmImageUrl: string | null
   enabledProviders?: ProviderName[]
+  visionProviders?: ProviderName[]
   promptOptions?: GenericPromptMeta[]
 }
 
@@ -34,6 +35,7 @@ export function PalmAnalysisPanel({
   analysis,
   palmImageUrl,
   enabledProviders = [],
+  visionProviders,
   promptOptions = []
 }: Props) {
   const [, startTransition] = useTransition()
@@ -92,6 +94,7 @@ export function PalmAnalysisPanel({
             onProviderChange={setSelectedProvider}
             availableProviders={enabledProviders}
             requiresVision
+            visionProviders={visionProviders}
             disabled={isAnalyzing}
           />
         </div>

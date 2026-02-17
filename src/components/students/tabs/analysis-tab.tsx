@@ -29,6 +29,7 @@ export default function AnalysisTab({ studentId }: { studentId: string }) {
     nameAnalysis: null,
     zodiacAnalysis: null,
     enabledProviders: [],
+    visionProviders: [],
     lastUsedProvider: null,
     lastUsedModel: null,
     facePromptOptions: [],
@@ -229,6 +230,7 @@ export default function AnalysisTab({ studentId }: { studentId: string }) {
             analysis={data.faceAnalysis}
             faceImageUrl={faceImageUrl}
             enabledProviders={data.enabledProviders}
+            visionProviders={data.visionProviders}
             promptOptions={data.facePromptOptions}
             onDataChange={refreshData}
           />
@@ -240,6 +242,7 @@ export default function AnalysisTab({ studentId }: { studentId: string }) {
             analysis={data.palmAnalysis}
             palmImageUrl={palmImageUrl}
             enabledProviders={data.enabledProviders}
+            visionProviders={data.visionProviders}
             promptOptions={data.palmPromptOptions}
           />
         </TabsContent>

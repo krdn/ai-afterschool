@@ -24,6 +24,7 @@ type Props = {
   analysis: FaceAnalysis
   faceImageUrl: string | null
   enabledProviders?: ProviderName[]
+  visionProviders?: ProviderName[]
   promptOptions?: GenericPromptMeta[]
   onDataChange?: () => void
 }
@@ -33,6 +34,7 @@ export function FaceAnalysisPanel({
   analysis: initialAnalysis,
   faceImageUrl,
   enabledProviders = [],
+  visionProviders,
   promptOptions = [],
   onDataChange
 }: Props) {
@@ -125,6 +127,7 @@ export function FaceAnalysisPanel({
             onProviderChange={setSelectedProvider}
             availableProviders={enabledProviders}
             requiresVision
+            visionProviders={visionProviders}
             disabled={isAnalyzing}
           />
         </div>

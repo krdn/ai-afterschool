@@ -6,7 +6,7 @@ import { getPalmAnalysis } from "@/lib/db/analysis/palm-analysis"
 import { getMbtiAnalysisGeneric } from "@/lib/db/student/mbti-analysis"
 import { getNameAnalysis } from "@/lib/db/student/name-analysis"
 import { getSajuAnalysis } from "@/lib/db/student/analysis"
-import { getEnabledProviders } from "@/lib/ai/config"
+import { getEnabledProviders, getEnabledProvidersWithVision } from "@/lib/ai/config"
 import { getActivePresetsByType } from "@/lib/db/analysis/prompt-preset"
 import type { ProviderName } from "@/lib/ai/providers/types"
 
@@ -62,6 +62,7 @@ export type TeacherAnalysisData = {
     calculatedAt: Date | string
   } | null
   enabledProviders: ProviderName[]
+  visionProviders: ProviderName[]
   lastUsedProvider: string | null
   lastUsedModel: string | null
   facePromptOptions: PromptOption[]
@@ -72,16 +73,21 @@ export type TeacherAnalysisData = {
 
 export async function getTeacherAnalysisData(teacherId: string): Promise<TeacherAnalysisData> {
   try {
-    const [teacher, enabledProviders, facePresets, palmPresets, mbtiPresets, namePresets] = await Promise.all([
+    const [teacher, enabledProviders, providersWithVision, facePresets, palmPresets, mbtiPresets, namePresets] = await Promise.all([
       db.teacher.findUnique({
         where: { id: teacherId },
       }),
       getEnabledProviders().catch(() => [] as ProviderName[]),
+      getEnabledProvidersWithVision().catch(() => []),
       getActivePresetsByType("face").catch(() => []),
       getActivePresetsByType("palm").catch(() => []),
       getActivePresetsByType("mbti").catch(() => []),
       getActivePresetsByType("name").catch(() => []),
     ])
+
+    const visionProviders = providersWithVision
+      .filter(p => p.hasVisionModel)
+      .map(p => p.name)
 
     const toPromptOptions = (presets: Awaited<ReturnType<typeof getActivePresetsByType>>): PromptOption[] =>
       presets.map(p => ({
@@ -103,6 +109,7 @@ export async function getTeacherAnalysisData(teacherId: string): Promise<Teacher
         mbtiAnalysis: null,
         nameAnalysis: null,
         enabledProviders,
+        visionProviders,
         lastUsedProvider: null,
         lastUsedModel: null,
         facePromptOptions: toPromptOptions(facePresets),
@@ -166,6 +173,7 @@ export async function getTeacherAnalysisData(teacherId: string): Promise<Teacher
         calculatedAt: nameAnalysis.calculatedAt,
       } : null,
       enabledProviders,
+      visionProviders,
       lastUsedProvider,
       lastUsedModel,
       facePromptOptions: toPromptOptions(facePresets),
@@ -182,6 +190,7 @@ export async function getTeacherAnalysisData(teacherId: string): Promise<Teacher
       mbtiAnalysis: null,
       nameAnalysis: null,
       enabledProviders: [],
+      visionProviders: [],
       lastUsedProvider: null,
       lastUsedModel: null,
       facePromptOptions: [],

@@ -25,6 +25,7 @@ type Props = {
   analysis: TeacherFaceAnalysis
   faceImageUrl: string | null
   enabledProviders?: ProviderName[]
+  visionProviders?: ProviderName[]
   promptOptions?: GenericPromptMeta[]
 }
 
@@ -34,6 +35,7 @@ export function TeacherFacePanel({
   analysis: initialAnalysis,
   faceImageUrl,
   enabledProviders = [],
+  visionProviders,
   promptOptions = [],
 }: Props) {
   const [, startTransition] = useTransition()
@@ -79,7 +81,7 @@ export function TeacherFacePanel({
 
     setLocalStatus('analyzing')
     startTransition(async () => {
-      const result = await runTeacherFaceAnalysis(teacherId, faceImageUrl)
+      const result = await runTeacherFaceAnalysis(teacherId, faceImageUrl, selectedProvider, selectedPromptId)
       if (result.success) {
         // 백그라운드 분석 시작됨 → 폴링으로 결과 대기
         startPolling()
@@ -113,6 +115,8 @@ export function TeacherFacePanel({
             selectedProvider={selectedProvider}
             onProviderChange={setSelectedProvider}
             availableProviders={enabledProviders}
+            requiresVision
+            visionProviders={visionProviders}
             disabled={isAnalyzing}
           />
           {promptOptions.length > 0 && (

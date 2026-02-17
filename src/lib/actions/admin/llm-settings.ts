@@ -116,7 +116,7 @@ export async function getBudgetSummaryAction() {
 export async function setDefaultProviderAction(provider: ProviderName) {
   await requireDirector();
 
-  const { PROVIDER_CONFIGS } = await import('@/lib/ai/providers');
+  const { db } = await import('@/lib/db');
   const allFeatures: FeatureType[] = [
     'learning_analysis', 'counseling_suggest', 'report_generate',
     'face_analysis', 'palm_analysis', 'personality_summary',
@@ -124,7 +124,19 @@ export async function setDefaultProviderAction(provider: ProviderName) {
   ];
 
   const visionFeatures: FeatureType[] = ['face_analysis', 'palm_analysis'];
-  const supportsVision = PROVIDER_CONFIGS[provider].supportsVision;
+
+  // DB에서 해당 Provider의 Vision 모델 존재 여부 조회
+  const providerRecord = await db.provider.findFirst({
+    where: { providerType: provider },
+    include: {
+      models: {
+        where: { supportsVision: true },
+        select: { id: true },
+        take: 1,
+      },
+    },
+  });
+  const supportsVision = (providerRecord?.models.length ?? 0) > 0;
 
   const allProviders: ProviderName[] = ['ollama', 'anthropic', 'openai', 'google', 'deepseek', 'mistral', 'cohere', 'xai', 'zhipu', 'moonshot'];
   const fallback = allProviders.filter((p) => p !== provider);

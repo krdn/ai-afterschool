@@ -25,6 +25,7 @@ export default function TeacherAnalysisTab({ teacherId }: { teacherId: string })
     mbtiAnalysis: null,
     nameAnalysis: null,
     enabledProviders: [],
+    visionProviders: [],
     lastUsedProvider: null,
     lastUsedModel: null,
     facePromptOptions: [],
@@ -201,6 +202,7 @@ export default function TeacherAnalysisTab({ teacherId }: { teacherId: string })
             analysis={data.faceAnalysis}
             faceImageUrl={faceImageUrl}
             enabledProviders={data.enabledProviders}
+            visionProviders={data.visionProviders}
             promptOptions={data.facePromptOptions}
           />
         </TabsContent>
