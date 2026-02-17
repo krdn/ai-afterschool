@@ -48,6 +48,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
+# Copy seed images for demo data seeding
+COPY --from=builder --chown=nextjs:nodejs /app/docs/images ./docs/images
+
 # Copy remaining necessary files (including prisma.config.ts for migrate)
 COPY package.json package-lock.json prisma.config.ts ./
 

@@ -49,6 +49,7 @@ CHANGELOG.md
 LICENSE
 *.md
 docs/
+!docs/images/
 
 # =============================================================================
 # Planning & Meta
