@@ -11,14 +11,14 @@ import "dotenv/config"
 import { PrismaClient } from "@prisma/client"
 import { PrismaPg } from "@prisma/adapter-pg"
 import { Pool } from "pg"
+import { runSeed } from "../src/lib/db/seed/core"
 import {
-  runSeed,
   ALL_SEED_GROUPS,
   SEED_GROUP_LABELS,
   SEED_GROUP_DEPENDENCIES,
   type SeedGroup,
   type SeedMode,
-} from "../src/lib/db/seed-core"
+} from "../src/lib/db/seed/constants"
 
 // CLI 인자 파싱
 const args = process.argv.slice(2)

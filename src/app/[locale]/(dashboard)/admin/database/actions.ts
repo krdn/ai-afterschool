@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache"
 import { verifySession, logAuditAction, logSystemAction } from "@/lib/dal"
 import { db } from "@/lib/db"
 import argon2 from "argon2"
-import { runSeed, type SeedResult, type SeedOptions } from "@/lib/db/seed/core"
+import { runSeed } from "@/lib/db/seed/core"
+import type { SeedResult, SeedOptions } from "@/lib/db/seed/constants"
 
 // ---------------------------------------------------------------------------
 // 결과 타입

@@ -5,8 +5,10 @@
  * idempotent하게 설계되어 여러 번 실행핼도 중복 생성되지 않습니다.
  */
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 import type { FeatureMappingInput, FallbackMode } from '@/lib/ai/types';
+
+type DbClient = PrismaClient | Prisma.TransactionClient
 
 /**
  * 기본 기능 매핑 규칙 정의
@@ -240,7 +242,7 @@ const DEFAULT_FEATURE_MAPPINGS: Array<{
  * @param db - PrismaClient 인스턴스
  * @returns 생성된 매핑 수
  */
-export async function seedFeatureMappings(db: PrismaClient): Promise<number> {
+export async function seedFeatureMappings(db: DbClient): Promise<number> {
   let createdCount = 0;
 
   for (const feature of DEFAULT_FEATURE_MAPPINGS) {
@@ -297,7 +299,7 @@ export async function seedFeatureMappings(db: PrismaClient): Promise<number> {
  * @returns 생성된 매핑 수
  */
 export async function resetFeatureMappings(
-  db: PrismaClient,
+  db: DbClient,
   featureType: string
 ): Promise<number> {
   // 기존 매핑 삭제
@@ -340,7 +342,7 @@ export async function resetFeatureMappings(
  * @param db - PrismaClient 인스턴스
  * @returns 삭제된 매핑 수
  */
-export async function clearAllFeatureMappings(db: PrismaClient): Promise<number> {
+export async function clearAllFeatureMappings(db: DbClient): Promise<number> {
   const result = await db.featureMapping.deleteMany({});
   console.log(`🗑️ Deleted ${result.count} feature mappings`);
   return result.count;

@@ -19,7 +19,7 @@
     "migrate:pdfs:rollback": "tsx scripts/migrate-pdfs-to-s3.ts --rollback",
     "test:e2e": "playwright test",
     "test:generate": "tsx scripts/generate-tests.ts",
-    "db:seed:test": "tsx prisma/seed-test.ts",
+    "db:seed:test": "tsx prisma/seed.ts --preset test",
     "seed:demo": "tsx scripts/seed-demo.ts"
   },
   "prisma": {

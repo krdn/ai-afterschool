@@ -7,18 +7,18 @@
  * 실행: npx tsx src/lib/db/seed-provider-templates.ts
  */
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 import {
   getProviderTemplates,
   ProviderTemplate,
 } from '../../ai/templates';
 
-const prisma = new PrismaClient();
+type DbClient = PrismaClient | Prisma.TransactionClient;
 
 /**
  * 템플릿을 DB에 시딩합니다.
  */
-async function seedProviderTemplates(): Promise<void> {
+export async function seedProviderTemplates(db: DbClient): Promise<void> {
   console.log('🌱 Provider Template 시딩 시작...\n');
 
   const templates = getProviderTemplates();
@@ -29,7 +29,7 @@ async function seedProviderTemplates(): Promise<void> {
   for (const template of templates) {
     try {
       // 템플릿을 DB에 upsert (Prisma 스키마에 존재하는 필드만 사용)
-      await prisma.providerTemplate.upsert({
+      await db.providerTemplate.upsert({
         where: { templateId: template.templateId },
         update: {
           name: template.name,
@@ -83,8 +83,9 @@ async function seedProviderTemplates(): Promise<void> {
  * 메인 실행 함수
  */
 async function main(): Promise<void> {
+  const prisma = new PrismaClient();
   try {
-    await seedProviderTemplates();
+    await seedProviderTemplates(prisma);
     console.log('\n✨ Provider Template 시딩 완료!');
   } catch (error) {
     console.error('\n💥 시딩 중 오류 발생:', error);
@@ -99,4 +100,3 @@ if (require.main === module) {
   main();
 }
 
-export { seedProviderTemplates };
