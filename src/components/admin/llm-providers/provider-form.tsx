@@ -58,7 +58,7 @@ const providerFormSchema = z.object({
     'custom',
   ]),
   baseUrl: z.string().url('올바른 URL을 입력해주세요').optional().or(z.literal('')),
-  authType: z.enum(['api_key', 'bearer', 'custom_header']),
+  authType: z.enum(['none', 'api_key', 'bearer', 'custom_header']),
   customAuthHeader: z.string().optional(),
   apiKey: z.string().optional(),
   capabilities: z.array(z.string()).default([]),
@@ -73,6 +73,7 @@ interface ProviderFormProps {
   provider?: ProviderWithModels;
   template?: ProviderTemplate;
   onSuccess?: () => void;
+  onProviderUpdate?: (provider: ProviderWithModels) => void;
 }
 
 const ALL_CAPABILITIES: { value: Capability; label: string; description: string }[] = [
@@ -88,7 +89,7 @@ const ALL_CAPABILITIES: { value: Capability; label: string; description: string 
  * 
  * 템플릿 기반으로 생성하거나 직접 설정할 수 있습니다.
  */
-export function ProviderForm({ provider, template, onSuccess }: ProviderFormProps) {
+export function ProviderForm({ provider, template, onSuccess, onProviderUpdate }: ProviderFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -216,14 +217,21 @@ export function ProviderForm({ provider, template, onSuccess }: ProviderFormProp
       await updateProviderAction(provider.id, input);
 
       const result = await validateProviderAction(provider.id);
-      setTestResult({
-        success: result.isValid,
-        message: result.isValid
-          ? result.error
-            ? `⚠ ${result.error}`
-            : '연결 성공!'
-          : `연결 실패: ${result.error || '알 수 없는 오류'}`,
-      });
+      if (result.isValid) {
+        setTestResult({
+          success: true,
+          message: result.error ? `⚠ ${result.error}` : '연결 성공! 모델을 동기화합니다...',
+        });
+        // 연결 성공 시 자동으로 모델 동기화 실행
+        setIsTesting(false);
+        await handleSyncModels();
+        return;
+      } else {
+        setTestResult({
+          success: false,
+          message: `연결 실패: ${result.error || '알 수 없는 오류'}`,
+        });
+      }
     } catch (error) {
       setTestResult({
         success: false,
@@ -231,6 +239,27 @@ export function ProviderForm({ provider, template, onSuccess }: ProviderFormProp
       });
     } finally {
       setIsTesting(false);
+    }
+  };
+
+  // provider 데이터 재로드 (동기화 후 UI 갱신용)
+  const reloadProvider = async () => {
+    if (!provider) return;
+    try {
+      const response = await fetch(`/api/providers/${provider.id}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.provider) {
+          onProviderUpdate?.(data.provider);
+          // 기본 모델 선택 상태도 갱신
+          const defaultModel = data.provider.models?.find((m: { isDefault: boolean }) => m.isDefault);
+          if (defaultModel) {
+            setSelectedModel(defaultModel.modelId);
+          }
+        }
+      }
+    } catch {
+      // 재로드 실패는 무시 (데이터는 이미 서버에 저장됨)
     }
   };
 
@@ -254,6 +283,8 @@ export function ProviderForm({ provider, template, onSuccess }: ProviderFormProp
         success: true,
         message: `${models.length}개의 모델이 동기화되었습니다.`,
       });
+      // 동기화 후 provider 데이터 재로드하여 모델 목록 UI 갱신
+      await reloadProvider();
     } catch (error) {
       setTestResult({
         success: false,
@@ -365,13 +396,14 @@ export function ProviderForm({ provider, template, onSuccess }: ProviderFormProp
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>인증 방식 *</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="인증 방식을 선택하세요" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
+                      <SelectItem value="none">없음 (로컬)</SelectItem>
                       <SelectItem value="api_key">API Key</SelectItem>
                       <SelectItem value="bearer">Bearer Token</SelectItem>
                       <SelectItem value="custom_header">Custom Header</SelectItem>

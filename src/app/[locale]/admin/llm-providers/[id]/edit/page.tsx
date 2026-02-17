@@ -139,6 +139,7 @@ export default function EditProviderPage({ params }: EditProviderPageProps) {
             template={template || undefined}
             provider={provider}
             onSuccess={handleSuccess}
+            onProviderUpdate={setProvider}
           />
         </CardContent>
       </Card>

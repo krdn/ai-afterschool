@@ -24,7 +24,7 @@ export type ProviderType =
   | 'openrouter'
   | 'custom';
 
-export type AuthType = 'api_key' | 'bearer' | 'custom_header';
+export type AuthType = 'none' | 'api_key' | 'bearer' | 'custom_header';
 
 export type CostTier = 'free' | 'low' | 'medium' | 'high';
 
