@@ -92,6 +92,7 @@ export function TeacherSajuPanel({
   const [isSimplifying, setIsSimplifying] = useState(false)
   const [showSimplified, setShowSimplified] = useState(false)
   const [simplifyError, setSimplifyError] = useState<string | null>(null)
+  const [isCached, setIsCached] = useState(false)
 
   // DB에서 프롬프트 옵션 실시간 로드
   useEffect(() => {
@@ -127,7 +128,7 @@ export function TeacherSajuPanel({
     }
   }
 
-  const handleRunAnalysis = () => {
+  const handleRunAnalysis = (forceRefresh = false) => {
     startTransition(async () => {
       setErrorMessage(null)
       setProviderLabel(null)
@@ -135,10 +136,11 @@ export function TeacherSajuPanel({
       setSimplifiedText(null)
       setShowSimplified(false)
       setSimplifyError(null)
+      setIsCached(false)
       try {
         const promptId = isLLM ? selectedPromptId : 'default'
         const extra = isLLM ? additionalRequest.trim() || undefined : undefined
-        const res = await runTeacherSajuAnalysis(teacherId, selectedProvider, promptId, extra)
+        const res = await runTeacherSajuAnalysis(teacherId, selectedProvider, promptId, extra, forceRefresh)
         if (!res.success) {
           setErrorMessage(res.error ?? '사주 분석에 실패했습니다.')
           return
@@ -149,6 +151,7 @@ export function TeacherSajuPanel({
         } else {
           const model = res.data.usedModel && res.data.usedModel !== 'default' ? ` (${res.data.usedModel})` : ''
           setProviderLabel(`${res.data.usedProvider}${model}`)
+          setIsCached(res.data.cached ?? false)
         }
         if (promptId !== 'default') {
           const meta = promptOptions.find((p) => p.id === promptId)
@@ -171,10 +174,27 @@ export function TeacherSajuPanel({
           <CardTitle>사주 분석</CardTitle>
           <SajuHelpDialog />
         </div>
-        <div className="text-xs text-gray-500">
-          {calculatedAt
-            ? `최근 계산: ${format(calculatedAt, "yyyy.MM.dd HH:mm", { locale: ko })}`
-            : "아직 분석되지 않았어요."}
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1"
+            onClick={() => handleRunAnalysis(true)}
+            disabled={isPending}
+            title="캐시 무시하고 새로 분석"
+          >
+            {isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="h-4 w-4" />
+            )}
+            새로고침
+          </Button>
+          <div className="text-xs text-gray-500">
+            {calculatedAt
+              ? `최근 계산: ${format(calculatedAt, "yyyy.MM.dd HH:mm", { locale: ko })}`
+              : "아직 분석되지 않았어요."}
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -241,7 +261,7 @@ export function TeacherSajuPanel({
             <Button
               type="button"
               disabled={isPending || !canAnalyze}
-              onClick={handleRunAnalysis}
+              onClick={() => handleRunAnalysis(false)}
               className="w-full sm:w-auto"
             >
               {isPending ? (
@@ -264,7 +284,7 @@ export function TeacherSajuPanel({
           {errorMessage && (
             <div className="flex items-center justify-between gap-4 mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-sm text-red-700">{errorMessage}</p>
-              <Button onClick={handleRunAnalysis} disabled={isPending} variant="outline" size="sm">
+              <Button onClick={() => handleRunAnalysis(false)} disabled={isPending} variant="outline" size="sm">
                 {isPending ? (
                   <><Loader2 className="w-4 h-4 animate-spin mr-1" />재시도 중...</>
                 ) : (
@@ -329,6 +349,11 @@ export function TeacherSajuPanel({
             {promptLabel && (
               <span className="text-xs px-2 py-0.5 rounded-full bg-purple-50 text-purple-600 border border-purple-200">
                 {promptLabel}
+              </span>
+            )}
+            {isCached && (
+              <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-50 text-yellow-700 border border-yellow-200">
+                ⚡ 캐시됨
               </span>
             )}
             {analysis?.interpretation && selectedProvider !== 'built-in' && (
