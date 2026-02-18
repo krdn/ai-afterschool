@@ -105,3 +105,6 @@ pnpm-lock.yaml
 
 # entire (외부 도구 메타데이터)
 .entire/
+
+# Git worktrees
+.worktrees/
