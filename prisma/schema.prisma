@@ -134,6 +134,22 @@ model SajuAnalysisHistory {
   @@index([studentId, createdAt(sort: Desc)])
 }
 
+model TeacherSajuAnalysisHistory {
+  id                String   @id @default(cuid())
+  teacherId         String
+  promptId          String   @default("default")
+  additionalRequest String?
+  result            Json
+  interpretation    String?
+  usedProvider      String   @default("내장 알고리즘")
+  usedModel         String?
+  calculatedAt      DateTime
+  createdAt         DateTime @default(now())
+
+  @@index([teacherId])
+  @@index([teacherId, createdAt(sort: Desc)])
+}
+
 model NameAnalysis {
   id             String      @id @default(cuid())
   subjectType    SubjectType
