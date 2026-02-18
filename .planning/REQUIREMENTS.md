@@ -1,129 +1,85 @@
-# Requirements: AI AfterSchool v3.0
+# Requirements: AI AfterSchool v4.0
 
-**Defined:** 2026-02-11
-**Core Value:** 앱 내에서 이슈를 등록하고, GitHub Issue → 브랜치 → 수정 → 테스트 → 배포까지의 전체 DevOps 라이프사이클을 자동화
+**Defined:** 2026-02-19
+**Core Value:** AI 채팅에서 @멘션으로 시스템 데이터를 참조하여 맞춤형 AI 응답을 제공
 
-## v3.0 Requirements
+## v4.0 Requirements
 
-Requirements for v3.0 milestone. Each maps to roadmap phases.
+Requirements for v4.0 AI Smart Chat milestone. Each maps to roadmap phases.
 
-### 이슈 보고 (Issue Reporting)
+### @멘션 인프라 (Mention Infrastructure)
 
-- [ ] **ISSUE-01**: DIRECTOR 역할 사용자가 헤더 영역의 버튼을 클릭하여 이슈 보고 모달을 열 수 있다
-- [ ] **ISSUE-02**: 사용자가 이슈 제목, 설명, 카테고리(버그/기능수정/기능추가/UI개선/기타)를 입력하여 이슈를 등록할 수 있다
-- [ ] **ISSUE-03**: 사용자가 이슈 등록 시 현재 화면의 스크린샷을 캡처하여 첨부할 수 있다
-- [ ] **ISSUE-04**: 스크린샷이 MinIO에 업로드되고 GitHub Issue 본문에 이미지 URL로 삽입된다
-- [ ] **ISSUE-05**: 이슈 등록 시 사용자 컨텍스트(역할, 페이지 URL)가 자동으로 이슈 본문에 포함된다
+- [ ] **MENT-01**: 교사가 채팅 입력창에서 @를 입력하면 학생/선생님/학급 검색 드롭다운이 표시된다
+- [ ] **MENT-02**: 교사가 드롭다운에서 엔티티를 선택하면 채팅 입력에 멘션이 삽입된다
+- [ ] **MENT-03**: 시스템이 제출된 메시지에서 @멘션을 파싱하여 엔티티 ID/타입 목록을 추출한다
+- [ ] **MENT-04**: 시스템이 멘션된 엔티티의 데이터를 DB에서 RBAC 적용하여 조회한다
+- [ ] **MENT-05**: 한국어 IME 조합 중에도 자동완성이 정상 작동한다
+- [ ] **MENT-06**: 학생, 선생님, 학급(팀) 3가지 엔티티 타입을 멘션할 수 있다
 
-### GitHub 연동 (GitHub Integration)
+### 컨텍스트 주입 (Context Injection)
 
-- [ ] **GH-01**: 이슈 등록 시 GitHub REST API를 통해 현재 레포지토리에 Issue가 자동 생성된다
-- [ ] **GH-02**: GitHub Issue에 카테고리 기반 라벨(bug, feature, improvement, ui-ux, etc.)이 자동 태깅된다
-- [ ] **GH-03**: GitHub Issue 생성 시 이슈 유형에 따라 브랜치가 자동 생성된다 (fix/issue-{N}-{slug}, feat/issue-{N}-{slug})
-- [ ] **GH-04**: GitHub webhook을 통해 이슈 상태 변경(close, label, comment)이 로컬 DB에 자동 동기화된다
-- [ ] **GH-05**: Webhook 수신 시 HMAC-SHA256 서명 검증을 수행하여 위조 요청을 차단한다
-- [ ] **GH-06**: DIRECTOR가 수동으로 GitHub에서 로컬 DB로 이슈를 일괄 동기화할 수 있다
+- [ ] **CTX-01**: 멘션된 엔티티 데이터가 AI 시스템 프롬프트에 동적으로 주입된다
+- [ ] **CTX-02**: 교사는 자신의 팀에 속한 엔티티만 멘션할 수 있다 (RBAC)
+- [ ] **CTX-03**: 엔티티 데이터는 토큰 예산 내로 요약되어 주입된다 (~800토큰/엔티티)
+- [ ] **CTX-04**: 상담 노트 등 자유 텍스트는 경계 마킹으로 Prompt Injection을 방어한다
+- [ ] **CTX-05**: ChatMessage에 멘션 메타데이터가 저장된다 (mentionedEntities JSON)
 
-### 에러 자동 수집 (Error Auto-Collection)
+### UI/UX (User Experience)
 
-- [ ] **ERR-01**: 프로덕션 환경에서 발생하는 runtime 에러(error/fatal 수준)가 자동으로 GitHub Issue로 생성된다
-- [ ] **ERR-02**: 동일 에러의 중복 이슈 생성을 fingerprint 기반으로 방지한다
-- [ ] **ERR-03**: 에러 이슈에 스택트레이스, 요청 URL, 사용자 에이전트 등 기술 컨텍스트가 포함된다
-- [ ] **ERR-04**: 에러 이슈에 'sentry', 'auto-created' 라벨이 자동 태깅되어 수동 이슈와 구분된다
-- [ ] **ERR-05**: 에러 이슈 생성이 Sentry 에러 리포팅을 블로킹하지 않는다 (fire-and-forget)
+- [ ] **UI-01**: 드롭다운 자동완성이 타입별 그룹으로 표시된다 (학생/선생님/학급)
+- [ ] **UI-02**: 채팅 메시지에서 멘션이 시각적 칩으로 렌더링된다
+- [ ] **UI-03**: 멘션 칩 클릭 시 엔티티 프리뷰 카드가 팝오버로 표시된다
+- [ ] **UI-04**: 대시보드 LLMQueryBar에서도 @멘션을 사용할 수 있다
 
-### CI/CD 파이프라인 (Auto DevOps)
+## Future Requirements
 
-- [ ] **CICD-01**: `auto-deploy` 라벨이 있는 PR이 main에 머지되면 자동으로 배포가 트리거된다
-- [ ] **CICD-02**: 배포 성공 시 관련 GitHub Issue에 "배포 완료" 코멘트가 자동 추가된다
-- [ ] **CICD-03**: 배포 실패 시 롤백이 실행되고 PR에 "배포 실패/롤백" 코멘트가 추가된다
-- [ ] **CICD-04**: PR 본문의 `closes #N` 구문으로 연결된 이슈가 머지 시 자동 클로즈된다
-- [ ] **CICD-05**: CI가 자기 자신을 트리거하는 무한 루프가 방지된다 ([skip ci] + bot 계정 구분)
+### 세션 컨텍스트 확장 (v4.1+)
 
-### 이슈 대시보드 (Dashboard)
+- **SESS-01**: 세션 내에서 이전에 멘션된 엔티티 데이터가 자동으로 유지된다
+- **SESS-02**: 교사가 세션의 멘션 히스토리를 확인할 수 있다
+- **SESS-03**: AI가 이전 멘션 컨텍스트를 기반으로 후속 질문에 연속적으로 답변한다
 
-- [ ] **DASH-01**: DIRECTOR가 앱 내에서 등록된 이슈 목록을 조회할 수 있다
-- [ ] **DASH-02**: 이슈를 상태(open/closed), 카테고리, 소스(수동/Sentry) 기준으로 필터링할 수 있다
-- [ ] **DASH-03**: 이슈 제목/설명으로 검색할 수 있다
-- [ ] **DASH-04**: 각 이슈의 라이프사이클 상태(등록→브랜치→PR→테스트→배포)를 시각적으로 확인할 수 있다
-- [ ] **DASH-05**: 이슈-배포 파이프라인의 전체 현황을 대시보드에서 파악할 수 있다
+### 고급 멘션 기능 (v4.1+)
 
-### 인프라 & 보안 (Infrastructure & Security)
-
-- [ ] **INFRA-01**: Issue, IssueEvent 데이터베이스 모델이 Prisma 스키마에 추가된다
-- [ ] **INFRA-02**: GitHub API 호출 시 rate limit 헤더를 모니터링하고 임계값 이하 시 경고를 표시한다
-- [ ] **INFRA-03**: 이슈 생성, 배포 트리거 등 민감 작업이 감사 로그(AuditLog)에 기록된다
-- [ ] **INFRA-04**: GitHub 토큰이 환경 변수로만 관리되고 클라이언트 코드에 노출되지 않는다
-- [ ] **INFRA-05**: DIRECTOR 이외의 역할은 이슈 생성 및 배포 트리거 기능에 접근할 수 없다
-
-## Future Requirements (v3.1+)
-
-Deferred to future release. Tracked but not in current roadmap.
-
-### 고급 기능 (Advanced)
-
-- **ADV-01**: 스크린샷 어노테이션 도구 (화살표, 텍스트, 블러 마스킹)
-- **ADV-02**: 헬스체크 기반 자동 롤백 (배포 후 건강 검진 실패 시 자동 되돌리기)
-- **ADV-03**: ML 기반 스마트 에러 중복 제거 (스택트레이스 유사도 분석)
-- **ADV-04**: 이슈 자동 할당 (카테고리/전문 분야 기반)
-- **ADV-05**: Slack/이메일 알림 연동 (이슈 등록, 배포 완료/실패)
+- **ADV-01**: 교사가 멘션 시 포함할 데이터 유형을 선택할 수 있다 (사주만, MBTI만 등)
+- **ADV-02**: 복수 학생 멘션 시 비교 분석 컨텍스트가 자동 생성된다
+- **ADV-03**: AI가 응답에서 참조한 데이터 소스를 표시한다
 
 ## Out of Scope
 
-Explicitly excluded. Documented to prevent scope creep.
-
 | Feature | Reason |
 |---------|--------|
-| 실시간 이슈 채팅 | GitHub Comments로 충분, 복잡도 대비 가치 낮음 |
-| 커스텀 이슈 템플릿 빌더 | 고정 템플릿으로 충분, 템플릿 과잉 방지 |
-| 비디오 레코딩 | 파일 크기/스토리지 문제, 스크린샷+설명으로 충분 |
-| 앱 내 코드 리뷰 | GitHub PR 기능 재구현, 비효율적 |
-| 이슈별 수동 배포 트리거 | CI/CD 보장 위반, 브랜치 기반 배포만 허용 |
-| TEACHER/MANAGER 역할 이슈 생성 | v3.0은 DIRECTOR 전용, 역할 확장은 v3.1 |
+| 실시간 데이터 구독 (WebSocket) | 채팅 요청 시점의 스냅샷으로 충분, 실시간 불필요 |
+| 파일/문서 멘션 | 엔티티(사람/팀) 멘션에 집중, 문서는 v5.0+ |
+| AI 자동 멘션 제안 | 사용자 주도 멘션이 핵심, AI 자동 제안은 과도한 복잡도 |
+| 멘션 기반 알림 시스템 | 채팅 컨텍스트 주입이 목표, 알림은 별도 기능 |
+| Tiptap/Slate 리치 텍스트 에디터 | 150KB+ 오버헤드, 기존 Textarea + 오버레이로 충분 |
 
 ## Traceability
 
-Which phases cover which requirements. Updated during roadmap creation.
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INFRA-01 | Phase 29 | Pending |
-| INFRA-02 | Phase 29 | Pending |
-| INFRA-03 | Phase 29 | Pending |
-| INFRA-04 | Phase 29 | Pending |
-| INFRA-05 | Phase 29 | Pending |
-| GH-01 | Phase 29 | Pending |
-| GH-02 | Phase 29 | Pending |
-| GH-03 | Phase 29 | Pending |
-| ISSUE-01 | Phase 30 | Pending |
-| ISSUE-02 | Phase 30 | Pending |
-| ISSUE-03 | Phase 30 | Pending |
-| ISSUE-04 | Phase 30 | Pending |
-| ISSUE-05 | Phase 30 | Pending |
-| ERR-01 | Phase 31 | Pending |
-| ERR-02 | Phase 31 | Pending |
-| ERR-03 | Phase 31 | Pending |
-| ERR-04 | Phase 31 | Pending |
-| ERR-05 | Phase 31 | Pending |
-| GH-04 | Phase 32 | Pending |
-| GH-05 | Phase 32 | Pending |
-| GH-06 | Phase 32 | Pending |
-| CICD-01 | Phase 33 | Pending |
-| CICD-02 | Phase 33 | Pending |
-| CICD-03 | Phase 33 | Pending |
-| CICD-04 | Phase 33 | Pending |
-| CICD-05 | Phase 33 | Pending |
-| DASH-01 | Phase 34 | Pending |
-| DASH-02 | Phase 34 | Pending |
-| DASH-03 | Phase 34 | Pending |
-| DASH-04 | Phase 34 | Pending |
-| DASH-05 | Phase 34 | Pending |
+| MENT-01 | TBD | Pending |
+| MENT-02 | TBD | Pending |
+| MENT-03 | TBD | Pending |
+| MENT-04 | TBD | Pending |
+| MENT-05 | TBD | Pending |
+| MENT-06 | TBD | Pending |
+| CTX-01 | TBD | Pending |
+| CTX-02 | TBD | Pending |
+| CTX-03 | TBD | Pending |
+| CTX-04 | TBD | Pending |
+| CTX-05 | TBD | Pending |
+| UI-01 | TBD | Pending |
+| UI-02 | TBD | Pending |
+| UI-03 | TBD | Pending |
+| UI-04 | TBD | Pending |
 
 **Coverage:**
-- v3.0 requirements: 31 total
-- Mapped to phases: 31
-- Unmapped: 0 ✓
+- v4.0 requirements: 15 total
+- Mapped to phases: 0
+- Unmapped: 15
 
 ---
-*Requirements defined: 2026-02-11*
-*Last updated: 2026-02-11 after v3.0 roadmap creation*
+*Requirements defined: 2026-02-19*
+*Last updated: 2026-02-19 after initial definition*
