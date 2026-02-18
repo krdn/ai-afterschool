@@ -11,9 +11,9 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 
 Milestone: v4.0 AI Smart Chat
 Phase: 36 of 40 (Server-side Foundation)
-Plan: — (not started)
-Status: Ready to plan
-Last activity: 2026-02-19 — Roadmap phases 36-40 created
+Plan: 01 complete (next: 02)
+Status: In Progress
+Last activity: 2026-02-19 — Executed 36-01-PLAN.md
 
 Progress: [████████████████████████████████████████████░░] 91% (183/200+ plans)
 
@@ -42,6 +42,7 @@ Progress: [███████████████████████
 | v2.1.1 E2E Test | 34 | ~208 min | ~6.1 min |
 | v3.0 DevOps (partial) | 7 | ~21 min | ~3 min |
 | v4.0 LLM Hub | 9 | ~27 min | ~3 min |
+| Phase 36-server-side-foundation P01 | 2 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -56,6 +57,8 @@ Progress: [███████████████████████
 - Security: XML 경계 마킹 (<student_data>) + system prompt 상단 지시문으로 Prompt Injection 방어
 - New package: react-mentions-ts@5.4.7 (단 하나, peer deps 전부 기존 설치됨)
 - Fallback: react-mentions-ts + shadcn/ui 충돌 시 @ariakit/react combobox-textarea
+- [Phase 36-server-side-foundation]: 멘션 타입 중앙화: 클라이언트/서버 공유 타입을 src/lib/chat/mention-types.ts에서 단일 정의
+- [Phase 36-server-side-foundation]: GIN 인덱스 jsonb_path_ops: ChatMessage.mentionedEntities 컬럼에 엔티티별 필터링 지원
 
 ### Pending Todos
 
@@ -73,6 +76,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Phase 36 context gathered
-Resume file: .planning/phases/36-server-side-foundation/36-CONTEXT.md
-Next action: /gsd:plan-phase 36
+Stopped at: Completed 36-01-PLAN.md (멘션 타입 정의 + DB 스키마)
+Resume file: .planning/phases/36-server-side-foundation/36-02-PLAN.md
+Next action: /gsd:execute-phase 36-server-side-foundation (plan 02)
