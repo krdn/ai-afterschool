@@ -1,12 +1,18 @@
 "use client"
 
-import { useState } from "react"
-import { Star } from "lucide-react"
+import { useState, useTransition } from "react"
+import { Star, Trash2, Loader2 } from "lucide-react"
 import { ZodiacHelpDialog } from "@/components/students/zodiac-help-dialog"
 import { runZodiacAnalysis, generateZodiacLLMInterpretation } from "@/lib/actions/student/zodiac-analysis"
 import type { ProviderName } from "@/lib/ai/providers/types"
 import type { GenericPromptMeta } from "@/components/students/prompt-selector"
 import { Button } from "@/components/ui/button"
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { resetAnalysis } from "@/lib/actions/reset-analysis"
 import ReactMarkdown from "react-markdown"
 import {
   AnalysisErrorBanner,
@@ -35,6 +41,20 @@ export function ZodiacAnalysisPanel({ studentId, analysis, enabledProviders = []
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [isGeneratingAI, setIsGeneratingAI] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [showResetDialog, setShowResetDialog] = useState(false)
+  const [isResetting, startResetTransition] = useTransition()
+
+  function handleReset() {
+    startResetTransition(async () => {
+      const result = await resetAnalysis("zodiac", "STUDENT", studentId)
+      if (result.success) {
+        onDataChange?.()
+      } else {
+        setErrorMessage(result.error ?? "초기화 실패")
+      }
+      setShowResetDialog(false)
+    })
+  }
 
   const handleAnalyze = async () => {
     setIsAnalyzing(true)
@@ -74,9 +94,21 @@ export function ZodiacAnalysisPanel({ studentId, analysis, enabledProviders = []
           <h2 className="text-lg font-semibold">별자리 운세</h2>
           <ZodiacHelpDialog />
         </div>
-        {!analysis && (
+        {!analysis ? (
           <Button onClick={handleAnalyze} disabled={isAnalyzing}>
             {isAnalyzing ? "분석 중..." : "별자리 분석"}
+          </Button>
+        ) : (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-1 text-destructive hover:text-destructive"
+            onClick={() => setShowResetDialog(true)}
+            disabled={isResetting}
+            title="분석 결과 초기화"
+          >
+            <Trash2 className="h-4 w-4" />
+            초기화
           </Button>
         )}
       </div>
@@ -132,6 +164,26 @@ export function ZodiacAnalysisPanel({ studentId, analysis, enabledProviders = []
           />
         )}
       </div>
+
+      <AlertDialog open={showResetDialog} onOpenChange={setShowResetDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>별자리 분석 결과를 초기화할까요?</AlertDialogTitle>
+            <AlertDialogDescription>
+              현재 분석 결과가 삭제됩니다. 이력은 유지됩니다.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleReset}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isResetting ? <Loader2 className="h-4 w-4 animate-spin" /> : "초기화"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

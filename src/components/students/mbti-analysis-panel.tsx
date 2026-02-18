@@ -1,14 +1,21 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useTransition } from "react"
 import Link from "next/link"
-import { Brain, Pencil, Edit3 } from "lucide-react"
+import { Brain, Pencil, Edit3, Trash2, Loader2 } from "lucide-react"
 import { MbtiResultsDisplay } from "@/components/mbti/results-display"
 import { MbtiDirectInputModal } from "@/components/students/mbti-direct-input-modal"
 import { saveMbtiDirectInput, generateMbtiLLMInterpretation } from "@/lib/actions/student/mbti-survey"
 import type { ProviderName } from "@/lib/ai/providers/types"
 import type { GenericPromptMeta } from "@/components/students/prompt-selector"
 import { MbtiHelpDialog } from "@/components/students/mbti-help-dialog"
+import { Button } from "@/components/ui/button"
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { resetAnalysis } from "@/lib/actions/reset-analysis"
 import {
   AnalysisErrorBanner,
   AIInterpretationControls,
@@ -35,6 +42,8 @@ export function MbtiAnalysisPanel({ studentId, studentName, analysis, enabledPro
   const [isSaving, setIsSaving] = useState(false)
   const [isGeneratingAI, setIsGeneratingAI] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [showResetDialog, setShowResetDialog] = useState(false)
+  const [isResetting, startResetTransition] = useTransition()
 
   const handleDirectInputSave = async (data: {
     mbtiType: string
@@ -75,6 +84,18 @@ export function MbtiAnalysisPanel({ studentId, studentName, analysis, enabledPro
     }
   }
 
+  function handleReset() {
+    startResetTransition(async () => {
+      const result = await resetAnalysis("mbti", "STUDENT", studentId)
+      if (result.success) {
+        onDataChange?.()
+      } else {
+        setErrorMessage(result.error ?? "초기화 실패")
+      }
+      setShowResetDialog(false)
+    })
+  }
+
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden">
       <div className="px-6 py-4 border-b flex items-center justify-between">
@@ -103,6 +124,17 @@ export function MbtiAnalysisPanel({ studentId, studentName, analysis, enabledPro
               <Pencil className="w-4 h-4" />
               <span className="hidden sm:inline">재검사</span>
             </Link>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-1 text-destructive hover:text-destructive"
+              onClick={() => setShowResetDialog(true)}
+              disabled={isResetting}
+              title="분석 결과 초기화"
+            >
+              <Trash2 className="h-4 w-4" />
+              <span className="hidden sm:inline">초기화</span>
+            </Button>
           </div>
         )}
       </div>
@@ -164,6 +196,26 @@ export function MbtiAnalysisPanel({ studentId, studentName, analysis, enabledPro
           </AnalysisEmptyState>
         )}
       </div>
+
+      <AlertDialog open={showResetDialog} onOpenChange={setShowResetDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>MBTI 분석 결과를 초기화할까요?</AlertDialogTitle>
+            <AlertDialogDescription>
+              현재 분석 결과와 설문 임시저장이 삭제됩니다.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleReset}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isResetting ? <Loader2 className="h-4 w-4 animate-spin" /> : "초기화"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* 직접 입력 모달 */}
       {showDirectInput && (
