@@ -11,6 +11,7 @@ import {
 } from "@/lib/analysis/name-numerology"
 import { scoreMbti } from "@/lib/analysis/mbti-scoring"
 import { upsertSajuAnalysis, upsertNameAnalysis } from "@/lib/db/student/analysis"
+import { createTeacherSajuHistory } from "@/lib/db/teacher/analysis"
 import { upsertMbtiAnalysisGeneric, getMbtiAnalysisGeneric } from "@/lib/db/student/mbti-analysis"
 import { getNameAnalysis } from "@/lib/db/student/name-analysis"
 import { generateWithProvider, generateWithSpecificProvider } from "@/lib/ai/universal-router"
@@ -48,13 +49,15 @@ type TeacherSajuAnalysisData = {
   llmError: string | undefined
   usedProvider: string
   usedModel: string | undefined
+  cached: boolean
 }
 
 export async function runTeacherSajuAnalysis(
   teacherId: string,
   provider?: string,
   promptId?: string,
-  additionalRequest?: string
+  additionalRequest?: string,
+  forceRefresh?: boolean
 ): Promise<ActionResult<TeacherSajuAnalysisData>> {
   const session = await verifySession()
   if (!session) return fail("Unauthorized")
@@ -88,6 +91,52 @@ export async function runTeacherSajuAnalysis(
   })
 
   const resolvedPromptId = promptId || 'default'
+  const useLLM = provider && provider !== 'built-in'
+
+  // 캐시 확인
+  if (!forceRefresh && useLLM) {
+    const cachedHistory = await db.teacherSajuAnalysisHistory.findFirst({
+      where: {
+        teacherId,
+        promptId: resolvedPromptId,
+        additionalRequest: additionalRequest || null,
+        usedProvider: provider === 'auto' ? { not: '내장 알고리즘' } : provider,
+      },
+      orderBy: { createdAt: 'desc' },
+      select: { interpretation: true, usedProvider: true, usedModel: true },
+    })
+
+    if (cachedHistory?.interpretation) {
+      const inputSnapshot = {
+        birthDate: teacher.birthDate!.toISOString(),
+        timeKnown: Boolean(time),
+        time,
+        longitude: 127.0,
+        promptId: resolvedPromptId,
+      }
+      await upsertSajuAnalysis(teacherId, {
+        inputSnapshot,
+        result: sajuResult,
+        interpretation: cachedHistory.interpretation,
+        status: 'complete',
+        version: 1,
+        calculatedAt: new Date(),
+        usedProvider: cachedHistory.usedProvider,
+        usedModel: cachedHistory.usedModel,
+      }, 'TEACHER')
+
+      revalidatePath(`/teachers/${teacherId}`)
+      return ok({
+        result: sajuResult,
+        interpretation: cachedHistory.interpretation,
+        llmFailed: false,
+        llmError: undefined,
+        usedProvider: cachedHistory.usedProvider,
+        usedModel: cachedHistory.usedModel ?? undefined,
+        cached: true,
+      })
+    }
+  }
 
   // 해석: 내장 알고리즘 vs LLM
   let interpretation: string
@@ -96,7 +145,7 @@ export async function runTeacherSajuAnalysis(
   let usedProvider = '내장 알고리즘'
   let usedModel: string | undefined
 
-  if (!provider || provider === 'built-in') {
+  if (!useLLM) {
     interpretation = generateSajuInterpretation(sajuResult)
   } else {
     try {
@@ -167,6 +216,19 @@ export async function runTeacherSajuAnalysis(
     usedModel,
   }, 'TEACHER')
 
+  // LLM 성공 시 이력 저장
+  if (useLLM && !llmFailed) {
+    await createTeacherSajuHistory({
+      teacherId,
+      promptId: resolvedPromptId,
+      additionalRequest: additionalRequest || null,
+      result: sajuResult as Prisma.InputJsonValue,
+      interpretation,
+      usedProvider,
+      usedModel: usedModel ?? null,
+    })
+  }
+
   // 이벤트 발행
   eventBus.emitEvent({
     type: 'analysis:complete',
@@ -186,6 +248,7 @@ export async function runTeacherSajuAnalysis(
     llmError,
     usedProvider,
     usedModel,
+    cached: false,
   })
 }
 
