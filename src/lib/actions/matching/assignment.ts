@@ -10,9 +10,7 @@ import {
   type Assignment,
   type AutoAssignmentOptions,
 } from "@/lib/optimization/auto-assignment"
-import type { MbtiPercentages } from "@/lib/analysis/mbti-scoring"
-import type { SajuResult } from "@/lib/analysis/saju"
-import type { NameNumerologyResult } from "@/lib/analysis/name-numerology"
+import { fetchSubjectAnalyses, fetchBatchAnalyses } from "@/lib/db/matching/fetch-analysis"
 
 /**
  * 학생을 선생님에게 수동 배정
@@ -227,21 +225,8 @@ export async function getTeacherRecommendations(studentId: string) {
     throw new Error("학생을 찾을 수 없어요.")
   }
 
-  // 학생 분석 데이터 조회 (통합 테이블)
-  const [studentMbti, studentSaju, studentName] = await Promise.all([
-    db.mbtiAnalysis.findUnique({
-      where: { subjectType_subjectId: { subjectType: 'STUDENT', subjectId: studentId } },
-      select: { percentages: true },
-    }),
-    db.sajuAnalysis.findUnique({
-      where: { subjectType_subjectId: { subjectType: 'STUDENT', subjectId: studentId } },
-      select: { result: true },
-    }),
-    db.nameAnalysis.findUnique({
-      where: { subjectType_subjectId: { subjectType: 'STUDENT', subjectId: studentId } },
-      select: { result: true },
-    }),
-  ])
+  // 공유 함수로 학생 분석 데이터 조회
+  const studentAnalyses = await fetchSubjectAnalyses(studentId, "STUDENT")
 
   // 팀 내 Teacher 목록 조회 (role이 TEACHER, MANAGER, TEAM_LEADER인 경우)
   const teachers = await db.teacher.findMany({
@@ -270,26 +255,9 @@ export async function getTeacherRecommendations(studentId: string) {
     }
   }
 
-  // 선생님 분석 데이터 일괄 조회 (통합 테이블)
-  const teacherIds = teachers.map(t => t.id)
-  const [teacherMbtis, teacherSajus, teacherNames] = await Promise.all([
-    db.mbtiAnalysis.findMany({
-      where: { subjectType: 'TEACHER', subjectId: { in: teacherIds } },
-      select: { subjectId: true, percentages: true },
-    }),
-    db.sajuAnalysis.findMany({
-      where: { subjectType: 'TEACHER', subjectId: { in: teacherIds } },
-      select: { subjectId: true, result: true },
-    }),
-    db.nameAnalysis.findMany({
-      where: { subjectType: 'TEACHER', subjectId: { in: teacherIds } },
-      select: { subjectId: true, result: true },
-    }),
-  ])
-
-  const teacherMbtiMap = new Map(teacherMbtis.map(m => [m.subjectId, m]))
-  const teacherSajuMap = new Map(teacherSajus.map(s => [s.subjectId, s]))
-  const teacherNameMap = new Map(teacherNames.map(n => [n.subjectId, n]))
+  // 공유 함수로 선생님 배치 분석 데이터 조회
+  const teacherIds = teachers.map((t) => t.id)
+  const teacherAnalysesMap = await fetchBatchAnalyses(teacherIds, "TEACHER")
 
   // 전체 Student/Teacher 수로 averageLoad 계산
   const totalStudentCount = await db.student.count()
@@ -298,17 +266,19 @@ export async function getTeacherRecommendations(studentId: string) {
 
   // 각 Teacher에 대해 궁합 점수 계산
   const recommendations = teachers.map((teacher) => {
+    const tAnalyses = teacherAnalysesMap.get(teacher.id) ?? { mbti: null, saju: null, name: null }
+
     const score = calculateCompatibilityScore(
       {
-        mbti: (teacherMbtiMap.get(teacher.id)?.percentages as unknown as MbtiPercentages | null) ?? null,
-        saju: (teacherSajuMap.get(teacher.id)?.result as unknown as SajuResult | null) ?? null,
-        name: (teacherNameMap.get(teacher.id)?.result as unknown as NameNumerologyResult | null) ?? null,
+        mbti: tAnalyses.mbti,
+        saju: tAnalyses.saju,
+        name: tAnalyses.name,
         currentLoad: teacher._count.students,
       },
       {
-        mbti: (studentMbti?.percentages as unknown as MbtiPercentages | null) ?? null,
-        saju: (studentSaju?.result as unknown as SajuResult | null) ?? null,
-        name: (studentName?.result as unknown as NameNumerologyResult | null) ?? null,
+        mbti: studentAnalyses.mbti,
+        saju: studentAnalyses.saju,
+        name: studentAnalyses.name,
       },
       averageLoad
     )
