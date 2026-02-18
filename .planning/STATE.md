@@ -61,6 +61,8 @@ Progress: [███████████████████████
 - Fallback: react-mentions-ts + shadcn/ui 충돌 시 @ariakit/react combobox-textarea
 - [Phase 36-server-side-foundation]: 멘션 타입 중앙화: 클라이언트/서버 공유 타입을 src/lib/chat/mention-types.ts에서 단일 정의
 - [Phase 36-server-side-foundation]: GIN 인덱스 jsonb_path_ops: ChatMessage.mentionedEntities 컬럼에 엔티티별 필터링 지원
+- [Phase 36-02]: 배치 조회 후 RBAC 필터링: createTeamFilteredPrisma 대신 Application 레이어 직접 teamId 비교로 명확성 확보
+- [Phase 36-02]: handleAccessDenied 헬퍼 패턴: RBAC 실패 처리(감사 로그+resolved+metadata+메시지) 캡슐화
 - [Phase 36-03]: context-builder escapeXml &먼저 처리: 이중 이스케이프 방지 위해 & → &amp; 최우선 치환
 - [Phase 36-03]: 예산 재분배 1회 제한: 단순하고 예측 가능한 1회 재분배로 복잡도 제한
 

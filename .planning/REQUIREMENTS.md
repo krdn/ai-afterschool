@@ -12,14 +12,14 @@ Requirements for v4.0 AI Smart Chat milestone. Each maps to roadmap phases.
 - [ ] **MENT-01**: 교사가 채팅 입력창에서 @를 입력하면 학생/선생님/학급 검색 드롭다운이 표시된다
 - [ ] **MENT-02**: 교사가 드롭다운에서 엔티티를 선택하면 채팅 입력에 멘션이 삽입된다
 - [x] **MENT-03**: 시스템이 제출된 메시지에서 @멘션을 파싱하여 엔티티 ID/타입 목록을 추출한다
-- [ ] **MENT-04**: 시스템이 멘션된 엔티티의 데이터를 DB에서 RBAC 적용하여 조회한다
+- [x] **MENT-04**: 시스템이 멘션된 엔티티의 데이터를 DB에서 RBAC 적용하여 조회한다
 - [ ] **MENT-05**: 한국어 IME 조합 중에도 자동완성이 정상 작동한다
 - [ ] **MENT-06**: 학생, 선생님, 학급(팀) 3가지 엔티티 타입을 멘션할 수 있다
 
 ### 컨텍스트 주입 (Context Injection)
 
 - [x] **CTX-01**: 멘션된 엔티티 데이터가 AI 시스템 프롬프트에 동적으로 주입된다
-- [ ] **CTX-02**: 교사는 자신의 팀에 속한 엔티티만 멘션할 수 있다 (RBAC)
+- [x] **CTX-02**: 교사는 자신의 팀에 속한 엔티티만 멘션할 수 있다 (RBAC)
 - [x] **CTX-03**: 엔티티 데이터는 토큰 예산 내로 요약되어 주입된다 (~800토큰/엔티티)
 - [x] **CTX-04**: 상담 노트 등 자유 텍스트는 경계 마킹으로 Prompt Injection을 방어한다
 - [x] **CTX-05**: ChatMessage에 멘션 메타데이터가 저장된다 (mentionedEntities JSON)
@@ -62,11 +62,11 @@ Requirements for v4.0 AI Smart Chat milestone. Each maps to roadmap phases.
 | MENT-01 | Phase 38 | Pending |
 | MENT-02 | Phase 38 | Pending |
 | MENT-03 | Phase 36 | Complete |
-| MENT-04 | Phase 36 | Pending |
+| MENT-04 | Phase 36 | Complete |
 | MENT-05 | Phase 38 | Pending |
 | MENT-06 | Phase 37 | Pending |
 | CTX-01 | Phase 36 | Complete |
-| CTX-02 | Phase 36 | Pending |
+| CTX-02 | Phase 36 | Complete |
 | CTX-03 | Phase 36 | Complete |
 | CTX-04 | Phase 36 | Complete |
 | CTX-05 | Phase 36 | Complete |
