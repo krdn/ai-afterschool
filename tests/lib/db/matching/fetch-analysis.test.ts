@@ -21,7 +21,8 @@ vi.mock("@/lib/db", () => ({
 import { db } from "@/lib/db"
 import { fetchSubjectAnalyses, fetchBatchAnalyses, fetchPairAnalyses } from "@/lib/db/matching/fetch-analysis"
 
-const mockedDb = vi.mocked(db)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Prisma 타입이 vi.mocked와 호환되지 않음
+const mockedDb = db as any
 
 describe("fetchSubjectAnalyses", () => {
   beforeEach(() => {
