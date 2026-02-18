@@ -90,6 +90,7 @@ export async function syncProviderModels(
   });
 
   const existingModelIds = new Set(existingModels.map((m) => m.modelId));
+  const newModelIds = new Set(models.map((m) => m.modelId));
 
   // 새 모델 추가
   for (const model of models) {
@@ -104,6 +105,17 @@ export async function syncProviderModels(
           supportsTools: model.supportsTools,
         },
       });
+    }
+  }
+
+  // Ollama/동적 제공자: 서버에 없는 모델은 DB에서 제거
+  // (단, 기본 모델(isDefault)은 제거하지 않음 - 수동 등록된 모델 보호)
+  if (models.length > 0) {
+    const modelsToRemove = existingModels.filter(
+      (m) => !newModelIds.has(m.modelId) && !m.isDefault
+    );
+    for (const model of modelsToRemove) {
+      await db.model.delete({ where: { id: model.id } });
     }
   }
 

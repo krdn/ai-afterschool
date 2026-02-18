@@ -20,9 +20,17 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { ChevronDown, ChevronUp, UserMinus } from 'lucide-react'
+import { ChevronDown, ChevronUp, UserMinus, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 import { unassignStudent } from '@/lib/actions/matching/assignment'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
@@ -78,9 +86,19 @@ export function TeacherAssignmentTable({ teachers }: TeacherAssignmentTableProps
   const [globalFilter, setGlobalFilter] = React.useState('')
   const [expandedRows, setExpandedRows] = React.useState<Set<string>>(new Set())
   const [unassigningId, setUnassigningId] = React.useState<string | null>(null)
+  const [unassignDialog, setUnassignDialog] = React.useState<{
+    open: boolean
+    studentId: string
+    studentName: string
+  }>({ open: false, studentId: '', studentName: '' })
 
-  const handleUnassign = async (studentId: string, studentName: string) => {
-    if (!confirm(`${studentName} 학생의 배정을 해제하시겠습니까?`)) return
+  const handleUnassignClick = (studentId: string, studentName: string) => {
+    setUnassignDialog({ open: true, studentId, studentName })
+  }
+
+  const handleConfirmUnassign = async () => {
+    const { studentId, studentName } = unassignDialog
+    setUnassignDialog((prev) => ({ ...prev, open: false }))
     setUnassigningId(studentId)
     const result = await unassignStudent(studentId)
     if (result.success) {
@@ -116,7 +134,26 @@ export function TeacherAssignmentTable({ teachers }: TeacherAssignmentTableProps
         ),
       }),
       columnHelper.accessor('students', {
-        header: '담당 학생',
+        header: ({ column }) => {
+          const sorted = column.getIsSorted()
+          return (
+            <button
+              className="flex items-center gap-1 hover:text-foreground"
+              onClick={() => column.toggleSorting(sorted === 'asc')}
+            >
+              담당 학생
+              {sorted === 'asc' ? (
+                <ArrowUp className="h-3.5 w-3.5" />
+              ) : sorted === 'desc' ? (
+                <ArrowDown className="h-3.5 w-3.5" />
+              ) : (
+                <ArrowUpDown className="h-3.5 w-3.5 opacity-40" />
+              )}
+            </button>
+          )
+        },
+        sortingFn: (rowA, rowB) =>
+          rowA.original.students.length - rowB.original.students.length,
         cell: (info) => {
           const count = info.getValue().length
           return (
@@ -248,7 +285,7 @@ export function TeacherAssignmentTable({ teachers }: TeacherAssignmentTableProps
                                     {student.school} {student.grade}학년
                                   </span>
                                   <button
-                                    onClick={() => handleUnassign(student.id, student.name)}
+                                    onClick={() => handleUnassignClick(student.id, student.name)}
                                     disabled={unassigningId === student.id}
                                     className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700 disabled:opacity-50"
                                     title="배정 해제"
@@ -312,6 +349,32 @@ export function TeacherAssignmentTable({ teachers }: TeacherAssignmentTableProps
           </Button>
         </div>
       </div>
+      {/* 배정 해제 확인 다이얼로그 */}
+      <Dialog
+        open={unassignDialog.open}
+        onOpenChange={(open) => setUnassignDialog((prev) => ({ ...prev, open }))}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>배정 해제 확인</DialogTitle>
+            <DialogDescription>
+              <strong>{unassignDialog.studentName}</strong> 학생의 배정을 해제하시겠습니까?
+              해제 후 미배정 상태로 전환됩니다.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setUnassignDialog((prev) => ({ ...prev, open: false }))}
+            >
+              취소
+            </Button>
+            <Button variant="destructive" onClick={handleConfirmUnassign}>
+              해제하기
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

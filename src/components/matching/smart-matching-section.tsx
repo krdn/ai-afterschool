@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
-import { Sparkles, Loader2, Play } from "lucide-react"
+import { Sparkles, Loader2, Zap, CheckCircle2 } from "lucide-react"
 import {
   Card,
   CardContent,
@@ -168,73 +168,77 @@ export function SmartMatchingSection({
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* 선택 영역 */}
-          <div className="grid grid-cols-1 items-end gap-4 sm:grid-cols-[1fr_1fr_auto]">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">미배정 학생</label>
-              <UnassignedStudentCombobox
-                students={unassignedStudents}
-                assignedStudents={assignedStudents}
-                value={selectedStudentId}
-                onChange={handleStudentChange}
-                disabled={isLoading}
-              />
+          {/* 미배정 학생이 없을 때 - 완료 상태 */}
+          {unassignedStudents.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-8 text-center">
+              <CheckCircle2 className="h-10 w-10 text-green-500 mb-3" />
+              <p className="text-sm font-medium text-green-700">모든 학생이 배정 완료되었습니다</p>
+              <p className="text-xs text-muted-foreground mt-1">미배정 학생이 없어 스마트 배정이 필요하지 않습니다.</p>
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">계산 모델</label>
-              <MatchingModelSelector
-                value={selectedModel}
-                onChange={handleModelChange}
-                disabled={isLoading}
-                llmProviders={llmProviders}
-              />
-            </div>
-            <Button
-              onClick={handleAnalyze}
-              disabled={!selectedStudentId || isLoading}
-              className="h-10"
-            >
-              {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Play className="h-4 w-4" />
+          ) : (
+            <>
+              {/* 선택 영역 */}
+              <div className="grid grid-cols-1 items-end gap-4 sm:grid-cols-[1fr_1fr_auto]">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">미배정 학생</label>
+                  <UnassignedStudentCombobox
+                    students={unassignedStudents}
+                    assignedStudents={assignedStudents}
+                    value={selectedStudentId}
+                    onChange={handleStudentChange}
+                    disabled={isLoading}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">계산 모델</label>
+                  <MatchingModelSelector
+                    value={selectedModel}
+                    onChange={handleModelChange}
+                    disabled={isLoading}
+                    llmProviders={llmProviders}
+                  />
+                </div>
+                <Button
+                  onClick={handleAnalyze}
+                  disabled={!selectedStudentId || isLoading}
+                  className="h-10"
+                >
+                  {isLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Zap className="h-4 w-4" />
+                  )}
+                  분석
+                </Button>
+              </div>
+
+              {/* 로딩 상태 */}
+              {isLoading && (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin text-blue-500" />
+                  <span className="ml-2 text-sm text-muted-foreground">
+                    {isLlmModel
+                      ? "AI가 궁합을 분석하고 있습니다... (20~30초 소요)"
+                      : "궁합 점수 계산 중..."}
+                  </span>
+                </div>
               )}
-              분석
-            </Button>
-          </div>
 
-          {/* 로딩 상태 */}
-          {isLoading && (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-6 w-6 animate-spin text-blue-500" />
-              <span className="ml-2 text-sm text-muted-foreground">
-                {isLlmModel
-                  ? "AI가 궁합을 분석하고 있습니다... (20~30초 소요)"
-                  : "궁합 점수 계산 중..."}
-              </span>
-            </div>
-          )}
-
-          {/* 추천 결과 */}
-          {!isLoading && recommendations.length > 0 && (
-            <div className="space-y-3">
-              <h3 className="text-sm font-medium text-muted-foreground">
-                {studentName} 학생의 추천 선생님 ({recommendations.length}명)
-              </h3>
-              <TeacherRecommendationList
-                recommendations={recommendations}
-                currentTeacherId={assignedStudents.find((s) => s.id === selectedStudentId)?.teacherId}
-                onAssign={handleAssignClick}
-                assigningTeacherId={assigningTeacherId}
-              />
-            </div>
-          )}
-
-          {/* 학생이 없을 때 */}
-          {unassignedStudents.length === 0 && assignedStudents.length === 0 && (
-            <div className="rounded-lg border border-dashed p-6 text-center text-muted-foreground">
-              등록된 학생이 없습니다.
-            </div>
+              {/* 추천 결과 */}
+              {!isLoading && recommendations.length > 0 && (
+                <div className="space-y-3">
+                  <h3 className="text-sm font-medium text-muted-foreground">
+                    {studentName} 학생의 추천 선생님 ({recommendations.length}명)
+                  </h3>
+                  <TeacherRecommendationList
+                    recommendations={recommendations}
+                    currentTeacherId={assignedStudents.find((s) => s.id === selectedStudentId)?.teacherId}
+                    onAssign={handleAssignClick}
+                    assigningTeacherId={assigningTeacherId}
+                  />
+                </div>
+              )}
+            </>
           )}
         </CardContent>
       </Card>
