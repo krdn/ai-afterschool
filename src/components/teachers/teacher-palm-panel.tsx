@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react"
 import Image from "next/image"
-import { Hand, Sparkles, AlertCircle } from "lucide-react"
+import { Hand, Sparkles, AlertCircle, Trash2, Loader2 } from "lucide-react"
 import { runTeacherPalmAnalysis } from "@/lib/actions/teacher/palm-analysis"
 import { DISCLAIMER_TEXT } from "@/lib/ai/prompts"
 import type { ProviderName } from "@/lib/ai/providers/types"
@@ -11,6 +11,12 @@ import { PromptSelector } from "@/components/students/prompt-selector"
 import type { GenericPromptMeta } from "@/components/students/prompt-selector"
 import { PalmHelpDialog } from "@/components/students/palm-help-dialog"
 import { Button } from "@/components/ui/button"
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { resetAnalysis } from "@/lib/actions/reset-analysis"
 
 type TeacherPalmAnalysis = {
   id: string
@@ -69,6 +75,21 @@ export function TeacherPalmPanel({
   const isAnalyzing = localStatus === 'analyzing' ||
     (analysis?.status === 'pending')
 
+  const [showResetDialog, setShowResetDialog] = useState(false)
+  const [isResetting, startResetTransition] = useTransition()
+
+  function handleReset() {
+    startResetTransition(async () => {
+      const result = await resetAnalysis("palm", "TEACHER", teacherId)
+      if (result.success) {
+        window.location.reload()
+      } else {
+        alert(result.error ?? "초기화 실패")
+      }
+      setShowResetDialog(false)
+    })
+  }
+
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden">
       {/* Header */}
@@ -80,6 +101,19 @@ export function TeacherPalmPanel({
           <h2 className="text-lg font-semibold">AI 손금 분석</h2>
           <PalmHelpDialog />
         </div>
+        {analysis?.status === 'complete' && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-1 text-destructive hover:text-destructive"
+            onClick={() => setShowResetDialog(true)}
+            disabled={isResetting}
+            title="분석 결과 초기화"
+          >
+            <Trash2 className="h-4 w-4" />
+            초기화
+          </Button>
+        )}
       </div>
 
       {/* Provider/Prompt selectors */}
@@ -122,6 +156,26 @@ export function TeacherPalmPanel({
           />
         )}
       </div>
+
+      <AlertDialog open={showResetDialog} onOpenChange={setShowResetDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>손금 분석 결과를 초기화할까요?</AlertDialogTitle>
+            <AlertDialogDescription>
+              현재 분석 결과가 삭제됩니다. 이력은 유지됩니다.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleReset}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isResetting ? <Loader2 className="h-4 w-4 animate-spin" /> : "초기화"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

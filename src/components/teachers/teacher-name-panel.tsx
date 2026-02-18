@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react"
 import { format } from "date-fns"
 import { ko } from "date-fns/locale"
-import { Sparkles, AlertCircle, Type } from "lucide-react"
+import { Sparkles, AlertCircle, Type, Trash2, Loader2 } from "lucide-react"
 import { runTeacherNameAnalysis, generateTeacherNameLLMInterpretation } from "@/lib/actions/teacher/analysis"
 import type { NameNumerologyResult } from "@/lib/analysis/name-numerology"
 import {
@@ -18,6 +18,12 @@ import { PromptSelector } from "@/components/students/prompt-selector"
 import type { GenericPromptMeta } from "@/components/students/prompt-selector"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { resetAnalysis } from "@/lib/actions/reset-analysis"
 import ReactMarkdown from "react-markdown"
 
 type NameAnalysis = {
@@ -46,6 +52,20 @@ export function TeacherNamePanel({ teacherId, teacherName, analysis, teacherName
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [selectedProvider, setSelectedProvider] = useState("auto")
   const [selectedPromptId, setSelectedPromptId] = useState("default")
+  const [showResetDialog, setShowResetDialog] = useState(false)
+  const [isResetting, startResetTransition] = useTransition()
+
+  function handleReset() {
+    startResetTransition(async () => {
+      const result = await resetAnalysis("name", "TEACHER", teacherId)
+      if (result.success) {
+        onDataChange?.()
+      } else {
+        setErrorMessage(result.error ?? "초기화 실패")
+      }
+      setShowResetDialog(false)
+    })
+  }
 
   const selections = normalizeHanjaSelections(
     teacherName,
@@ -97,10 +117,25 @@ export function TeacherNamePanel({ teacherId, teacherName, analysis, teacherName
           </div>
           <CardTitle>이름풀이</CardTitle>
         </div>
-        <div className="text-xs text-gray-500">
-          {calculatedAt
-            ? `최근 분석: ${format(calculatedAt, "yyyy.MM.dd HH:mm", { locale: ko })}`
-            : "아직 분석되지 않았어요."}
+        <div className="flex items-center gap-3">
+          {analysis && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-1 text-destructive hover:text-destructive"
+              onClick={() => setShowResetDialog(true)}
+              disabled={isResetting}
+              title="분석 결과 초기화"
+            >
+              <Trash2 className="h-4 w-4" />
+              초기화
+            </Button>
+          )}
+          <div className="text-xs text-gray-500">
+            {calculatedAt
+              ? `최근 분석: ${format(calculatedAt, "yyyy.MM.dd HH:mm", { locale: ko })}`
+              : "아직 분석되지 않았어요."}
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -245,6 +280,26 @@ export function TeacherNamePanel({ teacherId, teacherName, analysis, teacherName
           )}
         </div>
       </CardContent>
+
+      <AlertDialog open={showResetDialog} onOpenChange={setShowResetDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>이름풀이 분석 결과를 초기화할까요?</AlertDialogTitle>
+            <AlertDialogDescription>
+              현재 분석 결과가 삭제됩니다. 이력은 유지됩니다.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleReset}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isResetting ? <Loader2 className="h-4 w-4 animate-spin" /> : "초기화"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   )
 }

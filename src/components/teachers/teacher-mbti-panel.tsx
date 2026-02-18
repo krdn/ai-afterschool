@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { Brain, Edit3, Sparkles, AlertCircle } from "lucide-react"
+import { useState, useTransition } from "react"
+import { Brain, Edit3, Sparkles, AlertCircle, Trash2, Loader2 } from "lucide-react"
 import { MbtiResultsDisplay } from "@/components/mbti/results-display"
 import { MbtiDirectInputModal } from "@/components/students/mbti-direct-input-modal"
 import { saveTeacherMbtiDirectInput, generateTeacherMbtiLLMInterpretation } from "@/lib/actions/teacher/analysis"
@@ -11,6 +11,12 @@ import { PromptSelector } from "@/components/students/prompt-selector"
 import type { GenericPromptMeta } from "@/components/students/prompt-selector"
 import { MbtiHelpDialog } from "@/components/students/mbti-help-dialog"
 import { Button } from "@/components/ui/button"
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { resetAnalysis } from "@/lib/actions/reset-analysis"
 
 type MbtiAnalysis = {
   mbtiType: string
@@ -34,6 +40,20 @@ export function TeacherMbtiPanel({ teacherId, teacherName, analysis, enabledProv
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [selectedProvider, setSelectedProvider] = useState('auto')
   const [selectedPromptId, setSelectedPromptId] = useState('default')
+  const [showResetDialog, setShowResetDialog] = useState(false)
+  const [isResetting, startResetTransition] = useTransition()
+
+  function handleReset() {
+    startResetTransition(async () => {
+      const result = await resetAnalysis("mbti", "TEACHER", teacherId)
+      if (result.success) {
+        onDataChange?.()
+      } else {
+        setErrorMessage(result.error ?? "초기화 실패")
+      }
+      setShowResetDialog(false)
+    })
+  }
 
   const handleDirectInputSave = async (data: {
     mbtiType: string
@@ -72,14 +92,27 @@ export function TeacherMbtiPanel({ teacherId, teacherName, analysis, enabledProv
           <MbtiHelpDialog />
         </div>
         {analysis && (
-          <button
-            onClick={() => setShowDirectInput(true)}
-            className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 px-2 py-1 hover:bg-gray-100 rounded-lg transition-colors"
-            title="MBTI 유형 직접 입력"
-          >
-            <Edit3 className="w-4 h-4" />
-            <span className="hidden sm:inline">직접 입력</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowDirectInput(true)}
+              className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 px-2 py-1 hover:bg-gray-100 rounded-lg transition-colors"
+              title="MBTI 유형 직접 입력"
+            >
+              <Edit3 className="w-4 h-4" />
+              <span className="hidden sm:inline">직접 입력</span>
+            </button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-1 text-destructive hover:text-destructive"
+              onClick={() => setShowResetDialog(true)}
+              disabled={isResetting}
+              title="분석 결과 초기화"
+            >
+              <Trash2 className="h-4 w-4" />
+              <span className="hidden sm:inline">초기화</span>
+            </Button>
+          </div>
         )}
       </div>
 
@@ -194,6 +227,26 @@ export function TeacherMbtiPanel({ teacherId, teacherName, analysis, enabledProv
           isSaving={isSaving}
         />
       )}
+
+      <AlertDialog open={showResetDialog} onOpenChange={setShowResetDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>MBTI 분석 결과를 초기화할까요?</AlertDialogTitle>
+            <AlertDialogDescription>
+              현재 분석 결과가 삭제됩니다. 이력은 유지됩니다.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleReset}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isResetting ? <Loader2 className="h-4 w-4 animate-spin" /> : "초기화"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

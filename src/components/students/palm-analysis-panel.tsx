@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react"
 import Image from "next/image"
-import { Hand, Sparkles, AlertCircle, RefreshCw, Loader2 } from "lucide-react"
+import { Hand, Sparkles, AlertCircle, RefreshCw, Loader2, Trash2 } from "lucide-react"
 import { analyzePalmImage } from "@/lib/actions/student/ai-image-analysis"
 import { DISCLAIMER_TEXT } from "@/lib/ai/prompts"
 import type { ProviderName } from "@/lib/ai/providers/types"
@@ -11,6 +11,12 @@ import { PromptSelector } from "@/components/students/prompt-selector"
 import type { GenericPromptMeta } from "@/components/students/prompt-selector"
 import { PalmHelpDialog } from "@/components/students/palm-help-dialog"
 import { Button } from "@/components/ui/button"
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { resetAnalysis } from "@/lib/actions/reset-analysis"
 
 type PalmAnalysis = {
   id: string
@@ -40,6 +46,8 @@ export function PalmAnalysisPanel({
 }: Props) {
   const [, startTransition] = useTransition()
   const [localStatus, setLocalStatus] = useState<'idle' | 'analyzing'>('idle')
+  const [showResetDialog, setShowResetDialog] = useState(false)
+  const [isResetting, startResetTransition] = useTransition()
   const [selectedHand, setSelectedHand] = useState<'left' | 'right'>(
     (analysis?.hand === 'left' || analysis?.hand === 'right') ? analysis.hand : 'right'
   )
@@ -69,6 +77,18 @@ export function PalmAnalysisPanel({
   const isAnalyzing = localStatus === 'analyzing' ||
     (analysis?.status === 'pending')
 
+  function handleReset() {
+    startResetTransition(async () => {
+      const result = await resetAnalysis("palm", "STUDENT", studentId)
+      if (result.success) {
+        window.location.reload()
+      } else {
+        setErrorMessage(result.error ?? "초기화 실패")
+      }
+      setShowResetDialog(false)
+    })
+  }
+
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden" data-testid="palmistry-tab">
       {/* Header */}
@@ -97,6 +117,19 @@ export function PalmAnalysisPanel({
             visionProviders={visionProviders}
             disabled={isAnalyzing}
           />
+          {analysis?.status === 'complete' && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-1 text-destructive hover:text-destructive"
+              onClick={() => setShowResetDialog(true)}
+              disabled={isResetting}
+              title="분석 결과 초기화"
+            >
+              <Trash2 className="h-4 w-4" />
+              초기화
+            </Button>
+          )}
         </div>
       </div>
 
@@ -121,6 +154,26 @@ export function PalmAnalysisPanel({
           />
         )}
       </div>
+
+      <AlertDialog open={showResetDialog} onOpenChange={setShowResetDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>손금 분석 결과를 초기화할까요?</AlertDialogTitle>
+            <AlertDialogDescription>
+              현재 분석 결과가 삭제됩니다. 이력은 유지됩니다.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleReset}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isResetting ? <Loader2 className="h-4 w-4 animate-spin" /> : "초기화"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
