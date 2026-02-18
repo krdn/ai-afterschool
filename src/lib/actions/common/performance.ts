@@ -15,6 +15,7 @@ import {
   deleteStudentSatisfaction,
 } from "@/lib/db/common/performance"
 import type { GradeType, CounselingType } from "@prisma/client"
+import { okVoid, fail, type ActionVoidResult } from "@/lib/errors/action-result"
 
 /**
  * 성적 기록 Server Action
@@ -23,12 +24,12 @@ import type { GradeType, CounselingType } from "@prisma/client"
  *       TEACHER - 자신이 담당하는 학생만 기록 가능
  */
 export async function recordGradeAction(
-  prevState: { error?: string; success?: boolean } | undefined,
+  prevState: ActionVoidResult | undefined,
   formData: FormData
-) {
+): Promise<ActionVoidResult> {
   const session = await verifySession()
   if (!session) {
-    return { error: "인증이 필요합니다." }
+    return fail("인증이 필요합니다.")
   }
 
   const studentId = formData.get("studentId") as string
@@ -42,7 +43,7 @@ export async function recordGradeAction(
   const notes = formData.get("notes") as string | null
 
   if (!studentId || !subject || !gradeType || isNaN(score) || !testDateStr || isNaN(academicYear) || isNaN(semester)) {
-    return { error: "필수 항목을 모두 입력해주세요." }
+    return fail("필수 항목을 모두 입력해주세요.")
   }
 
   // RBAC: TEACHER는 자신의 학생만 접근 가능
@@ -53,7 +54,7 @@ export async function recordGradeAction(
       select: { id: true },
     })
     if (!student) {
-      return { error: "해당 학생에 대한 권한이 없습니다." }
+      return fail("해당 학생에 대한 권한이 없습니다.")
     }
   }
 
@@ -76,10 +77,10 @@ export async function recordGradeAction(
     })
 
     revalidatePath(`/students/${studentId}`)
-    return { success: true }
+    return okVoid()
   } catch (error) {
     console.error("성적 기록 실패:", error)
-    return { error: "성적 기록에 실패했습니다." }
+    return fail("성적 기록에 실패했습니다.")
   }
 }
 
@@ -88,12 +89,12 @@ export async function recordGradeAction(
  */
 export async function updateGradeAction(
   gradeId: string,
-  prevState: { error?: string; success?: boolean } | undefined,
+  prevState: ActionVoidResult | undefined,
   formData: FormData
-) {
+): Promise<ActionVoidResult> {
   const session = await verifySession()
   if (!session) {
-    return { error: "인증이 필요합니다." }
+    return fail("인증이 필요합니다.")
   }
 
   const score = parseFloat(formData.get("score") as string)
@@ -101,7 +102,7 @@ export async function updateGradeAction(
   const notes = formData.get("notes") as string | null
 
   if (isNaN(score)) {
-    return { error: "점수를 입력해주세요." }
+    return fail("점수를 입력해주세요.")
   }
 
   try {
@@ -114,28 +115,30 @@ export async function updateGradeAction(
       notes: notes || undefined,
     })
 
-    return { success: true }
+    return okVoid()
   } catch (error) {
     console.error("성적 수정 실패:", error)
-    return { error: "성적 수정에 실패했습니다." }
+    return fail("성적 수정에 실패했습니다.")
   }
 }
 
 /**
  * 성적 삭제 Server Action
  */
-export async function deleteGradeAction(gradeId: string) {
+export async function deleteGradeAction(
+  gradeId: string
+): Promise<ActionVoidResult> {
   const session = await verifySession()
   if (!session) {
-    return { error: "인증이 필요합니다." }
+    return fail("인증이 필요합니다.")
   }
 
   try {
     await deleteGradeHistory(gradeId)
-    return { success: true }
+    return okVoid()
   } catch (error) {
     console.error("성적 삭제 실패:", error)
-    return { error: "성적 삭제에 실패했습니다." }
+    return fail("성적 삭제에 실패했습니다.")
   }
 }
 
@@ -146,12 +149,12 @@ export async function deleteGradeAction(gradeId: string) {
  *       TEACHER - 자신이 담당하는 학생만 기록 가능
  */
 export async function recordCounselingAction(
-  prevState: { error?: string; success?: boolean } | undefined,
+  prevState: ActionVoidResult | undefined,
   formData: FormData
-) {
+): Promise<ActionVoidResult> {
   const session = await verifySession()
   if (!session) {
-    return { error: "인증이 필요합니다." }
+    return fail("인증이 필요합니다.")
   }
 
   const studentId = formData.get("studentId") as string
@@ -167,7 +170,7 @@ export async function recordCounselingAction(
   const aiSummary = formData.get("aiSummary") as string | null
 
   if (!studentId || !sessionDateStr || isNaN(duration) || !type || !summary) {
-    return { error: "필수 항목을 모두 입력해주세요." }
+    return fail("필수 항목을 모두 입력해주세요.")
   }
 
   // RBAC: TEACHER는 자신의 학생만 접근 가능
@@ -178,7 +181,7 @@ export async function recordCounselingAction(
       select: { id: true },
     })
     if (!student) {
-      return { error: "해당 학생에 대한 권한이 없습니다." }
+      return fail("해당 학생에 대한 권한이 없습니다.")
     }
   }
 
@@ -200,10 +203,10 @@ export async function recordCounselingAction(
     })
 
     revalidatePath(`/students/${studentId}`)
-    return { success: true }
+    return okVoid()
   } catch (error) {
     console.error("상담 기록 실패:", error)
-    return { error: "상담 기록에 실패했습니다." }
+    return fail("상담 기록에 실패했습니다.")
   }
 }
 
@@ -212,12 +215,12 @@ export async function recordCounselingAction(
  */
 export async function updateCounselingAction(
   counselingId: string,
-  prevState: { error?: string; success?: boolean } | undefined,
+  prevState: ActionVoidResult | undefined,
   formData: FormData
-) {
+): Promise<ActionVoidResult> {
   const session = await verifySession()
   if (!session) {
-    return { error: "인증이 필요합니다." }
+    return fail("인증이 필요합니다.")
   }
 
   const summary = formData.get("summary") as string
@@ -229,7 +232,7 @@ export async function updateCounselingAction(
     : null
 
   if (!summary || isNaN(duration)) {
-    return { error: "필수 항목을 입력해주세요." }
+    return fail("필수 항목을 입력해주세요.")
   }
 
   try {
@@ -243,28 +246,30 @@ export async function updateCounselingAction(
       satisfactionScore,
     })
 
-    return { success: true }
+    return okVoid()
   } catch (error) {
     console.error("상담 수정 실패:", error)
-    return { error: "상담 수정에 실패했습니다." }
+    return fail("상담 수정에 실패했습니다.")
   }
 }
 
 /**
  * 상담 삭제 Server Action
  */
-export async function deleteCounselingAction(counselingId: string) {
+export async function deleteCounselingAction(
+  counselingId: string
+): Promise<ActionVoidResult> {
   const session = await verifySession()
   if (!session) {
-    return { error: "인증이 필요합니다." }
+    return fail("인증이 필요합니다.")
   }
 
   try {
     await deleteCounselingSession(counselingId)
-    return { success: true }
+    return okVoid()
   } catch (error) {
     console.error("상담 삭제 실패:", error)
-    return { error: "상담 삭제에 실패했습니다." }
+    return fail("상담 삭제에 실패했습니다.")
   }
 }
 
@@ -275,12 +280,12 @@ export async function deleteCounselingAction(counselingId: string) {
  *       TEACHER - 자신이 담당하는 학생만 조사 가능
  */
 export async function recordSatisfactionAction(
-  prevState: { error?: string; success?: boolean } | undefined,
+  prevState: ActionVoidResult | undefined,
   formData: FormData
-) {
+): Promise<ActionVoidResult> {
   const session = await verifySession()
   if (!session) {
-    return { error: "인증이 필요합니다." }
+    return fail("인증이 필요합니다.")
   }
 
   const studentId = formData.get("studentId") as string
@@ -295,14 +300,14 @@ export async function recordSatisfactionAction(
   if (!studentId || !teacherId || !surveyDateStr ||
       isNaN(overallSatisfaction) || isNaN(teachingQuality) ||
       isNaN(communication) || isNaN(supportLevel)) {
-    return { error: "필수 항목을 모두 입력해주세요." }
+    return fail("필수 항목을 모두 입력해주세요.")
   }
 
   // 점수 범위 검증 (1-10)
   if ([overallSatisfaction, teachingQuality, communication, supportLevel].some(
     s => s < 1 || s > 10
   )) {
-    return { error: "만족도 점수는 1-10 사이여야 합니다." }
+    return fail("만족도 점수는 1-10 사이여야 합니다.")
   }
 
   // RBAC: TEACHER는 자신의 학생만 접근 가능
@@ -313,7 +318,7 @@ export async function recordSatisfactionAction(
       select: { id: true },
     })
     if (!student) {
-      return { error: "해당 학생에 대한 권한이 없습니다." }
+      return fail("해당 학생에 대한 권한이 없습니다.")
     }
   }
 
@@ -333,10 +338,10 @@ export async function recordSatisfactionAction(
 
     revalidatePath(`/students/${studentId}`)
     revalidatePath(`/teachers/${teacherId}`)
-    return { success: true }
+    return okVoid()
   } catch (error) {
     console.error("만족도 조사 기록 실패:", error)
-    return { error: "만족도 조사 기록에 실패했습니다." }
+    return fail("만족도 조사 기록에 실패했습니다.")
   }
 }
 
@@ -345,12 +350,12 @@ export async function recordSatisfactionAction(
  */
 export async function updateSatisfactionAction(
   satisfactionId: string,
-  prevState: { error?: string; success?: boolean } | undefined,
+  prevState: ActionVoidResult | undefined,
   formData: FormData
-) {
+): Promise<ActionVoidResult> {
   const session = await verifySession()
   if (!session) {
-    return { error: "인증이 필요합니다." }
+    return fail("인증이 필요합니다.")
   }
 
   const overallSatisfaction = parseInt(formData.get("overallSatisfaction") as string)
@@ -361,14 +366,14 @@ export async function updateSatisfactionAction(
 
   if (isNaN(overallSatisfaction) || isNaN(teachingQuality) ||
       isNaN(communication) || isNaN(supportLevel)) {
-    return { error: "모든 점수를 입력해주세요." }
+    return fail("모든 점수를 입력해주세요.")
   }
 
   // 점수 범위 검증 (1-10)
   if ([overallSatisfaction, teachingQuality, communication, supportLevel].some(
     s => s < 1 || s > 10
   )) {
-    return { error: "만족도 점수는 1-10 사이여야 합니다." }
+    return fail("만족도 점수는 1-10 사이여야 합니다.")
   }
 
   try {
@@ -380,27 +385,29 @@ export async function updateSatisfactionAction(
       feedback: feedback || undefined,
     })
 
-    return { success: true }
+    return okVoid()
   } catch (error) {
     console.error("만족도 수정 실패:", error)
-    return { error: "만족도 수정에 실패했습니다." }
+    return fail("만족도 수정에 실패했습니다.")
   }
 }
 
 /**
  * 만족도 삭제 Server Action
  */
-export async function deleteSatisfactionAction(satisfactionId: string) {
+export async function deleteSatisfactionAction(
+  satisfactionId: string
+): Promise<ActionVoidResult> {
   const session = await verifySession()
   if (!session) {
-    return { error: "인증이 필요합니다." }
+    return fail("인증이 필요합니다.")
   }
 
   try {
     await deleteStudentSatisfaction(satisfactionId)
-    return { success: true }
+    return okVoid()
   } catch (error) {
     console.error("만족도 삭제 실패:", error)
-    return { error: "만족도 삭제에 실패했습니다." }
+    return fail("만족도 삭제에 실패했습니다.")
   }
 }

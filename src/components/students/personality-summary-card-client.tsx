@@ -18,7 +18,7 @@ export function GenerateActionButton({ studentId }: { studentId: string }) {
       const result = await generateLearningStrategy(studentId)
 
       if (result.success) {
-        toast.success(result.message || "AI 분석을 시작했습니다.")
+        toast.success(result.data.message || "AI 분석을 시작했습니다.")
         // 페이지 새로고침으로 상태 업데이트 반영
         router.refresh()
       } else {

@@ -139,12 +139,16 @@ export function TeacherSajuPanel({
         const promptId = isLLM ? selectedPromptId : 'default'
         const extra = isLLM ? additionalRequest.trim() || undefined : undefined
         const res = await runTeacherSajuAnalysis(teacherId, selectedProvider, promptId, extra)
-        if (res.llmFailed) {
-          setErrorMessage(`내장 알고리즘으로 대체 해석했습니다. ${res.llmError || 'LLM 설정을 확인해주세요.'}`)
+        if (!res.success) {
+          setErrorMessage(res.error ?? '사주 분석에 실패했습니다.')
+          return
+        }
+        if (res.data.llmFailed) {
+          setErrorMessage(`내장 알고리즘으로 대체 해석했습니다. ${res.data.llmError || 'LLM 설정을 확인해주세요.'}`)
           setProviderLabel('내장 알고리즘')
         } else {
-          const model = res.usedModel && res.usedModel !== 'default' ? ` (${res.usedModel})` : ''
-          setProviderLabel(`${res.usedProvider}${model}`)
+          const model = res.data.usedModel && res.data.usedModel !== 'default' ? ` (${res.data.usedModel})` : ''
+          setProviderLabel(`${res.data.usedProvider}${model}`)
         }
         if (promptId !== 'default') {
           const meta = promptOptions.find((p) => p.id === promptId)

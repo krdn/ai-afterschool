@@ -15,6 +15,7 @@ import { generateWithProvider, generateWithSpecificProvider } from "@/lib/ai/uni
 import { getVarkPrompt, type VarkPromptId } from "@/lib/ai/vark-prompts"
 import type { ProviderName } from "@/lib/ai/providers/types"
 import { eventBus } from "@/lib/events/event-bus"
+import { ok, type ActionResult } from "@/lib/errors/action-result"
 import questions from "@/data/vark/questions.json"
 import descriptions from "@/data/vark/descriptions.json"
 
@@ -57,7 +58,7 @@ export async function saveVarkDraft(
   const progress = calculateProgress(responses, 28)
   await upsertVarkDraft(studentId, responses, progress.answeredCount)
 
-  return { success: true, progress: progress.answeredCount }
+  return ok({ progress: progress.answeredCount })
 }
 
 /**
@@ -140,14 +141,11 @@ ${desc.careers.join(", ")}
 
   revalidatePath(`/students/${studentId}`)
 
-  return {
-    success: true,
-    result: {
-      varkType: result.varkType,
-      percentages: result.percentages,
-      interpretation,
-    },
-  }
+  return ok({
+    varkType: result.varkType,
+    percentages: result.percentages,
+    interpretation,
+  })
 }
 
 /**
@@ -212,5 +210,5 @@ export async function generateVarkLLMInterpretation(
 
   revalidatePath(`/students/${studentId}`)
 
-  return { success: true, interpretation: llmResult.text }
+  return ok({ interpretation: llmResult.text })
 }

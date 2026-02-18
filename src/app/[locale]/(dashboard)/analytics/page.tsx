@@ -36,7 +36,7 @@ export default function AnalyticsPage() {
         const teachersWithMetrics: TeacherWithMetrics[] = []
         for (const teacher of teachersList) {
           const metricsResult = await getTeacherStudentMetrics(teacher.id)
-          if ("data" in metricsResult) {
+          if (metricsResult.success) {
             teachersWithMetrics.push({
               id: teacher.id,
               name: teacher.name,
@@ -53,16 +53,16 @@ export default function AnalyticsPage() {
         setTeachers(teachersWithMetrics)
 
         const comparisonResult = await compareTeachersByGradeImprovement()
-        if ("data" in comparisonResult) {
+        if (comparisonResult.success) {
           setComparisonData(comparisonResult.data)
-        } else if ("error" in comparisonResult) {
+        } else {
           console.error("Comparison error:", comparisonResult.error)
         }
 
         const counselingResult = await getCounselingStats()
-        if ("data" in counselingResult) {
+        if (counselingResult.success) {
           setCounselingStats(counselingResult.data)
-        } else if ("error" in counselingResult) {
+        } else {
           console.error("Counseling error:", counselingResult.error)
         }
 

@@ -11,6 +11,7 @@ import { eventBus } from "@/lib/events/event-bus"
 import { generateWithProvider, generateWithSpecificProvider } from "@/lib/ai/universal-router"
 import { getNamePrompt, type NamePromptId } from "@/lib/ai/name-prompts"
 import type { ProviderName } from "@/lib/ai/providers/types"
+import { ok, type ActionResult } from "@/lib/errors/action-result"
 
 /**
  * 역할에 따른 teacherId 반환
@@ -106,13 +107,10 @@ AI 해석을 통해 이름의 음운과 의미를 분석해보세요.`
 
   revalidatePath(`/students/${studentId}`)
 
-  return {
-    success: true,
-    result: {
-      interpretation,
-      hasHanja: numerologyOutcome.status === "ok",
-    },
-  }
+  return ok({
+    interpretation,
+    hasHanja: numerologyOutcome.status === "ok",
+  })
 }
 
 /**
@@ -184,8 +182,5 @@ export async function generateNameLLMInterpretation(
 
   revalidatePath(`/students/${studentId}`)
 
-  return {
-    success: true,
-    interpretation: llmResult.text,
-  }
+  return ok({ interpretation: llmResult.text })
 }

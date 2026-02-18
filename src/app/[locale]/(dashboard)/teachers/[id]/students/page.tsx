@@ -93,7 +93,7 @@ export default async function TeacherStudentsPage({ params }: PageProps) {
   const studentsResult = await getTeacherStudents(id)
   const metricsResult = await getTeacherStudentMetrics(id)
 
-  if ('error' in studentsResult) {
+  if (!studentsResult.success) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center py-12">
@@ -103,7 +103,7 @@ export default async function TeacherStudentsPage({ params }: PageProps) {
     )
   }
 
-  if ('error' in metricsResult) {
+  if (!metricsResult.success) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center py-12">

@@ -99,7 +99,7 @@ export function CounselingSessionForm({
         form.reset()
         onSuccess?.()
       } else {
-        toast.error(result.error || "상담 기록에 실패했습니다.")
+        toast.error(result.error)
       }
     } catch (error) {
       console.error("Counseling session creation error:", error)

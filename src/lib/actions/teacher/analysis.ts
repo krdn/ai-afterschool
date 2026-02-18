@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache"
 import { Prisma } from "@prisma/client"
 import { db } from "@/lib/db"
 import { verifySession } from "@/lib/dal"
-import { calculateSaju, generateSajuInterpretation } from "@/lib/analysis/saju"
+import { calculateSaju, generateSajuInterpretation, type SajuResult } from "@/lib/analysis/saju"
 import {
   calculateNameNumerology,
   generateNameInterpretation,
@@ -21,6 +21,7 @@ import { getPromptDefinition, type AnalysisPromptId } from "@/lib/ai/saju-prompt
 import { getPresetByKey } from "@/lib/db/analysis/saju-prompt-preset"
 import type { ProviderName } from "@/lib/ai/providers/types"
 import { eventBus } from "@/lib/events/event-bus"
+import { ok, fail, type ActionResult } from "@/lib/errors/action-result"
 import questions from "@/data/mbti/questions.json"
 import descriptions from "@/data/mbti/descriptions.json"
 
@@ -40,14 +41,23 @@ function humanizeLLMError(raw: string): string {
   return 'LLM 호출 중 오류가 발생했습니다. 잠시 후 다시 시도하세요.'
 }
 
+type TeacherSajuAnalysisData = {
+  result: SajuResult
+  interpretation: string
+  llmFailed: boolean
+  llmError: string | undefined
+  usedProvider: string
+  usedModel: string | undefined
+}
+
 export async function runTeacherSajuAnalysis(
   teacherId: string,
   provider?: string,
   promptId?: string,
   additionalRequest?: string
-) {
+): Promise<ActionResult<TeacherSajuAnalysisData>> {
   const session = await verifySession()
-  if (!session) throw new Error("Unauthorized")
+  if (!session) return fail("Unauthorized")
 
   const teacher = await db.teacher.findUnique({
     where: { id: teacherId },
@@ -60,8 +70,8 @@ export async function runTeacherSajuAnalysis(
     },
   })
 
-  if (!teacher) throw new Error("Teacher not found")
-  if (!teacher.birthDate) throw new Error("생일 정보가 없어 사주 분석을 실행할 수 없어요.")
+  if (!teacher) return fail("선생님을 찾을 수 없어요.")
+  if (!teacher.birthDate) return fail("생일 정보가 없어 사주 분석을 실행할 수 없어요.")
 
   const time =
     teacher.birthTimeHour === null
@@ -169,15 +179,14 @@ export async function runTeacherSajuAnalysis(
 
   revalidatePath(`/teachers/${teacherId}`)
 
-  return {
-    success: true,
+  return ok({
     result: sajuResult,
     interpretation,
     llmFailed,
     llmError,
     usedProvider,
     usedModel,
-  }
+  })
 }
 
 /**
@@ -248,7 +257,7 @@ export async function runTeacherNameAnalysis(teacherId: string) {
 
   revalidatePath(`/teachers/${teacherId}`)
 
-  return { success: true, result, interpretation }
+  return ok({ result, interpretation })
 }
 
 /**
@@ -327,14 +336,11 @@ ${typeDescription.famousPeople.join(", ")}
 
   revalidatePath(`/teachers/${teacherId}`)
 
-  return {
-    success: true,
-    result: {
-      mbtiType: mbtiResult.mbtiType,
-      percentages: mbtiResult.percentages,
-      interpretation,
-    },
-  }
+  return ok({
+    mbtiType: mbtiResult.mbtiType,
+    percentages: mbtiResult.percentages,
+    interpretation,
+  })
 }
 
 /**
@@ -410,14 +416,11 @@ ${typeDescription.famousPeople.join(", ")}
 
   revalidatePath(`/teachers/${teacherId}`)
 
-  return {
-    success: true,
-    result: {
-      mbtiType: data.mbtiType,
-      percentages: data.percentages,
-      interpretation,
-    },
-  }
+  return ok({
+    mbtiType: data.mbtiType,
+    percentages: data.percentages,
+    interpretation,
+  })
 }
 
 /**
@@ -475,7 +478,7 @@ export async function generateTeacherMbtiLLMInterpretation(
 
   revalidatePath(`/teachers/${teacherId}`)
 
-  return { success: true, interpretation: llmResult.text }
+  return ok({ interpretation: llmResult.text })
 }
 
 /**
@@ -552,7 +555,7 @@ export async function generateTeacherNameLLMInterpretation(
 
   revalidatePath(`/teachers/${teacherId}`)
 
-  return { success: true, interpretation: llmResult.text }
+  return ok({ interpretation: llmResult.text })
 }
 
 /**

@@ -80,8 +80,12 @@ export function SmartMatchingSection({
         setStudentName(result.studentName)
       } else {
         const result = await getTeacherRecommendations(studentId)
-        setRecommendations(result.recommendations)
-        setStudentName(result.studentName)
+        if (result.success) {
+          setRecommendations(result.data.recommendations)
+          setStudentName(result.data.studentName)
+        } else {
+          toast.error(result.error ?? "추천 목록을 불러오는데 실패했습니다.")
+        }
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : "추천 목록을 불러오는데 실패했습니다."

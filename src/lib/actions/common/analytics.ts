@@ -1,15 +1,16 @@
 "use server"
 
 import { verifySession } from "@/lib/dal"
+import { getRBACPrisma } from "@/lib/db/common/rbac"
+import { db } from "@/lib/db"
+import { calculateImprovementRate, calculateGradeTrend } from "@/lib/analysis/grade-analytics"
+import { ok, fail, type ActionResult } from "@/lib/errors/action-result"
 
 interface TeacherGradeComparison {
   teacherId: string
   teacherName: string
   studentImprovements: number[]
 }
-import { getRBACPrisma } from "@/lib/db/common/rbac"
-import { db } from "@/lib/db"
-import { calculateImprovementRate, calculateGradeTrend } from "@/lib/analysis/grade-analytics"
 
 /**
  * 학생 성적 향상 조회 Server Action
@@ -20,7 +21,7 @@ import { calculateImprovementRate, calculateGradeTrend } from "@/lib/analysis/gr
 export async function getStudentImprovementAction(studentId: string) {
   const session = await verifySession()
   if (!session) {
-    return { error: "인증이 필요합니다." }
+    return fail("인증이 필요합니다.")
   }
 
   const rbacDb = getRBACPrisma(session)
@@ -32,7 +33,7 @@ export async function getStudentImprovementAction(studentId: string) {
       select: { id: true },
     })
     if (!student) {
-      return { error: "해당 학생에 대한 권한이 없습니다." }
+      return fail("해당 학생에 대한 권한이 없습니다.")
     }
   }
 
@@ -43,7 +44,7 @@ export async function getStudentImprovementAction(studentId: string) {
     })
 
     if (gradeHistory.length < 2) {
-      return { error: "성적 데이터가 부족합니다. 최소 2개의 성적 기록이 필요합니다." }
+      return fail("성적 데이터가 부족합니다. 최소 2개의 성적 기록이 필요합니다.")
     }
 
     const result = calculateImprovementRate(
@@ -53,10 +54,10 @@ export async function getStudentImprovementAction(studentId: string) {
       }))
     )
 
-    return { success: true, data: result }
+    return ok(result)
   } catch (error) {
     console.error("Error calculating student improvement:", error)
-    return { error: "성적 향상률 계산에 실패했습니다." }
+    return fail("성적 향상률 계산에 실패했습니다.")
   }
 }
 
@@ -70,7 +71,7 @@ export async function getStudentImprovementAction(studentId: string) {
 export async function getTeacherGradeAnalyticsAction(teacherId: string) {
   const session = await verifySession()
   if (!session) {
-    return { error: "인증이 필요합니다." }
+    return fail("인증이 필요합니다.")
   }
 
   const rbacDb = getRBACPrisma(session)
@@ -78,7 +79,7 @@ export async function getTeacherGradeAnalyticsAction(teacherId: string) {
   // RBAC: TEACHER는 자신의 데이터만 조회
   if (session.role === "TEACHER") {
     if (session.userId !== teacherId) {
-      return { error: "자신의 성적 분석만 조회할 수 있습니다." }
+      return fail("자신의 성적 분석만 조회할 수 있습니다.")
     }
   }
 
@@ -108,15 +109,12 @@ export async function getTeacherGradeAnalyticsAction(teacherId: string) {
     }
 
     if (improvements.length === 0) {
-      return {
-        success: true,
-        data: {
-          avgImprovement: 0,
-          medianImprovement: 0,
-          studentCount: teacherStudents.length,
-          improvementCount: 0,
-        },
-      }
+      return ok({
+        avgImprovement: 0,
+        medianImprovement: 0,
+        studentCount: teacherStudents.length,
+        improvementCount: 0,
+      })
     }
 
     const sorted = [...improvements].sort((a, b) => a - b)
@@ -126,18 +124,15 @@ export async function getTeacherGradeAnalyticsAction(teacherId: string) {
         ? (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2
         : sorted[Math.floor(sorted.length / 2)]
 
-    return {
-      success: true,
-      data: {
-        avgImprovement: Math.round(avgImprovement * 10) / 10,
-        medianImprovement: Math.round(medianImprovement * 10) / 10,
-        studentCount: teacherStudents.length,
-        improvementCount: improvements.length,
-      },
-    }
+    return ok({
+      avgImprovement: Math.round(avgImprovement * 10) / 10,
+      medianImprovement: Math.round(medianImprovement * 10) / 10,
+      studentCount: teacherStudents.length,
+      improvementCount: improvements.length,
+    })
   } catch (error) {
     console.error("Error calculating teacher grade analytics:", error)
-    return { error: "성적 분석에 실패했습니다." }
+    return fail("성적 분석에 실패했습니다.")
   }
 }
 
@@ -153,7 +148,7 @@ export async function getGradeTrendDataAction(
 ) {
   const session = await verifySession()
   if (!session) {
-    return { error: "인증이 필요합니다." }
+    return fail("인증이 필요합니다.")
   }
 
   const rbacDb = getRBACPrisma(session)
@@ -165,7 +160,7 @@ export async function getGradeTrendDataAction(
       select: { id: true },
     })
     if (!student) {
-      return { error: "해당 학생에 대한 권한이 없습니다." }
+      return fail("해당 학생에 대한 권한이 없습니다.")
     }
   }
 
@@ -176,7 +171,7 @@ export async function getGradeTrendDataAction(
     })
 
     if (gradeHistory.length === 0) {
-      return { error: "성적 데이터가 없습니다." }
+      return fail("성적 데이터가 없습니다.")
     }
 
     const trendData = calculateGradeTrend(
@@ -188,10 +183,10 @@ export async function getGradeTrendDataAction(
       granularity
     )
 
-    return { success: true, data: trendData }
+    return ok(trendData)
   } catch (error) {
     console.error("Error calculating grade trend:", error)
-    return { error: "성적 추이 계산에 실패했습니다." }
+    return fail("성적 추이 계산에 실패했습니다.")
   }
 }
 
@@ -204,10 +199,10 @@ export interface CounselingStats {
 
 export async function getCounselingStats(
   teamId?: string
-): Promise<{ data: CounselingStats } | { error: string }> {
+): Promise<ActionResult<CounselingStats>> {
   const session = await verifySession()
   if (!session) {
-    return { error: "인증이 필요합니다." }
+    return fail("인증이 필요합니다.")
   }
 
   const rbacDb = getRBACPrisma(session)
@@ -231,14 +226,12 @@ export async function getCounselingStats(
     })
 
     if (counselingSessions.length === 0) {
-      return {
-        data: {
-          totalSessions: 0,
-          averageDuration: 0,
-          typeDistribution: {},
-          satisfactionAverage: 0,
-        },
-      }
+      return ok({
+        totalSessions: 0,
+        averageDuration: 0,
+        typeDistribution: {},
+        satisfactionAverage: 0,
+      })
     }
 
     const totalSessions = counselingSessions.length
@@ -260,26 +253,24 @@ export async function getCounselingStats(
           satisfactionScores.length
         : 0
 
-    return {
-      data: {
-        totalSessions,
-        averageDuration: Math.round(averageDuration),
-        typeDistribution,
-        satisfactionAverage: Math.round(satisfactionAverage * 10) / 10,
-      },
-    }
+    return ok({
+      totalSessions,
+      averageDuration: Math.round(averageDuration),
+      typeDistribution,
+      satisfactionAverage: Math.round(satisfactionAverage * 10) / 10,
+    })
   } catch (error) {
     console.error("Error fetching counseling stats:", error)
-    return { error: "상담 통계 조회에 실패했습니다." }
+    return fail("상담 통계 조회에 실패했습니다.")
   }
 }
 
 export async function compareTeachersByGradeImprovement(
   teamId?: string
-): Promise<{ data: TeacherGradeComparison[] } | { error: string }> {
+): Promise<ActionResult<TeacherGradeComparison[]>> {
   const session = await verifySession()
   if (!session) {
-    return { error: "인증이 필요합니다." }
+    return fail("인증이 필요합니다.")
   }
 
   const rbacDb = getRBACPrisma(session)
@@ -339,9 +330,9 @@ export async function compareTeachersByGradeImprovement(
       })
     )
 
-    return { data: teacherStats }
+    return ok(teacherStats)
   } catch (error) {
     console.error("Error comparing teachers:", error)
-    return { error: "선생님 비교에 실패했습니다." }
+    return fail("선생님 비교에 실패했습니다.")
   }
 }

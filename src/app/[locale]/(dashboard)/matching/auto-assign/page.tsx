@@ -71,7 +71,7 @@ export default async function AutoAssignPage() {
   let latestResults = null
   if (appliedProposals.length > 0) {
     const result = await getAssignmentResults(appliedProposals[0].id)
-    if (result.success && result.data) {
+    if (result.success) {
       latestResults = result.data
     }
   }

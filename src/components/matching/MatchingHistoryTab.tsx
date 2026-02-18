@@ -85,14 +85,15 @@ export function MatchingHistoryTab({ initialFilters = {} }: MatchingHistoryTabPr
 
       const result = await getMatchingHistory(params)
 
-      if (result.success && result.data) {
+      if (result.success) {
         setLogs(result.data.logs)
         setTotal(result.data.total)
       } else {
-        if (result.error?.includes('권한')) {
+        const errorMsg = result.error ?? '조회 중 오류가 발생했습니다.'
+        if (errorMsg.includes('권한')) {
           setHasPermission(false)
         }
-        setError(result.error || '조회 중 오류가 발생했습니다.')
+        setError(errorMsg)
         setLogs([])
         setTotal(0)
       }

@@ -9,7 +9,7 @@ import {
   type StudentData,
   type TeacherData,
 } from "@/lib/ai/compatibility-prompts"
-import type { TeacherRecommendation } from "@/components/matching/teacher-recommendation-list"
+import type { TeacherRecommendation } from "@/lib/actions/matching/assignment"
 import { fetchSubjectAnalyses, fetchBatchAnalyses } from "@/lib/db/matching/fetch-analysis"
 
 // ---------------------------------------------------------------------------

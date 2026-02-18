@@ -10,6 +10,7 @@ import type {
   TypeDistribution,
   MonthlyTrend,
 } from "@/types/statistics"
+import { ok, fail, type ActionResult } from "@/lib/errors/action-result"
 
 /**
  * 선생님별 월간 상담 통계 조회
@@ -21,10 +22,10 @@ import type {
 export async function getTeacherMonthlyStatsAction(params?: {
   dateFrom?: string
   dateTo?: string
-}) {
+}): Promise<ActionResult<TeacherMonthlyStats[]>> {
   const session = await verifySession()
   if (!session) {
-    return { success: false, error: "인증이 필요합니다." }
+    return fail("인증이 필요합니다.")
   }
 
   const rbacDb = getRBACPrisma(session)
@@ -91,10 +92,10 @@ export async function getTeacherMonthlyStatsAction(params?: {
       return a.teacherName.localeCompare(b.teacherName)
     })
 
-    return { success: true, data }
+    return ok(data)
   } catch (error) {
     console.error("Error fetching teacher monthly stats:", error)
-    return { success: false, error: "선생님별 월간 통계 조회에 실패했습니다." }
+    return fail("선생님별 월간 통계 조회에 실패했습니다.")
   }
 }
 
@@ -106,10 +107,10 @@ export async function getTeacherMonthlyStatsAction(params?: {
  */
 export async function getStudentCumulativeStatsAction(params?: {
   teacherId?: string
-}) {
+}): Promise<ActionResult<StudentCumulativeStats[]>> {
   const session = await verifySession()
   if (!session) {
-    return { success: false, error: "인증이 필요합니다." }
+    return fail("인증이 필요합니다.")
   }
 
   const rbacDb = getRBACPrisma(session)
@@ -120,7 +121,7 @@ export async function getStudentCumulativeStatsAction(params?: {
     if (params?.teacherId) {
       // TEACHER는 자신의 ID만 조회 가능
       if (session.role === "TEACHER" && session.userId !== params.teacherId) {
-        return { success: false, error: "자신이 담당하는 학생만 조회할 수 있습니다." }
+        return fail("자신이 담당하는 학생만 조회할 수 있습니다.")
       }
       whereClause.teacherId = params.teacherId
     }
@@ -177,10 +178,10 @@ export async function getStudentCumulativeStatsAction(params?: {
       return b.totalSessions - a.totalSessions
     })
 
-    return { success: true, data }
+    return ok(data)
   } catch (error) {
     console.error("Error fetching student cumulative stats:", error)
-    return { success: false, error: "학생별 누적 통계 조회에 실패했습니다." }
+    return fail("학생별 누적 통계 조회에 실패했습니다.")
   }
 }
 
@@ -195,10 +196,10 @@ export async function getCounselingTypeDistributionAction(params?: {
   dateFrom?: string
   dateTo?: string
   teacherId?: string
-}) {
+}): Promise<ActionResult<TypeDistribution[]>> {
   const session = await verifySession()
   if (!session) {
-    return { success: false, error: "인증이 필요합니다." }
+    return fail("인증이 필요합니다.")
   }
 
   const rbacDb = getRBACPrisma(session)
@@ -210,7 +211,7 @@ export async function getCounselingTypeDistributionAction(params?: {
     // teacherId 필터
     if (params?.teacherId) {
       if (session.role === "TEACHER" && session.userId !== params.teacherId) {
-        return { success: false, error: "자신의 상담만 조회할 수 있습니다." }
+        return fail("자신의 상담만 조회할 수 있습니다.")
       }
       whereClause.teacherId = params.teacherId
     }
@@ -255,10 +256,10 @@ export async function getCounselingTypeDistributionAction(params?: {
       percentage: totalCount > 0 ? Math.round((count / totalCount) * 1000) / 10 : 0
     }))
 
-    return { success: true, data }
+    return ok(data)
   } catch (error) {
     console.error("Error fetching counseling type distribution:", error)
-    return { success: false, error: "상담 유형별 분포 조회에 실패했습니다." }
+    return fail("상담 유형별 분포 조회에 실패했습니다.")
   }
 }
 
@@ -272,10 +273,10 @@ export async function getCounselingTypeDistributionAction(params?: {
 export async function getMonthlyTrendAction(params?: {
   months?: number
   teacherId?: string
-}) {
+}): Promise<ActionResult<MonthlyTrend[]>> {
   const session = await verifySession()
   if (!session) {
-    return { success: false, error: "인증이 필요합니다." }
+    return fail("인증이 필요합니다.")
   }
 
   const rbacDb = getRBACPrisma(session)
@@ -295,7 +296,7 @@ export async function getMonthlyTrendAction(params?: {
     // teacherId 필터
     if (params?.teacherId) {
       if (session.role === "TEACHER" && session.userId !== params.teacherId) {
-        return { success: false, error: "자신의 상담만 조회할 수 있습니다." }
+        return fail("자신의 상담만 조회할 수 있습니다.")
       }
       whereClause.teacherId = params.teacherId
     }
@@ -352,9 +353,9 @@ export async function getMonthlyTrendAction(params?: {
       return a.month - b.month
     })
 
-    return { success: true, data }
+    return ok(data)
   } catch (error) {
     console.error("Error fetching monthly trend:", error)
-    return { success: false, error: "월별 상담 추이 조회에 실패했습니다." }
+    return fail("월별 상담 추이 조회에 실패했습니다.")
   }
 }

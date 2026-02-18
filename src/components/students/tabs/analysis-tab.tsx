@@ -71,8 +71,8 @@ export default function AnalysisTab({ studentId }: { studentId: string }) {
             subTab as 'saju' | 'face' | 'palm' | 'mbti' | 'vark' | 'name' | 'zodiac'
           )
           if (result.success) {
-            setHistoryItems(result.history)
-            setHistoryNote(result.note)
+            setHistoryItems(result.data.history)
+            setHistoryNote(result.data.note)
           }
         } catch (error) {
           console.error("Failed to load history:", error)

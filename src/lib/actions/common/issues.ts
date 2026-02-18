@@ -7,6 +7,7 @@ import { createGitHubIssue, ensureLabel, createIssueBranch, generateIssueBody, d
 import { CATEGORY_LABEL_MAP } from "@/lib/github/constants"
 import { isGitHubConfigured } from "@/lib/github/client"
 import { Prisma, type IssueCategory, type IssuePriority, type IssueStatus } from "@prisma/client"
+import { okVoid, fail, type ActionVoidResult } from "@/lib/errors/action-result"
 
 /** getIssues에서 include 옵션에 맞는 Issue 타입 */
 type IssueWithRelations = Prisma.IssueGetPayload<{
@@ -369,15 +370,12 @@ export async function getIssueById(id: string) {
 export async function updateIssueStatus(
   issueId: string,
   status: IssueStatus
-): Promise<{ success: boolean; error?: string }> {
+): Promise<ActionVoidResult> {
   const session = await verifySession()
 
   // 권한 검증: DIRECTOR 전용
   if (session.role !== 'DIRECTOR') {
-    return {
-      success: false,
-      error: "이슈 상태를 변경할 권한이 없어요",
-    }
+    return fail("이슈 상태를 변경할 권한이 없어요")
   }
 
   try {
@@ -387,10 +385,7 @@ export async function updateIssueStatus(
     })
 
     if (!issue) {
-      return {
-        success: false,
-        error: "이슈를 찾을 수 없어요",
-      }
+      return fail("이슈를 찾을 수 없어요")
     }
 
     // 상태 변경
@@ -426,13 +421,10 @@ export async function updateIssueStatus(
       },
     })
 
-    return { success: true }
+    return okVoid()
   } catch (error) {
     console.error("Failed to update issue status:", error)
-    return {
-      success: false,
-      error: "이슈 상태 변경 중 오류가 발생했어요",
-    }
+    return fail("이슈 상태 변경 중 오류가 발생했어요")
   }
 }
 
@@ -445,14 +437,11 @@ export async function updateIssueStatus(
 export async function assignIssue(
   issueId: string,
   assignedTo: string | null
-): Promise<{ success: boolean; error?: string }> {
+): Promise<ActionVoidResult> {
   const session = await verifySession()
 
   if (session.role !== 'DIRECTOR') {
-    return {
-      success: false,
-      error: "이슈 담당자를 변경할 권한이 없어요",
-    }
+    return fail("이슈 담당자를 변경할 권한이 없어요")
   }
 
   try {
@@ -462,10 +451,7 @@ export async function assignIssue(
     })
 
     if (!issue) {
-      return {
-        success: false,
-        error: "이슈를 찾을 수 없어요",
-      }
+      return fail("이슈를 찾을 수 없어요")
     }
 
     await db.issue.update({
@@ -495,12 +481,9 @@ export async function assignIssue(
       },
     })
 
-    return { success: true }
+    return okVoid()
   } catch (error) {
     console.error("Failed to assign issue:", error)
-    return {
-      success: false,
-      error: "담당자 변경 중 오류가 발생했어요",
-    }
+    return fail("담당자 변경 중 오류가 발생했어요")
   }
 }

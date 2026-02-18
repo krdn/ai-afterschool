@@ -32,7 +32,7 @@ export function NotificationBell({ className }: NotificationBellProps) {
         );
         setNotifications(activeNotifications);
       } else {
-        setError(result.error);
+        setError(result.error ?? "알림을 불러오는 중 오류가 발생했습니다.");
       }
     } catch (err) {
       setError("알림을 불러오는 중 오류가 발생했습니다.");

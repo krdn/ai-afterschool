@@ -17,6 +17,7 @@ import type {
   ResolutionRequirements,
   ResolutionResult,
 } from '@/lib/ai/types';
+import { ok, fail, okVoid, type ActionResult, type ActionVoidResult } from "@/lib/errors/action-result";
 
 // ============================================================================
 // Permission Check Helper
@@ -44,21 +45,18 @@ async function checkDirectorPermission(): Promise<void> {
  */
 export async function getFeatureMappingsAction(
   featureType?: string
-): Promise<{ success: boolean; data?: FeatureMappingConfig[]; error?: string }> {
+): Promise<ActionResult<FeatureMappingConfig[]>> {
   try {
     await checkDirectorPermission();
 
     const resolver = new FeatureResolver(db);
     const mappings = await resolver.getMappings(featureType);
 
-    return {
-      success: true,
-      data: mappings as FeatureMappingConfig[],
-    };
+    return ok(mappings as FeatureMappingConfig[]);
   } catch (error) {
     const message = error instanceof Error ? error.message : '조회에 실패했습니다.';
     logger.error({ error, featureType }, 'Failed to get feature mappings');
-    return { success: false, error: message };
+    return fail(message);
   }
 }
 
@@ -69,25 +67,23 @@ export async function getFeatureMappingsAction(
  * @param requirements - 해상도 요구사항 (optional)
  * @returns 해상도 결과
  */
+type ResolvedFeature = {
+  provider: { id: string; name: string; providerType: string };
+  model: {
+    id: string;
+    modelId: string;
+    displayName: string;
+    contextWindow: number | null;
+    supportsVision: boolean;
+    supportsTools: boolean;
+  };
+  priority: number;
+}
+
 export async function resolveFeatureAction(
   featureType: string,
   requirements?: ResolutionRequirements
-): Promise<{
-  success: boolean;
-  data?: {
-    provider: { id: string; name: string; providerType: string };
-    model: {
-      id: string;
-      modelId: string;
-      displayName: string;
-      contextWindow: number | null;
-      supportsVision: boolean;
-      supportsTools: boolean;
-    };
-    priority: number;
-  };
-  error?: string;
-}> {
+): Promise<ActionResult<ResolvedFeature>> {
   try {
     await checkDirectorPermission();
 
@@ -95,35 +91,29 @@ export async function resolveFeatureAction(
     const result = await resolver.resolve(featureType, requirements);
 
     if (!result) {
-      return {
-        success: false,
-        error: '해당 기능에 적합한 모델을 찾을 수 없습니다.',
-      };
+      return fail('해당 기능에 적합한 모델을 찾을 수 없습니다.');
     }
 
-    return {
-      success: true,
-      data: {
-        provider: {
-          id: result.provider.id,
-          name: result.provider.name,
-          providerType: result.provider.providerType,
-        },
-        model: {
-          id: result.model.id,
-          modelId: result.model.modelId,
-          displayName: result.model.displayName,
-          contextWindow: result.model.contextWindow ?? null,
-          supportsVision: result.model.supportsVision,
-          supportsTools: result.model.supportsTools,
-        },
-        priority: result.priority,
+    return ok({
+      provider: {
+        id: result.provider.id,
+        name: result.provider.name,
+        providerType: result.provider.providerType,
       },
-    };
+      model: {
+        id: result.model.id,
+        modelId: result.model.modelId,
+        displayName: result.model.displayName,
+        contextWindow: result.model.contextWindow ?? null,
+        supportsVision: result.model.supportsVision,
+        supportsTools: result.model.supportsTools,
+      },
+      priority: result.priority,
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : '해상도에 실패했습니다.';
     logger.error({ error, featureType }, 'Failed to resolve feature');
-    return { success: false, error: message };
+    return fail(message);
   }
 }
 
@@ -133,55 +123,50 @@ export async function resolveFeatureAction(
  * @param featureType - 기능 타입
  * @returns 우선순위 순으로 정렬된 해상도 결과 배열
  */
+type ResolutionChainItem = {
+  provider: { id: string; name: string; providerType: string };
+  model: {
+    id: string;
+    modelId: string;
+    displayName: string;
+    contextWindow: number | null;
+    supportsVision: boolean;
+    supportsTools: boolean;
+  };
+  priority: number;
+  fallbackMode: string;
+}
+
 export async function getResolutionChainAction(
   featureType: string
-): Promise<{
-  success: boolean;
-  data?: Array<{
-    provider: { id: string; name: string; providerType: string };
-    model: {
-      id: string;
-      modelId: string;
-      displayName: string;
-      contextWindow: number | null;
-      supportsVision: boolean;
-      supportsTools: boolean;
-    };
-    priority: number;
-    fallbackMode: string;
-  }>;
-  error?: string;
-}> {
+): Promise<ActionResult<ResolutionChainItem[]>> {
   try {
     await checkDirectorPermission();
 
     const resolver = new FeatureResolver(db);
     const results = await resolver.resolveWithFallback(featureType);
 
-    return {
-      success: true,
-      data: results.map((r) => ({
-        provider: {
-          id: r.provider.id,
-          name: r.provider.name,
-          providerType: r.provider.providerType,
-        },
-        model: {
-          id: r.model.id,
-          modelId: r.model.modelId,
-          displayName: r.model.displayName,
-          contextWindow: r.model.contextWindow ?? null,
-          supportsVision: r.model.supportsVision,
-          supportsTools: r.model.supportsTools,
-        },
-        priority: r.priority,
-        fallbackMode: r.fallbackMode,
-      })),
-    };
+    return ok(results.map((r) => ({
+      provider: {
+        id: r.provider.id,
+        name: r.provider.name,
+        providerType: r.provider.providerType,
+      },
+      model: {
+        id: r.model.id,
+        modelId: r.model.modelId,
+        displayName: r.model.displayName,
+        contextWindow: r.model.contextWindow ?? null,
+        supportsVision: r.model.supportsVision,
+        supportsTools: r.model.supportsTools,
+      },
+      priority: r.priority,
+      fallbackMode: r.fallbackMode,
+    })));
   } catch (error) {
     const message = error instanceof Error ? error.message : '체인 조회에 실패했습니다.';
     logger.error({ error, featureType }, 'Failed to get resolution chain');
-    return { success: false, error: message };
+    return fail(message);
   }
 }
 
@@ -197,17 +182,17 @@ export async function getResolutionChainAction(
  */
 export async function createFeatureMappingAction(
   input: FeatureMappingInput
-): Promise<{ success: boolean; data?: FeatureMappingConfig; error?: string }> {
+): Promise<ActionResult<FeatureMappingConfig>> {
   try {
     await checkDirectorPermission();
 
     // 검증
     if (!input.featureType || !input.matchMode || !input.fallbackMode) {
-      return { success: false, error: '필수 필드가 누락되었습니다.' };
+      return fail('필수 필드가 누락되었습니다.');
     }
 
     if (input.matchMode === 'specific_model' && !input.specificModelId) {
-      return { success: false, error: 'specific_model 모드에는 specificModelId가 필요합니다.' };
+      return fail('specific_model 모드에는 specificModelId가 필요합니다.');
     }
 
     const resolver = new FeatureResolver(db);
@@ -220,14 +205,11 @@ export async function createFeatureMappingAction(
       'Feature mapping created via action'
     );
 
-    return {
-      success: true,
-      data: mapping,
-    };
+    return ok(mapping);
   } catch (error) {
     const message = error instanceof Error ? error.message : '생성에 실패했습니다.';
     logger.error({ error, input }, 'Failed to create feature mapping');
-    return { success: false, error: message };
+    return fail(message);
   }
 }
 
@@ -241,7 +223,7 @@ export async function createFeatureMappingAction(
 export async function updateFeatureMappingAction(
   id: string,
   input: Partial<FeatureMappingInput>
-): Promise<{ success: boolean; data?: FeatureMappingConfig; error?: string }> {
+): Promise<ActionResult<FeatureMappingConfig>> {
   try {
     await checkDirectorPermission();
 
@@ -253,7 +235,7 @@ export async function updateFeatureMappingAction(
       });
 
       if (!existing || !existing.specificModelId) {
-        return { success: false, error: 'specific_model 모드에는 specificModelId가 필요합니다.' };
+        return fail('specific_model 모드에는 specificModelId가 필요합니다.');
       }
     }
 
@@ -282,14 +264,11 @@ export async function updateFeatureMappingAction(
 
     logger.info({ mappingId: id }, 'Feature mapping updated via action');
 
-    return {
-      success: true,
-      data: updated,
-    };
+    return ok(updated);
   } catch (error) {
     const message = error instanceof Error ? error.message : '수정에 실패했습니다.';
     logger.error({ error, id, input }, 'Failed to update feature mapping');
-    return { success: false, error: message };
+    return fail(message);
   }
 }
 
@@ -300,7 +279,7 @@ export async function updateFeatureMappingAction(
  */
 export async function deleteFeatureMappingAction(
   id: string
-): Promise<{ success: boolean; error?: string }> {
+): Promise<ActionVoidResult> {
   try {
     await checkDirectorPermission();
 
@@ -312,10 +291,10 @@ export async function deleteFeatureMappingAction(
 
     logger.info({ mappingId: id }, 'Feature mapping deleted via action');
 
-    return { success: true };
+    return okVoid();
   } catch (error) {
     const message = error instanceof Error ? error.message : '삭제에 실패했습니다.';
     logger.error({ error, id }, 'Failed to delete feature mapping');
-    return { success: false, error: message };
+    return fail(message);
   }
 }

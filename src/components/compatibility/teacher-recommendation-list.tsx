@@ -79,6 +79,8 @@ export function TeacherRecommendationList({
       if (result.success) {
         toast.success("배정이 완료되었습니다.")
         onAssign?.()
+      } else {
+        toast.error(result.error)
       }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "배정 중 오류가 발생했습니다.")

@@ -13,6 +13,7 @@ import { generateWithProvider, FailoverError } from "@/lib/ai/universal-router"
 import { buildLearningStrategyPrompt, buildCareerGuidancePrompt } from "@/lib/ai/integration-prompts"
 import { LearningStrategySchema, CareerGuidanceSchema } from "@/lib/validations/personality"
 import { extractJsonFromLLM } from "@/lib/utils/extract-json"
+import { ok, fail, type ActionResult } from "@/lib/errors/action-result"
 
 /**
  * AI 기반 학습 전략 생성 Server Action (통합 LLM 라우터 사용)
@@ -27,7 +28,7 @@ export async function generateLearningStrategy(studentId: string) {
   // 1. 교사 인증
   const session = await verifySession()
   if (!session?.userId) {
-    return { success: false, error: "인증되지 않았습니다." }
+    return fail("인증되지 않았습니다.")
   }
 
   // 2. 학생 소속 검증
@@ -39,13 +40,13 @@ export async function generateLearningStrategy(studentId: string) {
   })
 
   if (!student) {
-    return { success: false, error: "학생을 찾을 수 없습니다." }
+    return fail("학생을 찾을 수 없습니다.")
   }
 
   // 3. 통합 데이터 조회
   const data = await getUnifiedPersonalityData(studentId, session.userId)
   if (!data) {
-    return { success: false, error: "성향 데이터를 찾을 수 없습니다." }
+    return fail("성향 데이터를 찾을 수 없습니다.")
   }
 
   // 4. 최소 3개 분석 확인
@@ -58,14 +59,14 @@ export async function generateLearningStrategy(studentId: string) {
   ].filter(Boolean).length
 
   if (availableCount < 3) {
-    return { success: false, error: "최소 3개 이상의 분석이 필요합니다." }
+    return fail("최소 3개 이상의 분석이 필요합니다.")
   }
 
   // 5. 기존 생성 중인 작업 확인
   const existing = await getPersonalitySummary(studentId)
 
   if (existing?.status === "pending") {
-    return { success: false, error: "이미 생성 중입니다." }
+    return fail("이미 생성 중입니다.")
   }
 
   // 6. pending 상태로 저장
@@ -143,10 +144,7 @@ export async function generateLearningStrategy(studentId: string) {
     }
   })
 
-  return {
-    success: true,
-    message: "AI 분석을 시작했습니다. 완료되면 자동으로 표시됩니다.",
-  }
+  return ok({ message: "AI 분석을 시작했습니다. 완료되면 자동으로 표시됩니다." })
 }
 
 /**
@@ -162,7 +160,7 @@ export async function generateCareerGuidance(studentId: string) {
   // 1. 교사 인증
   const session = await verifySession()
   if (!session?.userId) {
-    return { success: false, error: "인증되지 않았습니다." }
+    return fail("인증되지 않았습니다.")
   }
 
   // 2. 학생 소속 검증
@@ -174,13 +172,13 @@ export async function generateCareerGuidance(studentId: string) {
   })
 
   if (!student) {
-    return { success: false, error: "학생을 찾을 수 없습니다." }
+    return fail("학생을 찾을 수 없습니다.")
   }
 
   // 3. 통합 데이터 조회
   const data = await getUnifiedPersonalityData(studentId, session.userId)
   if (!data) {
-    return { success: false, error: "성향 데이터를 찾을 수 없습니다." }
+    return fail("성향 데이터를 찾을 수 없습니다.")
   }
 
   // 4. 최소 3개 분석 확인
@@ -193,14 +191,14 @@ export async function generateCareerGuidance(studentId: string) {
   ].filter(Boolean).length
 
   if (availableCount < 3) {
-    return { success: false, error: "최소 3개 이상의 분석이 필요합니다." }
+    return fail("최소 3개 이상의 분석이 필요합니다.")
   }
 
   // 5. 기존 생성 중인 작업 확인
   const existing = await getPersonalitySummary(studentId)
 
   if (existing?.status === "pending") {
-    return { success: false, error: "이미 생성 중입니다." }
+    return fail("이미 생성 중입니다.")
   }
 
   // 6. pending 상태로 저장
@@ -275,10 +273,7 @@ export async function generateCareerGuidance(studentId: string) {
     }
   })
 
-  return {
-    success: true,
-    message: "AI 분석을 시작했습니다. 완료되면 자동으로 표시됩니다.",
-  }
+  return ok({ message: "AI 분석을 시작했습니다. 완료되면 자동으로 표시됩니다." })
 }
 
 /**

@@ -41,8 +41,8 @@ export function ReservationForm({ onCancel, onSuccess }: ReservationFormProps) {
   useEffect(() => {
     const fetchStudents = async () => {
       const result = await getStudentsAction()
-      if (result.success && result.data) {
-        setStudents(result.data)
+      if (result.success) {
+        setStudents(result.data.data)
       } else {
         toast.error(result.error || "학생 목록을 불러오지 못했습니다.")
       }

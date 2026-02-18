@@ -9,6 +9,7 @@ import { db } from "@/lib/db"
 import { upsertPalmAnalysis, getPalmAnalysis } from "@/lib/db/analysis/palm-analysis"
 import { extractJsonFromLLM } from "@/lib/utils/extract-json"
 import { eventBus } from "@/lib/events/event-bus"
+import { ok, type ActionResult } from "@/lib/errors/action-result"
 
 /**
  * 선생님 손금 분석 실행 (통합 LLM 라우터 사용)
@@ -108,10 +109,7 @@ export async function runTeacherPalmAnalysis(
     }
   })
 
-  return {
-    success: true,
-    message: "분석을 시작했어요. 잠시 후 결과가 표시됩니다."
-  }
+  return ok({ message: "분석을 시작했어요. 잠시 후 결과가 표시됩니다." })
 }
 
 /**

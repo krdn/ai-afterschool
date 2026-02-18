@@ -3,9 +3,10 @@
 import { revalidatePath } from "next/cache"
 import { db } from "@/lib/db"
 import { verifySession } from "@/lib/dal"
-import { calculateCompatibilityScore } from "@/lib/analysis/compatibility-scoring"
+import { calculateCompatibilityScore, type CompatibilityScore } from "@/lib/analysis/compatibility-scoring"
 import { upsertCompatibilityResult } from "@/lib/db/matching/compatibility-result"
 import { fetchPairAnalyses } from "@/lib/db/matching/fetch-analysis"
+import { ok, fail, type ActionResult } from "@/lib/errors/action-result"
 
 /**
  * 선생님-학생 궁합 분석 실행
@@ -20,7 +21,7 @@ import { fetchPairAnalyses } from "@/lib/db/matching/fetch-analysis"
 export async function analyzeCompatibility(
   teacherId: string,
   studentId: string
-) {
+): Promise<ActionResult<{ score: CompatibilityScore }>> {
   await verifySession()
 
   const teacher = await db.teacher.findUnique({
@@ -36,7 +37,7 @@ export async function analyzeCompatibility(
   })
 
   if (!teacher) {
-    throw new Error("선생님을 찾을 수 없어요.")
+    return fail("선생님을 찾을 수 없어요.")
   }
 
   // 공유 함수로 분석 데이터 일괄 조회
@@ -65,16 +66,15 @@ export async function analyzeCompatibility(
   revalidatePath(`/students/${studentId}`)
   revalidatePath(`/teachers/${teacherId}`)
 
-  return {
-    success: true,
-    score,
-  }
+  return ok({ score })
 }
 
 /**
  * 다수 학생에 대해 궁합 분석 일괄 실행
  */
-export async function batchAnalyzeCompatibility(studentIds: string[]) {
+export async function batchAnalyzeCompatibility(
+  studentIds: string[]
+): Promise<ActionResult<{ results: { studentId: string; results: ActionResult<{ score: CompatibilityScore }>[] }[] }>> {
   await verifySession()
 
   const teachers = await db.teacher.findMany({
@@ -84,7 +84,7 @@ export async function batchAnalyzeCompatibility(studentIds: string[]) {
   })
 
   if (teachers.length === 0) {
-    throw new Error("팀에 선생님이 없어요.")
+    return fail("팀에 선생님이 없어요.")
   }
 
   const results = await Promise.all(
@@ -108,8 +108,5 @@ export async function batchAnalyzeCompatibility(studentIds: string[]) {
     })
   )
 
-  return {
-    success: true,
-    results,
-  }
+  return ok({ results })
 }

@@ -8,27 +8,24 @@ import {
   type GetReservationsParams,
 } from '@/lib/db/counseling/reservations'
 import { ReservationStatus } from '@prisma/client'
+import { ok, fail, type ActionResult } from '@/lib/errors/action-result'
 
 /**
  * 예약 목록 조회 액션
  * - 인증 체크
  * - TEACHER 역할 시 자신 예약만 조회
  * - 검색 파라미터 전달
- * - { success, data? } 형식 응답
  */
 export async function getReservationsAction(params: {
   studentId?: string
   dateFrom?: string
   dateTo?: string
   status?: ReservationStatus
-}) {
+}): Promise<ActionResult<Awaited<ReturnType<typeof getReservations>>>> {
   const session = await verifySession()
 
   if (!session) {
-    return {
-      success: false,
-      error: '인증되지 않은 요청입니다.',
-    }
+    return fail('인증되지 않은 요청입니다.')
   }
 
   try {
@@ -47,16 +44,10 @@ export async function getReservationsAction(params: {
 
     const reservations = await getReservations(getParams)
 
-    return {
-      success: true,
-      data: reservations,
-    }
+    return ok(reservations)
   } catch (error) {
     console.error('Failed to get reservations:', error)
-    return {
-      success: false,
-      error: '예약 목록 조회 중 오류가 발생했습니다.',
-    }
+    return fail('예약 목록 조회 중 오류가 발생했습니다.')
   }
 }
 
@@ -65,36 +56,24 @@ export async function getReservationsAction(params: {
  * - 인증 및 권한 체크
  * - 예약 데이터 반환
  */
-export async function getReservationByIdAction(id: string) {
+export async function getReservationByIdAction(id: string): Promise<ActionResult<NonNullable<Awaited<ReturnType<typeof getReservationById>>>>> {
   const session = await verifySession()
 
   if (!session) {
-    return {
-      success: false,
-      error: '인증되지 않은 요청입니다.',
-    }
+    return fail('인증되지 않은 요청입니다.')
   }
 
   try {
     const reservation = await getReservationById(id, session.userId)
 
     if (!reservation) {
-      return {
-        success: false,
-        error: '예약을 찾을 수 없습니다.',
-      }
+      return fail('예약을 찾을 수 없습니다.')
     }
 
-    return {
-      success: true,
-      data: reservation,
-    }
+    return ok(reservation)
   } catch (error) {
     console.error('Failed to get reservation:', error)
-    return {
-      success: false,
-      error: '예약 조회 중 오류가 발생했습니다.',
-    }
+    return fail('예약 조회 중 오류가 발생했습니다.')
   }
 }
 
@@ -102,14 +81,11 @@ export async function getReservationByIdAction(id: string) {
  * 예약 상태별 개수 조회 액션
  * - 대시보드용 통계
  */
-export async function getReservationStatsAction() {
+export async function getReservationStatsAction(): Promise<ActionResult<Record<ReservationStatus, number>>> {
   const session = await verifySession()
 
   if (!session) {
-    return {
-      success: false,
-      error: '인증되지 않은 요청입니다.',
-    }
+    return fail('인증되지 않은 요청입니다.')
   }
 
   try {
@@ -135,15 +111,9 @@ export async function getReservationStatsAction() {
       statsMap[stat.status as ReservationStatus] = stat._count.status
     }
 
-    return {
-      success: true,
-      data: statsMap,
-    }
+    return ok(statsMap)
   } catch (error) {
     console.error('Failed to get reservation stats:', error)
-    return {
-      success: false,
-      error: '예약 통계 조회 중 오류가 발생했습니다.',
-    }
+    return fail('예약 통계 조회 중 오류가 발생했습니다.')
   }
 }

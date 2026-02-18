@@ -3,6 +3,7 @@
 import { verifySession } from '@/lib/dal'
 import { db } from '@/lib/db'
 import type { AuditLogEntry } from '@/lib/actions/admin/audit'
+import { ok, fail, type ActionResult } from '@/lib/errors/action-result'
 
 export interface MatchingHistoryParams {
   startDate?: string
@@ -13,20 +14,14 @@ export interface MatchingHistoryParams {
   pageSize?: number
 }
 
-export interface MatchingHistoryResult {
-  success: boolean
-  data?: { logs: AuditLogEntry[]; total: number }
-  error?: string
-}
-
 export async function getMatchingHistory(
   params: MatchingHistoryParams
-): Promise<MatchingHistoryResult> {
+): Promise<ActionResult<{ logs: AuditLogEntry[]; total: number }>> {
   const session = await verifySession()
 
   // 권한 검증: DIRECTOR만 조회 가능
   if (session.role !== 'DIRECTOR') {
-    return { success: false, error: '권한이 없습니다.' }
+    return fail('권한이 없습니다.')
   }
 
   const page = params.page || 1
@@ -90,28 +85,22 @@ export async function getMatchingHistory(
       db.auditLog.count({ where }),
     ])
 
-    return {
-      success: true,
-      data: {
-        logs: logs.map((log) => ({
-          id: log.id,
-          teacherId: log.teacherId,
-          teacherName: log.teacher.name,
-          action: log.action,
-          entityType: log.entityType,
-          entityId: log.entityId,
-          changes: log.changes as Record<string, unknown> | null,
-          ipAddress: log.ipAddress,
-          createdAt: log.createdAt,
-        })),
-        total,
-      },
-    }
+    return ok({
+      logs: logs.map((log) => ({
+        id: log.id,
+        teacherId: log.teacherId,
+        teacherName: log.teacher.name,
+        action: log.action,
+        entityType: log.entityType,
+        entityId: log.entityId,
+        changes: log.changes as Record<string, unknown> | null,
+        ipAddress: log.ipAddress,
+        createdAt: log.createdAt,
+      })),
+      total,
+    })
   } catch (error) {
     console.error('Failed to fetch matching history:', error)
-    return {
-      success: false,
-      error: '매칭 이력 조회 중 오류가 발생했습니다.',
-    }
+    return fail('매칭 이력 조회 중 오류가 발생했습니다.')
   }
 }

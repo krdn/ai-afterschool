@@ -9,6 +9,7 @@ import { eventBus } from "@/lib/events/event-bus"
 import { generateWithProvider, generateWithSpecificProvider } from "@/lib/ai/universal-router"
 import { getZodiacPrompt, type ZodiacPromptId } from "@/lib/ai/zodiac-prompts"
 import type { ProviderName } from "@/lib/ai/providers/types"
+import { ok, type ActionResult } from "@/lib/errors/action-result"
 
 /**
  * 역할에 따른 teacherId 반환 (TEACHER만 본인 학생으로 제한)
@@ -103,15 +104,12 @@ ${zodiac.learningStyle}
 
   revalidatePath(`/students/${studentId}`)
 
-  return {
-    success: true,
-    result: {
-      zodiacSign: zodiac.key,
-      zodiacName: zodiac.name,
-      element: zodiac.element,
-      interpretation,
-    },
-  }
+  return ok({
+    zodiacSign: zodiac.key,
+    zodiacName: zodiac.name,
+    element: zodiac.element,
+    interpretation,
+  })
 }
 
 /**
@@ -180,8 +178,5 @@ export async function generateZodiacLLMInterpretation(
 
   revalidatePath(`/students/${studentId}`)
 
-  return {
-    success: true,
-    interpretation: llmResult.text,
-  }
+  return ok({ interpretation: llmResult.text })
 }

@@ -59,7 +59,7 @@ export function CostAlerts({ initialData }: CostAlertsProps) {
       if (result.success) {
         setBudgetStatus(result.data);
       } else {
-        setError(result.error);
+        setError(result.error ?? "예산 현황을 불러오는 중 오류가 발생했습니다.");
       }
     } catch {
       setError("예산 현황을 불러오는 중 오류가 발생했습니다.");

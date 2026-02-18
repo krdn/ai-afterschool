@@ -14,6 +14,7 @@ import {
 } from '@/lib/ai/config';
 import { getBudgetSummary } from '@/lib/ai/smart-routing';
 import type { ProviderName, FeatureType } from '@/lib/ai/providers';
+import { ok, type ActionResult } from "@/lib/errors/action-result";
 
 async function requireDirector() {
   const session = await verifySession();
@@ -39,8 +40,8 @@ export async function saveLLMConfigAction(input: {
   
   const result = await saveLLMConfig(input);
   revalidatePath('/admin/llm-settings');
-  
-  return { success: true, config: result };
+
+  return ok({ config: result });
 }
 
 export async function testProviderAction(provider: ProviderName, apiKey?: string) {
@@ -85,8 +86,8 @@ export async function saveFeatureConfigAction(input: {
   
   const result = await saveFeatureConfig(input);
   revalidatePath('/admin/llm-settings');
-  
-  return { success: true, config: result };
+
+  return ok({ config: result });
 }
 
 export async function getBudgetConfigsAction() {
@@ -105,7 +106,7 @@ export async function saveBudgetConfigAction(input: {
   const result = await saveBudgetConfig(input);
   revalidatePath('/admin/llm-settings');
 
-  return { success: true, config: result };
+  return ok({ config: result });
 }
 
 export async function getBudgetSummaryAction() {
@@ -154,7 +155,7 @@ export async function setDefaultProviderAction(provider: ProviderName) {
   }
 
   revalidatePath('/admin/llm-settings');
-  return { success: true, provider };
+  return ok({ provider });
 }
 
 export async function getOllamaModelsAction() {

@@ -3,6 +3,7 @@
 import { verifySession } from '@/lib/dal';
 import { db } from '@/lib/db';
 import { checkAllBudgetThresholds, getBudgetSummary, type BudgetAlert } from '@/lib/ai/smart-routing';
+import { ok, fail, type ActionResult } from '@/lib/errors/action-result';
 
 // =============================================================================
 // Types
@@ -50,10 +51,7 @@ async function requireDirector() {
  * 예산 알림 생성 및 조회
  * - 80% 또는 100% 임계값 도달 시 알림 생성
  */
-export async function getBudgetAlerts(): Promise<
-  | { success: true; data: BudgetNotification[] }
-  | { success: false; error: string }
-> {
+export async function getBudgetAlerts(): Promise<ActionResult<BudgetNotification[]>> {
   try {
     await requireDirector();
 
@@ -104,22 +102,16 @@ export async function getBudgetAlerts(): Promise<
       }
     }
 
-    return { success: true, data: notifications };
+    return ok(notifications);
   } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-    };
+    return fail(error instanceof Error ? error.message : 'Unknown error');
   }
 }
 
 /**
  * 모든 알림 조회 (예산 알림 + 시스템 알림)
  */
-export async function getAllNotifications(): Promise<
-  | { success: true; data: Notification[] }
-  | { success: false; error: string }
-> {
+export async function getAllNotifications(): Promise<ActionResult<Notification[]>> {
   try {
     await requireDirector();
 
@@ -142,22 +134,16 @@ export async function getAllNotifications(): Promise<
       return b.createdAt.getTime() - a.createdAt.getTime();
     });
 
-    return { success: true, data: notifications };
+    return ok(notifications);
   } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-    };
+    return fail(error instanceof Error ? error.message : 'Unknown error');
   }
 }
 
 /**
  * 읽지 않은 알림 수 조회
  */
-export async function getUnreadNotificationCount(): Promise<
-  | { success: true; data: number }
-  | { success: false; error: string }
-> {
+export async function getUnreadNotificationCount(): Promise<ActionResult<number>> {
   try {
     await requireDirector();
 
@@ -167,42 +153,30 @@ export async function getUnreadNotificationCount(): Promise<
     }
 
     const unreadCount = result.data.filter(n => !n.read).length;
-    return { success: true, data: unreadCount };
+    return ok(unreadCount);
   } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-    };
+    return fail(error instanceof Error ? error.message : 'Unknown error');
   }
 }
 
 /**
  * 예산 상태 요약 조회
  */
-export async function getBudgetStatusSummary(): Promise<
-  | {
-      success: true;
-      data: {
-        period: string;
-        budget: number;
-        currentCost: number;
-        percentUsed: number;
-        isOverBudget: boolean;
-        remaining: number;
-      }[];
-    }
-  | { success: false; error: string }
-> {
+export async function getBudgetStatusSummary(): Promise<ActionResult<{
+  period: string;
+  budget: number;
+  currentCost: number;
+  percentUsed: number;
+  isOverBudget: boolean;
+  remaining: number;
+}[]>> {
   try {
     await requireDirector();
 
     const summary = await getBudgetSummary();
-    return { success: true, data: summary };
+    return ok(summary);
   } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-    };
+    return fail(error instanceof Error ? error.message : 'Unknown error');
   }
 }
 

@@ -29,7 +29,17 @@ export default async function StudentMatchingPage({
   }
 
   // 선생님 추천 목록 조회
-  const recommendations = await getTeacherRecommendations(id)
+  const result = await getTeacherRecommendations(id)
+
+  if (!result.success) {
+    return (
+      <div className="p-4 text-red-600">
+        <p>{result.error}</p>
+      </div>
+    )
+  }
+
+  const recommendations = result.data
 
   return (
     <div className="space-y-6">

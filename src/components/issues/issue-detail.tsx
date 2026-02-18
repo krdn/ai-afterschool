@@ -51,7 +51,7 @@ export function IssueDetail({ issue, teachers }: IssueDetailProps) {
         toast.success('상태가 변경되었어요')
         router.refresh()
       } else {
-        toast.error(result.error || '오류가 발생했어요')
+        toast.error(result.error)
       }
     })
   }

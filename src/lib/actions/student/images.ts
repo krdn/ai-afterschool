@@ -8,12 +8,11 @@ import {
   type StudentImageInput,
 } from "@/lib/validations/student-images"
 import { z } from "zod"
+import { okVoid, fail, type ActionVoidResult } from "@/lib/errors/action-result"
 
 export type StudentImageTypeValue = StudentImageInput["type"]
 
-export type StudentImageResult =
-  | { success: true }
-  | { success: false; error: string }
+export type StudentImageResult = ActionVoidResult
 
 export async function setStudentImage(
   studentId: string,
@@ -32,26 +31,14 @@ export async function setStudentImage(
         // 사용자 친화적인 에러 메시지 생성
         const firstError = error.issues[0]
         if (firstError.path.includes("bytes")) {
-          return {
-            success: false,
-            error: "파일 크기는 10MB 이하여야 해요",
-          }
+          return fail("파일 크기는 10MB 이하여야 해요")
         }
         if (firstError.path.includes("originalUrl")) {
-          return {
-            success: false,
-            error: "이미지 URL이 올바르지 않아요",
-          }
+          return fail("이미지 URL이 올바르지 않아요")
         }
-        return {
-          success: false,
-          error: "이미지 정보 형식이 올바르지 않아요",
-        }
+        return fail("이미지 정보 형식이 올바르지 않아요")
       }
-      return {
-        success: false,
-        error: "이미지 검증 중 오류가 발생했어요",
-      }
+      return fail("이미지 검증 중 오류가 발생했어요")
     }
 
     // 학생 존재 여부 및 권한 확인
@@ -63,10 +50,7 @@ export async function setStudentImage(
     })
 
     if (!student) {
-      return {
-        success: false,
-        error: "학생을 찾을 수 없어요",
-      }
+      return fail("학생을 찾을 수 없어요")
     }
 
     // 기존 이미지 확인
@@ -121,30 +105,21 @@ export async function setStudentImage(
       }
     }
 
-    return { success: true }
+    return okVoid()
   } catch (error) {
     console.error("setStudentImage error:", error)
 
     // 네트워크 또는 Cloudinary 에러 처리
     if (error instanceof Error) {
       if (error.message.includes("network") || error.message.includes("fetch")) {
-        return {
-          success: false,
-          error: "이미지 업로드 중 연결 오류가 발생했어요",
-        }
+        return fail("이미지 업로드 중 연결 오류가 발생했어요")
       }
       if (error.message.includes("Cloudinary")) {
-        return {
-          success: false,
-          error: "이미지 서비스 오류가 발생했어요. 잠시 후 다시 시도해주세요",
-        }
+        return fail("이미지 서비스 오류가 발생했어요. 잠시 후 다시 시도해주세요")
       }
     }
 
-    return {
-      success: false,
-      error: "이미지 저장 중 오류가 발생했어요. 다시 시도해주세요",
-    }
+    return fail("이미지 저장 중 오류가 발생했어요. 다시 시도해주세요")
   }
 }
 
@@ -164,10 +139,7 @@ export async function deleteStudentImage(
     })
 
     if (!student) {
-      return {
-        success: false,
-        error: "학생을 찾을 수 없어요",
-      }
+      return fail("학생을 찾을 수 없어요")
     }
 
     // 기존 이미지 확인
@@ -181,7 +153,7 @@ export async function deleteStudentImage(
     })
 
     if (!existingImage) {
-      return { success: true }
+      return okVoid()
     }
 
     // 데이터베이스에서 삭제
@@ -202,12 +174,9 @@ export async function deleteStudentImage(
       // 실패해도 DB 삭제는 성공한 것으로 처리
     }
 
-    return { success: true }
+    return okVoid()
   } catch (error) {
     console.error("deleteStudentImage error:", error)
-    return {
-      success: false,
-      error: "이미지 삭제 중 오류가 발생했어요. 다시 시도해주세요",
-    }
+    return fail("이미지 삭제 중 오류가 발생했어요. 다시 시도해주세요")
   }
 }

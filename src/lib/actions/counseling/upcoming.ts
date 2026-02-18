@@ -3,20 +3,22 @@
 import { addDays, startOfDay, endOfDay } from 'date-fns'
 import { db } from '@/lib/db'
 import { verifySession } from '@/lib/dal'
+import { ok, fail, type ActionResult } from '@/lib/errors/action-result'
 
 /**
- * 다가오는 상담 조회 결과 타입
+ * 다가오는 상담 데이터 타입
  */
-export type UpcomingCounselingResult = {
-  success: boolean
-  data?: Array<{
-    id: string
-    scheduledAt: Date
-    student: { id: string; name: string }
-    parent: { id: string; name: string; relation: string }
-  }>
-  error?: string
+type UpcomingCounselingItem = {
+  id: string
+  scheduledAt: Date
+  student: { id: string; name: string }
+  parent: { id: string; name: string; relation: string }
 }
+
+/**
+ * 다가오는 상담 조회 결과 타입 (ActionResult 기반)
+ */
+export type UpcomingCounselingResult = ActionResult<UpcomingCounselingItem[]>
 
 /**
  * 다가오는 상담 조회 액션
@@ -27,10 +29,7 @@ export async function getUpcomingCounseling(): Promise<UpcomingCounselingResult>
   const session = await verifySession()
 
   if (!session) {
-    return {
-      success: false,
-      error: '인증되지 않은 요청입니다.',
-    }
+    return fail('인증되지 않은 요청입니다.')
   }
 
   try {
@@ -66,15 +65,9 @@ export async function getUpcomingCounseling(): Promise<UpcomingCounselingResult>
       },
     })
 
-    return {
-      success: true,
-      data: reservations,
-    }
+    return ok(reservations)
   } catch (error) {
     console.error('Failed to get upcoming counseling:', error)
-    return {
-      success: false,
-      error: '다가오는 상담 조회 중 오류가 발생했습니다.',
-    }
+    return fail('다가오는 상담 조회 중 오류가 발생했습니다.')
   }
 }

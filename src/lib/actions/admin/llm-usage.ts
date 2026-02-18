@@ -5,6 +5,7 @@ import { getUsageStats, getUsageStatsByProvider, getUsageStatsByFeature, getCurr
 import { getMonthlyAggregations, getMonthlyTotalCost, getYearlyCostTrend } from '@/lib/ai/usage-aggregation';
 import { db } from '@/lib/db';
 import type { ProviderName, FeatureType } from '@/lib/ai/providers';
+import { ok, fail, type ActionResult } from "@/lib/errors/action-result";
 
 async function requireAuth() {
   const session = await verifySession();
@@ -49,7 +50,7 @@ export interface GetUsageStatsActionInput {
  */
 export async function getUsageStatsAction(
   input: GetUsageStatsActionInput
-): Promise<{ success: true; data: UsageStatsResult } | { success: false; error: string }> {
+): Promise<ActionResult<UsageStatsResult>> {
   try {
     await requireAuth();
 
@@ -60,12 +61,9 @@ export async function getUsageStatsAction(
       featureType: input.featureType,
     });
 
-    return { success: true, data: stats };
+    return ok(stats);
   } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-    };
+    return fail(error instanceof Error ? error.message : 'Unknown error');
   }
 }
 
@@ -75,10 +73,7 @@ export async function getUsageStatsAction(
 export async function getUsageStatsByProviderAction(input: {
   startDate: Date;
   endDate: Date;
-}): Promise<
-  | { success: true; data: Record<ProviderName, UsageStatsResult> }
-  | { success: false; error: string }
-> {
+}): Promise<ActionResult<Record<ProviderName, UsageStatsResult>>> {
   try {
     await requireAuth();
 
@@ -87,12 +82,9 @@ export async function getUsageStatsByProviderAction(input: {
       endDate: new Date(input.endDate),
     });
 
-    return { success: true, data: stats };
+    return ok(stats);
   } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-    };
+    return fail(error instanceof Error ? error.message : 'Unknown error');
   }
 }
 
@@ -102,10 +94,7 @@ export async function getUsageStatsByProviderAction(input: {
 export async function getUsageStatsByFeatureAction(input: {
   startDate: Date;
   endDate: Date;
-}): Promise<
-  | { success: true; data: Record<FeatureType, UsageStatsResult> }
-  | { success: false; error: string }
-> {
+}): Promise<ActionResult<Record<FeatureType, UsageStatsResult>>> {
   try {
     await requireAuth();
 
@@ -114,12 +103,9 @@ export async function getUsageStatsByFeatureAction(input: {
       endDate: new Date(input.endDate),
     });
 
-    return { success: true, data: stats };
+    return ok(stats);
   } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-    };
+    return fail(error instanceof Error ? error.message : 'Unknown error');
   }
 }
 
@@ -145,10 +131,7 @@ export async function getDailyUsageAction(input: {
   endDate: Date;
   provider?: ProviderName;
   featureType?: FeatureType;
-}): Promise<
-  | { success: true; data: DailyUsageData[] }
-  | { success: false; error: string }
-> {
+}): Promise<ActionResult<DailyUsageData[]>> {
   try {
     await requireAuth();
 
@@ -206,12 +189,9 @@ export async function getDailyUsageAction(input: {
           : 0,
     }));
 
-    return { success: true, data: result };
+    return ok(result);
   } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-    };
+    return fail(error instanceof Error ? error.message : 'Unknown error');
   }
 }
 
@@ -225,16 +205,13 @@ export async function getDailyUsageAction(input: {
  */
 export async function getCurrentPeriodCostAction(
   period: 'daily' | 'weekly' | 'monthly'
-): Promise<{ success: true; data: number } | { success: false; error: string }> {
+): Promise<ActionResult<number>> {
   try {
     await requireAuth();
     const cost = await getCurrentPeriodCost(period);
-    return { success: true, data: cost };
+    return ok(cost);
   } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-    };
+    return fail(error instanceof Error ? error.message : 'Unknown error');
   }
 }
 
@@ -265,10 +242,7 @@ export async function getMonthlyAggregationsAction(input: {
   provider?: ProviderName;
   featureType?: FeatureType;
   limit?: number;
-}): Promise<
-  | { success: true; data: MonthlyAggregation[] }
-  | { success: false; error: string }
-> {
+}): Promise<ActionResult<MonthlyAggregation[]>> {
   try {
     await requireAuth();
 
@@ -280,12 +254,9 @@ export async function getMonthlyAggregationsAction(input: {
       limit: input.limit,
     });
 
-    return { success: true, data };
+    return ok(data);
   } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-    };
+    return fail(error instanceof Error ? error.message : 'Unknown error');
   }
 }
 
@@ -295,16 +266,13 @@ export async function getMonthlyAggregationsAction(input: {
 export async function getMonthlyTotalCostAction(input: {
   year: number;
   month: number;
-}): Promise<{ success: true; data: number } | { success: false; error: string }> {
+}): Promise<ActionResult<number>> {
   try {
     await requireAuth();
     const cost = await getMonthlyTotalCost(input.year, input.month);
-    return { success: true, data: cost };
+    return ok(cost);
   } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-    };
+    return fail(error instanceof Error ? error.message : 'Unknown error');
   }
 }
 
@@ -313,19 +281,13 @@ export async function getMonthlyTotalCostAction(input: {
  */
 export async function getYearlyCostTrendAction(input: {
   year: number;
-}): Promise<
-  | { success: true; data: { month: number; cost: number }[] }
-  | { success: false; error: string }
-> {
+}): Promise<ActionResult<{ month: number; cost: number }[]>> {
   try {
     await requireAuth();
     const trend = await getYearlyCostTrend(input.year);
-    return { success: true, data: trend };
+    return ok(trend);
   } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-    };
+    return fail(error instanceof Error ? error.message : 'Unknown error');
   }
 }
 
@@ -345,10 +307,7 @@ export interface BudgetStatus {
 /**
  * 예산 현황 조회
  */
-export async function getBudgetStatusAction(): Promise<
-  | { success: true; data: BudgetStatus[] }
-  | { success: false; error: string }
-> {
+export async function getBudgetStatusAction(): Promise<ActionResult<BudgetStatus[]>> {
   try {
     await requireAuth();
 
@@ -392,12 +351,9 @@ export async function getBudgetStatusAction(): Promise<
       });
     }
 
-    return { success: true, data: result };
+    return ok(result);
   } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-    };
+    return fail(error instanceof Error ? error.message : 'Unknown error');
   }
 }
 
@@ -429,10 +385,7 @@ export async function getRecentUsageRecordsAction(input: {
   provider?: ProviderName;
   featureType?: FeatureType;
   success?: boolean;
-}): Promise<
-  | { success: true; data: RecentUsageRecord[] }
-  | { success: false; error: string }
-> {
+}): Promise<ActionResult<RecentUsageRecord[]>> {
   try {
     await requireDirector();
 
@@ -448,11 +401,8 @@ export async function getRecentUsageRecordsAction(input: {
       take: limit,
     });
 
-    return { success: true, data: records };
+    return ok(records);
   } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-    };
+    return fail(error instanceof Error ? error.message : 'Unknown error');
   }
 }

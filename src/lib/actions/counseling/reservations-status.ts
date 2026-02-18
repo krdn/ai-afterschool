@@ -16,39 +16,29 @@ import type {
   DeleteReservationInput,
   CompleteReservationInput,
 } from '@/lib/validations/reservations'
+import { ok, okVoid, fail, type ActionResult, type ActionVoidResult } from '@/lib/errors/action-result'
 
 /**
- * 예약 삭제 결과 타입
+ * 예약 삭제 결과 타입 (ActionVoidResult 기반)
  */
-export type DeleteReservationResult = {
-  success: boolean
-  error?: string
-}
+export type DeleteReservationResult = ActionVoidResult
 
 /**
- * 예약 완료 결과 타입
+ * 예약 완료 결과 타입 (ActionResult 기반)
  */
-export type CompleteReservationResult = {
-  success: boolean
-  data?: {
-    id: string
-    status: ReservationStatus
-    counselingSessionId?: string | null
-  }
-  error?: string
-}
+export type CompleteReservationResult = ActionResult<{
+  id: string
+  status: ReservationStatus
+  counselingSessionId?: string | null
+}>
 
 /**
- * 예약 취소/불참 결과 타입
+ * 예약 취소/불참 결과 타입 (ActionResult 기반)
  */
-export type CancelReservationResult = {
-  success: boolean
-  data?: {
-    id: string
-    status: ReservationStatus
-  }
-  error?: string
-}
+export type CancelReservationResult = ActionResult<{
+  id: string
+  status: ReservationStatus
+}>
 
 /**
  * 예약 삭제 액션
@@ -64,20 +54,14 @@ export async function deleteReservationAction(
   const session = await verifySession()
 
   if (!session) {
-    return {
-      success: false,
-      error: '인증되지 않은 요청입니다.',
-    }
+    return fail('인증되지 않은 요청입니다.')
   }
 
   // 2. Zod 스키마 검증
   const validationResult = reservationDeleteSchema.safeParse(input)
 
   if (!validationResult.success) {
-    return {
-      success: false,
-      error: '잘못된 요청입니다.',
-    }
+    return fail('잘못된 요청입니다.')
   }
 
   const { reservationId } = validationResult.data
@@ -100,10 +84,7 @@ export async function deleteReservationAction(
     })
 
     if (!existingReservation) {
-      return {
-        success: false,
-        error: '예약을 찾을 수 없습니다.',
-      }
+      return fail('예약을 찾을 수 없습니다.')
     }
 
     // 5. 예약 삭제
@@ -114,26 +95,18 @@ export async function deleteReservationAction(
     revalidatePath(`/reservations/${reservationId}`)
     revalidatePath(`/students/${existingReservation.studentId}`)
 
-    return {
-      success: true,
-    }
+    return okVoid()
   } catch (error) {
     console.error('Failed to delete reservation:', error)
 
     // 에러 메시지 처리
     if (error instanceof Error) {
       if (error.message === '이미 완료된 예약은 삭제할 수 없습니다') {
-        return {
-          success: false,
-          error: error.message,
-        }
+        return fail(error.message)
       }
     }
 
-    return {
-      success: false,
-      error: '예약 삭제 중 오류가 발생했습니다.',
-    }
+    return fail('예약 삭제 중 오류가 발생했습니다.')
   }
 }
 
@@ -151,20 +124,14 @@ export async function completeReservationAction(
   const session = await verifySession()
 
   if (!session) {
-    return {
-      success: false,
-      error: '인증되지 않은 요청입니다.',
-    }
+    return fail('인증되지 않은 요청입니다.')
   }
 
   // 2. Zod 스키마 검증
   const validationResult = completeReservationSchema.safeParse(input)
 
   if (!validationResult.success) {
-    return {
-      success: false,
-      error: '잘못된 요청입니다.',
-    }
+    return fail('잘못된 요청입니다.')
   }
 
   const { reservationId, summary } = validationResult.data
@@ -187,10 +154,7 @@ export async function completeReservationAction(
     })
 
     if (!existingReservation) {
-      return {
-        success: false,
-        error: '예약을 찾을 수 없습니다.',
-      }
+      return fail('예약을 찾을 수 없습니다.')
     }
 
     // 5. 상태 전환 (COMPLETED + CounselingSession 생성)
@@ -206,31 +170,22 @@ export async function completeReservationAction(
     revalidatePath(`/reservations/${reservationId}`)
     revalidatePath(`/students/${existingReservation.studentId}`)
 
-    return {
-      success: true,
-      data: {
-        id: updatedReservation.id,
-        status: updatedReservation.status,
-        counselingSessionId: updatedReservation.counselingSessionId,
-      },
-    }
+    return ok({
+      id: updatedReservation.id,
+      status: updatedReservation.status,
+      counselingSessionId: updatedReservation.counselingSessionId,
+    })
   } catch (error) {
     console.error('Failed to complete reservation:', error)
 
     // 에러 메시지 처리
     if (error instanceof Error) {
       if (error.message === '이미 완료된 예약은 상태를 변경할 수 없습니다') {
-        return {
-          success: false,
-          error: error.message,
-        }
+        return fail(error.message)
       }
     }
 
-    return {
-      success: false,
-      error: '예약 완료 처리 중 오류가 발생했습니다.',
-    }
+    return fail('예약 완료 처리 중 오류가 발생했습니다.')
   }
 }
 
@@ -247,10 +202,7 @@ export async function cancelReservationAction(
   const session = await verifySession()
 
   if (!session) {
-    return {
-      success: false,
-      error: '인증되지 않은 요청입니다.',
-    }
+    return fail('인증되지 않은 요청입니다.')
   }
 
   // 2. RBAC Prisma Client 생성
@@ -271,10 +223,7 @@ export async function cancelReservationAction(
     })
 
     if (!existingReservation) {
-      return {
-        success: false,
-        error: '예약을 찾을 수 없습니다.',
-      }
+      return fail('예약을 찾을 수 없습니다.')
     }
 
     // 4. 상태 전환 (CANCELLED)
@@ -289,30 +238,21 @@ export async function cancelReservationAction(
     revalidatePath(`/reservations/${reservationId}`)
     revalidatePath(`/students/${existingReservation.studentId}`)
 
-    return {
-      success: true,
-      data: {
-        id: updatedReservation.id,
-        status: updatedReservation.status,
-      },
-    }
+    return ok({
+      id: updatedReservation.id,
+      status: updatedReservation.status,
+    })
   } catch (error) {
     console.error('Failed to cancel reservation:', error)
 
     // 에러 메시지 처리
     if (error instanceof Error) {
       if (error.message === '이미 완료된 예약은 상태를 변경할 수 없습니다') {
-        return {
-          success: false,
-          error: error.message,
-        }
+        return fail(error.message)
       }
     }
 
-    return {
-      success: false,
-      error: '예약 취소 처리 중 오류가 발생했습니다.',
-    }
+    return fail('예약 취소 처리 중 오류가 발생했습니다.')
   }
 }
 
@@ -329,10 +269,7 @@ export async function markNoShowAction(
   const session = await verifySession()
 
   if (!session) {
-    return {
-      success: false,
-      error: '인증되지 않은 요청입니다.',
-    }
+    return fail('인증되지 않은 요청입니다.')
   }
 
   // 2. RBAC Prisma Client 생성
@@ -353,10 +290,7 @@ export async function markNoShowAction(
     })
 
     if (!existingReservation) {
-      return {
-        success: false,
-        error: '예약을 찾을 수 없습니다.',
-      }
+      return fail('예약을 찾을 수 없습니다.')
     }
 
     // 4. 상태 전환 (NO_SHOW)
@@ -371,29 +305,20 @@ export async function markNoShowAction(
     revalidatePath(`/reservations/${reservationId}`)
     revalidatePath(`/students/${existingReservation.studentId}`)
 
-    return {
-      success: true,
-      data: {
-        id: updatedReservation.id,
-        status: updatedReservation.status,
-      },
-    }
+    return ok({
+      id: updatedReservation.id,
+      status: updatedReservation.status,
+    })
   } catch (error) {
     console.error('Failed to mark no-show:', error)
 
     // 에러 메시지 처리
     if (error instanceof Error) {
       if (error.message === '이미 완료된 예약은 상태를 변경할 수 없습니다') {
-        return {
-          success: false,
-          error: error.message,
-        }
+        return fail(error.message)
       }
     }
 
-    return {
-      success: false,
-      error: '예약 불참 처리 중 오류가 발생했습니다.',
-    }
+    return fail('예약 불참 처리 중 오류가 발생했습니다.')
   }
 }

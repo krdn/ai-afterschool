@@ -86,7 +86,11 @@ export function BatchAssignment({
     setIsLoading(true)
     try {
       const result = await assignStudentBatch(selectedStudentIds, selectedTeacherId)
-      toast.success(`${result.count}명의 학생이 성공적으로 배정되었습니다.`)
+      if (!result.success) {
+        toast.error(result.error)
+        return
+      }
+      toast.success(`${result.data.count}명의 학생이 성공적으로 배정되었습니다.`)
       handleClose()
       router.refresh()
     } catch (error) {

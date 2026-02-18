@@ -13,6 +13,7 @@ import { upsertFaceAnalysis } from "@/lib/db/analysis/face-analysis"
 import { upsertPalmAnalysis } from "@/lib/db/analysis/palm-analysis"
 import type { ProviderName } from "@/lib/ai/providers/types"
 import { eventBus } from "@/lib/events/event-bus"
+import { ok, fail, type ActionResult } from "@/lib/errors/action-result"
 
 /**
  * 학생 관상 분석 (통합 LLM 라우터 사용)
@@ -29,7 +30,7 @@ export async function analyzeFaceImage(studentId: string, imageUrl: string, prov
   const student = await db.student.findFirst({ where })
 
   if (!student) {
-    return { success: false, error: "학생을 찾을 수 없어요." }
+    return fail("학생을 찾을 수 없어요.")
   }
 
   // 분석 시작 전에 pending 상태 기록 (폴링이 이전 결과와 구분할 수 있도록)
@@ -128,10 +129,7 @@ export async function analyzeFaceImage(studentId: string, imageUrl: string, prov
     }
   })
 
-  return {
-    success: true,
-    message: "분석을 시작했어요. 잠시 후 결과가 표시됩니다."
-  }
+  return ok({ message: "분석을 시작했어요. 잠시 후 결과가 표시됩니다." })
 }
 
 /**
@@ -154,7 +152,7 @@ export async function analyzePalmImage(
   const student = await db.student.findFirst({ where })
 
   if (!student) {
-    return { success: false, error: "학생을 찾을 수 없어요." }
+    return fail("학생을 찾을 수 없어요.")
   }
 
   after(async () => {
@@ -239,10 +237,7 @@ export async function analyzePalmImage(
     }
   })
 
-  return {
-    success: true,
-    message: "분석을 시작했어요. 잠시 후 결과가 표시됩니다."
-  }
+  return ok({ message: "분석을 시작했어요. 잠시 후 결과가 표시됩니다." })
 }
 
 /**

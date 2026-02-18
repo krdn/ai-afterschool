@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache"
 import { db } from "@/lib/db"
 import { verifySession } from "@/lib/dal"
-import { calculateCompatibilityScore } from "@/lib/analysis/compatibility-scoring"
+import { calculateCompatibilityScore, type CompatibilityScore } from "@/lib/analysis/compatibility-scoring"
 import { calculateFairnessMetrics } from "@/lib/analysis/fairness-metrics"
 import {
   generateAutoAssignment,
@@ -11,6 +11,37 @@ import {
   type AutoAssignmentOptions,
 } from "@/lib/optimization/auto-assignment"
 import { fetchSubjectAnalyses, fetchBatchAnalyses } from "@/lib/db/matching/fetch-analysis"
+import { ok, okVoid, fail, type ActionResult, type ActionVoidResult } from "@/lib/errors/action-result"
+/** 선생님 추천 항목 */
+export interface TeacherRecommendation {
+  teacherId: string
+  teacherName: string
+  teacherRole: string
+  currentStudentCount?: number
+  score: CompatibilityScore
+  breakdown: CompatibilityScore["breakdown"]
+  reasons: string[]
+}
+
+/** 선생님 추천 목록 결과 데이터 */
+export interface TeacherRecommendationsData {
+  studentId: string
+  studentName: string
+  recommendations: TeacherRecommendation[]
+}
+
+/** 자동 배정 제안 결과 데이터 */
+export interface AutoAssignmentSuggestionData {
+  assignments: Assignment[]
+  fairnessMetrics: Awaited<ReturnType<typeof calculateFairnessMetrics>>
+  summary: {
+    totalStudents: number
+    assignedStudents: number
+    averageScore: number
+    minScore: number
+    maxScore: number
+  }
+}
 
 /**
  * 학생을 선생님에게 수동 배정
@@ -24,12 +55,12 @@ import { fetchSubjectAnalyses, fetchBatchAnalyses } from "@/lib/db/matching/fetc
 export async function assignStudentToTeacher(
   studentId: string,
   teacherId: string
-) {
+): Promise<ActionVoidResult> {
   const session = await verifySession()
 
   // RBAC: DIRECTOR, TEAM_LEADER만 배정 가능
   if (session.role !== "DIRECTOR" && session.role !== "TEAM_LEADER") {
-    throw new Error("배정 권한이 없습니다.")
+    return fail("배정 권한이 없습니다.")
   }
 
   // Student 조회 (본인 팀 데이터만)
@@ -38,7 +69,7 @@ export async function assignStudentToTeacher(
   })
 
   if (!student) {
-    throw new Error("학생을 찾을 수 없습니다.")
+    return fail("학생을 찾을 수 없습니다.")
   }
 
   // Teacher 조회 (본인 팀 데이터만)
@@ -47,7 +78,7 @@ export async function assignStudentToTeacher(
   })
 
   if (!teacher) {
-    throw new Error("선생님을 찾을 수 없습니다.")
+    return fail("선생님을 찾을 수 없습니다.")
   }
 
   // Student.teacherId 업데이트
@@ -58,7 +89,7 @@ export async function assignStudentToTeacher(
     })
   } catch (error) {
     console.error("Failed to assign student to teacher:", error)
-    throw new Error("학생 배정 중 오류가 발생했습니다.")
+    return fail("학생 배정 중 오류가 발생했습니다.")
   }
 
   // 캐시 무효화
@@ -66,9 +97,7 @@ export async function assignStudentToTeacher(
   revalidatePath(`/students/${studentId}`)
   revalidatePath(`/teachers/${teacherId}`)
 
-  return {
-    success: true,
-  }
+  return okVoid()
 }
 
 /**
@@ -83,12 +112,12 @@ export async function assignStudentToTeacher(
 export async function reassignStudent(
   studentId: string,
   newTeacherId: string
-) {
+): Promise<ActionResult<{ previousTeacherId: string | null; newTeacherId: string }>> {
   const session = await verifySession()
 
   // RBAC: DIRECTOR, TEAM_LEADER만 재배정 가능
   if (session.role !== "DIRECTOR" && session.role !== "TEAM_LEADER") {
-    throw new Error("재배정 권한이 없습니다.")
+    return fail("재배정 권한이 없습니다.")
   }
 
   // Student 조회
@@ -101,7 +130,7 @@ export async function reassignStudent(
   })
 
   if (!student) {
-    throw new Error("학생을 찾을 수 없습니다.")
+    return fail("학생을 찾을 수 없습니다.")
   }
 
   const previousTeacherId = student.teacherId
@@ -112,7 +141,7 @@ export async function reassignStudent(
   })
 
   if (!newTeacher) {
-    throw new Error("새 선생님을 찾을 수 없습니다.")
+    return fail("새 선생님을 찾을 수 없습니다.")
   }
 
   // Student.teacherId 업데이트
@@ -123,7 +152,7 @@ export async function reassignStudent(
     })
   } catch (error) {
     console.error("Failed to reassign student:", error)
-    throw new Error("학생 재배정 중 오류가 발생했습니다.")
+    return fail("학생 재배정 중 오류가 발생했습니다.")
   }
 
   // 캐시 무효화
@@ -134,11 +163,7 @@ export async function reassignStudent(
     revalidatePath(`/teachers/${previousTeacherId}`)
   }
 
-  return {
-    success: true,
-    previousTeacherId,
-    newTeacherId,
-  }
+  return ok({ previousTeacherId, newTeacherId })
 }
 
 /**
@@ -153,16 +178,16 @@ export async function reassignStudent(
 export async function assignStudentBatch(
   studentIds: string[],
   teacherId: string
-) {
+): Promise<ActionResult<{ count: number }>> {
   const session = await verifySession()
 
   // RBAC: DIRECTOR, TEAM_LEADER만 배정 가능
   if (session.role !== "DIRECTOR" && session.role !== "TEAM_LEADER") {
-    throw new Error("배정 권한이 없습니다.")
+    return fail("배정 권한이 없습니다.")
   }
 
   if (studentIds.length === 0) {
-    throw new Error("배정할 학생을 선택해주세요.")
+    return fail("배정할 학생을 선택해주세요.")
   }
 
   // Teacher 조회 (본인 팀 데이터만)
@@ -171,7 +196,7 @@ export async function assignStudentBatch(
   })
 
   if (!teacher) {
-    throw new Error("선생님을 찾을 수 없습니다.")
+    return fail("선생님을 찾을 수 없습니다.")
   }
 
   // Promise.all로 일괄 업데이트
@@ -186,7 +211,7 @@ export async function assignStudentBatch(
     )
   } catch (error) {
     console.error("Failed to assign students batch:", error)
-    throw new Error("학생 일괄 배정 중 오류가 발생했습니다.")
+    return fail("학생 일괄 배정 중 오류가 발생했습니다.")
   }
 
   // 캐시 무효화
@@ -194,10 +219,7 @@ export async function assignStudentBatch(
   revalidatePath("/students")
   revalidatePath(`/teachers/${teacherId}`)
 
-  return {
-    success: true,
-    count: studentIds.length,
-  }
+  return ok({ count: studentIds.length })
 }
 
 /**
@@ -209,7 +231,9 @@ export async function assignStudentBatch(
  * @param studentId - 학생 ID
  * @returns 추천 선생님 목록 (score.overall 내림차순 정렬)
  */
-export async function getTeacherRecommendations(studentId: string) {
+export async function getTeacherRecommendations(
+  studentId: string
+): Promise<ActionResult<TeacherRecommendationsData>> {
   await verifySession() // RLS 적용을 위해 세션 확인
 
   // Student 조회
@@ -222,7 +246,7 @@ export async function getTeacherRecommendations(studentId: string) {
   })
 
   if (!student) {
-    throw new Error("학생을 찾을 수 없어요.")
+    return fail("학생을 찾을 수 없어요.")
   }
 
   // 공유 함수로 학생 분석 데이터 조회
@@ -248,11 +272,11 @@ export async function getTeacherRecommendations(studentId: string) {
   })
 
   if (teachers.length === 0) {
-    return {
+    return ok({
       studentId: student.id,
       studentName: student.name,
       recommendations: [],
-    }
+    })
   }
 
   // 공유 함수로 선생님 배치 분석 데이터 조회
@@ -297,11 +321,11 @@ export async function getTeacherRecommendations(studentId: string) {
   // score.overall 내림차순 정렬
   recommendations.sort((a, b) => b.score.overall - a.score.overall)
 
-  return {
+  return ok({
     studentId: student.id,
     studentName: student.name,
     recommendations,
-  }
+  })
 }
 
 /**
@@ -316,12 +340,12 @@ export async function getTeacherRecommendations(studentId: string) {
 export async function generateAutoAssignmentSuggestions(
   studentIds: string[],
   options: AutoAssignmentOptions = {}
-) {
+): Promise<ActionResult<AutoAssignmentSuggestionData>> {
   const session = await verifySession()
 
   // RBAC: DIRECTOR, TEAM_LEADER만 사용 가능
   if (session.role !== "DIRECTOR" && session.role !== "TEAM_LEADER") {
-    throw new Error("자동 배정 제안 생성 권한이 없습니다.")
+    return fail("자동 배정 제안 생성 권한이 없습니다.")
   }
 
   // 자동 배정 생성
@@ -354,11 +378,11 @@ export async function generateAutoAssignmentSuggestions(
         : 0,
   }
 
-  return {
+  return ok({
     assignments,
     fairnessMetrics,
     summary,
-  }
+  })
 }
 
 /**
@@ -369,16 +393,18 @@ export async function generateAutoAssignmentSuggestions(
  * @param assignments - 배정 목록
  * @returns 적용 결과 (success, count)
  */
-export async function applyAutoAssignment(assignments: Assignment[]) {
+export async function applyAutoAssignment(
+  assignments: Assignment[]
+): Promise<ActionResult<{ count: number }>> {
   const session = await verifySession()
 
   // RBAC: DIRECTOR, TEAM_LEADER만 적용 가능
   if (session.role !== "DIRECTOR" && session.role !== "TEAM_LEADER") {
-    throw new Error("자동 배정 적용 권한이 없습니다.")
+    return fail("자동 배정 적용 권한이 없습니다.")
   }
 
   if (assignments.length === 0) {
-    throw new Error("적용할 배정이 없습니다.")
+    return fail("적용할 배정이 없습니다.")
   }
 
   // Promise.all로 일괄 업데이트
@@ -393,15 +419,12 @@ export async function applyAutoAssignment(assignments: Assignment[]) {
     )
   } catch (error) {
     console.error("Failed to apply auto assignments:", error)
-    throw new Error("자동 배정 적용 중 오류가 발생했습니다.")
+    return fail("자동 배정 적용 중 오류가 발생했습니다.")
   }
 
   // 캐시 무효화
   revalidatePath("/matching")
   revalidatePath("/students")
 
-  return {
-    success: true,
-    count: assignments.length,
-  }
+  return ok({ count: assignments.length })
 }

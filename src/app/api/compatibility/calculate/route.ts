@@ -61,20 +61,19 @@ export async function POST(request: Request) {
   // 궁합 분석 실행
   try {
     const result = await analyzeCompatibility(teacherId, studentId)
-    return NextResponse.json(result, { status: 200 })
+    if (!result.success) {
+      const errorMsg = result.error ?? "궁합 분석에 실패했습니다."
+      // 404 Not Found: Teacher or Student not found
+      if (errorMsg.includes("찾을 수 없어요")) {
+        return NextResponse.json({ error: errorMsg }, { status: 404 })
+      }
+      return NextResponse.json({ error: errorMsg }, { status: 400 })
+    }
+    return NextResponse.json({ success: true, score: result.data.score }, { status: 200 })
   } catch (error) {
+    // 500 Internal Server Error: Other errors
     const errorMessage =
       error instanceof Error ? error.message : "Failed to calculate compatibility"
-
-    // 404 Not Found: Teacher or Student not found
-    if (
-      errorMessage.includes("선생님을 찾을 수 없어요") ||
-      errorMessage.includes("학생을 찾을 수 없어요")
-    ) {
-      return NextResponse.json({ error: errorMessage }, { status: 404 })
-    }
-
-    // 500 Internal Server Error: Other errors
     console.error("Compatibility calculation error:", error)
     return NextResponse.json({ error: errorMessage }, { status: 500 })
   }

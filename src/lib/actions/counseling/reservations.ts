@@ -15,27 +15,23 @@ import type {
   CreateReservationInput,
   UpdateReservationInput,
 } from '@/lib/validations/reservations'
+import { ok, fail, fieldError, type ActionResult } from '@/lib/errors/action-result'
 
 /**
- * 예약 생성 결과 타입
+ * 예약 데이터 타입
  */
-export type CreateReservationResult = {
-  success: boolean
-  data?: {
-    id: string
-    scheduledAt: Date
-    student: { id: string; name: string }
-    parent: { id: string; name: string; relation: string }
-    teacher: { id: string; name: string }
-  }
-  error?: string
-  fieldErrors?: {
-    scheduledAt?: string[]
-    studentId?: string[]
-    parentId?: string[]
-    topic?: string[]
-  }
+type ReservationData = {
+  id: string
+  scheduledAt: Date
+  student: { id: string; name: string }
+  parent: { id: string; name: string; relation: string }
+  teacher: { id: string; name: string }
 }
+
+/**
+ * 예약 생성 결과 타입 (ActionResult 기반)
+ */
+export type CreateReservationResult = ActionResult<ReservationData>
 
 // 조회 함수 re-export (reservations-query.ts에서 분리)
 export {
@@ -74,10 +70,7 @@ export async function createReservationAction(
   const validationResult = createReservationSchema.safeParse(input)
 
   if (!validationResult.success) {
-    return {
-      success: false,
-      fieldErrors: validationResult.error.flatten().fieldErrors,
-    }
+    return fieldError(validationResult.error.flatten().fieldErrors as Record<string, string[]>)
   }
 
   const { scheduledAt, studentId, parentId, topic } = validationResult.data
@@ -97,10 +90,7 @@ export async function createReservationAction(
     })
 
     if (!student) {
-      return {
-        success: false,
-        error: '학생을 찾을 수 없습니다.',
-      }
+      return fail('학생을 찾을 수 없습니다.')
     }
 
     // 5. 학부모 검증 (해당 학생의 학부모인지 확인)
@@ -112,10 +102,7 @@ export async function createReservationAction(
     })
 
     if (!parent) {
-      return {
-        success: false,
-        error: '학부모를 찾을 수 없습니다.',
-      }
+      return fail('학부모를 찾을 수 없습니다.')
     }
 
     // 6. 중복 검증과 함께 예약 생성
@@ -131,54 +118,29 @@ export async function createReservationAction(
     revalidatePath('/reservations')
     revalidatePath(`/students/${studentId}`)
 
-    return {
-      success: true,
-      data: {
-        id: reservation.id,
-        scheduledAt: reservation.scheduledAt,
-        student: reservation.student,
-        parent: reservation.parent,
-        teacher: reservation.teacher,
-      },
-    }
+    return ok({
+      id: reservation.id,
+      scheduledAt: reservation.scheduledAt,
+      student: reservation.student,
+      parent: reservation.parent,
+      teacher: reservation.teacher,
+    })
   } catch (error) {
     console.error('Failed to create reservation:', error)
 
     // 중복 에러 처리
     if (error instanceof Error && error.message === '이미 해당 시간대에 예약이 있습니다') {
-      return {
-        success: false,
-        error: error.message,
-      }
+      return fail(error.message)
     }
 
-    return {
-      success: false,
-      error: '예약 생성 중 오류가 발생했습니다.',
-    }
+    return fail('예약 생성 중 오류가 발생했습니다.')
   }
 }
 
 /**
- * 예약 수정 결과 타입
+ * 예약 수정 결과 타입 (ActionResult 기반)
  */
-export type UpdateReservationResult = {
-  success: boolean
-  data?: {
-    id: string
-    scheduledAt: Date
-    student: { id: string; name: string }
-    parent: { id: string; name: string; relation: string }
-    teacher: { id: string; name: string }
-  }
-  error?: string
-  fieldErrors?: {
-    scheduledAt?: string[]
-    studentId?: string[]
-    parentId?: string[]
-    topic?: string[]
-  }
-}
+export type UpdateReservationResult = ActionResult<ReservationData>
 
 /**
  * 예약 수정 액션
@@ -195,20 +157,14 @@ export async function updateReservationAction(
   const session = await verifySession()
 
   if (!session) {
-    return {
-      success: false,
-      error: '인증되지 않은 요청입니다.',
-    }
+    return fail('인증되지 않은 요청입니다.')
   }
 
   // 2. Zod 스키마 검증
   const validationResult = reservationUpdateSchema.safeParse(input)
 
   if (!validationResult.success) {
-    return {
-      success: false,
-      fieldErrors: validationResult.error.flatten().fieldErrors,
-    }
+    return fieldError(validationResult.error.flatten().fieldErrors as Record<string, string[]>)
   }
 
   const { reservationId, scheduledAt, studentId, parentId, topic } =
@@ -232,10 +188,7 @@ export async function updateReservationAction(
     })
 
     if (!existingReservation) {
-      return {
-        success: false,
-        error: '예약을 찾을 수 없습니다.',
-      }
+      return fail('예약을 찾을 수 없습니다.')
     }
 
     // 5. 학생 변경 시 권한 확인
@@ -246,10 +199,7 @@ export async function updateReservationAction(
       })
 
       if (!student) {
-        return {
-          success: false,
-          error: '학생을 찾을 수 없습니다.',
-        }
+        return fail('학생을 찾을 수 없습니다.')
       }
     }
 
@@ -264,10 +214,7 @@ export async function updateReservationAction(
       })
 
       if (!parent) {
-        return {
-          success: false,
-          error: '학부모를 찾을 수 없습니다.',
-        }
+        return fail('학부모를 찾을 수 없습니다.')
       }
     }
 
@@ -286,38 +233,26 @@ export async function updateReservationAction(
     revalidatePath(`/reservations/${reservationId}`)
     revalidatePath(`/students/${targetStudentId}`)
 
-    return {
-      success: true,
-      data: {
-        id: updatedReservation.id,
-        scheduledAt: updatedReservation.scheduledAt,
-        student: updatedReservation.student,
-        parent: updatedReservation.parent,
-        teacher: updatedReservation.teacher,
-      },
-    }
+    return ok({
+      id: updatedReservation.id,
+      scheduledAt: updatedReservation.scheduledAt,
+      student: updatedReservation.student,
+      parent: updatedReservation.parent,
+      teacher: updatedReservation.teacher,
+    })
   } catch (error) {
     console.error('Failed to update reservation:', error)
 
     // 에러 메시지 처리
     if (error instanceof Error) {
       if (error.message === '이미 완료된 예약은 수정할 수 없습니다') {
-        return {
-          success: false,
-          error: error.message,
-        }
+        return fail(error.message)
       }
       if (error.message === '이미 해당 시간대에 예약이 있습니다') {
-        return {
-          success: false,
-          error: error.message,
-        }
+        return fail(error.message)
       }
     }
 
-    return {
-      success: false,
-      error: '예약 수정 중 오류가 발생했습니다.',
-    }
+    return fail('예약 수정 중 오류가 발생했습니다.')
   }
 }

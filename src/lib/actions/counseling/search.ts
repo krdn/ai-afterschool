@@ -4,6 +4,7 @@ import { db } from '@/lib/db'
 import { verifySession } from '@/lib/dal'
 import { getRBACPrisma } from '@/lib/db/common/rbac'
 import type { CounselingType, Prisma } from '@prisma/client'
+import { ok, fail, type ActionResult } from '@/lib/errors/action-result'
 
 /**
  * 상담 기록 통합 검색 파라미터
@@ -50,18 +51,11 @@ export interface CounselingSearchResult {
  */
 export async function searchCounselingSessions(
   params: CounselingSearchParams
-): Promise<{
-  success: boolean
-  data?: CounselingSearchResult[]
-  error?: string
-}> {
+): Promise<ActionResult<CounselingSearchResult[]>> {
   const session = await verifySession()
 
   if (!session) {
-    return {
-      success: false,
-      error: '인증되지 않은 요청입니다.',
-    }
+    return fail('인증되지 않은 요청입니다.')
   }
 
   const rbacDb = getRBACPrisma(session)
@@ -148,15 +142,9 @@ export async function searchCounselingSessions(
       take: 100,
     })
 
-    return {
-      success: true,
-      data: sessions as CounselingSearchResult[],
-    }
+    return ok(sessions as CounselingSearchResult[])
   } catch (error) {
     console.error('Failed to search counseling sessions:', error)
-    return {
-      success: false,
-      error: '상담 기록 검색 중 오류가 발생했습니다.',
-    }
+    return fail('상담 기록 검색 중 오류가 발생했습니다.')
   }
 }

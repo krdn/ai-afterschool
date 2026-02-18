@@ -8,6 +8,7 @@ import { getUnifiedPersonalityData, upsertPersonalitySummary } from "@/lib/db/st
 import { getCompatibilityResult } from "@/lib/db/matching/compatibility-result"
 import { generateWithProvider, FailoverError } from "@/lib/ai/universal-router"
 import { buildCounselingSummaryPrompt, buildPersonalitySummaryPrompt } from "@/lib/ai/counseling-prompts"
+import { ok, fail, okVoid, type ActionResult, type ActionVoidResult } from "@/lib/errors/action-result"
 
 // Validation schemas
 // Note: studentId can be CUID or custom format like "student-001" from seed data
@@ -39,21 +40,17 @@ export type AISupportData = {
  * @param studentId - 학생 ID
  * @returns AI 지원 데이터 또는 에러
  */
-export async function getStudentAISupportDataAction(studentId: string): Promise<{
-  success: boolean
-  data?: AISupportData
-  error?: string
-}> {
+export async function getStudentAISupportDataAction(studentId: string): Promise<ActionResult<AISupportData>> {
   // 1. 인증 확인
   const session = await verifySession()
   if (!session?.userId) {
-    return { success: false, error: "인증되지 않았습니다." }
+    return fail("인증되지 않았습니다.")
   }
 
   // 2. 입력 검증
   const parseResult = studentIdSchema.safeParse(studentId)
   if (!parseResult.success) {
-    return { success: false, error: "유효하지 않은 학생 ID입니다." }
+    return fail("유효하지 않은 학생 ID입니다.")
   }
 
   // 3. 학생 조회 (teacherId로 권한 확인)
@@ -75,7 +72,7 @@ export async function getStudentAISupportDataAction(studentId: string): Promise<
   })
 
   if (!student) {
-    return { success: false, error: "학생을 찾을 수 없거나 접근 권한이 없습니다." }
+    return fail("학생을 찾을 수 없거나 접근 권한이 없습니다.")
   }
 
   // 4. 궁합 점수 조회
@@ -111,7 +108,7 @@ export async function getStudentAISupportDataAction(studentId: string): Promise<
     hasAnalysisData,
   }
 
-  return { success: true, data }
+  return ok(data)
 }
 
 /**
@@ -125,21 +122,17 @@ export async function getStudentAISupportDataAction(studentId: string): Promise<
  * @param sessionId - 상담 세션 ID
  * @returns 생성된 AI 요약 또는 에러
  */
-export async function generateCounselingSummaryAction(sessionId: string): Promise<{
-  success: boolean
-  data?: string
-  error?: string
-}> {
+export async function generateCounselingSummaryAction(sessionId: string): Promise<ActionResult<string>> {
   // 1. 인증 확인
   const session = await verifySession()
   if (!session?.userId) {
-    return { success: false, error: "인증되지 않았습니다." }
+    return fail("인증되지 않았습니다.")
   }
 
   // 2. 입력 검증
   const parseResult = sessionIdSchema.safeParse(sessionId)
   if (!parseResult.success) {
-    return { success: false, error: "유효하지 않은 세션 ID입니다." }
+    return fail("유효하지 않은 세션 ID입니다.")
   }
 
   // 3. 상담 세션 조회 (teacherId로 권한 확인)
@@ -159,7 +152,7 @@ export async function generateCounselingSummaryAction(sessionId: string): Promis
   })
 
   if (!counselingSession) {
-    return { success: false, error: "상담 세션을 찾을 수 없거나 접근 권한이 없습니다." }
+    return fail("상담 세션을 찾을 수 없거나 접근 권한이 없습니다.")
   }
 
   // 4. 학생 성향 정보 조회
@@ -219,7 +212,7 @@ export async function generateCounselingSummaryAction(sessionId: string): Promis
       )
     }
 
-    return { success: true, data: response.text }
+    return ok(response.text)
   } catch (error) {
     console.error("Failed to generate counseling summary:", error)
 
@@ -229,13 +222,10 @@ export async function generateCounselingSummaryAction(sessionId: string): Promis
         `[Counseling Summary] All providers failed (${error.totalAttempts} attempts):`,
         error.errors.map((e) => `${e.provider}: ${e.error.message}`).join("; ")
       )
-      return { success: false, error: error.userMessage }
+      return fail(error.userMessage)
     }
 
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "AI 요약 생성에 실패했습니다.",
-    }
+    return fail(error instanceof Error ? error.message : "AI 요약 생성에 실패했습니다.")
   }
 }
 
@@ -255,25 +245,21 @@ export async function generateCounselingSummaryFromContentAction(
   studentId: string,
   content: string,
   sessionType: string = "ACADEMIC"
-): Promise<{
-  success: boolean
-  data?: string
-  error?: string
-}> {
+): Promise<ActionResult<string>> {
   // 1. 인증 확인
   const session = await verifySession()
   if (!session?.userId) {
-    return { success: false, error: "인증되지 않았습니다." }
+    return fail("인증되지 않았습니다.")
   }
 
   // 2. 입력 검증
   const parseResult = studentIdSchema.safeParse(studentId)
   if (!parseResult.success) {
-    return { success: false, error: "유효하지 않은 학생 ID입니다." }
+    return fail("유효하지 않은 학생 ID입니다.")
   }
 
   if (!content || content.trim().length < 10) {
-    return { success: false, error: "상담 내용이 너무 짧습니다. (최소 10자)" }
+    return fail("상담 내용이 너무 짧습니다. (최소 10자)")
   }
 
   // 3. 학생 조회 (teacherId로 권한 확인)
@@ -289,7 +275,7 @@ export async function generateCounselingSummaryFromContentAction(
   })
 
   if (!student) {
-    return { success: false, error: "학생을 찾을 수 없거나 접근 권한이 없습니다." }
+    return fail("학생을 찾을 수 없거나 접근 권한이 없습니다.")
   }
 
   // 4. 학생 성향 정보 조회 (선택적)
@@ -322,7 +308,7 @@ export async function generateCounselingSummaryFromContentAction(
       )
     }
 
-    return { success: true, data: response.text }
+    return ok(response.text)
   } catch (error) {
     console.error("Failed to generate counseling summary:", error)
 
@@ -332,13 +318,10 @@ export async function generateCounselingSummaryFromContentAction(
         `[Counseling Summary] All providers failed (${error.totalAttempts} attempts):`,
         error.errors.map((e) => `${e.provider}: ${e.error.message}`).join("; ")
       )
-      return { success: false, error: error.userMessage }
+      return fail(error.userMessage)
     }
 
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "AI 요약 생성에 실패했습니다.",
-    }
+    return fail(error instanceof Error ? error.message : "AI 요약 생성에 실패했습니다.")
   }
 }
 
@@ -354,24 +337,21 @@ export async function generateCounselingSummaryFromContentAction(
 export async function saveAISummaryAction(
   sessionId: string,
   aiSummary: string
-): Promise<{
-  success: boolean
-  error?: string
-}> {
+): Promise<ActionVoidResult> {
   // 1. 인증 확인
   const session = await verifySession()
   if (!session?.userId) {
-    return { success: false, error: "인증되지 않았습니다." }
+    return fail("인증되지 않았습니다.")
   }
 
   // 2. 입력 검증
   const parseResult = sessionIdSchema.safeParse(sessionId)
   if (!parseResult.success) {
-    return { success: false, error: "유효하지 않은 세션 ID입니다." }
+    return fail("유효하지 않은 세션 ID입니다.")
   }
 
   if (!aiSummary || aiSummary.trim().length === 0) {
-    return { success: false, error: "AI 요약 내용이 비어있습니다." }
+    return fail("AI 요약 내용이 비어있습니다.")
   }
 
   // 3. 상담 세션 조회 (teacherId로 권한 확인)
@@ -383,7 +363,7 @@ export async function saveAISummaryAction(
   })
 
   if (!counselingSession) {
-    return { success: false, error: "상담 세션을 찾을 수 없거나 접근 권한이 없습니다." }
+    return fail("상담 세션을 찾을 수 없거나 접근 권한이 없습니다.")
   }
 
   // 4. aiSummary 필드 업데이트
@@ -396,13 +376,10 @@ export async function saveAISummaryAction(
     // 5. 페이지 갱신
     revalidatePath(`/students/${counselingSession.studentId}`)
 
-    return { success: true }
+    return okVoid()
   } catch (error) {
     console.error("Failed to save AI summary:", error)
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "AI 요약 저장에 실패했습니다.",
-    }
+    return fail(error instanceof Error ? error.message : "AI 요약 저장에 실패했습니다.")
   }
 }
 
@@ -416,21 +393,17 @@ export async function saveAISummaryAction(
  * @param studentId - 학생 ID
  * @returns 생성된 성향 요약 또는 에러
  */
-export async function generatePersonalitySummaryAction(studentId: string): Promise<{
-  success: boolean
-  data?: string
-  error?: string
-}> {
+export async function generatePersonalitySummaryAction(studentId: string): Promise<ActionResult<string>> {
   // 1. 인증 확인
   const session = await verifySession()
   if (!session?.userId) {
-    return { success: false, error: "인증되지 않았습니다." }
+    return fail("인증되지 않았습니다.")
   }
 
   // 2. 입력 검증
   const parseResult = studentIdSchema.safeParse(studentId)
   if (!parseResult.success) {
-    return { success: false, error: "유효하지 않은 학생 ID입니다." }
+    return fail("유효하지 않은 학생 ID입니다.")
   }
 
   // 3. 학생 조회 (teacherId로 권한 확인)
@@ -446,14 +419,14 @@ export async function generatePersonalitySummaryAction(studentId: string): Promi
   })
 
   if (!student) {
-    return { success: false, error: "학생을 찾을 수 없거나 접근 권한이 없습니다." }
+    return fail("학생을 찾을 수 없거나 접근 권한이 없습니다.")
   }
 
   // 4. 학생 성향 데이터 조회
   const personalityData = await getUnifiedPersonalityData(studentId, session.userId)
 
   if (!personalityData) {
-    return { success: false, error: "성향 데이터를 찾을 수 없습니다." }
+    return fail("성향 데이터를 찾을 수 없습니다.")
   }
 
   // 최소 1개 이상의 분석이 있는지 확인
@@ -466,7 +439,7 @@ export async function generatePersonalitySummaryAction(studentId: string): Promi
   ].some(Boolean)
 
   if (!hasAnalysisData) {
-    return { success: false, error: "최소 1개 이상의 분석이 필요합니다." }
+    return fail("최소 1개 이상의 분석이 필요합니다.")
   }
 
   // 5. 프롬프트 빌더로 프롬프트 생성
@@ -504,7 +477,7 @@ export async function generatePersonalitySummaryAction(studentId: string): Promi
     // 8. 페이지 갱신
     revalidatePath(`/students/${studentId}`)
 
-    return { success: true, data: summary }
+    return ok(summary)
   } catch (error) {
     console.error("Failed to generate personality summary:", error)
 
@@ -522,7 +495,7 @@ export async function generatePersonalitySummaryAction(studentId: string): Promi
         errorMessage: error.userMessage,
       })
 
-      return { success: false, error: error.userMessage }
+      return fail(error.userMessage)
     }
 
     // 에러 상태 저장
@@ -532,9 +505,6 @@ export async function generatePersonalitySummaryAction(studentId: string): Promi
       errorMessage: error instanceof Error ? error.message : "알 수 없는 오류",
     })
 
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "성향 요약 생성에 실패했습니다.",
-    }
+    return fail(error instanceof Error ? error.message : "성향 요약 생성에 실패했습니다.")
   }
 }

@@ -70,7 +70,11 @@ export function AutoAssignmentSuggestion({
       const result = await generateAutoAssignmentSuggestions(studentIds, {
         maxStudentsPerTeacher: Math.ceil(allStudents.length / 3) + 2,
       })
-      setSuggestion(result)
+      if (!result.success) {
+        toast.error(result.error)
+        return
+      }
+      setSuggestion(result.data)
       toast.success('자동 배정 제안이 생성되었습니다.')
     } catch (error) {
       toast.error(
@@ -92,7 +96,11 @@ export function AutoAssignmentSuggestion({
     setIsApplying(true)
     try {
       const result = await applyAutoAssignment(suggestion.assignments)
-      toast.success(`${result.count}명의 학생이 성공적으로 배정되었습니다.`)
+      if (!result.success) {
+        toast.error(result.error)
+        return
+      }
+      toast.success(`${result.data.count}명의 학생이 성공적으로 배정되었습니다.`)
       setSuggestion(null)
       router.refresh()
     } catch (error) {

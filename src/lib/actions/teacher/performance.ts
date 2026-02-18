@@ -4,6 +4,7 @@ import { verifySession } from '@/lib/dal'
 import { getRBACPrisma } from '@/lib/db/common/rbac'
 import { db } from '@/lib/db'
 import type { TeacherRole } from '@/lib/db/common/rbac'
+import { ok, fail, type ActionResult } from "@/lib/errors/action-result"
 
 export interface TeacherStudentMetrics {
   totalStudents: number
@@ -73,16 +74,16 @@ async function checkTeacherAccess(
 export async function getTeacherStudents(
   teacherId: string,
   options?: GetTeacherStudentsOptions
-): Promise<{ data: StudentWithMetrics[] } | { error: string }> {
+): Promise<ActionResult<StudentWithMetrics[]>> {
   try {
     const session = await verifySession()
     if (!session) {
-      return { error: 'Unauthorized' }
+      return fail('Unauthorized')
     }
 
     const canAccess = await checkTeacherAccess(session, teacherId)
     if (!canAccess) {
-      return { error: 'Access Denied' }
+      return fail('Access Denied')
     }
 
     const rbacDb = getRBACPrisma(session)
@@ -191,25 +192,25 @@ export async function getTeacherStudents(
       })
     }
 
-    return { data: filteredStudents }
+    return ok(filteredStudents)
   } catch (error) {
     console.error('getTeacherStudents error:', error)
-    return { error: 'Failed to fetch teacher students' }
+    return fail('Failed to fetch teacher students')
   }
 }
 
 export async function getTeacherStudentMetrics(
   teacherId: string
-): Promise<{ data: TeacherStudentMetrics } | { error: string }> {
+): Promise<ActionResult<TeacherStudentMetrics>> {
   try {
     const session = await verifySession()
     if (!session) {
-      return { error: 'Unauthorized' }
+      return fail('Unauthorized')
     }
 
     const canAccess = await checkTeacherAccess(session, teacherId)
     if (!canAccess) {
-      return { error: 'Access Denied' }
+      return fail('Access Denied')
     }
 
     const rbacDb = getRBACPrisma(session)
@@ -219,15 +220,13 @@ export async function getTeacherStudentMetrics(
     })
 
     if (totalStudents === 0) {
-      return {
-        data: {
-          totalStudents: 0,
-          averageGradeChange: 0,
-          totalCounselingSessions: 0,
-          averageCompatibilityScore: 0,
-          subjectDistribution: {},
-        },
-      }
+      return ok({
+        totalStudents: 0,
+        averageGradeChange: 0,
+        totalCounselingSessions: 0,
+        averageCompatibilityScore: 0,
+        subjectDistribution: {},
+      })
     }
 
     const students = await rbacDb.student.findMany({
@@ -302,29 +301,27 @@ export async function getTeacherStudentMetrics(
       }
     }
 
-    return {
-      data: {
-        totalStudents,
-        averageGradeChange,
-        totalCounselingSessions,
-        averageCompatibilityScore,
-        subjectDistribution,
-      },
-    }
+    return ok({
+      totalStudents,
+      averageGradeChange,
+      totalCounselingSessions,
+      averageCompatibilityScore,
+      subjectDistribution,
+    })
   } catch (error) {
     console.error('getTeacherStudentMetrics error:', error)
-    return { error: 'Failed to fetch teacher metrics' }
+    return fail('Failed to fetch teacher metrics')
   }
 }
 
 export async function getStudentGradeTrend(
   studentId: string,
   months: number = 6
-): Promise<{ data: GradeTrendData[] } | { error: string }> {
+): Promise<ActionResult<GradeTrendData[]>> {
   try {
     const session = await verifySession()
     if (!session) {
-      return { error: 'Unauthorized' }
+      return fail('Unauthorized')
     }
 
     const rbacDb = getRBACPrisma(session)
@@ -335,7 +332,7 @@ export async function getStudentGradeTrend(
     })
 
     if (!student) {
-      return { error: 'Student not found' }
+      return fail('Student not found')
     }
 
     const canAccess =
@@ -345,7 +342,7 @@ export async function getStudentGradeTrend(
         student.teacherId === session.userId)
 
     if (!canAccess) {
-      return { error: 'Access Denied' }
+      return fail('Access Denied')
     }
 
     const startDate = new Date()
@@ -381,9 +378,9 @@ export async function getStudentGradeTrend(
       })
     )
 
-    return { data: trendData }
+    return ok(trendData)
   } catch (error) {
     console.error('getStudentGradeTrend error:', error)
-    return { error: 'Failed to fetch grade trend' }
+    return fail('Failed to fetch grade trend')
   }
 }

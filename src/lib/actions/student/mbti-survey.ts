@@ -16,6 +16,7 @@ import { MBTI_INTERPRETATION_PROMPT } from "@/lib/ai/prompts"
 import { getMbtiPrompt, type MbtiPromptId } from "@/lib/ai/mbti-prompts"
 import type { ProviderName } from "@/lib/ai/providers/types"
 import { eventBus } from "@/lib/events/event-bus"
+import { ok, fail, type ActionResult } from "@/lib/errors/action-result"
 import questions from "@/data/mbti/questions.json"
 import descriptions from "@/data/mbti/descriptions.json"
 
@@ -71,10 +72,7 @@ export async function saveMbtiDraft(
   // Draft 저장
   await upsertMbtiDraft(studentId, responses, progress.answeredCount)
 
-  return {
-    success: true,
-    progress: progress.answeredCount,
-  }
+  return ok({ progress: progress.answeredCount })
 }
 
 /**
@@ -159,14 +157,11 @@ ${typeDescription.famousPeople.join(", ")}
   // 캐시 무효화
   revalidatePath(`/students/${studentId}`)
 
-  return {
-    success: true,
-    result: {
-      mbtiType: result.mbtiType,
-      percentages: result.percentages,
-      interpretation,
-    },
-  }
+  return ok({
+    mbtiType: result.mbtiType,
+    percentages: result.percentages,
+    interpretation,
+  })
 }
 
 /**
@@ -277,14 +272,11 @@ ${typeDescription.famousPeople.join(", ")}
   // 캐시 무효화
   revalidatePath(`/students/${studentId}`)
 
-  return {
-    success: true,
-    result: {
-      mbtiType: data.mbtiType,
-      percentages: data.percentages,
-      interpretation,
-    },
-  }
+  return ok({
+    mbtiType: data.mbtiType,
+    percentages: data.percentages,
+    interpretation,
+  })
 }
 
 /**
@@ -340,8 +332,5 @@ export async function generateMbtiLLMInterpretation(
 
   revalidatePath(`/students/${studentId}`)
 
-  return {
-    success: true,
-    interpretation: llmResult.text,
-  }
+  return ok({ interpretation: llmResult.text })
 }

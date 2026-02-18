@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { Prisma } from "@prisma/client";
 import { eventBus } from "@/lib/events/event-bus";
+import { ok, fail, type ActionResult } from "@/lib/errors/action-result";
 
 // 분석 결과 스키마
 const AnalysisSchema = z.object({
@@ -94,11 +95,11 @@ export async function generateAnalysis(studentId: string) {
         // 5. 페이지 갱신
         revalidatePath(`/students/${studentId}`);
 
-        return { success: true, data: mockResult };
+        return ok(mockResult);
 
     } catch (error) {
         console.error("Analysis generation failed:", error);
-        return { success: false, error: "분석 생성 중 오류가 발생했습니다." };
+        return fail("분석 생성 중 오류가 발생했습니다.");
     }
 }
 
@@ -130,8 +131,7 @@ export async function getAnalysisHistory(
                     take: 50,
                 })
                 if (sajuHistoryList.length > 0) {
-                    return {
-                        success: true,
+                    return ok({
                         history: sajuHistoryList.map((h) => ({
                             id: h.id,
                             calculatedAt: h.calculatedAt,
@@ -143,7 +143,8 @@ export async function getAnalysisHistory(
                             usedProvider: h.usedProvider,
                             usedModel: h.usedModel,
                         })),
-                    }
+                        note: "사주 분석 이력입니다.",
+                    })
                 }
                 // 이력 테이블에 없으면 기존 SajuAnalysis에서 폴백
                 const sajuAnalysis = await prisma.sajuAnalysis.findUnique({
@@ -256,19 +257,14 @@ export async function getAnalysisHistory(
                 break
         }
 
-        return {
-            success: true,
+        return ok({
             history: historyItem ? [historyItem] : [],
             note: historyItem
                 ? "현재 스키마에서는 최신 분석 결과 1개만 표시됩니다. 이력 기능은 향후 개선 예정입니다."
                 : "분석 이력이 없습니다."
-        }
+        })
     } catch (error) {
         console.error(`Failed to fetch ${type} analysis history:`, error)
-        return {
-            success: false,
-            history: [],
-            error: `${type} 분석 이력 조회 중 오류가 발생했습니다.`
-        }
+        return fail(`${type} 분석 이력 조회 중 오류가 발생했습니다.`)
     }
 }

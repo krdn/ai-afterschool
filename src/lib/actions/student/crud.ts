@@ -17,6 +17,7 @@ import {
 } from "@/lib/validations/student-images"
 import { setStudentImage } from "@/lib/actions/student/images"
 import { markStudentRecalculationNeeded } from "@/lib/db/student/analysis"
+import { ok, fail, type ActionResult } from "@/lib/errors/action-result"
 
 export type StudentFormState = {
   errors?: {
@@ -447,15 +448,15 @@ export type StudentWithParents = {
   }>
 }
 
-export type GetStudentsResult = {
-  success: boolean
-  data?: StudentWithParents[]
+export type StudentListData = {
+  data: StudentWithParents[]
   total?: number
   page?: number
   pageSize?: number
   totalPages?: number
-  error?: string
 }
+
+export type GetStudentsResult = ActionResult<StudentListData>
 
 /**
  * 학생 목록 조회 액션
@@ -471,10 +472,7 @@ export async function getStudentsAction(pagination?: {
   const session = await verifySession()
 
   if (!session) {
-    return {
-      success: false,
-      error: "인증되지 않은 요청입니다.",
-    }
+    return fail("인증되지 않은 요청입니다.")
   }
 
   try {
@@ -504,10 +502,7 @@ export async function getStudentsAction(pagination?: {
         orderBy: { name: "asc" },
       })
 
-      return {
-        success: true,
-        data: students,
-      }
+      return ok({ data: students })
     }
 
     // 페이지네이션 적용
@@ -526,19 +521,15 @@ export async function getStudentsAction(pagination?: {
       db.student.count({ where }),
     ])
 
-    return {
-      success: true,
+    return ok({
       data: students,
       total,
       page,
       pageSize,
       totalPages: Math.ceil(total / pageSize),
-    }
+    })
   } catch (error) {
     console.error("Failed to get students:", error)
-    return {
-      success: false,
-      error: "학생 목록 조회 중 오류가 발생했습니다.",
-    }
+    return fail("학생 목록 조회 중 오류가 발생했습니다.")
   }
 }

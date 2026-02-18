@@ -2,6 +2,7 @@
 
 import { db } from '@/lib/db'
 import { verifySession } from '@/lib/dal'
+import { ok, fail, type ActionResult } from '@/lib/errors/action-result'
 
 /**
  * 배정 결과 집계 데이터
@@ -25,15 +26,13 @@ export interface AssignmentResultData {
  * @param proposalId - 배정 제안 ID
  * @returns 배정 결과 집계 데이터 또는 에러
  */
-export async function getAssignmentResults(proposalId: string): Promise<{
-  success: boolean
-  data?: AssignmentResultData
-  error?: string
-}> {
+export async function getAssignmentResults(
+  proposalId: string
+): Promise<ActionResult<AssignmentResultData>> {
   // 인증 확인
   const session = await verifySession()
   if (!session) {
-    return { success: false, error: '인증되지 않은 요청입니다.' }
+    return fail('인증되지 않은 요청입니다.')
   }
 
   try {
@@ -51,7 +50,7 @@ export async function getAssignmentResults(proposalId: string): Promise<{
     })
 
     if (!proposal) {
-      return { success: false, error: '제안을 찾을 수 없습니다.' }
+      return fail('제안을 찾을 수 없습니다.')
     }
 
     // summary와 assignments는 Json 타입이므로 타입 캐스팅
@@ -89,24 +88,18 @@ export async function getAssignmentResults(proposalId: string): Promise<{
       failureCount = assignments.filter(a => a.score < 60).length
     }
 
-    return {
-      success: true,
-      data: {
-        totalStudents,
-        assignedCount,
-        excludedCount,
-        successCount,
-        failureCount,
-        averageScore,
-        createdAt: proposal.createdAt,
-        status: proposal.status
-      }
-    }
+    return ok({
+      totalStudents,
+      assignedCount,
+      excludedCount,
+      successCount,
+      failureCount,
+      averageScore,
+      createdAt: proposal.createdAt,
+      status: proposal.status
+    })
   } catch (error) {
     console.error('Failed to fetch assignment results:', error)
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : '배정 결과를 불러오는데 실패했습니다.'
-    }
+    return fail(error instanceof Error ? error.message : '배정 결과를 불러오는데 실패했습니다.')
   }
 }

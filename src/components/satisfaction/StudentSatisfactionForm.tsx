@@ -68,7 +68,7 @@ export function StudentSatisfactionForm({
         form.reset()
         onSuccess?.()
       } else {
-        toast.error(result.error || "만족도 조사에 실패했습니다.")
+        toast.error(result.error)
       }
     } catch (error) {
       console.error("Satisfaction survey submission error:", error)

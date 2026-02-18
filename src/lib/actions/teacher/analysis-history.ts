@@ -1,6 +1,7 @@
 'use server'
 
 import { db as prisma } from "@/lib/db"
+import { ok, fail, type ActionResult } from "@/lib/errors/action-result"
 
 /**
  * 선생님 분석 이력 조회
@@ -119,19 +120,14 @@ export async function getTeacherAnalysisHistory(
       }
     }
 
-    return {
-      success: true,
+    return ok({
       history: historyItem ? [historyItem] : [],
       note: historyItem
         ? "현재 스키마에서는 최신 분석 결과 1개만 표시됩니다."
         : "분석 이력이 없습니다.",
-    }
+    })
   } catch (error) {
     console.error(`Failed to fetch teacher ${type} analysis history:`, error)
-    return {
-      success: false,
-      history: [],
-      error: `${type} 분석 이력 조회 중 오류가 발생했습니다.`,
-    }
+    return fail(`${type} 분석 이력 조회 중 오류가 발생했습니다.`)
   }
 }

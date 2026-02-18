@@ -7,6 +7,7 @@ import { verifySession } from "@/lib/dal"
 import { db } from "@/lib/db"
 import { TeacherSchema, UpdateTeacherSchema } from "@/lib/validations/teachers"
 import { NameHanjaSchema, type NameHanjaInput } from "@/lib/validations/students"
+import { ok, fail, okVoid, type ActionVoidResult } from "@/lib/errors/action-result"
 
 function parseNameHanjaPayload(value: FormDataEntryValue | null): {
   nameHanja: NameHanjaInput | null
@@ -287,17 +288,17 @@ export async function updateTeacher(
   redirect(`/teachers/${id}`)
 }
 
-export async function deleteTeacher(id: string): Promise<{ success?: boolean; error?: string }> {
+export async function deleteTeacher(id: string): Promise<ActionVoidResult> {
   const session = await verifySession()
 
   // 권한 검증: 원장만 삭제 가능
   if (session.role !== 'DIRECTOR') {
-    return { error: '선생님을 삭제할 권한이 없어요' }
+    return fail('선생님을 삭제할 권한이 없어요')
   }
 
   // 본인 삭제 방지
   if (session.userId === id) {
-    return { error: '본인 계정은 삭제할 수 없어요' }
+    return fail('본인 계정은 삭제할 수 없어요')
   }
 
   // 담당 학생 존재 여부 확인
@@ -306,17 +307,17 @@ export async function deleteTeacher(id: string): Promise<{ success?: boolean; er
   })
 
   if (studentCount > 0) {
-    return { error: `담당 학생이 ${studentCount}명 있어요. 먼저 다른 선생님에게 재배정해주세요.` }
+    return fail(`담당 학생이 ${studentCount}명 있어요. 먼저 다른 선생님에게 재배정해주세요.`)
   }
 
   try {
     await db.teacher.delete({
       where: { id },
     })
-    return { success: true }
+    return okVoid()
   } catch (error) {
     console.error("Failed to delete teacher:", error)
-    return { error: '선생님 삭제 중 오류가 발생했어요' }
+    return fail('선생님 삭제 중 오류가 발생했어요')
   }
 }
 

@@ -54,7 +54,7 @@ export function AISupportPanel({
       setIsLoading(true)
       getStudentAISupportDataAction(studentId)
         .then((result) => {
-          if (result.success && result.data) {
+          if (result.success) {
             setData(result.data)
           } else {
             toast.error(result.error || "데이터 조회에 실패했습니다")
@@ -75,22 +75,25 @@ export function AISupportPanel({
     try {
       const result = await analyzeCompatibility(teacherId, studentId)
 
-      if (result.success && result.score) {
+      if (result.success) {
         // 데이터 갱신 (CompatibilityScore.overall -> AISupportData.compatibility.overallScore)
+        const { score } = result.data
         setData((prev) =>
           prev
             ? {
                 ...prev,
                 compatibility: {
-                  overallScore: result.score.overall,
-                  breakdown: result.score.breakdown as Record<string, number>,
-                  reasons: result.score.reasons,
+                  overallScore: score.overall,
+                  breakdown: score.breakdown as Record<string, number>,
+                  reasons: score.reasons,
                 },
                 canCalculateCompatibility: false,
               }
             : null
         )
         toast.success("궁합 점수가 계산되었습니다")
+      } else {
+        toast.error(result.error)
       }
     } catch (error) {
       console.error("궁합 계산 오류:", error)

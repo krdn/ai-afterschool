@@ -70,7 +70,11 @@ export function ManualAssignmentForm({
 
     setIsLoading(true)
     try {
-      await assignStudentToTeacher(selectedStudentId, selectedTeacherId)
+      const result = await assignStudentToTeacher(selectedStudentId, selectedTeacherId)
+      if (!result.success) {
+        toast.error(result.error)
+        return
+      }
       toast.success("학생이 성공적으로 배정되었습니다.")
       handleClose()
       router.refresh()

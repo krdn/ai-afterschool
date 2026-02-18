@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { GradeType } from "@prisma/client";
 import { getCurrentTeacher } from "@/lib/dal";
+import { okVoid, fail, type ActionVoidResult } from "@/lib/errors/action-result";
 
 // 성적 입력 데이터 검증 스키마
 const GradeSchema = z.object({
@@ -82,14 +83,14 @@ export async function getGrades(studentId: string) {
 /**
  * 성적 삭제
  */
-export async function deleteGrade(gradeId: string, studentId: string) {
+export async function deleteGrade(gradeId: string, studentId: string): Promise<ActionVoidResult> {
     try {
         await prisma.gradeHistory.delete({
             where: { id: gradeId }
         });
         revalidatePath(`/students/${studentId}`);
-        return { success: true };
+        return okVoid();
     } catch {
-        return { success: false, error: "삭제 실패" };
+        return fail("삭제 실패");
     }
 }

@@ -18,6 +18,7 @@ import type {
   FollowUpStatus,
   CompleteFollowUpInput,
 } from '@/types/follow-up';
+import { ok, fail, type ActionResult } from '@/lib/errors/action-result';
 
 /**
  * 후속 조치 목록 조회
@@ -25,14 +26,11 @@ import type {
  * @param filter - 필터 옵션 (scope, includeCompleted, teacherId)
  * @returns 후속 조치 목록
  */
-export async function getFollowUpsAction(filter: FollowUpFilter) {
+export async function getFollowUpsAction(filter: FollowUpFilter): Promise<ActionResult<FollowUpItem[]>> {
   const session = await verifySession();
 
   if (!session) {
-    return {
-      success: false,
-      error: '인증되지 않은 요청입니다.',
-    };
+    return fail('인증되지 않은 요청입니다.');
   }
 
   try {
@@ -125,16 +123,10 @@ export async function getFollowUpsAction(filter: FollowUpFilter) {
       };
     });
 
-    return {
-      success: true,
-      data: followUpItems,
-    };
+    return ok(followUpItems);
   } catch (error) {
     console.error('Failed to get follow-ups:', error);
-    return {
-      success: false,
-      error: '후속 조치 목록 조회 중 오류가 발생했습니다.',
-    };
+    return fail('후속 조치 목록 조회 중 오류가 발생했습니다.');
   }
 }
 
@@ -144,14 +136,11 @@ export async function getFollowUpsAction(filter: FollowUpFilter) {
  * @param input - 완료 처리 입력 (sessionId, completionNote)
  * @returns 완료 처리 결과
  */
-export async function completeFollowUpAction(input: CompleteFollowUpInput) {
+export async function completeFollowUpAction(input: CompleteFollowUpInput): Promise<ActionResult<{ id: string; completedAt: Date }>> {
   const session = await verifySession();
 
   if (!session) {
-    return {
-      success: false,
-      error: '인증되지 않은 요청입니다.',
-    };
+    return fail('인증되지 않은 요청입니다.');
   }
 
   try {
@@ -164,18 +153,12 @@ export async function completeFollowUpAction(input: CompleteFollowUpInput) {
     });
 
     if (!counselingSession) {
-      return {
-        success: false,
-        error: '상담 세션을 찾을 수 없습니다.',
-      };
+      return fail('상담 세션을 찾을 수 없습니다.');
     }
 
     // 권한 확인: 해당 세션의 teacherId와 현재 사용자 일치 확인
     if (counselingSession.teacherId !== session.userId) {
-      return {
-        success: false,
-        error: '해당 후속 조치를 완료할 권한이 없습니다.',
-      };
+      return fail('해당 후속 조치를 완료할 권한이 없습니다.');
     }
 
     // 완료 처리: satisfactionScore를 임시값(1)으로 설정
@@ -194,19 +177,13 @@ export async function completeFollowUpAction(input: CompleteFollowUpInput) {
 
     revalidatePath('/dashboard/statistics');
 
-    return {
-      success: true,
-      data: {
-        id: updatedSession.id,
-        completedAt: updatedSession.updatedAt,
-      },
-    };
+    return ok({
+      id: updatedSession.id,
+      completedAt: updatedSession.updatedAt,
+    });
   } catch (error) {
     console.error('Failed to complete follow-up:', error);
-    return {
-      success: false,
-      error: '후속 조치 완료 처리 중 오류가 발생했습니다.',
-    };
+    return fail('후속 조치 완료 처리 중 오류가 발생했습니다.');
   }
 }
 
@@ -215,14 +192,11 @@ export async function completeFollowUpAction(input: CompleteFollowUpInput) {
  *
  * @returns 지연 개수
  */
-export async function getOverdueCountAction() {
+export async function getOverdueCountAction(): Promise<ActionResult<{ count: number }>> {
   const session = await verifySession();
 
   if (!session) {
-    return {
-      success: false,
-      error: '인증되지 않은 요청입니다.',
-    };
+    return fail('인증되지 않은 요청입니다.');
   }
 
   try {
@@ -240,15 +214,9 @@ export async function getOverdueCountAction() {
       },
     });
 
-    return {
-      success: true,
-      data: { count },
-    };
+    return ok({ count });
   } catch (error) {
     console.error('Failed to get overdue count:', error);
-    return {
-      success: false,
-      error: '지연 개수 조회 중 오류가 발생했습니다.',
-    };
+    return fail('지연 개수 조회 중 오류가 발생했습니다.');
   }
 }

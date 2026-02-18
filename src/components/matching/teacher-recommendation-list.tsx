@@ -1,17 +1,9 @@
 "use client"
 
 import { UserPlus, Loader2 } from "lucide-react"
-import type { CompatibilityScore } from "@/lib/analysis/compatibility-scoring"
+import type { TeacherRecommendation } from "@/lib/actions/matching/assignment"
 
-export interface TeacherRecommendation {
-  teacherId: string
-  teacherName: string
-  teacherRole: string
-  currentStudentCount?: number
-  score: CompatibilityScore
-  breakdown: CompatibilityScore["breakdown"]
-  reasons: string[]
-}
+export type { TeacherRecommendation }
 
 interface TeacherRecommendationListProps {
   recommendations: TeacherRecommendation[]
