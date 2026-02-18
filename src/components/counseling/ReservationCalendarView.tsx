@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { getReservationsAction } from "@/lib/actions/counseling/reservations"
+import { getReservationsAction } from "@/lib/actions/counseling/reservations-query"
 import { ReservationCalendarMonth } from "./ReservationCalendarMonth"
 import { ReservationCalendarWeek } from "./ReservationCalendarWeek"
 import { Button } from "@/components/ui/button"

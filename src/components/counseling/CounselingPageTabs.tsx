@@ -8,7 +8,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { ReservationList } from "@/components/counseling/ReservationList"
 import { ReservationForm } from "@/components/counseling/ReservationForm"
 import { ReservationCalendarView } from "@/components/counseling/ReservationCalendarView"
-import { getReservationsAction } from "@/lib/actions/counseling/reservations"
+import { getReservationsAction } from "@/lib/actions/counseling/reservations-query"
 import type { ReservationWithRelations } from "@/components/counseling/ReservationCard"
 import type { CounselingSessionData } from "./types"
 

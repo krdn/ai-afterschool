@@ -33,23 +33,9 @@ type ReservationData = {
  */
 export type CreateReservationResult = ActionResult<ReservationData>
 
-// 조회 함수 re-export (reservations-query.ts에서 분리)
-export {
-  getReservationsAction,
-  getReservationByIdAction,
-  getReservationStatsAction,
-} from './reservations-query'
-
-// 상태 전환/삭제 함수 re-export (reservations-status.ts에서 분리)
-export {
-  deleteReservationAction,
-  completeReservationAction,
-  cancelReservationAction,
-  markNoShowAction,
-  type DeleteReservationResult,
-  type CompleteReservationResult,
-  type CancelReservationResult,
-} from './reservations-status'
+// 조회/상태 관련 액션은 각 파일에서 직접 import
+// - reservations-query.ts: getReservationsAction, getReservationByIdAction, getReservationStatsAction
+// - reservations-status.ts: deleteReservationAction, completeReservationAction, cancelReservationAction, markNoShowAction
 
 /**
  * 예약 생성 액션

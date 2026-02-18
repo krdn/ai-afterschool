@@ -6,7 +6,7 @@ import {
 } from "@/lib/actions/counseling/stats"
 import { getDateRangeFromPreset } from "@/lib/utils/date-range"
 import { getFollowUpsAction, getOverdueCountAction } from "@/lib/actions/counseling/follow-up"
-import { getReservationStatsAction } from "@/lib/actions/counseling/reservations"
+import { getReservationStatsAction } from "@/lib/actions/counseling/reservations-query"
 import { startOfMonth, endOfMonth } from "date-fns"
 
 /**

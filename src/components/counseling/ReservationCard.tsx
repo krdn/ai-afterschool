@@ -22,7 +22,7 @@ import {
   completeReservationAction,
   cancelReservationAction,
   markNoShowAction,
-} from "@/lib/actions/counseling/reservations"
+} from "@/lib/actions/counseling/reservations-status"
 import { toast } from "sonner"
 
 export type ReservationWithRelations = ParentCounselingReservation & {
