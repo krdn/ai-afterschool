@@ -35,6 +35,7 @@ model Teacher {
   issuesCreated              Issue[]                   @relation("IssueCreator")
   issuesAssigned             Issue[]                   @relation("IssueAssignee")
   issueEvents                IssueEvent[]              @relation("IssueEventPerformer")
+  sajuAnalysisHistories      TeacherSajuAnalysisHistory[]
 }
 
 model Team {
@@ -137,6 +138,7 @@ model SajuAnalysisHistory {
 model TeacherSajuAnalysisHistory {
   id                String   @id @default(cuid())
   teacherId         String
+  teacher           Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
   promptId          String   @default("default")
   additionalRequest String?
   result            Json

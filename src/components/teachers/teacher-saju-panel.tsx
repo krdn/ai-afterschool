@@ -180,7 +180,7 @@ export function TeacherSajuPanel({
             size="sm"
             className="gap-1"
             onClick={() => handleRunAnalysis(true)}
-            disabled={isPending}
+            disabled={isPending || !canAnalyze}
             title="캐시 무시하고 새로 분석"
           >
             {isPending ? (
