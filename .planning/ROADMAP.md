@@ -395,14 +395,13 @@ Plans:
   3. 교사는 자신의 팀에 속하지 않은 학생/선생님을 멘션해도 해당 데이터가 조회되지 않는다 (RBAC)
   4. 상담 노트 등 자유 텍스트 필드가 XML 경계 마킹으로 감싸져 Prompt Injection을 방어한다
   5. 전송된 메시지의 ChatMessage 레코드에 mentionedEntities JSON 메타데이터가 저장된다
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 36-01: mention-types.ts (공유 타입 정의 — MentionItem, MentionType, MentionedEntity)
-- [ ] 36-02: Prisma 스키마 변경 (ChatMessage.mentionedEntities Json?) + 마이그레이션
-- [ ] 36-03: mention-resolver.ts (RBAC 포함 학생/선생님/팀 엔티티 데이터 DB 조회)
-- [ ] 36-04: context-builder.ts (토큰 예산 제한 + XML 경계 마킹 + Prompt Injection 방어)
-- [ ] 36-05: /api/chat/route.ts 수정 (mentions[] 수신, dynamic system prompt 주입, mentionedEntities 저장)
+- [ ] 36-01: 멘션 타입 정의 + Prisma 스키마 변경 (MentionItem/MentionedEntity 타입, ChatMessage.mentionedEntities 컬럼)
+- [ ] 36-02: mention-resolver.ts (RBAC 포함 학생/선생님/팀 엔티티 데이터 DB 조회 + 요약)
+- [ ] 36-03: context-builder.ts (토큰 예산 관리 + XML 경계 마킹 + Prompt Injection 방어)
+- [ ] 36-04: /api/chat/route.ts 통합 (mentions[] 수신, dynamic system prompt 주입, mentionedEntities 저장)
 
 #### Phase 37: Autocomplete Search API
 **Goal**: 교사가 @를 입력할 때 이름 검색으로 학생, 선생님, 학급 3가지 엔티티 타입을 빠르게 찾을 수 있는 독립적인 검색 레이어가 동작한다
