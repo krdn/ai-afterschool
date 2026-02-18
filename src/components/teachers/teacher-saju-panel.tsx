@@ -394,7 +394,7 @@ export function TeacherSajuPanel({
               </div>
             )}
           </div>
-          {analysis?.interpretation ? (
+          {analysis?.interpretation?.trim() ? (
             <>
               {showSimplified && simplifiedText && (
                 <div className="flex items-center gap-1 mb-2">
@@ -405,7 +405,7 @@ export function TeacherSajuPanel({
                 </div>
               )}
               {viewMode === "rendered" ? (
-                <div className="rounded-md border border-gray-200 bg-white p-4">
+                <div className="rounded-md border border-gray-200 bg-white p-4 max-h-[500px] overflow-y-auto">
                   <MarkdownRenderer content={showSimplified && simplifiedText ? simplifiedText : analysis.interpretation} />
                 </div>
               ) : (
