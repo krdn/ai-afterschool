@@ -11,9 +11,9 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 
 Milestone: v4.0 AI Smart Chat
 Phase: 36 of 40 (Server-side Foundation)
-Plan: 01 complete (next: 02)
+Plan: 03 complete (next: 04)
 Status: In Progress
-Last activity: 2026-02-19 — Executed 36-01-PLAN.md
+Last activity: 2026-02-19 — Executed 36-03-PLAN.md
 
 Progress: [████████████████████████████████████████████░░] 91% (183/200+ plans)
 
@@ -43,6 +43,8 @@ Progress: [███████████████████████
 | v3.0 DevOps (partial) | 7 | ~21 min | ~3 min |
 | v4.0 LLM Hub | 9 | ~27 min | ~3 min |
 | Phase 36-server-side-foundation P01 | 2 | 2 tasks | 3 files |
+| Phase 36-server-side-foundation P02 | 2 | 1 task | 1 file |
+| Phase 36-server-side-foundation P03 | 2 | 1 task | 1 file |
 
 ## Accumulated Context
 
@@ -59,6 +61,8 @@ Progress: [███████████████████████
 - Fallback: react-mentions-ts + shadcn/ui 충돌 시 @ariakit/react combobox-textarea
 - [Phase 36-server-side-foundation]: 멘션 타입 중앙화: 클라이언트/서버 공유 타입을 src/lib/chat/mention-types.ts에서 단일 정의
 - [Phase 36-server-side-foundation]: GIN 인덱스 jsonb_path_ops: ChatMessage.mentionedEntities 컬럼에 엔티티별 필터링 지원
+- [Phase 36-03]: context-builder escapeXml &먼저 처리: 이중 이스케이프 방지 위해 & → &amp; 최우선 치환
+- [Phase 36-03]: 예산 재분배 1회 제한: 단순하고 예측 가능한 1회 재분배로 복잡도 제한
 
 ### Pending Todos
 
@@ -76,6 +80,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 36-01-PLAN.md (멘션 타입 정의 + DB 스키마)
-Resume file: .planning/phases/36-server-side-foundation/36-02-PLAN.md
-Next action: /gsd:execute-phase 36-server-side-foundation (plan 02)
+Stopped at: Completed 36-03-PLAN.md (context-builder.ts — 토큰 예산 관리 + XML 경계 마킹 + system prompt 조립)
+Resume file: .planning/phases/36-server-side-foundation/36-04-PLAN.md
+Next action: /gsd:execute-phase 36-server-side-foundation (plan 04)

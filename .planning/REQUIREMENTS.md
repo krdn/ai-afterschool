@@ -18,10 +18,10 @@ Requirements for v4.0 AI Smart Chat milestone. Each maps to roadmap phases.
 
 ### 컨텍스트 주입 (Context Injection)
 
-- [ ] **CTX-01**: 멘션된 엔티티 데이터가 AI 시스템 프롬프트에 동적으로 주입된다
+- [x] **CTX-01**: 멘션된 엔티티 데이터가 AI 시스템 프롬프트에 동적으로 주입된다
 - [ ] **CTX-02**: 교사는 자신의 팀에 속한 엔티티만 멘션할 수 있다 (RBAC)
-- [ ] **CTX-03**: 엔티티 데이터는 토큰 예산 내로 요약되어 주입된다 (~800토큰/엔티티)
-- [ ] **CTX-04**: 상담 노트 등 자유 텍스트는 경계 마킹으로 Prompt Injection을 방어한다
+- [x] **CTX-03**: 엔티티 데이터는 토큰 예산 내로 요약되어 주입된다 (~800토큰/엔티티)
+- [x] **CTX-04**: 상담 노트 등 자유 텍스트는 경계 마킹으로 Prompt Injection을 방어한다
 - [x] **CTX-05**: ChatMessage에 멘션 메타데이터가 저장된다 (mentionedEntities JSON)
 
 ### UI/UX (User Experience)
@@ -65,10 +65,10 @@ Requirements for v4.0 AI Smart Chat milestone. Each maps to roadmap phases.
 | MENT-04 | Phase 36 | Pending |
 | MENT-05 | Phase 38 | Pending |
 | MENT-06 | Phase 37 | Pending |
-| CTX-01 | Phase 36 | Pending |
+| CTX-01 | Phase 36 | Complete |
 | CTX-02 | Phase 36 | Pending |
-| CTX-03 | Phase 36 | Pending |
-| CTX-04 | Phase 36 | Pending |
+| CTX-03 | Phase 36 | Complete |
+| CTX-04 | Phase 36 | Complete |
 | CTX-05 | Phase 36 | Complete |
 | UI-01 | Phase 38 | Pending |
 | UI-02 | Phase 39 | Pending |
