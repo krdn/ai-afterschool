@@ -85,6 +85,7 @@ export function SajuAnalysisPanel({ student, analysis, enabledProviders = [], on
   const [isSimplifying, setIsSimplifying] = useState(false)
   const [showSimplified, setShowSimplified] = useState(false)
   const [simplifyError, setSimplifyError] = useState<string | null>(null)
+  const [isCached, setIsCached] = useState(false)
 
   // DB에서 프롬프트 옵션 실시간 로드
   useEffect(() => {
@@ -121,7 +122,7 @@ export function SajuAnalysisPanel({ student, analysis, enabledProviders = [], on
     }
   }
 
-  const handleRunAnalysis = () => {
+  const handleRunAnalysis = (forceRefresh = false) => {
     startTransition(async () => {
       setErrorMessage(null)
       setProviderLabel(null)
@@ -129,16 +130,18 @@ export function SajuAnalysisPanel({ student, analysis, enabledProviders = [], on
       setSimplifiedText(null)
       setShowSimplified(false)
       setSimplifyError(null)
+      setIsCached(false)
       try {
         const promptId = isLLM ? selectedPromptId : 'default'
         const extra = isLLM ? additionalRequest.trim() || undefined : undefined
-        const res = await runSajuAnalysisAction(student.id, selectedProvider, promptId, extra)
+        const res = await runSajuAnalysisAction(student.id, selectedProvider, promptId, extra, forceRefresh)
         if (res.llmFailed) {
           setErrorMessage(`내장 알고리즘으로 대체 해석했습니다. ${res.llmError || 'LLM 설정을 확인해주세요.'}`)
           setProviderLabel('내장 알고리즘')
         } else {
           const model = res.usedModel && res.usedModel !== 'default' ? ` (${res.usedModel})` : ''
           setProviderLabel(`${res.usedProvider}${model}`)
+          setIsCached(res.cached ?? false)
         }
         if (promptId !== 'default') {
           const meta = promptOptions.find((p) => p.id === promptId)
@@ -172,6 +175,21 @@ export function SajuAnalysisPanel({ student, analysis, enabledProviders = [], on
           >
             <History className="h-4 w-4" />
             이력
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1"
+            onClick={() => handleRunAnalysis(true)}
+            disabled={isPending}
+            title="캐시 무시하고 새로 분석"
+          >
+            {isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="h-4 w-4" />
+            )}
+            새로고침
           </Button>
           <div className="text-xs text-gray-500">
             {calculatedAt
@@ -249,7 +267,7 @@ export function SajuAnalysisPanel({ student, analysis, enabledProviders = [], on
               type="button"
               disabled={isPending}
               data-testid="saju-analyze-button"
-              onClick={handleRunAnalysis}
+              onClick={() => handleRunAnalysis(false)}
               className="w-full sm:w-auto"
             >
               {isPending ? (
@@ -267,7 +285,7 @@ export function SajuAnalysisPanel({ student, analysis, enabledProviders = [], on
             <div data-testid="analysis-error" className="flex items-center justify-between gap-4 mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-sm text-red-700">{errorMessage}</p>
               <Button
-                onClick={handleRunAnalysis}
+                onClick={() => handleRunAnalysis(false)}
                 disabled={isPending}
                 variant="outline"
                 size="sm"
@@ -343,6 +361,11 @@ export function SajuAnalysisPanel({ student, analysis, enabledProviders = [], on
             {promptLabel && (
               <span className="text-xs px-2 py-0.5 rounded-full bg-purple-50 text-purple-600 border border-purple-200">
                 {promptLabel}
+              </span>
+            )}
+            {isCached && (
+              <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-50 text-yellow-700 border border-yellow-200">
+                ⚡ 캐시됨
               </span>
             )}
             {analysis?.interpretation && selectedProvider !== 'built-in' && (
