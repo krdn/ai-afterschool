@@ -124,13 +124,17 @@ export function TeacherRecommendationList({
                   <div>
                     <span className="text-gray-600">사주</span>
                     <div className="font-semibold">
-                      {recommendation.breakdown.saju.toFixed(1)}
+                      {recommendation.breakdown.saju === 0
+                        ? <span className="text-gray-400 text-xs">미분석</span>
+                        : recommendation.breakdown.saju.toFixed(1)}
                     </div>
                   </div>
                   <div>
                     <span className="text-gray-600">성명학</span>
                     <div className="font-semibold">
-                      {recommendation.breakdown.name.toFixed(1)}
+                      {recommendation.breakdown.name === 0
+                        ? <span className="text-gray-400 text-xs">미분석</span>
+                        : recommendation.breakdown.name.toFixed(1)}
                     </div>
                   </div>
                   <div>

@@ -21,9 +21,9 @@ export function calculateSajuCompatibility(
   teacherSaju: SajuResult | null | undefined,
   studentSaju: SajuResult | null | undefined
 ): number {
-  // 분석 미완료 시 기본값 반환
+  // 분석 미완료 시 0점 반환 (데이터 없는 선생님 불이익 방지)
   if (!teacherSaju || !studentSaju) {
-    return 0.5
+    return 0
   }
 
   const teacherElements = teacherSaju.elements
@@ -51,7 +51,7 @@ export function calculateSajuCompatibility(
   )
 
   if (teacherMagnitude === 0 || studentMagnitude === 0) {
-    return 0.5
+    return 0
   }
 
   const similarity = dotProduct / (teacherMagnitude * studentMagnitude)

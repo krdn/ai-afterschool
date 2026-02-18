@@ -22,7 +22,10 @@ import {
 } from '@/components/ui/table'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { ChevronDown, ChevronUp } from 'lucide-react'
+import { ChevronDown, ChevronUp, UserMinus } from 'lucide-react'
+import { unassignStudent } from '@/lib/actions/matching/assignment'
+import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
 
 interface Student {
   id: string
@@ -70,9 +73,24 @@ const getRoleBadgeClass = (role: string): string => {
 }
 
 export function TeacherAssignmentTable({ teachers }: TeacherAssignmentTableProps) {
+  const router = useRouter()
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [globalFilter, setGlobalFilter] = React.useState('')
   const [expandedRows, setExpandedRows] = React.useState<Set<string>>(new Set())
+  const [unassigningId, setUnassigningId] = React.useState<string | null>(null)
+
+  const handleUnassign = async (studentId: string, studentName: string) => {
+    if (!confirm(`${studentName} 학생의 배정을 해제하시겠습니까?`)) return
+    setUnassigningId(studentId)
+    const result = await unassignStudent(studentId)
+    if (result.success) {
+      toast.success(`${studentName} 학생이 미배정 처리되었습니다.`)
+      router.refresh()
+    } else {
+      toast.error(result.error ?? '배정 해제 중 오류가 발생했습니다.')
+    }
+    setUnassigningId(null)
+  }
 
   const columns = React.useMemo(
     () => [
@@ -225,9 +243,20 @@ export function TeacherAssignmentTable({ teachers }: TeacherAssignmentTableProps
                                 >
                                   {student.name}
                                 </Link>
-                                <span className="text-sm text-gray-500">
-                                  {student.school} {student.grade}학년
-                                </span>
+                                <div className="flex items-center gap-3">
+                                  <span className="text-sm text-gray-500">
+                                    {student.school} {student.grade}학년
+                                  </span>
+                                  <button
+                                    onClick={() => handleUnassign(student.id, student.name)}
+                                    disabled={unassigningId === student.id}
+                                    className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700 disabled:opacity-50"
+                                    title="배정 해제"
+                                  >
+                                    <UserMinus className="h-3.5 w-3.5" />
+                                    해제
+                                  </button>
+                                </div>
                               </div>
                             ))}
                           </div>

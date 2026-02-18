@@ -44,6 +44,45 @@ export interface AutoAssignmentSuggestionData {
 }
 
 /**
+ * 학생 배정 해제 (미배정 상태로 변경)
+ *
+ * RBAC: DIRECTOR, TEAM_LEADER만 해제 가능
+ *
+ * @param studentId - 학생 ID
+ * @returns 해제 결과
+ */
+export async function unassignStudent(
+  studentId: string
+): Promise<ActionVoidResult> {
+  const session = await verifySession()
+
+  if (session.role !== "DIRECTOR" && session.role !== "TEAM_LEADER") {
+    return fail("배정 해제 권한이 없습니다.")
+  }
+
+  const student = await db.student.findUnique({ where: { id: studentId } })
+  if (!student) return fail("학생을 찾을 수 없습니다.")
+
+  const previousTeacherId = student.teacherId
+
+  try {
+    await db.student.update({
+      where: { id: studentId },
+      data: { teacherId: null },
+    })
+  } catch (error) {
+    console.error("Failed to unassign student:", error)
+    return fail("배정 해제 중 오류가 발생했습니다.")
+  }
+
+  revalidatePath("/matching")
+  revalidatePath(`/students/${studentId}`)
+  if (previousTeacherId) revalidatePath(`/teachers/${previousTeacherId}`)
+
+  return okVoid()
+}
+
+/**
  * 학생을 선생님에게 수동 배정
  *
  * RBAC: DIRECTOR, TEAM_LEADER만 배정 가능

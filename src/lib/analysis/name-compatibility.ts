@@ -21,17 +21,17 @@ export function calculateNameCompatibility(
   teacherName: NameNumerologyResult | null | undefined,
   studentName: NameNumerologyResult | null | undefined
 ): number {
-  // 분석 미완료 시 기본값 반환
+  // 분석 미완료 시 0점 반환 (데이터 없는 선생님 불이익 방지)
   if (!teacherName || !studentName) {
-    return 0.5
+    return 0
   }
 
   const teacherGrids = teacherName.grids
   const studentGrids = studentName.grids
 
-  // grids 데이터가 없는 경우 기본값 반환 (DB에 저장된 구조가 다를 수 있음)
+  // grids 데이터가 없는 경우 0점 반환
   if (!teacherGrids || !studentGrids) {
-    return 0.5
+    return 0
   }
 
   // 4격별 차이 계산 (최대 차이는 81 - 1 = 80)

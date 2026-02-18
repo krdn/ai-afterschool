@@ -26,7 +26,7 @@ export function parseMbtiPercentages(
 /**
  * DB에서 조회한 사주 결과를 안전하게 파싱
  *
- * fourPillars와 fiveElements 필드 존재 여부로 검증한다.
+ * pillars와 elements 필드 존재 여부로 검증한다.
  */
 export function parseSajuResult(
   data: unknown
@@ -34,8 +34,8 @@ export function parseSajuResult(
   if (!data || typeof data !== "object") return null
   const obj = data as Record<string, unknown>
 
-  if (!obj.fourPillars || typeof obj.fourPillars !== "object") return null
-  if (!obj.fiveElements || typeof obj.fiveElements !== "object") return null
+  if (!obj.pillars || typeof obj.pillars !== "object") return null
+  if (!obj.elements || typeof obj.elements !== "object") return null
 
   return data as SajuResult
 }
