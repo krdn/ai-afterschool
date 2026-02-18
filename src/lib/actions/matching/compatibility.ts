@@ -5,9 +5,7 @@ import { db } from "@/lib/db"
 import { verifySession } from "@/lib/dal"
 import { calculateCompatibilityScore } from "@/lib/analysis/compatibility-scoring"
 import { upsertCompatibilityResult } from "@/lib/db/matching/compatibility-result"
-import type { MbtiPercentages } from "@/lib/analysis/mbti-scoring"
-import type { SajuResult } from "@/lib/analysis/saju"
-import type { NameNumerologyResult } from "@/lib/analysis/name-numerology"
+import { fetchPairAnalyses } from "@/lib/db/matching/fetch-analysis"
 
 /**
  * 선생님-학생 궁합 분석 실행
@@ -23,9 +21,8 @@ export async function analyzeCompatibility(
   teacherId: string,
   studentId: string
 ) {
-  await verifySession() // RLS 적용을 위해 세션 확인
+  await verifySession()
 
-  // Teacher 조회
   const teacher = await db.teacher.findUnique({
     where: { id: teacherId },
     select: {
@@ -42,50 +39,22 @@ export async function analyzeCompatibility(
     throw new Error("선생님을 찾을 수 없어요.")
   }
 
-  // Teacher 분석 데이터 조회 (통합 테이블에서)
-  const [teacherMbti, teacherSaju, teacherName] = await Promise.all([
-    db.mbtiAnalysis.findUnique({
-      where: { subjectType_subjectId: { subjectType: 'TEACHER', subjectId: teacherId } },
-      select: { percentages: true },
-    }),
-    db.sajuAnalysis.findUnique({
-      where: { subjectType_subjectId: { subjectType: 'TEACHER', subjectId: teacherId } },
-      select: { result: true },
-    }),
-    db.nameAnalysis.findUnique({
-      where: { subjectType_subjectId: { subjectType: 'TEACHER', subjectId: teacherId } },
-      select: { result: true },
-    }),
-  ])
-
-  // Student 분석 데이터 조회 (통합 테이블에서)
-  const [studentMbti, studentSaju, studentName] = await Promise.all([
-    db.mbtiAnalysis.findUnique({
-      where: { subjectType_subjectId: { subjectType: 'STUDENT', subjectId: studentId } },
-      select: { percentages: true },
-    }),
-    db.sajuAnalysis.findUnique({
-      where: { subjectType_subjectId: { subjectType: 'STUDENT', subjectId: studentId } },
-      select: { result: true },
-    }),
-    db.nameAnalysis.findUnique({
-      where: { subjectType_subjectId: { subjectType: 'STUDENT', subjectId: studentId } },
-      select: { result: true },
-    }),
-  ])
+  // 공유 함수로 분석 데이터 일괄 조회
+  const { teacher: teacherAnalyses, student: studentAnalyses } =
+    await fetchPairAnalyses(teacherId, studentId)
 
   // 궁합 점수 계산
   const score = calculateCompatibilityScore(
     {
-      mbti: (teacherMbti?.percentages as unknown as MbtiPercentages | null) ?? null,
-      saju: (teacherSaju?.result as unknown as SajuResult | null) ?? null,
-      name: (teacherName?.result as unknown as NameNumerologyResult | null) ?? null,
+      mbti: teacherAnalyses.mbti,
+      saju: teacherAnalyses.saju,
+      name: teacherAnalyses.name,
       currentLoad: teacher._count.students,
     },
     {
-      mbti: (studentMbti?.percentages as unknown as MbtiPercentages | null) ?? null,
-      saju: (studentSaju?.result as unknown as SajuResult | null) ?? null,
-      name: (studentName?.result as unknown as NameNumerologyResult | null) ?? null,
+      mbti: studentAnalyses.mbti,
+      saju: studentAnalyses.saju,
+      name: studentAnalyses.name,
     }
   )
 
