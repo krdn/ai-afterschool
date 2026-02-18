@@ -10,6 +10,7 @@ import {
   deleteProviderAction,
 } from '@/lib/actions/admin/providers';
 import type { ProviderWithModels } from '@/lib/ai/types';
+import { handleStaleDeploymentError } from '@/lib/errors/stale-deployment';
 
 interface ProviderListClientProps {
   providers: ProviderWithModels[];
@@ -39,6 +40,7 @@ export function ProviderListClient({ providers }: ProviderListClientProps) {
       toast.success('제공자가 삭제되었습니다.');
       router.refresh();
     } catch (error) {
+      if (handleStaleDeploymentError(error)) return;
       toast.error(error instanceof Error ? error.message : '삭제에 실패했습니다.');
     } finally {
       setIsLoading(false);
@@ -55,6 +57,9 @@ export function ProviderListClient({ providers }: ProviderListClientProps) {
         message: result.isValid ? '연결 성공!' : result.error || '연결 실패',
       };
     } catch (error) {
+      if (handleStaleDeploymentError(error)) {
+        return { success: false, message: '새 버전이 배포되었습니다. 페이지를 새로고침합니다.' };
+      }
       return {
         success: false,
         message: error instanceof Error ? error.message : '테스트 중 오류가 발생했습니다.',
@@ -71,6 +76,7 @@ export function ProviderListClient({ providers }: ProviderListClientProps) {
       toast.success(enabled ? '제공자가 활성화되었습니다.' : '제공자가 비활성화되었습니다.');
       router.refresh();
     } catch (error) {
+      if (handleStaleDeploymentError(error)) return;
       toast.error(error instanceof Error ? error.message : '상태 변경에 실패했습니다.');
     } finally {
       setIsLoading(false);

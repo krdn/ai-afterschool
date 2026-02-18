@@ -7,6 +7,7 @@ import {
   getAllNotifications,
   type Notification,
 } from "@/lib/actions/common/notifications";
+import { handleStaleDeploymentError } from "@/lib/errors/stale-deployment";
 
 interface NotificationBellProps {
   className?: string;
@@ -35,6 +36,7 @@ export function NotificationBell({ className }: NotificationBellProps) {
         setError(result.error ?? "알림을 불러오는 중 오류가 발생했습니다.");
       }
     } catch (err) {
+      if (handleStaleDeploymentError(err)) return;
       setError("알림을 불러오는 중 오류가 발생했습니다.");
     } finally {
       setIsLoading(false);
