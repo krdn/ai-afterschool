@@ -148,6 +148,7 @@ model TeacherSajuAnalysisHistory {
 
   @@index([teacherId])
   @@index([teacherId, createdAt(sort: Desc)])
+  @@index([teacherId, promptId, usedProvider])
 }
 
 model NameAnalysis {
