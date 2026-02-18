@@ -3,7 +3,7 @@
 import { useState, useTransition, useEffect } from "react"
 import { format } from "date-fns"
 import { ko } from "date-fns/locale"
-import { Loader2, RefreshCw, Sparkles } from "lucide-react"
+import { Loader2, RefreshCw, Sparkles, Trash2 } from "lucide-react"
 import { runTeacherSajuAnalysis, simplifyTeacherInterpretation } from "@/lib/actions/teacher/analysis"
 import type { SajuResult } from "@/lib/analysis/saju"
 import type { ProviderName } from "@/lib/ai/providers/types"
@@ -15,6 +15,12 @@ import { SajuHelpDialog } from "@/components/students/saju-help-dialog"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { resetAnalysis } from "@/lib/actions/reset-analysis"
 
 type TeacherSajuAnalysis = {
   result: unknown
@@ -93,6 +99,20 @@ export function TeacherSajuPanel({
   const [showSimplified, setShowSimplified] = useState(false)
   const [simplifyError, setSimplifyError] = useState<string | null>(null)
   const [isCached, setIsCached] = useState(false)
+  const [showResetDialog, setShowResetDialog] = useState(false)
+  const [isResetting, startResetTransition] = useTransition()
+
+  function handleReset() {
+    startResetTransition(async () => {
+      const result = await resetAnalysis("saju", "TEACHER", teacherId)
+      if (result.success) {
+        onAnalysisComplete?.()
+      } else {
+        setErrorMessage(result.error ?? "초기화 실패")
+      }
+      setShowResetDialog(false)
+    })
+  }
 
   // DB에서 프롬프트 옵션 실시간 로드
   useEffect(() => {
@@ -190,6 +210,19 @@ export function TeacherSajuPanel({
             )}
             새로고침
           </Button>
+          {analysis && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-1 text-destructive hover:text-destructive"
+              onClick={() => setShowResetDialog(true)}
+              disabled={isResetting}
+              title="분석 결과 초기화"
+            >
+              <Trash2 className="h-4 w-4" />
+              초기화
+            </Button>
+          )}
           <div className="text-xs text-gray-500">
             {calculatedAt
               ? `최근 계산: ${format(calculatedAt, "yyyy.MM.dd HH:mm", { locale: ko })}`
@@ -424,6 +457,26 @@ export function TeacherSajuPanel({
           )}
         </div>
       </CardContent>
+
+      <AlertDialog open={showResetDialog} onOpenChange={setShowResetDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>사주 분석 결과를 초기화할까요?</AlertDialogTitle>
+            <AlertDialogDescription>
+              현재 분석 결과가 삭제됩니다. 이력은 유지됩니다.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleReset}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isResetting ? <Loader2 className="h-4 w-4 animate-spin" /> : "초기화"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   )
 }

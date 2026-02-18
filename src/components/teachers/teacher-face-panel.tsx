@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useTransition, useEffect, useRef, useCallback } from "react"
-import { Camera, Sparkles, AlertCircle, RefreshCw, Loader2 } from "lucide-react"
+import { Camera, Sparkles, AlertCircle, RefreshCw, Loader2, Trash2 } from "lucide-react"
 import { runTeacherFaceAnalysis, getTeacherFaceAnalysisAction } from "@/lib/actions/teacher/face-analysis"
 import { DISCLAIMER_TEXT } from "@/lib/ai/prompts"
 import type { ProviderName } from "@/lib/ai/providers/types"
@@ -10,6 +10,12 @@ import { PromptSelector } from "@/components/students/prompt-selector"
 import type { GenericPromptMeta } from "@/components/students/prompt-selector"
 import { FaceHelpDialog } from "@/components/students/face-help-dialog"
 import { Button } from "@/components/ui/button"
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { resetAnalysis } from "@/lib/actions/reset-analysis"
 
 type TeacherFaceAnalysis = {
   id: string
@@ -47,6 +53,8 @@ export function TeacherFacePanel({
   const [selectedProvider, setSelectedProvider] = useState('auto')
   const [selectedPromptId, setSelectedPromptId] = useState('default')
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const [showResetDialog, setShowResetDialog] = useState(false)
+  const [isResetting, startResetTransition] = useTransition()
 
   // props에서 analysis가 변경되면 동기화
   useEffect(() => {
@@ -104,6 +112,18 @@ export function TeacherFacePanel({
   const isAnalyzing = localStatus === 'analyzing' ||
     (analysis?.status === 'pending')
 
+  function handleReset() {
+    startResetTransition(async () => {
+      const result = await resetAnalysis("face", "TEACHER", teacherId)
+      if (result.success) {
+        setAnalysis(null)
+      } else {
+        setErrorMessage(result.error ?? "초기화 실패")
+      }
+      setShowResetDialog(false)
+    })
+  }
+
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden">
       {/* Header */}
@@ -115,6 +135,19 @@ export function TeacherFacePanel({
           <h2 className="text-lg font-semibold">AI 관상 분석</h2>
           <FaceHelpDialog />
         </div>
+        {analysis?.status === 'complete' && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-1 text-destructive hover:text-destructive"
+            onClick={() => setShowResetDialog(true)}
+            disabled={isResetting}
+            title="분석 결과 초기화"
+          >
+            <Trash2 className="h-4 w-4" />
+            초기화
+          </Button>
+        )}
       </div>
 
       {/* Provider/Prompt selectors */}
@@ -158,6 +191,26 @@ export function TeacherFacePanel({
           />
         )}
       </div>
+
+      <AlertDialog open={showResetDialog} onOpenChange={setShowResetDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>관상 분석 결과를 초기화할까요?</AlertDialogTitle>
+            <AlertDialogDescription>
+              현재 분석 결과가 삭제됩니다. 이력은 유지됩니다.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleReset}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isResetting ? <Loader2 className="h-4 w-4 animate-spin" /> : "초기화"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
