@@ -1,9 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,274 +25,33 @@ import { Badge } from '@/components/ui/badge';
 import { AlertCircle, CheckCircle2, Loader2, RefreshCw, Eye, EyeOff } from 'lucide-react';
 import { InlineHelp } from '@/components/help/inline-help';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { cn } from '@/lib/utils';
-import {
-  createProviderFromTemplateAction,
-  updateProviderAction,
-  validateProviderAction,
-  syncProviderModelsAction,
-  setDefaultModelAction,
-} from '@/lib/actions/admin/providers';
-import type { ProviderWithModels, ProviderInput, Capability } from '@/lib/ai/types';
-import type { ProviderTemplate } from '@/lib/ai/templates';
-
-// Zod 스키마 정의
-const providerFormSchema = z.object({
-  name: z.string().min(1, '제공자명을 입력해주세요').max(100, '100자 이내로 입력해주세요'),
-  providerType: z.enum([
-    'openai',
-    'anthropic',
-    'google',
-    'ollama',
-    'deepseek',
-    'mistral',
-    'cohere',
-    'xai',
-    'zhipu',
-    'moonshot',
-    'openrouter',
-    'custom',
-  ]),
-  baseUrl: z.string().url('올바른 URL을 입력해주세요').optional().or(z.literal('')),
-  authType: z.enum(['none', 'api_key', 'bearer', 'custom_header']),
-  customAuthHeader: z.string().optional(),
-  apiKey: z.string().optional(),
-  capabilities: z.array(z.string()).default([]),
-  costTier: z.enum(['free', 'low', 'medium', 'high']),
-  qualityTier: z.enum(['fast', 'balanced', 'premium']),
-  isEnabled: z.boolean().default(false),
-});
-
-type ProviderFormValues = z.infer<typeof providerFormSchema>;
-
-interface ProviderFormProps {
-  provider?: ProviderWithModels;
-  template?: ProviderTemplate;
-  onSuccess?: () => void;
-  onProviderUpdate?: (provider: ProviderWithModels) => void;
-}
-
-const ALL_CAPABILITIES: { value: Capability; label: string; description: string }[] = [
-  { value: 'vision', label: 'Vision', description: '이미지 인식 및 분석' },
-  { value: 'function_calling', label: 'Function Calling', description: '함수 호출 지원' },
-  { value: 'json_mode', label: 'JSON Mode', description: 'JSON 출력 형식' },
-  { value: 'streaming', label: 'Streaming', description: '실시간 스트리밍 응답' },
-  { value: 'tools', label: 'Tools', description: '도구 사용 지원' },
-];
+import { ALL_CAPABILITIES } from './provider-form-schema';
+import { useProviderForm, type ProviderFormProps } from './use-provider-form';
 
 /**
  * 제공자 등록/수정 폼 컴포넌트
- * 
+ *
  * 템플릿 기반으로 생성하거나 직접 설정할 수 있습니다.
  */
-export function ProviderForm({ provider, template, onSuccess, onProviderUpdate }: ProviderFormProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isTesting, setIsTesting] = useState(false);
-  const [isSyncing, setIsSyncing] = useState(false);
-  const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(
-    null
-  );
-  const [syncedModels, setSyncedModels] = useState<number | null>(null);
-  const [selectedModel, setSelectedModel] = useState<string>('');
-  const [showApiKey, setShowApiKey] = useState(false);
-  const isEditing = !!provider;
-
-  // 폼 초기화
-  const form = useForm<ProviderFormValues>({
-    resolver: zodResolver(providerFormSchema) as never,
-    defaultValues: {
-      name: '',
-      providerType: 'custom',
-      baseUrl: '',
-      authType: 'api_key',
-      customAuthHeader: '',
-      apiKey: '',
-      capabilities: [],
-      costTier: 'medium',
-      qualityTier: 'balanced',
-      isEnabled: false,
-    },
-  });
-
-  // 템플릿이나 기존 제공자로 폼 초기값 설정
-  useEffect(() => {
-    if (provider) {
-      // 기존 제공자 수정
-      form.reset({
-        name: provider.name,
-        providerType: provider.providerType as ProviderFormValues['providerType'],
-        baseUrl: provider.baseUrl || '',
-        authType: provider.authType as ProviderFormValues['authType'],
-        customAuthHeader: provider.customAuthHeader || '',
-        apiKey: '', // API 키는 표시하지 않음
-        capabilities: provider.capabilities as Capability[],
-        costTier: provider.costTier as ProviderFormValues['costTier'],
-        qualityTier: provider.qualityTier as ProviderFormValues['qualityTier'],
-        isEnabled: provider.isEnabled,
-      });
-
-      // 기본 모델 선택 상태 초기화
-      const defaultModel = provider.models?.find(m => m.isDefault);
-      if (defaultModel) {
-        setSelectedModel(defaultModel.modelId);
-      }
-    } else if (template) {
-      // 템플릿 기반 새 제공자
-      form.reset({
-        name: template.name,
-        providerType: template.providerType as ProviderFormValues['providerType'],
-        baseUrl: template.defaultBaseUrl || '',
-        authType: template.defaultAuthType as ProviderFormValues['authType'],
-        customAuthHeader: template.customAuthHeaderName || '',
-        apiKey: '',
-        capabilities: template.defaultCapabilities,
-        costTier: template.defaultCostTier as ProviderFormValues['costTier'],
-        qualityTier: template.defaultQualityTier as ProviderFormValues['qualityTier'],
-        isEnabled: false,
-      });
-    }
-  }, [provider, template, form]);
-
-  // 폼 제출 핸들러
-  const onSubmit = async (values: ProviderFormValues) => {
-    setIsSubmitting(true);
-    setTestResult(null);
-
-    try {
-      const input: Partial<ProviderInput> = {
-        ...values,
-        baseUrl: values.baseUrl || undefined,
-        customAuthHeader: values.customAuthHeader || undefined,
-        apiKey: values.apiKey || undefined,
-        capabilities: values.capabilities as Capability[],
-      };
-
-      if (isEditing && provider) {
-        // 수정
-        await updateProviderAction(provider.id, input);
-      } else if (template) {
-        // 템플릿 기반 생성
-        await createProviderFromTemplateAction(template.templateId, input);
-      }
-
-      onSuccess?.();
-    } catch (error) {
-      console.error('Failed to save provider:', error);
-      setTestResult({
-        success: false,
-        message: error instanceof Error ? error.message : '저장에 실패했습니다.',
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  // 연결 테스트
-  const handleTestConnection = async () => {
-    if (!provider) {
-      setTestResult({
-        success: false,
-        message: '먼저 제공자를 저장한 후 테스트할 수 있습니다.',
-      });
-      return;
-    }
-
-    setIsTesting(true);
-    setTestResult(null);
-
-    try {
-      // 현재 폼 값을 먼저 저장하여 DB와 동기화
-      const values = form.getValues();
-      const input: Partial<ProviderInput> = {
-        ...values,
-        baseUrl: values.baseUrl || undefined,
-        customAuthHeader: values.customAuthHeader || undefined,
-        apiKey: values.apiKey || undefined,
-        capabilities: values.capabilities as Capability[],
-      };
-      await updateProviderAction(provider.id, input);
-
-      const result = await validateProviderAction(provider.id);
-      if (result.isValid) {
-        setTestResult({
-          success: true,
-          message: result.error ? `⚠ ${result.error}` : '연결 성공! 모델을 동기화합니다...',
-        });
-        // 연결 성공 시 자동으로 모델 동기화 실행
-        setIsTesting(false);
-        await handleSyncModels();
-        return;
-      } else {
-        setTestResult({
-          success: false,
-          message: `연결 실패: ${result.error || '알 수 없는 오류'}`,
-        });
-      }
-    } catch (error) {
-      setTestResult({
-        success: false,
-        message: error instanceof Error ? error.message : '테스트 중 오류가 발생했습니다.',
-      });
-    } finally {
-      setIsTesting(false);
-    }
-  };
-
-  // provider 데이터 재로드 (동기화 후 UI 갱신용)
-  const reloadProvider = async () => {
-    if (!provider) return;
-    try {
-      const response = await fetch(`/api/providers/${provider.id}`);
-      if (response.ok) {
-        const data = await response.json();
-        if (data.provider) {
-          onProviderUpdate?.(data.provider);
-          // 기본 모델 선택 상태도 갱신
-          const defaultModel = data.provider.models?.find((m: { isDefault: boolean }) => m.isDefault);
-          if (defaultModel) {
-            setSelectedModel(defaultModel.modelId);
-          }
-        }
-      }
-    } catch {
-      // 재로드 실패는 무시 (데이터는 이미 서버에 저장됨)
-    }
-  };
-
-  // 모델 동기화
-  const handleSyncModels = async () => {
-    if (!provider) {
-      setTestResult({
-        success: false,
-        message: '먼저 제공자를 저장한 후 동기화할 수 있습니다.',
-      });
-      return;
-    }
-
-    setIsSyncing(true);
-    setTestResult(null);
-
-    try {
-      const models = await syncProviderModelsAction(provider.id);
-      setSyncedModels(models.length);
-      setTestResult({
-        success: true,
-        message: `${models.length}개의 모델이 동기화되었습니다.`,
-      });
-      // 동기화 후 provider 데이터 재로드하여 모델 목록 UI 갱신
-      await reloadProvider();
-    } catch (error) {
-      setTestResult({
-        success: false,
-        message: error instanceof Error ? error.message : '동기화 중 오류가 발생했습니다.',
-      });
-    } finally {
-      setIsSyncing(false);
-    }
-  };
-
-  const authType = form.watch('authType');
-  const selectedCapabilities = form.watch('capabilities');
+export function ProviderForm(props: ProviderFormProps) {
+  const { provider, template } = props;
+  const {
+    form,
+    isSubmitting,
+    isTesting,
+    isSyncing,
+    testResult,
+    syncedModels,
+    selectedModel,
+    showApiKey,
+    setShowApiKey,
+    isEditing,
+    onSubmit,
+    handleTestConnection,
+    handleSyncModels,
+    handleSetDefaultModel,
+    authType,
+  } = useProviderForm(props);
 
   return (
     <Form {...form}>
@@ -608,27 +363,7 @@ export function ProviderForm({ provider, template, onSuccess, onProviderUpdate }
                   <Select
                     key={`${provider.id}-${selectedModel || 'empty'}`}
                     value={selectedModel || ''}
-                    onValueChange={async (value) => {
-                      setSelectedModel(value);
-                      // 기본 모델 저장
-                      if (provider && value) {
-                        try {
-                          const selectedModelData = provider.models?.find(m => m.modelId === value);
-                          if (selectedModelData) {
-                            await setDefaultModelAction(provider.id, selectedModelData.id);
-                            setTestResult({
-                              success: true,
-                              message: `기본 모델이 "${selectedModelData.displayName || selectedModelData.modelId}"(으)로 설정되었습니다.`,
-                            });
-                          }
-                        } catch (error) {
-                          setTestResult({
-                            success: false,
-                            message: error instanceof Error ? error.message : '기본 모델 설정에 실패했습니다.',
-                          });
-                        }
-                      }
-                    }}
+                    onValueChange={handleSetDefaultModel}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="모델을 선택하세요" />
@@ -787,7 +522,7 @@ export function ProviderForm({ provider, template, onSuccess, onProviderUpdate }
           <Button
             type="button"
             variant="outline"
-            onClick={() => onSuccess?.()}
+            onClick={() => props.onSuccess?.()}
             disabled={isSubmitting}
           >
             취소
