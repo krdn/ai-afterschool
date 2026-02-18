@@ -2,30 +2,34 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-18)
+See: .planning/PROJECT.md (updated 2026-02-19)
 
 **Core value:** 학생 정보 통합 관리를 기반으로 AI 성향 분석 및 맞춤형 학습/진로 제안 제공
-**Current focus:** v4.0 AI Smart Chat - Defining requirements
+**Current focus:** v4.0 AI Smart Chat — Phase 36: Server-side Foundation
 
 ## Current Position
 
 Milestone: v4.0 AI Smart Chat
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-02-18 — Milestone v4.0 started
+Phase: 36 of 40 (Server-side Foundation)
+Plan: — (not started)
+Status: Ready to plan
+Last activity: 2026-02-19 — Roadmap phases 36-40 created
 
-Progress: [████████████████████████████████████████████░] 92.9% (174/196 plans across v1.0-v3.0)
+Progress: [████████████████████████████████████████████░░] 91% (183/200+ plans)
 
-**v4.0 AI Smart Chat** ○ DEFINING REQUIREMENTS
-- (Phases to be defined after roadmap creation)
+**v4.0 AI Smart Chat** — ROADMAP COMPLETE, READY TO EXECUTE
+- [ ] Phase 36: Server-side Foundation (MENT-03, MENT-04, CTX-01~05)
+- [ ] Phase 37: Autocomplete Search API (MENT-06)
+- [ ] Phase 38: Autocomplete UI & ChatInput Integration (MENT-01, MENT-02, MENT-05, UI-01)
+- [ ] Phase 39: Message Rendering & UX Polish (UI-02, UI-03)
+- [ ] Phase 40: LLMQueryBar Extension (UI-04)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 170 (v1.0-v3.0)
+- Total plans completed: 183+ (v1.0-Phase 35 + v3.0 29-30)
 - Average duration: ~4.3 min
-- Total execution time: ~12.2 hours
+- Total execution time: ~13 hours
 
 **By Milestone:**
 
@@ -36,131 +40,39 @@ Progress: [███████████████████████
 | v2.0 Teacher Mgmt | 40 | ~119 min | ~3 min |
 | v2.1 Counseling | 30 | ~189 min | ~6.3 min |
 | v2.1.1 E2E Test | 34 | ~208 min | ~6.1 min |
-| v3.0 DevOps | 3 | ~3 min | ~3 min |
-
-**Recent Trend:**
-- v2.0 velocity: ~3 min/plan (improved)
-- v2.1 velocity: ~6.3 min/plan (comprehensive features)
-- v2.1.1 velocity: ~6.1 min/plan (test infrastructure)
-
-*Updated after v3.0 roadmap creation*
+| v3.0 DevOps (partial) | 7 | ~21 min | ~3 min |
+| v4.0 LLM Hub | 9 | ~27 min | ~3 min |
 
 ## Accumulated Context
 
 ### Decisions
 
-Decisions are logged in PROJECT.md Key Decisions table.
-Recent decisions affecting v3.0:
-
-**v3.0 Phase Structure (Roadmap):**
-- Phase 29-34 order follows dependency graph: DB→API→UI→Sentry→Webhook→CI/CD→Dashboard
-- Phase 29 addresses INFRA & GH foundation (8 requirements)
-- Phase 30 addresses user-facing issue reporting (5 requirements)
-- Phase 31 addresses automatic error collection (5 requirements)
-- Phase 32 addresses GitHub sync bidirectional (3 requirements)
-- Phase 33 addresses deployment automation (5 requirements)
-- Phase 34 addresses visibility & integration (5 requirements)
-
-**v3.0 Key Technical Decisions (from research):**
-- GitHub API integration: octokit SDK (unified REST + GraphQL)
-- Screenshot capture: modern-screenshot (20KB, 3x faster than html2canvas)
-- Webhook security: HMAC-SHA256 signature verification mandatory
-- Error deduplication: fingerprint-based to prevent issue spam
-- Rate limit monitoring: X-RateLimit-Remaining header tracking
-- Dual-layer storage: Local PostgreSQL + GitHub Issues sync
-- CI/CD trigger: `auto-deploy` label on PR merge to main
-
-**Universal LLM Hub (Phase 35) - COMPLETE:**
-- Prisma schema: Provider, Model, FeatureMapping 테이블 추가 (35-01)
-- 타입 정의: Prisma 타입에서 파생하여 일관성 유지 (35-02)
-- 어댑터 패턴: BaseAdapter 상속 구조 (35-02)
-- ProviderRegistry: Singleton + TTL 캐싱 (35-02)
-- 제공자 템플릿: 11개 인기 제공자 템플릿 정의 (35-03)
-- 템플릿 기반 등록: 필드 자동 채우기 + 직접 설정 모드 (35-03)
-- Provider API: REST API + Server Actions 이중 지원 (35-03)
-- Feature Mapping System: 태그 기반 + 직접 지정 하이브리드 해상도 (35-04)
-  - FeatureResolver: resolve(), resolveWithFallback() 지원
-  - 태그 필터링: requiredTags, excludedTags
-  - 폴 백 체인: priority 기반 정렬, fallbackMode (next_priority, any_available, fail)
-  - 시딩 데이터: 12개 기능 타입 기본 매핑
-  - 매핑 API: CRUD + resolve 엔드포인트
-  - Server Actions: 6개 액션으로 UI 연동
-- Admin Dashboard UI: 기능별 LLM 매핑 설정 페이지 (35-07)
-  - ResolutionPreview: 폴 백 체인 미리보기
-  - FeatureMappingForm: 태그 기반/직접 지정 모드 설정
-  - FeatureMappingCard: 규칙 카드 표시
-  - FeatureMappingList: 기능별 탭 조직화
-  - /admin/llm-features: DIRECTOR 권한 관리 페이지
-- Help System: 인라인 도움말 + 헬프 센터 + 추천 위자드 (35-08)
-  - 도움말 콘텐츠: 4개 카테고리, 20+ 주제
-  - InlineHelp: (?) 아이콘으로 필드별 도움말
-  - HelpCenter: 검색, 카테고리 탭, 마크다운 렌더링
-  - LLMRecommender: 3-4단계 질문 기반 추천 위자드
-  - 모든 관리자 페이지에 통합
-- Testing & Validation: 단위/통합/E2E 테스트 (35-09)
-  - ProviderRegistry: 20+ 단위 테스트
-  - FeatureResolver: 23 단위 테스트
-  - Universal Router: 24 단위 테스트
-  - 통합 테스트: 10 시나리오
-  - E2E 테스트: 30+ 시나리오 (제공자 관리, 기능 매핑)
-  - 총 98개 테스트 통과
-
-**Critical Pitfalls to Avoid:**
-1. GitHub API rate limit (5,000/hour) - monitor and cache locally
-2. Webhook signature verification - HMAC-SHA256 + timingSafeEqual
-3. Sentry issue spam - fingerprint + threshold (10 errors → 1 issue)
-4. Auto-deploy infinite loop - [skip ci] + bot account filtering
-5. Screenshot CORS - image proxy + crossorigin="anonymous"
+**v4.0 AI Smart Chat — Architecture (from research 2026-02-18):**
+- Parse on Submit: textarea에 @Name 텍스트 유지, submit 시에만 파싱 (contenteditable 불필요)
+- System Prompt Injection: 엔티티 데이터를 messages[]가 아닌 system 파라미터로 주입 (히스토리 오염 방지)
+- Server-side Resolution: 클라이언트는 [{type, id}] 튜플만 전송, 서버에서 RBAC 포함 데이터 조회
+- GET Route for Autocomplete: AbortController 취소 지원 위해 Server Action 대신 GET route
+- Token budget: ~800 토큰/엔티티 (한국어 1토큰 ≈ 1.5~2자)
+- Security: XML 경계 마킹 (<student_data>) + system prompt 상단 지시문으로 Prompt Injection 방어
+- New package: react-mentions-ts@5.4.7 (단 하나, peer deps 전부 기존 설치됨)
+- Fallback: react-mentions-ts + shadcn/ui 충돌 시 @ariakit/react combobox-textarea
 
 ### Pending Todos
 
-None yet for v3.0.
+None.
 
 ### Blockers/Concerns
 
-**From v3.0 Research - Gaps to Address:**
-- GitHub App vs PAT authentication: Start with PAT, migrate to GitHub App if rate limit issues
-- Image upload strategy: MinIO upload + URL insertion vs base64 inline (decide in Phase 30)
-- Sentry beforeSend async pattern: fire-and-forget with local queueing fallback (design in Phase 31)
+**Phase 38 리스크 (경미):**
+- react-mentions-ts + shadcn/ui Tailwind v4 통합: Phase 38 첫 Task에서 스파이크 테스트 필수
+- 한국어 IME + @트리거 충돌: compositionstart/compositionend 이벤트 실제 테스트 필요
 
-**From v2.1.1 Technical Debt:**
-- E2E test coverage 20.7% (18/87 passing) - Admin data-testid missing, timeout issues
-- Analysis history feature constraint - @unique prevents multiple records, needs separate history table
-- 40 unimplemented feature tests skipped - teacher management, admin settings, report generation
-
-**From Phase 35:**
-- AI SDK 타입 변경사항: 최신 버전과의 호환성 확인 필요 (resolved in 35-02)
-- Prisma Client 재생성 필요: schema 변경사항 반영을 위해 `prisma generate` 실행 필요 (TypeScript 오류 해결)
-- **Router Migration 완료 (35-05)**: 기존 router.ts가 universal-router.ts로 위임하도록 변경, 하위호환성 100% 유지
-  - Universal Router: FeatureResolver 기반 동적 모델 선택
-  - Compatibility Layer: legacy/new 타입 변환 지원
-  - 통합 테스트: 19개 테스트 통과
-
-### Quick Tasks Completed
-
-| # | Description | Date | Commit | Directory |
-|---|-------------|------|--------|-----------|
-| 004 | 사주분석 미리보기 markdown HTML 렌더링 개선 | 2026-02-11 | 7fa87bd | [004-saju-preview-markdown-html](./quick/004-saju-preview-markdown-html/) |
-| 005 | 사주 이력 패널 마크다운 렌더링 개선 | 2026-02-11 | ff7760a | [005-saju-interpretation-markdown-render](./quick/005-saju-interpretation-markdown-render/) |
-| 006 | 사주 해석 미리보기 포맷 개선 | 2026-02-11 | 1fc5c71 | [006-saju-preview-format-fix](./quick/006-saju-preview-format-fix/) |
+**v3.0 미완료 (병행 진행 가능):**
+- Phase 31-34 미시작 (Sentry Auto-Collection, Webhook, CI/CD, Dashboard)
 
 ## Session Continuity
 
-Last session: 2026-02-12
-Stopped at: Phase 30-04 COMPLETE (Header Issue Button Integration) - Checkpoint pending
-Resume file: .planning/phases/30-issue-ui-screenshot/30-04-PLAN.md
-Next action: Manual testing required for checkpoint approval
-
-**Phase 30 Summary:**
-- 30-01 Screenshot Infrastructure: modern-screenshot, capture.ts, image-storage.ts
-- 30-02 Screenshot UI Components: ScreenshotCapture, ScreenshotPreview components  
-- 30-03 Issue Form & Modal: IssueForm, IssueReportModal components with GitHub integration
-- 30-04 Header Integration: IssueReportButton in dashboard header for DIRECTOR role
-- Complete flow: Click Header Button → Capture → Preview → Fill Form → Submit → GitHub Issue
-- User context tracking: role, URL, timestamp stored and displayed in GitHub issues
-- Responsive design: Desktop shows text, mobile shows icon only
-
-Last activity: 2026-02-12 - Completed 30-04: Header Issue Button Integration
-
----
-*Last updated: 2026-02-12 (Phase 30 COMPLETE - 30-04 complete)*
+Last session: 2026-02-19
+Stopped at: Roadmap created for v4.0 AI Smart Chat (phases 36-40)
+Resume file: None
+Next action: /gsd:plan-phase 36

@@ -9,6 +9,7 @@
 - ✅ **v2.1.1 E2E Test Compliance** - Phases 23-28 (shipped 2026-02-07)
 - 🚧 **v3.0 Issue Management & Auto DevOps Pipeline** - Phases 29-34 (in progress)
 - ✅ **v4.0 Universal LLM Hub** - Phase 35 (shipped 2026-02-12)
+- 🚧 **v4.0 AI Smart Chat** - Phases 36-40 (in progress)
 
 ## Phases
 
@@ -251,7 +252,7 @@ Plans:
 
 ### 🚧 v3.0 Issue Management & Auto DevOps Pipeline (In Progress)
 
-**Milestone Goal:** 앱 낭에서 이슈를 등록하고, GitHub Issue 생성 → 브랜치 생성 → 수정 작업 → 테스트 → 배포까지의 전체 DevOps 파이프라인을 자동화
+**Milestone Goal:** 앱 내에서 이슈를 등록하고, GitHub Issue 생성 → 브랜치 생성 → 수정 작업 → 테스트 → 배포까지의 전체 DevOps 파이프라인을 자동화
 
 #### Phase 29: Database & GitHub API Foundation
 **Goal**: 이슈 저장 기반 및 GitHub API 통합
@@ -269,43 +270,6 @@ Plans:
 - [x] 29-01-PLAN.md -- Prisma 스키마 (Issue, IssueEvent 모델 + enum + 마이그레이션)
 - [x] 29-02-PLAN.md -- GitHub 클라이언트 기반 (Octokit + 유틸리티 + 상수)
 - [x] 29-03-PLAN.md -- GitHub 서비스 + Issue Server Actions (CRUD, 라벨, 브랜치)
-
-### 🚀 v4.0 Universal LLM Hub (New)
-
-**Milestone Goal:** 기존 정적인 LLM 설정을 범용 Universal LLM Hub로 전환하여 시중의 모든 LLM(상용/로컬)을 동적으로 등록하고, 기능별로 유연하게 연결하는 미래지향적 시스템 구축
-
-**Key Features:**
-- 11개 인기 제공자 템플릿 (OpenAI, Claude, Gemini, Ollama, DeepSeek 등)
-- 템플릿 기반 + 직접 설정 하이브리드 등록
-- 태그 기반 자동 매칭 + 직접 모델 지정
-- 기능별 LLM 연결 (학습 분석→GPT-4, 이미지 분석→Vision 지원 모델 등)
-- 인라인 도움말 + 헬프 센터 + 스마트 추천 시스템
-- 기존 코드와 100% 하위호환
-
-#### Phase 35: Universal LLM Hub
-**Goal**: 범용 LLM Hub 시스템 구축
-**Depends on**: Phase 15 (기존 Multi-LLM Integration)
-**Requirements**: LLM-HUB-01~09
-**Success Criteria** (what must be TRUE):
-  1. 관리자가 템플릿을 선택하여 새 LLM 제공자를 3클릭으로 등록할 수 있다
-  2. 제공자 등록 시 API 키 발급 방법이 인라인으로 안난된다
-  3. 기능별(학습분석, 관상분석 등)로 LLM을 태그 기반 또는 직접 지정으로 매핑할 수 있다
-  4. 매핑 결과를 미리 보고 테스트할 수 있다
-  5. 기존 generateWithProvider() 호출이 새 시스템으로 자동 전환된다 (하위호환)
-  6. 일반인이 "어떤 LLM을 선택해야 할지" 위자드를 통해 추천받을 수 있다
-  7. 모든 설정에 대한 인라인 도움말과 종합 헬프 센터가 제공된다
-**Plans**: 9 plans
-
-Plans:
-- [x] 35-01: Database Schema Migration (Provider, Model, FeatureMapping 테이블)
-- [x] 35-02: Core Types & Provider Registry Foundation
-- [x] 35-03: Provider Template System & Registration API
-- [x] 35-04: Feature Mapping System (Tag-based + Direct)
-- [x] 35-05: LLM Router Integration (Legacy Migration)
-- [x] 35-06: Admin Dashboard UI - Provider Management
-- [x] 35-07: Admin Dashboard UI - Feature Mapping Settings
-- [x] 35-08: Help System (Inline + Help Center + Recommendations)
-- [x] 35-09: Testing & Validation
 
 #### Phase 30: Issue UI & Screenshot
 **Goal**: 이슈 보고 UI 및 스크린샷 캡처
@@ -385,10 +349,126 @@ Plans:
 Plans:
 - [ ] 34-01: TBD
 
+<details>
+<summary>✅ v4.0 Universal LLM Hub (Phase 35) - SHIPPED 2026-02-12</summary>
+
+**Milestone Goal:** 기존 정적인 LLM 설정을 범용 Universal LLM Hub로 전환하여 시중의 모든 LLM(상용/로컬)을 동적으로 등록하고, 기능별로 유연하게 연결하는 미래지향적 시스템 구축
+
+#### Phase 35: Universal LLM Hub
+**Goal**: 범용 LLM Hub 시스템 구축
+**Depends on**: Phase 15 (기존 Multi-LLM Integration)
+**Requirements**: LLM-HUB-01~09
+**Success Criteria** (what must be TRUE):
+  1. 관리자가 템플릿을 선택하여 새 LLM 제공자를 3클릭으로 등록할 수 있다
+  2. 제공자 등록 시 API 키 발급 방법이 인라인으로 안내된다
+  3. 기능별(학습분석, 관상분석 등)로 LLM을 태그 기반 또는 직접 지정으로 매핑할 수 있다
+  4. 매핑 결과를 미리 보고 테스트할 수 있다
+  5. 기존 generateWithProvider() 호출이 새 시스템으로 자동 전환된다 (하위호환)
+  6. 일반인이 "어떤 LLM을 선택해야 할지" 위자드를 통해 추천받을 수 있다
+  7. 모든 설정에 대한 인라인 도움말과 종합 헬프 센터가 제공된다
+**Plans**: 9 plans
+
+Plans:
+- [x] 35-01: Database Schema Migration (Provider, Model, FeatureMapping 테이블)
+- [x] 35-02: Core Types & Provider Registry Foundation
+- [x] 35-03: Provider Template System & Registration API
+- [x] 35-04: Feature Mapping System (Tag-based + Direct)
+- [x] 35-05: LLM Router Integration (Legacy Migration)
+- [x] 35-06: Admin Dashboard UI - Provider Management
+- [x] 35-07: Admin Dashboard UI - Feature Mapping Settings
+- [x] 35-08: Help System (Inline + Help Center + Recommendations)
+- [x] 35-09: Testing & Validation
+
+</details>
+
+### 🚧 v4.0 AI Smart Chat (In Progress)
+
+**Milestone Goal:** AI 채팅에서 @멘션으로 시스템 데이터(학생, 선생님, 학급, 분석 결과 등)를 참조하여 맞춤형 AI 응답을 제공하는 컨텍스트 인식 채팅 시스템
+
+#### Phase 36: Server-side Foundation
+**Goal**: 교사가 @멘션을 포함한 메시지를 전송하면 서버가 RBAC를 적용하여 엔티티 데이터를 조회하고 AI 시스템 프롬프트에 안전하게 주입한다
+**Depends on**: Phase 35
+**Requirements**: MENT-03, MENT-04, CTX-01, CTX-02, CTX-03, CTX-04, CTX-05
+**Success Criteria** (what must be TRUE):
+  1. @멘션이 포함된 채팅 메시지 전송 시 서버가 엔티티 ID/타입 목록을 파싱하여 DB에서 데이터를 조회한다
+  2. 조회된 엔티티 데이터가 토큰 예산(~800토큰/엔티티) 내로 요약되어 AI 시스템 프롬프트에 주입된다
+  3. 교사는 자신의 팀에 속하지 않은 학생/선생님을 멘션해도 해당 데이터가 조회되지 않는다 (RBAC)
+  4. 상담 노트 등 자유 텍스트 필드가 XML 경계 마킹으로 감싸져 Prompt Injection을 방어한다
+  5. 전송된 메시지의 ChatMessage 레코드에 mentionedEntities JSON 메타데이터가 저장된다
+**Plans**: TBD
+
+Plans:
+- [ ] 36-01: mention-types.ts (공유 타입 정의 — MentionItem, MentionType, MentionedEntity)
+- [ ] 36-02: Prisma 스키마 변경 (ChatMessage.mentionedEntities Json?) + 마이그레이션
+- [ ] 36-03: mention-resolver.ts (RBAC 포함 학생/선생님/팀 엔티티 데이터 DB 조회)
+- [ ] 36-04: context-builder.ts (토큰 예산 제한 + XML 경계 마킹 + Prompt Injection 방어)
+- [ ] 36-05: /api/chat/route.ts 수정 (mentions[] 수신, dynamic system prompt 주입, mentionedEntities 저장)
+
+#### Phase 37: Autocomplete Search API
+**Goal**: 교사가 @를 입력할 때 이름 검색으로 학생, 선생님, 학급 3가지 엔티티 타입을 빠르게 찾을 수 있는 독립적인 검색 레이어가 동작한다
+**Depends on**: Phase 36
+**Requirements**: MENT-06
+**Success Criteria** (what must be TRUE):
+  1. GET /api/chat/mentions/search?q=홍&types=student,teacher,team 호출 시 팀 내 엔티티가 타입별로 반환된다
+  2. 2자 미만 쿼리는 빈 결과를 반환하고 불필요한 DB 조회가 발생하지 않는다
+  3. 검색 결과에 학생(grade, school), 선생님(role), 학급(team name) 구분용 서브레이블이 포함된다
+  4. 팀 외부 엔티티는 RBAC에 의해 검색 결과에서 제외된다
+**Plans**: TBD
+
+Plans:
+- [ ] 37-01: /api/chat/mentions/search GET route (AbortController 취소 지원, Promise.all 병렬 쿼리, RBAC)
+
+#### Phase 38: Autocomplete UI & ChatInput Integration
+**Goal**: 교사가 채팅 입력창에 @를 입력하면 자동완성 드롭다운이 열리고, 엔티티를 선택하여 멘션을 삽입할 수 있으며, 한국어 IME 조합 중에도 정상 작동한다
+**Depends on**: Phase 37
+**Requirements**: MENT-01, MENT-02, MENT-05, UI-01
+**Success Criteria** (what must be TRUE):
+  1. 교사가 채팅 입력창에 @를 입력하면 학생/선생님/학급 검색 드롭다운이 200ms 디바운스로 나타난다
+  2. 드롭다운이 학생/선생님/학급 그룹 헤더로 구분되어 표시되며 키보드(↑↓ Enter Esc)로 조작할 수 있다
+  3. 드롭다운에서 엔티티를 선택하면 입력창에 @이름 멘션이 삽입되고 커서가 올바른 위치에 유지된다
+  4. 한국어 IME 조합 중(compositionstart~compositionend)에는 드롭다운이 열리지 않아 오작동이 없다
+**Plans**: TBD
+
+Plans:
+- [ ] 38-01: react-mentions-ts@5.4.7 설치 + Tailwind v4 통합 스파이크 (실패 시 @ariakit/react fallback)
+- [ ] 38-02: use-mention.ts 훅 (자동완성 상태, 디바운스 페치, AbortController, IME 감지)
+- [ ] 38-03: MentionDropdown 컴포넌트 (타입별 그룹, 키보드 네비게이션, 빈 결과 메시지)
+- [ ] 38-04: ChatInput.tsx 수정 (MentionTextarea 통합, onSend(prompt, mentions[], providerId?) 시그니처)
+- [ ] 38-05: useChatStream.ts + ChatPage.tsx 수정 (mentions[] POST body 전달, activeMentions 상태)
+
+#### Phase 39: Message Rendering & UX Polish
+**Goal**: 전송된 채팅 메시지에서 @멘션이 시각적 칩으로 렌더링되며, 칩을 클릭하면 엔티티 요약 정보를 팝오버로 확인할 수 있다
+**Depends on**: Phase 38
+**Requirements**: UI-02, UI-03
+**Success Criteria** (what must be TRUE):
+  1. 전송된 메시지의 @이름 텍스트가 배경색이 있는 시각적 칩으로 표시되어 일반 텍스트와 구분된다
+  2. 멘션 칩을 클릭하면 해당 엔티티의 핵심 정보(이름, 역할/학년, 최신 분석 요약)가 팝오버로 표시된다
+  3. AI 응답 스트리밍 중에는 드롭다운이 비활성화되어 입력이 차단되지 않는다
+  4. 드롭다운이 뷰포트 하단에 걸리는 경우 자동으로 위쪽에 열려 잘림이 없다
+**Plans**: TBD
+
+Plans:
+- [ ] 39-01: MentionTag 컴포넌트 (칩 렌더링, 클릭 팝오버, 엔티티 요약 표시)
+- [ ] 39-02: ChatMessageItem.tsx 수정 (mentionedEntities 메타데이터로 @Name → MentionTag 치환)
+- [ ] 39-03: UX 완성 (스트리밍 중 드롭다운 비활성화, 뷰포트 위치 동적 결정, 빈 결과 메시지)
+
+#### Phase 40: LLMQueryBar Extension
+**Goal**: 대시보드 상단 LLMQueryBar에서도 @멘션을 사용할 수 있어, 교사가 메인 채팅 페이지 진입 없이 컨텍스트 인식 AI 질문을 빠르게 할 수 있다
+**Depends on**: Phase 39
+**Requirements**: UI-04
+**Success Criteria** (what must be TRUE):
+  1. 대시보드 LLMQueryBar에서 @를 입력하면 Phase 38에서 만든 자동완성 드롭다운이 동일하게 동작한다
+  2. LLMQueryBar에서 멘션 포함 메시지 전송 시 Phase 36의 서버 파이프라인이 동일하게 처리한다
+  3. LLMQueryBar의 기존 동작(멘션 없는 일반 질문)이 하위 호환성을 유지하며 정상 동작한다
+**Plans**: TBD
+
+Plans:
+- [ ] 40-01: LLMQueryBar @멘션 통합 (MentionInput 컴포넌트 재사용, props 인터페이스 확장)
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 29 → 30 → 31 → 32 → 33 → 34
+Phases execute in numeric order: 36 → 37 → 38 → 39 → 40
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -420,15 +500,20 @@ Phases execute in numeric order: 29 → 30 → 31 → 32 → 33 → 34
 | 26. Counseling & Matching UI Enhancement | v2.1.1 | 4/4 | Complete | 2026-02-07 |
 | 27. RBAC, Auth & Error Handling | v2.1.1 | 4/4 | Complete | 2026-02-07 |
 | 28. Integration Verification & Test Alignment | v2.1.1 | 8/8 | Complete | 2026-02-07 |
-| 29. Database & GitHub API Foundation | v3.0 | 0/3 | Planned | - |
-| 30. Issue UI & Screenshot | v3.0 | 0/TBD | Not started | - |
+| 29. Database & GitHub API Foundation | v3.0 | 3/3 | Complete | 2026-02-12 |
+| 30. Issue UI & Screenshot | v3.0 | 4/4 | Complete | 2026-02-12 |
 | 31. Sentry Error Auto-Collection | v3.0 | 0/TBD | Not started | - |
 | 32. Webhook & Issue Sync | v3.0 | 0/TBD | Not started | - |
 | 33. CI/CD Pipeline | v3.0 | 0/TBD | Not started | - |
 | 34. Issue Dashboard & Integration Testing | v3.0 | 0/TBD | Not started | - |
 | 35. Universal LLM Hub | v4.0 | 9/9 | Complete | 2026-02-12 |
+| 36. Server-side Foundation | v4.0 AI Chat | 0/TBD | Not started | - |
+| 37. Autocomplete Search API | v4.0 AI Chat | 0/TBD | Not started | - |
+| 38. Autocomplete UI & ChatInput Integration | v4.0 AI Chat | 0/TBD | Not started | - |
+| 39. Message Rendering & UX Polish | v4.0 AI Chat | 0/TBD | Not started | - |
+| 40. LLMQueryBar Extension | v4.0 AI Chat | 0/TBD | Not started | - |
 
-**Overall Progress:** 174/183 plans complete (v1.0-v2.1.1: 100%, v3.0: 0%, v4.0: 100%)
+**Overall Progress:** 183/183 plans complete through Phase 35 + v3.0 partial (v1.0-v2.1.1: 100%, v3.0 29-30: complete, v4.0 Phase 35: 100%, Phases 36-40: 0%)
 
 ---
-*Last updated: 2026-02-12 (Phase 35: Universal LLM Hub 계획 생성)*
+*Last updated: 2026-02-19 (v4.0 AI Smart Chat roadmap phases 36-40 added)*

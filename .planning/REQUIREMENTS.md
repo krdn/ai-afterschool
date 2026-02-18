@@ -59,27 +59,27 @@ Requirements for v4.0 AI Smart Chat milestone. Each maps to roadmap phases.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| MENT-01 | TBD | Pending |
-| MENT-02 | TBD | Pending |
-| MENT-03 | TBD | Pending |
-| MENT-04 | TBD | Pending |
-| MENT-05 | TBD | Pending |
-| MENT-06 | TBD | Pending |
-| CTX-01 | TBD | Pending |
-| CTX-02 | TBD | Pending |
-| CTX-03 | TBD | Pending |
-| CTX-04 | TBD | Pending |
-| CTX-05 | TBD | Pending |
-| UI-01 | TBD | Pending |
-| UI-02 | TBD | Pending |
-| UI-03 | TBD | Pending |
-| UI-04 | TBD | Pending |
+| MENT-01 | Phase 38 | Pending |
+| MENT-02 | Phase 38 | Pending |
+| MENT-03 | Phase 36 | Pending |
+| MENT-04 | Phase 36 | Pending |
+| MENT-05 | Phase 38 | Pending |
+| MENT-06 | Phase 37 | Pending |
+| CTX-01 | Phase 36 | Pending |
+| CTX-02 | Phase 36 | Pending |
+| CTX-03 | Phase 36 | Pending |
+| CTX-04 | Phase 36 | Pending |
+| CTX-05 | Phase 36 | Pending |
+| UI-01 | Phase 38 | Pending |
+| UI-02 | Phase 39 | Pending |
+| UI-03 | Phase 39 | Pending |
+| UI-04 | Phase 40 | Pending |
 
 **Coverage:**
 - v4.0 requirements: 15 total
-- Mapped to phases: 0
-- Unmapped: 15
+- Mapped to phases: 15
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-19*
-*Last updated: 2026-02-19 after initial definition*
+*Last updated: 2026-02-19 — phase assignments complete (phases 36-40)*
