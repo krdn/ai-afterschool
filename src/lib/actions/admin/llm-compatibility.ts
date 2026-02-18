@@ -10,9 +10,7 @@ import {
   type TeacherData,
 } from "@/lib/ai/compatibility-prompts"
 import type { TeacherRecommendation } from "@/components/matching/teacher-recommendation-list"
-import type { MbtiPercentages } from "@/lib/analysis/mbti-scoring"
-import type { SajuResult } from "@/lib/analysis/saju"
-import type { NameNumerologyResult } from "@/lib/analysis/name-numerology"
+import { fetchSubjectAnalyses, fetchBatchAnalyses } from "@/lib/db/matching/fetch-analysis"
 
 // ---------------------------------------------------------------------------
 // LLM 응답 파싱
@@ -141,21 +139,8 @@ export async function getLLMTeacherRecommendations(studentId: string, providerId
     throw new Error("학생을 찾을 수 없어요.")
   }
 
-  // 학생 분석 데이터 조회 (통합 테이블)
-  const [studentMbti, studentSaju, studentNameAnalysis] = await Promise.all([
-    db.mbtiAnalysis.findUnique({
-      where: { subjectType_subjectId: { subjectType: 'STUDENT', subjectId: studentId } },
-      select: { percentages: true },
-    }),
-    db.sajuAnalysis.findUnique({
-      where: { subjectType_subjectId: { subjectType: 'STUDENT', subjectId: studentId } },
-      select: { result: true },
-    }),
-    db.nameAnalysis.findUnique({
-      where: { subjectType_subjectId: { subjectType: 'STUDENT', subjectId: studentId } },
-      select: { result: true },
-    }),
-  ])
+  // 학생 분석 데이터 조회
+  const studentAnalyses = await fetchSubjectAnalyses(studentId, "STUDENT")
 
   // 선생님 목록 조회
   const teachers = await db.teacher.findMany({
@@ -172,26 +157,9 @@ export async function getLLMTeacherRecommendations(studentId: string, providerId
     },
   })
 
-  // 선생님 분석 데이터 일괄 조회 (통합 테이블)
+  // 선생님 분석 데이터 일괄 조회
   const teacherIds = teachers.map(t => t.id)
-  const [teacherMbtis, teacherSajus, teacherNames] = await Promise.all([
-    db.mbtiAnalysis.findMany({
-      where: { subjectType: 'TEACHER', subjectId: { in: teacherIds } },
-      select: { subjectId: true, percentages: true },
-    }),
-    db.sajuAnalysis.findMany({
-      where: { subjectType: 'TEACHER', subjectId: { in: teacherIds } },
-      select: { subjectId: true, result: true },
-    }),
-    db.nameAnalysis.findMany({
-      where: { subjectType: 'TEACHER', subjectId: { in: teacherIds } },
-      select: { subjectId: true, result: true },
-    }),
-  ])
-
-  const teacherMbtiMap = new Map(teacherMbtis.map(m => [m.subjectId, m]))
-  const teacherSajuMap = new Map(teacherSajus.map(s => [s.subjectId, s]))
-  const teacherNameMap = new Map(teacherNames.map(n => [n.subjectId, n]))
+  const teacherAnalysesMap = await fetchBatchAnalyses(teacherIds, "TEACHER")
 
   if (teachers.length === 0) {
     return {
@@ -205,20 +173,23 @@ export async function getLLMTeacherRecommendations(studentId: string, providerId
   const studentData: StudentData = {
     id: student.id,
     name: student.name,
-    mbti: (studentMbti?.percentages as unknown as MbtiPercentages) ?? null,
-    saju: (studentSaju?.result as unknown as SajuResult) ?? null,
-    nameAnalysis: (studentNameAnalysis?.result as unknown as NameNumerologyResult) ?? null,
+    mbti: studentAnalyses.mbti,
+    saju: studentAnalyses.saju,
+    nameAnalysis: studentAnalyses.name,
   }
 
-  const teacherDataList: TeacherData[] = teachers.map((t) => ({
-    id: t.id,
-    name: t.name,
-    role: t.role,
-    mbti: (teacherMbtiMap.get(t.id)?.percentages as unknown as MbtiPercentages) ?? null,
-    saju: (teacherSajuMap.get(t.id)?.result as unknown as SajuResult) ?? null,
-    nameAnalysis: (teacherNameMap.get(t.id)?.result as unknown as NameNumerologyResult) ?? null,
-    currentStudentCount: t._count.students,
-  }))
+  const teacherDataList: TeacherData[] = teachers.map((t) => {
+    const tAnalyses = teacherAnalysesMap.get(t.id) ?? { mbti: null, saju: null, name: null }
+    return {
+      id: t.id,
+      name: t.name,
+      role: t.role,
+      mbti: tAnalyses.mbti,
+      saju: tAnalyses.saju,
+      nameAnalysis: tAnalyses.name,
+      currentStudentCount: t._count.students,
+    }
+  })
 
   // 프롬프트 생성
   const userPrompt = buildCompatibilityPrompt(studentData, teacherDataList)
