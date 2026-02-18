@@ -169,7 +169,7 @@ test.describe.serial('학생 데이터 관리 (Student)', () => {
       const tabSelector = page.locator(`[data-testid="${tab.id}-tab"]`);
       await expect(tabSelector).toBeVisible({ timeout: 5000 });
       await tabSelector.click();
-      await page.waitForURL(new RegExp(`tab=${tab.id}`), { timeout: 10000 });
+      await expect(page).toHaveURL(new RegExp(`tab=${tab.id}`), { timeout: 10000 });
       await expect(page.locator('text=/오류|에러|Error/i')).not.toBeVisible();
     }
 
