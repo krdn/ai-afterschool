@@ -36,6 +36,7 @@ model Teacher {
   issuesAssigned             Issue[]                   @relation("IssueAssignee")
   issueEvents                IssueEvent[]              @relation("IssueEventPerformer")
   sajuAnalysisHistories      TeacherSajuAnalysisHistory[]
+  chatSessions               ChatSession[]
 }
 
 model Team {
@@ -832,4 +833,32 @@ enum IssuePriority {
   MEDIUM
   HIGH
   URGENT
+}
+
+model ChatSession {
+  id        String        @id @default(cuid())
+  title     String?
+  teacherId String
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  teacher   Teacher       @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  messages  ChatMessage[]
+
+  @@index([teacherId, updatedAt(sort: Desc)])
+  @@map("chat_sessions")
+}
+
+model ChatMessage {
+  id                String      @id @default(cuid())
+  sessionId         String
+  role              String
+  content           String      @db.Text
+  provider          String?
+  model             String?
+  mentionedEntities Json?
+  createdAt         DateTime    @default(now())
+  session           ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, createdAt])
+  @@map("chat_messages")
 }
