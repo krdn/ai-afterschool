@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { Star } from "lucide-react"
+import { ZodiacHelpDialog } from "@/components/students/zodiac-help-dialog"
 import { runZodiacAnalysis, generateZodiacLLMInterpretation } from "@/lib/actions/student/zodiac-analysis"
 import type { ProviderName } from "@/lib/ai/providers/types"
 import type { GenericPromptMeta } from "@/components/students/prompt-selector"
@@ -71,6 +72,7 @@ export function ZodiacAnalysisPanel({ studentId, analysis, enabledProviders = []
             <Star className="w-5 h-5 text-indigo-600" />
           </div>
           <h2 className="text-lg font-semibold">별자리 운세</h2>
+          <ZodiacHelpDialog />
         </div>
         {!analysis && (
           <Button onClick={handleAnalyze} disabled={isAnalyzing}>

@@ -4,6 +4,7 @@ import { useState, useTransition } from "react"
 import { format } from "date-fns"
 import { ko } from "date-fns/locale"
 import { Sparkles, AlertCircle, Type } from "lucide-react"
+import { NameHelpDialog } from "@/components/students/name-help-dialog"
 import { runNameAnalysisAction } from "@/app/[locale]/(dashboard)/students/[id]/name/actions"
 import { runNameAnalysis, generateNameLLMInterpretation } from "@/lib/actions/student/name-interpretation"
 import type { NameNumerologyResult } from "@/lib/analysis/name-numerology"
@@ -107,6 +108,7 @@ export function NameAnalysisPanel({ student, analysis, enabledProviders = [], pr
             <Type className="w-5 h-5 text-amber-600" />
           </div>
           <CardTitle>이름풀이</CardTitle>
+          <NameHelpDialog />
         </div>
         <div className="text-xs text-gray-500">
           {calculatedAt

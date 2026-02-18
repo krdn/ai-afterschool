@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { BookOpen, Pencil } from "lucide-react"
+import { VarkHelpDialog } from "@/components/students/vark-help-dialog"
 import { VarkResultsDisplay } from "@/components/vark/results-display"
 import { generateVarkLLMInterpretation } from "@/lib/actions/student/vark-survey"
 import type { ProviderName } from "@/lib/ai/providers/types"
@@ -55,6 +56,7 @@ export function VarkAnalysisPanel({ studentId, studentName, analysis, enabledPro
             <BookOpen className="w-5 h-5 text-teal-600" />
           </div>
           <h2 className="text-lg font-semibold">VARK 학습유형 검사</h2>
+          <VarkHelpDialog />
         </div>
         {analysis && (
           <Link
