@@ -9,6 +9,7 @@ import {
   calculateNameNumerology,
   generateNameInterpretation,
 } from "@/lib/analysis/name-numerology"
+import { coerceHanjaSelections, selectionsToHanjaName } from "@/lib/analysis/hanja-strokes"
 import { scoreMbti } from "@/lib/analysis/mbti-scoring"
 import { upsertSajuAnalysis, upsertNameAnalysis } from "@/lib/db/student/analysis"
 import { createTeacherSajuHistory } from "@/lib/db/teacher/analysis"
@@ -271,9 +272,8 @@ export async function runTeacherNameAnalysis(teacherId: string) {
 
   if (!teacher) throw new Error("Teacher not found")
 
-  const hanjaName = teacher.nameHanja
-    ? (teacher.nameHanja as { full?: string })?.full ?? String(teacher.nameHanja)
-    : null
+  const hanjaSelections = coerceHanjaSelections(teacher.nameHanja)
+  const hanjaName = selectionsToHanjaName(hanjaSelections)
 
   const numerologyOutcome = calculateNameNumerology({
     name: teacher.name,
@@ -567,9 +567,7 @@ export async function generateTeacherNameLLMInterpretation(
 
   if (!teacher) throw new Error("선생님을 찾을 수 없습니다.")
 
-  const hanjaName = teacher.nameHanja
-    ? (teacher.nameHanja as { full?: string })?.full ?? null
-    : null
+  const hanjaName = selectionsToHanjaName(coerceHanjaSelections(teacher.nameHanja))
 
   const result = analysis.result as { hasHanja?: boolean; numerology?: unknown }
   const numerologyText = result.numerology ? analysis.interpretation ?? "" : ""
