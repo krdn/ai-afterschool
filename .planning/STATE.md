@@ -2,31 +2,23 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-12)
+See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** 학생 정보 통합 관리를 기반으로 AI 성향 분석 및 맞춤형 학습/진로 제안 제공
-**Current focus:** v3.0 Issue Management & Auto DevOps Pipeline - Phase 29 (Database & GitHub API Foundation)
+**Current focus:** v4.0 AI Smart Chat - Defining requirements
 
 ## Current Position
 
-Milestone: v3.0 Issue Management & Auto DevOps Pipeline
-Phase: 30 of 35 (Issue UI & Screenshot) ✅ COMPLETE
-Plan: 04 of 04 completed
-Status: Complete - Issue Button integrated into header
-Last activity: 2026-02-12 — Completed 30-04 (Header Issue Button Integration)
+Milestone: v4.0 AI Smart Chat
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-02-18 — Milestone v4.0 started
 
 Progress: [████████████████████████████████████████████░] 92.9% (174/196 plans across v1.0-v3.0)
 
-**v3.0 Issue Management & Auto DevOps Pipeline** 🚧 IN PROGRESS
-- Phase 29: Database & GitHub API Foundation (3/3 plans complete) ✅ 29-01, 29-02, 29-03
-- Phase 30: Issue UI & Screenshot (4/4 plans complete) ✅ 30-01, 30-02, 30-03, 30-04
-- Phase 31: Sentry Error Auto-Collection (not started)
-- Phase 32: Webhook & Issue Sync (not started)
-- Phase 33: CI/CD Pipeline (not started)
-- Phase 34: Issue Dashboard & Integration Testing (not started)
-
-**Universal LLM Hub** ✅ COMPLETE
-- Phase 35: Core Types & Provider Registry Foundation (9/9 complete) ✅ 35-01, 35-02, 35-03, 35-04, 35-05, 35-06, 35-07, 35-08, 35-09
+**v4.0 AI Smart Chat** ○ DEFINING REQUIREMENTS
+- (Phases to be defined after roadmap creation)
 
 ## Performance Metrics
 
