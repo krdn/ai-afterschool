@@ -98,6 +98,7 @@ services:
       CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
       CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
       CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+      OLLAMA_DIRECT_URL: ${OLLAMA_DIRECT_URL}
     depends_on:
       postgres:
         condition: service_healthy
