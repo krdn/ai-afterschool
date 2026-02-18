@@ -32,8 +32,8 @@ describe("fetchSubjectAnalyses", () => {
   it("분석 데이터가 있으면 파싱된 결과를 반환한다", async () => {
     const mbtiData = { E: 60, I: 40, S: 55, N: 45, T: 70, F: 30, J: 65, P: 35 }
     const sajuData = {
-      fourPillars: { year: {}, month: {}, day: {}, hour: {} },
-      fiveElements: { wood: 1, fire: 1, earth: 1, metal: 1, water: 1 },
+      pillars: { year: {}, month: {}, day: {}, hour: {} },
+      elements: { 목: 1, 화: 1, 토: 1, 금: 1, 수: 1 },
     }
     const nameData = {
       numerology: {

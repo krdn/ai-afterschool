@@ -22,8 +22,8 @@ describe("parseMbtiPercentages", () => {
 describe("parseSajuResult", () => {
   it("유효한 사주 결과를 반환한다", () => {
     const valid = {
-      fourPillars: { year: {}, month: {}, day: {}, hour: {} },
-      fiveElements: { wood: 1, fire: 1, earth: 1, metal: 1, water: 1 },
+      pillars: { year: {}, month: {}, day: {}, hour: {} },
+      elements: { 목: 1, 화: 1, 토: 1, 금: 1, 수: 1 },
     }
     expect(parseSajuResult(valid)).toEqual(valid)
   })
