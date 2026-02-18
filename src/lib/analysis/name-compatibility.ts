@@ -29,6 +29,11 @@ export function calculateNameCompatibility(
   const teacherGrids = teacherName.grids
   const studentGrids = studentName.grids
 
+  // grids 데이터가 없는 경우 기본값 반환 (DB에 저장된 구조가 다를 수 있음)
+  if (!teacherGrids || !studentGrids) {
+    return 0.5
+  }
+
   // 4격별 차이 계산 (최대 차이는 81 - 1 = 80)
   const wonDiff = Math.abs(teacherGrids.won - studentGrids.won)
   const hyungDiff = Math.abs(teacherGrids.hyung - studentGrids.hyung)
