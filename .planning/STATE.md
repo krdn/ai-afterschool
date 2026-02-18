@@ -11,14 +11,14 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 
 Milestone: v4.0 AI Smart Chat
 Phase: 36 of 40 (Server-side Foundation)
-Plan: 03 complete (next: 04)
+Plan: 04 complete (Phase 36 DONE)
 Status: In Progress
-Last activity: 2026-02-19 — Executed 36-03-PLAN.md
+Last activity: 2026-02-18 — Executed 36-04-PLAN.md
 
 Progress: [████████████████████████████████████████████░░] 91% (183/200+ plans)
 
 **v4.0 AI Smart Chat** — ROADMAP COMPLETE, READY TO EXECUTE
-- [ ] Phase 36: Server-side Foundation (MENT-03, MENT-04, CTX-01~05)
+- [x] Phase 36: Server-side Foundation (MENT-03, MENT-04, CTX-01~05)
 - [ ] Phase 37: Autocomplete Search API (MENT-06)
 - [ ] Phase 38: Autocomplete UI & ChatInput Integration (MENT-01, MENT-02, MENT-05, UI-01)
 - [ ] Phase 39: Message Rendering & UX Polish (UI-02, UI-03)
@@ -45,6 +45,7 @@ Progress: [███████████████████████
 | Phase 36-server-side-foundation P01 | 2 | 2 tasks | 3 files |
 | Phase 36-server-side-foundation P02 | 2 | 1 task | 1 file |
 | Phase 36-server-side-foundation P03 | 2 | 1 task | 1 file |
+| Phase 36-server-side-foundation P04 | 1 | 1 task | 1 file |
 
 ## Accumulated Context
 
@@ -65,6 +66,9 @@ Progress: [███████████████████████
 - [Phase 36-02]: handleAccessDenied 헬퍼 패턴: RBAC 실패 처리(감사 로그+resolved+metadata+메시지) 캡슐화
 - [Phase 36-03]: context-builder escapeXml &먼저 처리: 이중 이스케이프 방지 위해 & → &amp; 최우선 치환
 - [Phase 36-03]: 예산 재분배 1회 제한: 단순하고 예측 가능한 1회 재분배로 복잡도 제한
+- [Phase 36-04]: mentions 없으면 dynamicSystem = SYSTEM_PROMPT: 하위 호환 보장 — 기존 채팅 동작 변경 없음
+- [Phase 36-04]: mentionedEntities undefined 시 Prisma 필드 생략: 기존 메시지 스키마 완전 호환
+- [Phase 36-04]: 멘션 처리 위치(세션 이후+DB저장 이전): chatSessionId 확정 후 + mentionedEntitiesData 저장 전 정확한 삽입점
 
 ### Pending Todos
 
@@ -81,7 +85,7 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-19
-Stopped at: Completed 36-03-PLAN.md (context-builder.ts — 토큰 예산 관리 + XML 경계 마킹 + system prompt 조립)
-Resume file: .planning/phases/36-server-side-foundation/36-04-PLAN.md
-Next action: /gsd:execute-phase 36-server-side-foundation (plan 04)
+Last session: 2026-02-18
+Stopped at: Completed 36-04-PLAN.md (route.ts — 멘션 시스템 통합, Phase 36 서버사이드 완성)
+Resume file: .planning/phases/37-autocomplete-search-api/ (Phase 37 시작)
+Next action: /gsd:execute-phase 37-autocomplete-search-api
