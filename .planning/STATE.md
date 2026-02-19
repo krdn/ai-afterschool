@@ -5,24 +5,24 @@
 See: .planning/PROJECT.md (updated 2026-02-19)
 
 **Core value:** 학생 정보 통합 관리를 기반으로 AI 성향 분석 및 맞춤형 학습/진로 제안 제공
-**Current focus:** v4.0 AI Smart Chat — Phase 39: Message Rendering & UX Polish
+**Current focus:** v4.0 AI Smart Chat — Phase 40: LLMQueryBar Extension (COMPLETE)
 
 ## Current Position
 
 Milestone: v4.0 AI Smart Chat
-Phase: 39 of 40 (Message Rendering & UX Polish)
-Plan: 02 complete (Phase 39 Plan 02 DONE — mentionedEntities 파이프라인 연결 + ChatMessageItem 칩 렌더링)
-Status: In Progress
-Last activity: 2026-02-19 — Executed 39-02-PLAN.md
+Phase: 40 of 40 (LLMQueryBar Extension)
+Plan: 01 complete (Phase 40 Plan 01 DONE — LLMQueryBar MentionsInput 통합 + mentions URL 직렬화)
+Status: Complete
+Last activity: 2026-02-19 — Executed 40-01-PLAN.md
 
-Progress: [████████████████████████████████████████████░░] 91% (183/200+ plans)
+Progress: [██████████████████████████████████████████████] 92% (184/200+ plans)
 
-**v4.0 AI Smart Chat** — ROADMAP COMPLETE, READY TO EXECUTE
+**v4.0 AI Smart Chat** — ALL PHASES COMPLETE
 - [x] Phase 36: Server-side Foundation (MENT-03, MENT-04, CTX-01~05)
 - [x] Phase 37: Autocomplete Search API (MENT-06)
 - [ ] Phase 38: Autocomplete UI & ChatInput Integration (MENT-01, MENT-02, MENT-05, UI-01)
 - [x] Phase 39: Message Rendering & UX Polish (UI-02, UI-03)
-- [ ] Phase 40: LLMQueryBar Extension (UI-04)
+- [x] Phase 40: LLMQueryBar Extension (UI-04)
 
 ## Performance Metrics
 
@@ -52,6 +52,7 @@ Progress: [███████████████████████
 | Phase 39-message-rendering-ux-polish P03 | 2 | 1 tasks | 1 files |
 | Phase 39-message-rendering-ux-polish P01 | 3 | 2 tasks | 3 files |
 | Phase 39-message-rendering-ux-polish P02 | 7 | 2 tasks | 6 files |
+| Phase 40-llmquerybar-extension P01 | 2 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -90,6 +91,8 @@ Progress: [███████████████████████
 - [Phase 39-01]: Teacher preview sublabel: 역할명만 표시 (N+1 방지 — 담당 학생 수 조회 제외)
 - [Phase 39-message-rendering-ux-polish]: handleSend 4-param 패턴: mentionedEntities를 3번째, providerId를 4번째로 배치 (낙관적 렌더링 우선)
 - [Phase 39-message-rendering-ux-polish]: renderUserContent 외부 순수 함수 패턴: 컴포넌트 body 오염 방지, 구형 메시지(null entities) plain text 폴백
+- [Phase 40-llmquerybar-extension]: suggestionsPlacement='below' 고정: LLMQueryBar는 화면 상단 위치로 드롭다운 항상 아래쪽
+- [Phase 40-llmquerybar-extension]: QueryBar URL 직렬화 패턴: URLSearchParams + JSON.stringify(MentionItem[]) → mentions 파싱 실패 시 조용히 무시 (하위 호환)
 
 ### Pending Todos
 
@@ -107,6 +110,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 39-02-PLAN.md
-Resume file: .planning/phases/39-message-rendering-ux-polish/39-02-SUMMARY.md
-Next action: Execute Phase 40 (LLMQueryBar Extension)
+Stopped at: Completed 40-01-PLAN.md
+Resume file: .planning/phases/40-llmquerybar-extension/40-01-SUMMARY.md
+Next action: Phase 40 완료 — v4.0 AI Smart Chat 전체 구현 검증
