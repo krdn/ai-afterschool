@@ -45,9 +45,10 @@ RUN pnpm install --frozen-lockfile --prod
 
 # Copy Prisma schema and generate client in production context
 # This ensures .prisma/client is in the correct pnpm-resolved location
+# DATABASE_URL is only needed for config validation, not for generate
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 COPY prisma.config.ts ./
-RUN pnpm exec prisma generate
+RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" pnpm exec prisma generate
 
 # Copy built application
 COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
