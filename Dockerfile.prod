@@ -8,11 +8,11 @@ ARG SESSION_SECRET
 ARG NEXT_PUBLIC_APP_URL
 ARG NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
 
-# Dependencies stage - Install production dependencies
+# Dependencies stage - Install all dependencies (for build)
 FROM base AS deps
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY patches/ ./patches/
-RUN pnpm install --frozen-lockfile --prod
+RUN pnpm install --frozen-lockfile
 
 # Builder stage - Build Next.js application
 FROM base AS builder
@@ -29,10 +29,16 @@ ENV CLOUDINARY_API_SECRET="dummy"
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY patches/ ./patches/
-RUN pnpm install --frozen-lockfile
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN pnpm exec prisma generate
 RUN pnpm run build
+
+# Production dependencies stage - Install production-only dependencies
+FROM base AS prod-deps
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY patches/ ./patches/
+RUN pnpm install --frozen-lockfile --prod
 
 # Production stage - Final runtime image
 FROM base AS production
@@ -43,22 +49,22 @@ RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
 # Copy production dependencies
-COPY --from=deps /app/node_modules ./node_modules
+COPY --from=prod-deps /app/node_modules ./node_modules
 
-# Copy Prisma client from builder (generated in node_modules/.prisma)
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+# Copy Prisma schema and generate client in production stage
+COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml prisma.config.ts ./
+COPY patches/ ./patches/
+ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
+RUN pnpm exec prisma generate
+ENV DATABASE_URL=""
 
 # Copy built application
 COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
-COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
 # Copy seed images for demo data seeding
 COPY --from=builder --chown=nextjs:nodejs /app/docs/images ./docs/images
-
-# Copy remaining necessary files (including prisma.config.ts for migrate)
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml prisma.config.ts ./
-COPY patches/ ./patches/
 
 # Switch to non-root user
 USER nextjs
