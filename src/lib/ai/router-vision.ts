@@ -5,8 +5,7 @@
  * universal-router.ts에서 분리되었습니다.
  */
 
-import { generateText } from 'ai';
-import type { ModelMessage } from '@ai-sdk/provider-utils';
+import { generateText, type ModelMessage } from 'ai';
 import { db } from '@/lib/db';
 import { getProviderRegistry } from './provider-registry';
 import { trackUsage, trackFailure } from './usage-tracker';
