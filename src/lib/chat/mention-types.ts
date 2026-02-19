@@ -59,3 +59,32 @@ export type MentionResolutionResult = {
   metadata: MentionedEntity[];
   accessDeniedMessages: string[];
 };
+
+/**
+ * 자동완성 검색 결과 단일 항목 — GET /api/chat/mentions/search 응답 내 각 엔티티
+ * - id: 엔티티 ID (Student.id, Teacher.id, Team.id)
+ * - type: 엔티티 타입 (기존 MentionType 재사용)
+ * - name: 표시 이름
+ * - sublabel: 엔티티 구분용 서브레이블
+ *   - 학생: "3학년 · 강남초 · 2010-05-12"
+ *   - 선생님: "원장 · 담당 5명"
+ *   - 학급: "학생 12명 · 교사 3명"
+ * - avatarUrl: 프로필 이미지 URL (학생: StudentImage.resizedUrl, 선생님: Teacher.profileImage, 학급: null)
+ */
+export type MentionSearchItem = {
+  id: string;
+  type: MentionType;
+  name: string;
+  sublabel: string;
+  avatarUrl: string | null;
+};
+
+/**
+ * GET /api/chat/mentions/search 전체 응답 타입 — 타입별 그룹 구조
+ * Phase 38 드롭다운 섹션 렌더링에 직접 매핑됨
+ */
+export type MentionSearchResponse = {
+  students: MentionSearchItem[];
+  teachers: MentionSearchItem[];
+  teams: MentionSearchItem[];
+};
