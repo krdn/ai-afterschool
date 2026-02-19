@@ -6,6 +6,22 @@ import { Button } from "@/components/ui/button"
 import { MarkdownRenderer } from "@/components/ui/markdown-renderer"
 import { cn } from "@/lib/utils"
 import type { MentionedEntity } from "@/lib/chat/mention-types"
+import { parseMentionChips } from "@/lib/chat/parse-mention-chips"
+import { MentionTag } from "./mention-tag"
+
+function renderUserContent(content: string, entities?: MentionedEntity[] | null) {
+  // mentionedEntities가 없으면 plain text
+  if (!entities || entities.length === 0) {
+    return content
+  }
+
+  const segments = parseMentionChips(content, entities)
+
+  return segments.map((seg, i) => {
+    if (seg.kind === "text") return <span key={i}>{seg.text}</span>
+    return <MentionTag key={`${seg.entity.id}-${i}`} entity={seg.entity} />
+  })
+}
 
 type ChatMessageItemProps = {
   role: "user" | "assistant"
@@ -51,7 +67,9 @@ export function ChatMessageItem({
         )}
       >
         {isUser ? (
-          <p className="text-sm whitespace-pre-wrap">{content}</p>
+          <div className="text-sm whitespace-pre-wrap leading-relaxed">
+            {renderUserContent(content, mentionedEntities)}
+          </div>
         ) : (
           <>
             <MarkdownRenderer content={content} className="text-sm" />
