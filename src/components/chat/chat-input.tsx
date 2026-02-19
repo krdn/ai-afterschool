@@ -50,6 +50,10 @@ export function ChatInput({
 
   // 그룹 헤더 렌더링을 위해 이전 타입을 추적
   const prevTypeRef = useRef<string | null>(null)
+  const isComposingRef = useRef(false)
+  const inputRef = useCallback((el: HTMLInputElement | HTMLTextAreaElement | null) => {
+    if (el) el.focus()
+  }, [])
 
   // Provider 목록 로드
   useEffect(() => {
@@ -72,6 +76,7 @@ export function ChatInput({
   )
 
   const handleMentionsChange = useCallback((change: MentionsInputChangeEvent<MentionExtra>) => {
+    if (isComposingRef.current) return
     setMentionMarkup(change.value)
     setActiveMentions(change.mentions)
   }, [])
@@ -101,9 +106,17 @@ export function ChatInput({
     setActiveMentions([])
   }, [mentionMarkup, activeMentions, isStreaming, onSend, parseProviderId, selectedModel])
 
+  const handleCompositionStart = useCallback(() => {
+    isComposingRef.current = true
+  }, [])
+
+  const handleCompositionEnd = useCallback(() => {
+    isComposingRef.current = false
+  }, [])
+
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
+      if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing && !isComposingRef.current) {
         e.preventDefault()
         handleSubmit()
       }
@@ -158,6 +171,9 @@ export function ChatInput({
           value={mentionMarkup}
           onMentionsChange={handleMentionsChange}
           onKeyDown={handleKeyDown}
+          onCompositionStart={handleCompositionStart}
+          onCompositionEnd={handleCompositionEnd}
+          inputRef={inputRef}
           placeholder={t("placeholder")}
           a11ySuggestionsListLabel="멘션 검색 결과"
           suggestionsPlacement="auto"

@@ -1,0 +1,38 @@
+diff --git a/dist/index.js b/dist/index.js
+index 3cc46cea3aa8d36563c531187d3bdf8c4accfd94..5249651dc279a20c8cbd74c12019f0e697235897 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -1341,7 +1341,7 @@ var MentionsInput = class _MentionsInput extends React5.Component {
+     const props = {
+       ...restPassthrough,
+       className: baseClassName,
+-      value: getPlainText_default(this.props.value ?? "", this.state.config),
++      value: this._isComposing ? undefined : getPlainText_default(this.props.value ?? "", this.state.config),
+       onScroll: this.updateHighlighterScroll,
+       "data-slot": "input",
+       "data-single-line": singleLine ? "true" : void 0,
+@@ -2003,14 +2003,16 @@ var MentionsInput = class _MentionsInput extends React5.Component {
+     if (nativeEvent.isComposing && selectionStart === selectionEnd && this.inputElement) {
+       this.updateMentionsQueries(this.inputElement.value, selectionStart);
+     }
+-    this.executeOnChange(
+-      { type: "input", nativeEvent: ev.nativeEvent },
+-      newValue,
+-      newPlainTextValue,
+-      newIdValue,
+-      mentions,
+-      value
+-    );
++    if (!this._isComposing) {
++      this.executeOnChange(
++        { type: "input", nativeEvent: ev.nativeEvent },
++        newValue,
++        newPlainTextValue,
++        newIdValue,
++        mentions,
++        value
++      );
++    }
+     this.props.onChange?.(ev);
+     this.requestHighlighterScrollSync();
+   };
