@@ -32,6 +32,7 @@ type ChatPageProps = {
   sessionId?: string
   initialMessages?: Message[]
   initialQuery?: string
+  initialMentions?: MentionItem[]
 }
 
 export function ChatPage({
@@ -39,6 +40,7 @@ export function ChatPage({
   sessionId: initialSessionId,
   initialMessages = [],
   initialQuery,
+  initialMentions,
 }: ChatPageProps) {
   const router = useRouter()
   const { sendMessage, isStreaming, streamingContent, cancel } = useChatStream()
@@ -57,10 +59,10 @@ export function ChatPage({
     }
   }, [])
 
-  // 초기 query 파라미터 처리
+  // 초기 query 파라미터 처리 (initialMentions 포함)
   useEffect(() => {
     if (initialQuery && !initialSessionId) {
-      handleSend(initialQuery, [], undefined)
+      handleSend(initialQuery, initialMentions ?? [], undefined)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
