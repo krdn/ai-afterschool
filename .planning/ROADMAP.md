@@ -442,12 +442,12 @@ Plans:
   2. 멘션 칩을 클릭하면 해당 엔티티의 핵심 정보(이름, 역할/학년, 최신 분석 요약)가 팝오버로 표시된다
   3. AI 응답 스트리밍 중에는 드롭다운이 비활성화되어 입력이 차단되지 않는다
   4. 드롭다운이 뷰포트 하단에 걸리는 경우 자동으로 위쪽에 열려 잘림이 없다
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 39-01: MentionTag 컴포넌트 (칩 렌더링, 클릭 팝오버, 엔티티 요약 표시)
-- [ ] 39-02: ChatMessageItem.tsx 수정 (mentionedEntities 메타데이터로 @Name → MentionTag 치환)
-- [ ] 39-03: UX 완성 (스트리밍 중 드롭다운 비활성화, 뷰포트 위치 동적 결정, 빈 결과 메시지)
+- [ ] 39-01-PLAN.md — MentionTag 컴포넌트 + parseMentionChips 유틸리티 + Preview API (RBAC 포함)
+- [ ] 39-02-PLAN.md — mentionedEntities 데이터 파이프라인 연결 + ChatMessageItem 칩 렌더링 통합
+- [ ] 39-03-PLAN.md — suggestionsPlacement="auto" + 스트리밍 비활성화 확인
 
 #### Phase 40: LLMQueryBar Extension
 **Goal**: 대시보드 상단 LLMQueryBar에서도 @멘션을 사용할 수 있어, 교사가 메인 채팅 페이지 진입 없이 컨텍스트 인식 AI 질문을 빠르게 할 수 있다
