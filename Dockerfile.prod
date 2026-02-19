@@ -8,35 +8,30 @@ ARG SESSION_SECRET
 ARG NEXT_PUBLIC_APP_URL
 ARG NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
 
-# Dependencies stage - Install all dependencies (for build)
-FROM base AS deps
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY patches/ ./patches/
-RUN pnpm install --frozen-lockfile
-
-# Builder stage - Build Next.js application
+# Builder stage - Install deps, generate Prisma, build Next.js
 FROM base AS builder
+
 # Set build-time environment variables (with fallback defaults)
 ENV SESSION_SECRET=${SESSION_SECRET:-default-build-secret-minimum-32-characters-long-safe-for-production-use}
 ENV NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
-# Set a dummy DATABASE_URL for build (Prisma generate doesn't need real DB)
 ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
-# Set Cloudinary credentials for build (API routes + NEXT_PUBLIC_ client bundle)
 ENV CLOUDINARY_CLOUD_NAME=${NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME:-dummy}
 ENV NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=${NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME:-dummy}
 ENV CLOUDINARY_API_KEY="dummy"
 ENV CLOUDINARY_API_SECRET="dummy"
 
+# Install all dependencies
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY patches/ ./patches/
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
-RUN pnpm exec prisma generate
-# Copy resolved prisma client (dereference symlinks) for later COPY
-RUN cp -rL node_modules/.prisma /tmp/.prisma
-RUN pnpm run build
+RUN pnpm install --frozen-lockfile
 
-# Production dependencies stage - Install production-only dependencies
+# Copy source and build
+COPY . .
+RUN pnpm exec prisma generate && \
+    cp -rL node_modules/.prisma /tmp/.prisma && \
+    pnpm run build
+
+# Production dependencies stage
 FROM base AS prod-deps
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY patches/ ./patches/
@@ -53,7 +48,7 @@ RUN addgroup --system --gid 1001 nodejs && \
 # Copy production dependencies
 COPY --from=prod-deps /app/node_modules ./node_modules
 
-# Copy Prisma client from builder (dereferenced real files)
+# Copy Prisma client (dereferenced from builder to avoid pnpm symlink issues)
 COPY --from=builder /tmp/.prisma ./node_modules/.prisma
 
 # Copy built application
@@ -64,7 +59,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 # Copy seed images for demo data seeding
 COPY --from=builder --chown=nextjs:nodejs /app/docs/images ./docs/images
 
-# Copy remaining necessary files (including prisma.config.ts for migrate)
+# Copy remaining necessary files
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml prisma.config.ts ./
 COPY patches/ ./patches/
 
