@@ -93,8 +93,8 @@ login-page.yaml
 # runtime state (배포 상태 파일)
 .deploy-backup-tag
 
-# pnpm (이 프로젝트는 npm 사용)
-pnpm-lock.yaml
+# npm (이 프로젝트는 pnpm 사용)
+package-lock.json
 
 # one-off utility scripts in root
 /check-*.js
