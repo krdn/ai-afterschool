@@ -59,13 +59,12 @@ export function ChatPage({
   // 초기 query 파라미터 처리
   useEffect(() => {
     if (initialQuery && !initialSessionId) {
-      handleSend(initialQuery)
+      handleSend(initialQuery, [])
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const handleSend = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async (prompt: string, mentions: MentionItem[] = [], providerId?: string) => {
       // 낙관적으로 user 메시지 추가
       const tempUserMsg: Message = {
@@ -87,6 +86,7 @@ export function ChatPage({
           providerId,
           sessionId,
           messages: contextMessages.length > 0 ? contextMessages : undefined,
+          mentions: mentions.length > 0 ? mentions : undefined,
         })
 
         if (result) {
@@ -124,7 +124,7 @@ export function ChatPage({
 
   const handleSuggestionClick = useCallback(
     (text: string) => {
-      handleSend(text)
+      handleSend(text, [])
     },
     [handleSend]
   )
