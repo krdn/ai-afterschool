@@ -3,13 +3,13 @@ name: AI QA Pipeline
 on:
   push:
     paths:
-      - 'src/**'
-      - 'tests/**'
-      - 'prisma/**'
-      - '.github/workflows/ai-qa.yml'
-      - 'playwright.config.ts'
+      - "src/**"
+      - "tests/**"
+      - "prisma/**"
+      - ".github/workflows/ai-qa.yml"
+      - "playwright.config.ts"
   pull_request:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 # 같은 브랜치에서 새 커밋이 푸시되면 이전 실행을 자동 취소
@@ -24,26 +24,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v4
-      with:
-        version: 10
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'pnpm'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
 
-    - name: Install dependencies
-      run: pnpm install --frozen-lockfile
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-    - name: Run npm audit
-      run: pnpm audit --audit-level=high --prod
-      # high 이상 취약점 발견 시 경고 (기존 간접 의존성 이슈로 즉시 차단은 보류)
-      continue-on-error: true
+      - name: Run npm audit
+        # devDependencies 제외, 운영 의존성만 검사
+        # critical 레벨 이상의 취약점 발견 시 CI 실패 처리
+        run: pnpm audit --audit-level=critical --prod
+        # 보안 강화를 위해 에러 발생 시 파이프라인 중단
+        continue-on-error: false
 
   # 단위 테스트 (빠르게 실행)
   unit:
@@ -51,29 +53,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v4
-      with:
-        version: 10
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'pnpm'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
 
-    - name: Install dependencies
-      run: pnpm install --frozen-lockfile
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-    - name: Generate Prisma Client
-      run: pnpm exec prisma generate
-      env:
-        DATABASE_URL: postgresql://dummy:dummy@localhost:5432/dummy
+      - name: Generate Prisma Client
+        run: pnpm exec prisma generate
+        env:
+          DATABASE_URL: postgresql://dummy:dummy@localhost:5432/dummy
 
-    - name: Run Unit Tests
-      run: pnpm test
+      - name: Run Unit Tests
+        run: pnpm test
 
   # E2E 테스트 (DB + 앱 서버 필요) — Dependabot PR에서는 skip
   e2e:
@@ -110,56 +112,56 @@ jobs:
       DISABLE_RATE_LIMIT: "true"
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v4
-      with:
-        version: 10
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'pnpm'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
 
-    - name: Install dependencies
-      run: pnpm install --frozen-lockfile
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-    - name: Generate Prisma Client
-      run: pnpm exec prisma generate
+      - name: Generate Prisma Client
+        run: pnpm exec prisma generate
 
-    - name: Run Prisma Migrations
-      run: pnpm exec prisma migrate deploy
+      - name: Run Prisma Migrations
+        run: pnpm exec prisma migrate deploy
 
-    - name: Seed Test Data
-      run: pnpm run db:seed:test
+      - name: Seed Test Data
+        run: pnpm run db:seed:test
 
-    - name: Install Playwright Browsers
-      run: pnpm exec playwright install --with-deps chromium
+      - name: Install Playwright Browsers
+        run: pnpm exec playwright install --with-deps chromium
 
-    - name: Cache Next.js build
-      uses: actions/cache@v5
-      with:
-        path: .next/cache
-        key: nextjs-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('src/**') }}
-        restore-keys: |
-          nextjs-${{ hashFiles('pnpm-lock.yaml') }}-
+      - name: Cache Next.js build
+        uses: actions/cache@v5
+        with:
+          path: .next/cache
+          key: nextjs-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('src/**') }}
+          restore-keys: |
+            nextjs-${{ hashFiles('pnpm-lock.yaml') }}-
 
-    - name: Build Application
-      run: pnpm run build
-      env:
-        NEXT_PUBLIC_APP_URL: http://localhost:3000
+      - name: Build Application
+        run: pnpm run build
+        env:
+          NEXT_PUBLIC_APP_URL: http://localhost:3000
 
-    - name: Run E2E Tests (Shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }})
-      run: pnpm exec playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
-      env:
-        CI: true
+      - name: Run E2E Tests (Shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }})
+        run: pnpm exec playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+        env:
+          CI: true
 
-    - name: Upload Playwright Report
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: playwright-report-shard-${{ matrix.shardIndex }}
-        path: playwright-report/
-        retention-days: 30
+      - name: Upload Playwright Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-shard-${{ matrix.shardIndex }}
+          path: playwright-report/
+          retention-days: 30

@@ -4,11 +4,11 @@ on:
   push:
     branches: [main]
     paths:
-      - 'src/**'
-      - 'prisma/**'
-      - 'Dockerfile.prod'
-      - 'docker-compose.prod.yml'
-      - 'scripts/deploy.sh'
+      - "src/**"
+      - "prisma/**"
+      - "Dockerfile.prod"
+      - "docker-compose.prod.yml"
+      - "scripts/deploy.sh"
   workflow_dispatch:
 
 env:
@@ -31,6 +31,12 @@ jobs:
           command_timeout: 15m
           script: |
             cd /home/gon/projects/ai/ai-afterschool
+
+            # GitHub Secrets로부터 .env.production 파일 생성
+            # 주의: PROD_ENV_FILE 시크릿에 .env 전체 내용이 들어있어야 함
+            echo "${{ secrets.PROD_ENV_FILE }}" > .env.production
+            chmod 600 .env.production
+
             git fetch origin main
             git reset --hard origin/main
             ./scripts/deploy.sh --force --tag=${{ github.sha }}
