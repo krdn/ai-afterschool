@@ -5,15 +5,15 @@
 See: .planning/PROJECT.md (updated 2026-02-19)
 
 **Core value:** 학생 정보 통합 관리를 기반으로 AI 성향 분석 및 맞춤형 학습/진로 제안 제공
-**Current focus:** v4.0 AI Smart Chat — Phase 37: Autocomplete Search API
+**Current focus:** v4.0 AI Smart Chat — Phase 38: Autocomplete UI & ChatInput Integration
 
 ## Current Position
 
 Milestone: v4.0 AI Smart Chat
-Phase: 37 of 40 (Autocomplete Search API)
-Plan: 01 complete (Phase 37 Plan 01 DONE)
+Phase: 38 of 40 (Autocomplete UI & ChatInput Integration)
+Plan: 01 complete (Phase 38 Plan 01 DONE — react-mentions-ts 설치 + useMention 훅)
 Status: In Progress
-Last activity: 2026-02-19 — Executed 37-01-PLAN.md
+Last activity: 2026-02-19 — Executed 38-01-PLAN.md
 
 Progress: [████████████████████████████████████████████░░] 91% (183/200+ plans)
 
@@ -46,6 +46,7 @@ Progress: [███████████████████████
 | Phase 36-server-side-foundation P02 | 2 | 1 task | 1 file |
 | Phase 36-server-side-foundation P03 | 2 | 1 task | 1 file |
 | Phase 36-server-side-foundation P04 | 1 | 1 task | 1 file |
+| Phase 38-autocomplete-ui-chatinput-integration P01 | 3 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -72,6 +73,8 @@ Progress: [███████████████████████
 - [Phase 37-01]: 타입별 그룹 응답 구조({ students, teachers, teams }): Phase 38 드롭다운 섹션 렌더링에 직접 매핑
 - [Phase 37-01]: RBAC silent filter: 검색 단계는 탐색이므로 접근 불가 메시지 없이 조용히 제외
 - [Phase 37-01]: buildXxxWhere null 반환 패턴: teamId null인 비 DIRECTOR의 Prisma null 오류 방지
+- [Phase 38-01]: useMention data prop을 함수 형태로 전달하여 react-mentions-ts 이중 필터링 방지
+- [Phase 38-01]: 200ms 디바운스: setTimeout + stale 쿼리 ref 패턴 (useDebounce 라이브러리 미사용)
 
 ### Pending Todos
 
@@ -89,6 +92,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Phase 38 context gathered
-Resume file: .planning/phases/38-autocomplete-ui-chatinput-integration/38-CONTEXT.md
-Next action: /gsd:plan-phase 38
+Stopped at: Completed 38-01-PLAN.md
+Resume file: .planning/phases/38-autocomplete-ui-chatinput-integration/38-01-SUMMARY.md
+Next action: Execute 38-02-PLAN.md

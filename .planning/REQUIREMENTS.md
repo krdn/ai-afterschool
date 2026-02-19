@@ -9,11 +9,11 @@ Requirements for v4.0 AI Smart Chat milestone. Each maps to roadmap phases.
 
 ### @멘션 인프라 (Mention Infrastructure)
 
-- [ ] **MENT-01**: 교사가 채팅 입력창에서 @를 입력하면 학생/선생님/학급 검색 드롭다운이 표시된다
+- [x] **MENT-01**: 교사가 채팅 입력창에서 @를 입력하면 학생/선생님/학급 검색 드롭다운이 표시된다
 - [ ] **MENT-02**: 교사가 드롭다운에서 엔티티를 선택하면 채팅 입력에 멘션이 삽입된다
 - [x] **MENT-03**: 시스템이 제출된 메시지에서 @멘션을 파싱하여 엔티티 ID/타입 목록을 추출한다
 - [x] **MENT-04**: 시스템이 멘션된 엔티티의 데이터를 DB에서 RBAC 적용하여 조회한다
-- [ ] **MENT-05**: 한국어 IME 조합 중에도 자동완성이 정상 작동한다
+- [x] **MENT-05**: 한국어 IME 조합 중에도 자동완성이 정상 작동한다
 - [x] **MENT-06**: 학생, 선생님, 학급(팀) 3가지 엔티티 타입을 멘션할 수 있다
 
 ### 컨텍스트 주입 (Context Injection)
@@ -59,11 +59,11 @@ Requirements for v4.0 AI Smart Chat milestone. Each maps to roadmap phases.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| MENT-01 | Phase 38 | Pending |
+| MENT-01 | Phase 38 | Complete |
 | MENT-02 | Phase 38 | Pending |
 | MENT-03 | Phase 36 | Complete |
 | MENT-04 | Phase 36 | Complete |
-| MENT-05 | Phase 38 | Pending |
+| MENT-05 | Phase 38 | Complete |
 | MENT-06 | Phase 37 | Complete |
 | CTX-01 | Phase 36 | Complete |
 | CTX-02 | Phase 36 | Complete |
