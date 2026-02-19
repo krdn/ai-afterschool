@@ -9,7 +9,7 @@ import { ChatMessageList } from "./chat-message-list"
 import { ChatInput } from "./chat-input"
 import { ChatEmptyState } from "./chat-empty-state"
 import { getChatSessions } from "@/lib/actions/chat/sessions"
-import type { MentionItem } from "@/lib/chat/mention-types"
+import type { MentionItem, MentionedEntity } from "@/lib/chat/mention-types"
 
 type Message = {
   id: string
@@ -17,6 +17,7 @@ type Message = {
   content: string
   provider?: string | null
   model?: string | null
+  mentionedEntities?: MentionedEntity[] | null
 }
 
 type SessionSummary = {
@@ -59,18 +60,19 @@ export function ChatPage({
   // 초기 query 파라미터 처리
   useEffect(() => {
     if (initialQuery && !initialSessionId) {
-      handleSend(initialQuery, [])
+      handleSend(initialQuery, [], undefined)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const handleSend = useCallback(
-    async (prompt: string, mentions: MentionItem[] = [], providerId?: string) => {
+    async (prompt: string, mentions: MentionItem[] = [], mentionedEntities?: MentionedEntity[], providerId?: string) => {
       // 낙관적으로 user 메시지 추가
       const tempUserMsg: Message = {
         id: `temp-${Date.now()}`,
         role: "user",
         content: prompt,
+        mentionedEntities: mentionedEntities ?? null,
       }
       setMessages((prev) => [...prev, tempUserMsg])
 
@@ -124,7 +126,7 @@ export function ChatPage({
 
   const handleSuggestionClick = useCallback(
     (text: string) => {
-      handleSend(text, [])
+      handleSend(text, [], undefined)
     },
     [handleSend]
   )

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { MentionsInput, Mention } from 'react-mentions-ts'
 import type { MentionDataItem, MentionsInputChangeEvent } from 'react-mentions-ts'
 import { useMention, occurrencesToMentionItems, type MentionExtra } from '@/hooks/use-mention'
-import type { MentionItem } from '@/lib/chat/mention-types'
+import type { MentionItem, MentionedEntity, MentionType } from '@/lib/chat/mention-types'
 import {
   Select,
   SelectContent,
@@ -20,7 +20,7 @@ import {
 import { getEnabledProvidersForChat, type ChatProvider } from "@/lib/actions/chat/get-providers"
 
 type ChatInputProps = {
-  onSend: (prompt: string, mentions: MentionItem[], providerId?: string) => void
+  onSend: (prompt: string, mentions: MentionItem[], mentionedEntities?: MentionedEntity[], providerId?: string) => void
   onCancel: () => void
   isStreaming: boolean
   initialValue?: string
@@ -43,7 +43,7 @@ export function ChatInput({
   // NOTE: 빈 결과 시 react-mentions-ts는 드롭다운을 표시하지 않음 (라이브러리 기본 동작)
   // "검색 결과 없음" 메시지 표시가 필요하면 fetchMentions에서 placeholder 아이템 반환 패턴 적용
   const [mentionMarkup, setMentionMarkup] = useState(initialValue)
-  const [activeMentions, setActiveMentions] = useState<Array<{ id: string | number }>>([])
+  const [activeMentions, setActiveMentions] = useState<Array<{ id: string | number; display?: string | null }>>([])
   const [providers, setProviders] = useState<ChatProvider[]>([])
   const [selectedModel, setSelectedModel] = useState("auto")
   const [providersLoaded, setProvidersLoaded] = useState(false)
@@ -82,7 +82,21 @@ export function ChatInput({
     if (!plainText || isStreaming) return
 
     const mentionItems = occurrencesToMentionItems(activeMentions)
-    onSend(plainText, mentionItems, parseProviderId(selectedModel))
+
+    // MentionedEntity[] 구성 (낙관적 렌더링용)
+    const mentionedEntities: MentionedEntity[] = activeMentions
+      .filter((m, i, arr) => arr.findIndex(x => String(x.id) === String(m.id)) === i) // 중복 제거
+      .map(m => {
+        const raw = String(m.id)
+        const colonIdx = raw.indexOf(':')
+        return {
+          id: raw.slice(colonIdx + 1),
+          type: raw.slice(0, colonIdx) as MentionType,
+          displayName: m.display ?? '',
+        }
+      })
+
+    onSend(plainText, mentionItems, mentionedEntities.length > 0 ? mentionedEntities : undefined, parseProviderId(selectedModel))
     setMentionMarkup('')
     setActiveMentions([])
   }, [mentionMarkup, activeMentions, isStreaming, onSend, parseProviderId, selectedModel])
