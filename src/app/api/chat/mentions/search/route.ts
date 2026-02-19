@@ -75,8 +75,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const { searchParams } = request.nextUrl;
     const q = searchParams.get('q')?.trim() ?? '';
 
-    // 최소 1자 미만이면 DB 조회 없이 빈 응답 즉시 반환
-    if (q.length < 1) {
+    // 최소 2자 미만이면 DB 조회 없이 빈 응답 즉시 반환 (한국어 1자 검색은 결과가 너무 광범위)
+    if (q.length < 2) {
       return NextResponse.json({ students: [], teachers: [], teams: [] } satisfies MentionSearchResponse);
     }
 
