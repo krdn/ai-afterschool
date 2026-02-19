@@ -11,9 +11,9 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 
 Milestone: v4.0 AI Smart Chat
 Phase: 39 of 40 (Message Rendering & UX Polish)
-Plan: 03 complete (Phase 39 Plan 03 DONE — suggestionsPlacement="auto" 뷰포트 적응 완성)
+Plan: 01 complete (Phase 39 Plan 01 DONE — parseMentionChips + MentionTag + Preview API 구축)
 Status: In Progress
-Last activity: 2026-02-19 — Executed 39-03-PLAN.md
+Last activity: 2026-02-19 — Executed 39-01-PLAN.md
 
 Progress: [████████████████████████████████████████████░░] 91% (183/200+ plans)
 
@@ -50,6 +50,7 @@ Progress: [███████████████████████
 | Phase 38-autocomplete-ui-chatinput-integration P02 | 7 | 1 tasks | 3 files |
 | Phase 38-autocomplete-ui-chatinput-integration P03 | 3 | 2 tasks | 2 files |
 | Phase 39-message-rendering-ux-polish P03 | 2 | 1 tasks | 1 files |
+| Phase 39-message-rendering-ux-polish P01 | 3 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -83,6 +84,9 @@ Progress: [███████████████████████
 - [Phase 38-autocomplete-ui-chatinput-integration]: [Phase 38-03]: mentions.length > 0 ? mentions : undefined 패턴: 빈 배열 대신 undefined 전달로 POST body 간결화 및 하위 호환
 - [Phase 39-03]: suggestionsPlacement='auto' 선택: 뷰포트 상단 공간 부족 시 드롭다운 아래쪽 자동 전환
 - [Phase 39-03]: 빈 결과 메시지 스킵: react-mentions-ts 라이브러리 기본 동작 활용, 향후 필요 시 placeholder 아이템 반환 패턴 적용
+- [Phase 39-01]: accessDenied 칩은 Popover 마운트 없이 비활성 span만 렌더링 (UX 명확성)
+- [Phase 39-01]: Preview API team RBAC: DIRECTOR가 아니면 id === session.teamId 직접 비교로 간결화
+- [Phase 39-01]: Teacher preview sublabel: 역할명만 표시 (N+1 방지 — 담당 학생 수 조회 제외)
 
 ### Pending Todos
 
@@ -100,6 +104,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 39-03-PLAN.md
-Resume file: .planning/phases/39-message-rendering-ux-polish/39-03-SUMMARY.md
-Next action: Phase 39 Plans 01, 02 실행 (Message Rendering & UX Polish 나머지)
+Stopped at: Completed 39-01-PLAN.md
+Resume file: .planning/phases/39-message-rendering-ux-polish/39-01-SUMMARY.md
+Next action: Execute Phase 39-02 (ChatMessageItem mentionedEntities 통합)

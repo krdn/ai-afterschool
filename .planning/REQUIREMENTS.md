@@ -28,7 +28,7 @@ Requirements for v4.0 AI Smart Chat milestone. Each maps to roadmap phases.
 
 - [x] **UI-01**: 드롭다운 자동완성이 타입별 그룹으로 표시된다 (학생/선생님/학급)
 - [x] **UI-02**: 채팅 메시지에서 멘션이 시각적 칩으로 렌더링된다
-- [ ] **UI-03**: 멘션 칩 클릭 시 엔티티 프리뷰 카드가 팝오버로 표시된다
+- [x] **UI-03**: 멘션 칩 클릭 시 엔티티 프리뷰 카드가 팝오버로 표시된다
 - [ ] **UI-04**: 대시보드 LLMQueryBar에서도 @멘션을 사용할 수 있다
 
 ## Future Requirements
@@ -72,7 +72,7 @@ Requirements for v4.0 AI Smart Chat milestone. Each maps to roadmap phases.
 | CTX-05 | Phase 36 | Complete |
 | UI-01 | Phase 38 | Complete |
 | UI-02 | Phase 39 | Complete |
-| UI-03 | Phase 39 | Pending |
+| UI-03 | Phase 39 | Complete |
 | UI-04 | Phase 40 | Pending |
 
 **Coverage:**
