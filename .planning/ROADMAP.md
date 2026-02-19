@@ -412,10 +412,10 @@ Plans:
   2. 2자 미만 쿼리는 빈 결과를 반환하고 불필요한 DB 조회가 발생하지 않는다
   3. 검색 결과에 학생(grade, school), 선생님(role), 학급(team name) 구분용 서브레이블이 포함된다
   4. 팀 외부 엔티티는 RBAC에 의해 검색 결과에서 제외된다
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 37-01: /api/chat/mentions/search GET route (AbortController 취소 지원, Promise.all 병렬 쿼리, RBAC)
+- [ ] 37-01: mention-types.ts 검색 타입 추가 + GET /api/chat/mentions/search 라우트 (RBAC, Promise.all 병렬 쿼리, 타입별 서브레이블)
 
 #### Phase 38: Autocomplete UI & ChatInput Integration
 **Goal**: 교사가 채팅 입력창에 @를 입력하면 자동완성 드롭다운이 열리고, 엔티티를 선택하여 멘션을 삽입할 수 있으며, 한국어 IME 조합 중에도 정상 작동한다
