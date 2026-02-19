@@ -86,4 +86,4 @@ USER nextjs
 
 EXPOSE 3000
 
-CMD ["node", "node_modules/.bin/next", "start"]
+CMD ["pnpm", "exec", "next", "start"]
