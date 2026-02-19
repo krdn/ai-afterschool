@@ -31,6 +31,7 @@ const FEATURE_LABELS: Record<FeatureType, string> = {
   name_analysis: '이름풀이 해석',
   zodiac_analysis: '별자리 운세 해석',
   compatibility_analysis: '궁합 분석',
+  general_chat: '일반 채팅',
 };
 
 const VISION_FEATURES: FeatureType[] = ['face_analysis', 'palm_analysis'];

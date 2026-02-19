@@ -7,6 +7,7 @@ import { DevUserSwitcher } from "@/components/dev/dev-user-switcher"
 import { IssueReportButton } from "@/components/issues/issue-report-button"
 import { LocaleSwitcher } from "@/components/layout/locale-switcher"
 import { NotificationProvider } from "@/components/common/notification-provider"
+import { LLMQueryBar } from "@/components/layout/llm-query-bar"
 
 const isDev = process.env.NODE_ENV === "development"
 
@@ -39,6 +40,12 @@ export default async function DashboardLayout({
                   className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
                 >
                   {t("counseling")}
+                </Link>
+                <Link
+                  href="/chat"
+                  className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  {t("aiChat")}
                 </Link>
                 {(teacher.role === "DIRECTOR" || teacher.role === "TEAM_LEADER") && (
                   <>
@@ -93,6 +100,8 @@ export default async function DashboardLayout({
           </div>
         </div>
       </header>
+
+      <LLMQueryBar />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {children}

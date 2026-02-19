@@ -32,6 +32,8 @@ export interface GenerateOptions {
   system?: string;
   /** 특정 제공자를 지정하여 호출 (지정하지 않으면 FeatureResolver 자동 라우팅) */
   providerId?: string;
+  /** 멀티턴 대화용 메시지 배열 (지정 시 prompt 대신 사용) */
+  messages?: Array<{ role: 'user' | 'assistant' | 'system'; content: string }>;
 }
 
 export interface StreamResult {
@@ -175,9 +177,27 @@ export async function generateWithProvider(options: GenerateOptions): Promise<im
  * 텍스트를 스트리밍합니다.
  */
 export async function streamWithProvider(options: GenerateOptions): Promise<StreamResult> {
-  const { prompt, featureType, teacherId, maxOutputTokens, temperature, system } = options;
+  const { prompt, featureType, teacherId, maxOutputTokens, temperature, system, providerId, messages } = options;
 
-  const providerOrder = await getProviderOrder(featureType);
+  let providerOrder: Array<{ provider: Provider; model: Model }>;
+
+  if (providerId) {
+    // 특정 제공자가 지정된 경우: 해당 제공자의 기본 모델 사용
+    const provider = await db.provider.findUnique({
+      where: { id: providerId },
+      include: { models: true },
+    });
+    if (!provider || !provider.isEnabled) {
+      throw new Error(`Provider "${providerId}" not found or disabled`);
+    }
+    const defaultModel = provider.models.find((m: Model) => m.isDefault) || provider.models[0];
+    if (!defaultModel) {
+      throw new Error(`Provider "${provider.name}" has no models configured`);
+    }
+    providerOrder = [{ provider: provider as unknown as Provider, model: defaultModel as unknown as Model }];
+  } else {
+    providerOrder = await getProviderOrder(featureType);
+  }
 
   let lastError: Error | null = null;
 
@@ -192,27 +212,40 @@ export async function streamWithProvider(options: GenerateOptions): Promise<Stre
 
       const languageModel = createLanguageModel(provider, model);
 
-      const result = streamText({
-        model: languageModel,
-        prompt,
-        system,
-        maxOutputTokens,
-        temperature,
-        maxRetries: 0,
-        onFinish: async ({ usage }) => {
-          const responseTimeMs = Date.now() - startTime;
-          await trackUsage({
-            provider: provider.providerType as import('./providers/types').ProviderName,
-            modelId: model.modelId,
-            featureType: featureType as import('./providers/types').FeatureType,
-            teacherId,
-            inputTokens: usage?.inputTokens || 0,
-            outputTokens: usage?.outputTokens || 0,
-            responseTimeMs,
-            success: true,
+      const onFinishCallback = async ({ usage }: { usage?: { inputTokens?: number; outputTokens?: number } }) => {
+        const responseTimeMs = Date.now() - startTime;
+        await trackUsage({
+          provider: provider.providerType as import('./providers/types').ProviderName,
+          modelId: model.modelId,
+          featureType: featureType as import('./providers/types').FeatureType,
+          teacherId,
+          inputTokens: usage?.inputTokens || 0,
+          outputTokens: usage?.outputTokens || 0,
+          responseTimeMs,
+          success: true,
+        });
+      };
+
+      // 멀티턴 메시지가 있으면 messages 사용, 없으면 단일 prompt 사용
+      const result = messages && messages.length > 0
+        ? streamText({
+            model: languageModel,
+            messages,
+            system,
+            maxOutputTokens,
+            temperature,
+            maxRetries: 0,
+            onFinish: onFinishCallback,
+          })
+        : streamText({
+            model: languageModel,
+            prompt,
+            system,
+            maxOutputTokens,
+            temperature,
+            maxRetries: 0,
+            onFinish: onFinishCallback,
           });
-        },
-      });
 
       return {
         stream: result,

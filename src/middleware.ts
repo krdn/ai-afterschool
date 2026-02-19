@@ -6,7 +6,7 @@ import { routing } from '@/i18n/routing'
 
 const intlMiddleware = createIntlMiddleware(routing)
 
-const protectedRoutes = ['/students', '/dashboard', '/teachers', '/matching', '/analytics', '/counseling', '/teams', '/satisfaction', '/issues']
+const protectedRoutes = ['/students', '/dashboard', '/teachers', '/matching', '/analytics', '/counseling', '/teams', '/satisfaction', '/issues', '/chat']
 const authRoutes = ['/auth/login', '/auth/register', '/auth/reset-password']
 const adminRoutes = ['/admin']
 

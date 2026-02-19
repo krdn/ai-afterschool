@@ -12,7 +12,8 @@ export type FeatureType =
   | 'vark_analysis'       // VARK 학습유형 해석
   | 'name_analysis'       // 이름풀이 해석
   | 'zodiac_analysis'       // 별자리 운세 해석
-  | 'compatibility_analysis'; // 궁합 분석
+  | 'compatibility_analysis' // 궁합 분석
+  | 'general_chat';          // 일반 채팅
 
 export interface ProviderConfig {
   name: ProviderName;
