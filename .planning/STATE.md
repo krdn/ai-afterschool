@@ -11,9 +11,9 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 
 Milestone: v4.0 AI Smart Chat
 Phase: 39 of 40 (Message Rendering & UX Polish)
-Plan: 01 complete (Phase 39 Plan 01 DONE — parseMentionChips + MentionTag + Preview API 구축)
+Plan: 02 complete (Phase 39 Plan 02 DONE — mentionedEntities 파이프라인 연결 + ChatMessageItem 칩 렌더링)
 Status: In Progress
-Last activity: 2026-02-19 — Executed 39-01-PLAN.md
+Last activity: 2026-02-19 — Executed 39-02-PLAN.md
 
 Progress: [████████████████████████████████████████████░░] 91% (183/200+ plans)
 
@@ -21,7 +21,7 @@ Progress: [███████████████████████
 - [x] Phase 36: Server-side Foundation (MENT-03, MENT-04, CTX-01~05)
 - [x] Phase 37: Autocomplete Search API (MENT-06)
 - [ ] Phase 38: Autocomplete UI & ChatInput Integration (MENT-01, MENT-02, MENT-05, UI-01)
-- [ ] Phase 39: Message Rendering & UX Polish (UI-02, UI-03)
+- [x] Phase 39: Message Rendering & UX Polish (UI-02, UI-03)
 - [ ] Phase 40: LLMQueryBar Extension (UI-04)
 
 ## Performance Metrics
@@ -51,6 +51,7 @@ Progress: [███████████████████████
 | Phase 38-autocomplete-ui-chatinput-integration P03 | 3 | 2 tasks | 2 files |
 | Phase 39-message-rendering-ux-polish P03 | 2 | 1 tasks | 1 files |
 | Phase 39-message-rendering-ux-polish P01 | 3 | 2 tasks | 3 files |
+| Phase 39-message-rendering-ux-polish P02 | 7 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -87,6 +88,8 @@ Progress: [███████████████████████
 - [Phase 39-01]: accessDenied 칩은 Popover 마운트 없이 비활성 span만 렌더링 (UX 명확성)
 - [Phase 39-01]: Preview API team RBAC: DIRECTOR가 아니면 id === session.teamId 직접 비교로 간결화
 - [Phase 39-01]: Teacher preview sublabel: 역할명만 표시 (N+1 방지 — 담당 학생 수 조회 제외)
+- [Phase 39-message-rendering-ux-polish]: handleSend 4-param 패턴: mentionedEntities를 3번째, providerId를 4번째로 배치 (낙관적 렌더링 우선)
+- [Phase 39-message-rendering-ux-polish]: renderUserContent 외부 순수 함수 패턴: 컴포넌트 body 오염 방지, 구형 메시지(null entities) plain text 폴백
 
 ### Pending Todos
 
@@ -104,6 +107,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 39-01-PLAN.md
-Resume file: .planning/phases/39-message-rendering-ux-polish/39-01-SUMMARY.md
-Next action: Execute Phase 39-02 (ChatMessageItem mentionedEntities 통합)
+Stopped at: Completed 39-02-PLAN.md
+Resume file: .planning/phases/39-message-rendering-ux-polish/39-02-SUMMARY.md
+Next action: Execute Phase 40 (LLMQueryBar Extension)
