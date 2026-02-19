@@ -1,5 +1,57 @@
 # Project Milestones: AI AfterSchool
 
+## v4.0 AI Smart Chat (Shipped: 2026-02-19)
+
+**Delivered:** AI 채팅에서 @멘션으로 시스템 데이터(학생, 선생님, 학급, 분석 결과 등)를 참조하여 맞춤형 AI 응답을 제공하는 컨텍스트 인식 채팅 시스템. RBAC 적용 엔티티 데이터 조회, XML 경계 마킹 Prompt Injection 방어, 동적 시스템 프롬프트 주입, react-mentions-ts 기반 자동완성 UI, 한국어 IME 호환, 멘션 칩 렌더링 및 엔티티 프리뷰 팝오버, LLMQueryBar @멘션 확장.
+
+**Phases completed:** 36-40 (12 plans total)
+
+**Key accomplishments:**
+
+- @멘션 서버 파이프라인 구축 (RBAC 포함 엔티티 데이터 조회, XML 경계 마킹 Prompt Injection 방어, 동적 시스템 프롬프트 주입)
+- 자동완성 검색 API (학생/선생님/학급 3타입 병렬 검색, RBAC silent filter, 타입별 그룹 응답)
+- ChatInput MentionsInput 통합 (react-mentions-ts 기반 자동완성 UI, 한국어 IME 호환, 키보드 탐색)
+- 멘션 칩 렌더링 & 프리뷰 (전송된 메시지에서 @멘션을 시각적 칩으로 표시, 클릭 시 엔티티 프리뷰 팝오버)
+- LLMQueryBar @멘션 확장 (대시보드 전역에서 @멘션 사용 가능, URL 직렬화로 채팅 페이지 연동)
+
+**Stats:**
+
+- 62 files created/modified
+- ~9,661 lines added
+- 5 phases, 12 plans
+- 2 days from milestone start to ship (2026-02-18 → 2026-02-19)
+- Requirements: 15/15 (100%)
+
+**Git range:** `feat(36-01)` → `docs(phase-40)`
+
+**What's next:** v4.1 will focus on session context persistence and advanced mention features.
+
+---
+
+## v4.0 Universal LLM Hub (Shipped: 2026-02-12)
+
+**Delivered:** 기존 정적인 LLM 설정을 범용 Universal LLM Hub로 전환하여 시중의 모든 LLM(상용/로컬)을 동적으로 등록하고, 기능별로 유연하게 연결하는 미래지향적 시스템 구축.
+
+**Phases completed:** 35 (9 plans total)
+
+**Key accomplishments:**
+
+- Provider Template System으로 3클릭 LLM 등록
+- Tag 기반 + 직접 지정 Feature Mapping
+- Legacy generateWithProvider() 하위호환 전환
+- Help System (인라인 도움말 + 종합 헬프 센터 + LLM 추천 위자드)
+
+**Stats:**
+
+- Phase 35, 9 plans
+- Shipped: 2026-02-12
+
+**Git range:** `feat(35-01)` → `docs(phase-35)`
+
+**What's next:** v4.0 AI Smart Chat — @멘션 컨텍스트 인식 채팅 시스템.
+
+---
+
 ## v2.1.1 E2E Test Compliance (Shipped: 2026-02-07)
 
 **Delivered:** E2E 테스트 인프라 구축과 테스트 호환성 확보로 안정적인 테스트 기반 마련. data-testid 속성 195개 추가, 누락 라우트 7개 생성, UI 보강(서브탭 분리, 에러 처리, 검색/필터), RBAC 강화(AccessDeniedPage, NotFoundPage, 팀장 Admin 접근), 감사 로그 인프라 구축, E2E 테스트 기준선 확립(20.7% 통과율, TEST-MAINTENANCE.md 가이드).
@@ -163,3 +215,13 @@
 **Git range:** `feat(01-01)` → `feat(07-05)`
 
 **What's next:** v1.1 will focus on production deployment, performance optimization, and addressing technical debt (PDF storage cloud migration, fetchReportData refactoring).
+
+## v4.0 AI Smart Chat (Shipped: 2026-02-19)
+
+**Phases completed:** 37 phases, 183 plans, 10 tasks
+
+**Key accomplishments:**
+- (none recorded)
+
+---
+

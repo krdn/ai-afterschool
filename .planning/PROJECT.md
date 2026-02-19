@@ -2,33 +2,21 @@
 
 ## What This Is
 
-학원에서 대학입시를 목표로 학생을 효율적으로 관리하기 위한 AI 기반 학생 관리 시스템. 학원 선생님/관리자가 학생 정보를 등록하고, AI가 다양한 성향 분석(MBTI, 사주, 성명학, 관상/손금)을 제공하며, 이를 바탕으로 맞춤형 학습 전략과 진로 가이드를 제안한다. 상담 시 활용할 수 있는 종합 보고서 출력 기능을 제공한다.
+학원에서 대학입시를 목표로 학생을 효율적으로 관리하기 위한 AI 기반 학생 관리 시스템. 학원 선생님/관리자가 학생 정보를 등록하고, AI가 다양한 성향 분석(MBTI, 사주, 성명학, 관상/손금)을 제공하며, 이를 바탕으로 맞춤형 학습 전략과 진로 가이드를 제안한다. AI 채팅에서 @멘션으로 학생/선생님/학급 데이터를 참조하여 맞춤형 AI 응답을 받을 수 있다.
 
-**현재 상태:** v4.0 AI Smart Chat 진행 중.
+**현재 상태:** v4.0 AI Smart Chat 완료 (SHIPPED 2026-02-19).
 
 ## Core Value
 
 **학생 정보 통합 관리를 기반으로 AI 성향 분석 및 맞춤형 학습/진로 제안 제공** — 학생 데이터가 없으면 분석도 제안도 불가능하다. 학생 정보 관리가 모든 기능의 기반이다.
 
-## Latest Shipped: v2.1.1 E2E Test Compliance (SHIPPED 2026-02-07)
+## Latest Shipped: v4.0 AI Smart Chat (SHIPPED 2026-02-19)
 
-**Delivered:** E2E 테스트 인프라 구축과 테스트 호환성 확보로 안정적인 테스트 기반 마련 (34/34 requirements)
-
-## Current Milestone: v4.0 AI Smart Chat
-
-**Goal:** AI 채팅에서 @멘션으로 시스템 데이터(학생, 선생님, 학급, 분석 결과 등)를 참조하여 맞춤형 AI 응답을 제공하는 컨텍스트 인식 채팅 시스템
-
-**Target features:**
-- @멘션 시스템 (학생, 선생님, 학급 등 엔티티 자동완성 및 데이터 로딩)
-- 시스템 데이터 컨텍스트 주입 (사주, MBTI, VARK, 상담기록, 궁합 등을 시스템 프롬프트에 동적 포함)
-- 멘션 기반 동적 시스템 프롬프트 생성 (엔티티별 데이터 수집 및 프롬프트 조합)
-- 채팅 내 엔티티 프리뷰 (멘션된 학생/선생님의 요약 정보 인라인 표시)
-- 다중 엔티티 컨텍스트 (한 메시지에서 여러 학생/선생님 동시 참조)
-- 채팅 세션별 컨텍스트 기억 (세션 내에서 이전에 멘션된 데이터 유지)
+**Delivered:** AI 채팅에서 @멘션으로 시스템 데이터(학생, 선생님, 학급)를 참조하여 맞춤형 AI 응답을 제공하는 컨텍스트 인식 채팅 시스템 (15/15 requirements)
 
 ## Current State
 
-**Version:** v2.1.1 E2E Test Compliance (SHIPPED 2026-02-07)
+**Version:** v4.0 AI Smart Chat (SHIPPED 2026-02-19)
 
 **Delivered Features:**
 - **v1.0 MVP 모든 기능 포함:**
@@ -90,9 +78,9 @@
 - Pino (로깅)
 
 **Codebase Stats:**
-- ~40,000 lines of TypeScript/JSX
-- 128 plans across 22 phases (v1.0: 36, v1.1: 22, v2.0: 40, v2.1: 30)
-- Integration health score: 92%
+- ~50,000 lines of TypeScript/JSX
+- 195+ plans across 40 phases (v1.0: 36, v1.1: 22, v2.0: 40, v2.1: 30, v2.1.1: 22, v3.0: 7, v4.0 LLM Hub: 9, v4.0 Chat: 12)
+- Requirements coverage: 15/15 (v4.0)
 
 **v2.1 Parent Counseling Management 기능:**
   - 학부모 정보 관리 (복수 학부모, 주 연락처)
@@ -102,6 +90,22 @@
   - 상담 통계 대시보드
   - 후속 조치 관리
   - AI 상담 지원 (성향 표시, 궁합 점수, AI 요약)
+
+**v4.0 Universal LLM Hub 기능:**
+  - 범용 LLM Provider 등록 (템플릿 기반 3클릭 등록)
+  - Tag 기반 + 직접 지정 Feature Mapping
+  - LLM 추천 위자드 & Help System
+
+**v4.0 AI Smart Chat 기능:**
+  - @멘션 자동완성 시스템 (학생, 선생님, 학급 검색 및 선택)
+  - RBAC 포함 엔티티 데이터 조회 및 토큰 예산 관리
+  - 동적 시스템 프롬프트 생성 (XML 경계 마킹 Prompt Injection 방어)
+  - 멘션 칩 렌더링 & 엔티티 프리뷰 팝오버
+  - 대시보드 LLMQueryBar @멘션 확장
+
+**Tech Stack (v4.0 추가):**
+- react-mentions-ts (멘션 자동완성)
+- Radix UI Popover (엔티티 프리뷰)
 
 **Known Issues (Minor Technical Debt):**
 - 2개 `<img>` 태그가 Next.js Image를 사용하지 않음 (face-analysis-panel.tsx, student-image-tabs.tsx)
@@ -193,15 +197,17 @@
 - [x] RBAC 및 에러 처리 강화 (AccessDeniedPage, NotFoundPage, 토큰 에러) — v2.1.1
 - [x] E2E 테스트 기반 확립 (data-testid 195개, TEST-MAINTENANCE.md) — v2.1.1
 
+**v4.0 AI Smart Chat:**
+- ✓ @멘션 자동완성 시스템 (학생, 선생님, 학급 검색 및 선택) — v4.0
+- ✓ 엔티티별 데이터 수집기 (학생/선생님의 분석 결과, 상담기록, 궁합 등 통합 조회) — v4.0
+- ✓ 동적 시스템 프롬프트 생성기 (멘션된 엔티티 데이터를 AI 프롬프트에 주입) — v4.0
+- ✓ 채팅 내 엔티티 프리뷰 UI (멘션된 엔티티의 요약 카드 인라인 표시) — v4.0
+- ✓ 다중 엔티티 컨텍스트 지원 (한 메시지에서 여러 엔티티 동시 참조) — v4.0
+- ✓ 대시보드 LLMQueryBar @멘션 확장 — v4.0
+
 ### Active
 
-**v4.0 AI Smart Chat:**
-- [ ] @멘션 자동완성 시스템 (학생, 선생님, 학급 검색 및 선택)
-- [ ] 엔티티별 데이터 수집기 (학생/선생님의 분석 결과, 상담기록, 궁합 등 통합 조회)
-- [ ] 동적 시스템 프롬프트 생성기 (멘션된 엔티티 데이터를 AI 프롬프트에 주입)
-- [ ] 채팅 내 엔티티 프리뷰 UI (멘션된 엔티티의 요약 카드 인라인 표시)
-- [ ] 다중 엔티티 컨텍스트 지원 (한 메시지에서 여러 엔티티 동시 참조)
-- [ ] 세션 컨텍스트 유지 (채팅 세션 내 멘션 히스토리 관리)
+(다음 마일스톤에서 정의)
 
 ### Out of Scope
 
@@ -214,6 +220,9 @@
 - 이메일 자동 발송 — v2.1은 선생님이 직접 연락
 - 실시간 채팅 — 핵심 가치와 무관, 복잡도 증가
 - LMS/동영상 강의 — 기존 솔루션 활용 권장
+- 세션 컨텍스트 자동 유지 — v4.1로 연기 (현재는 메시지 단위 컨텍스트)
+- 멘션 데이터 유형 선택 — v4.1로 연기 (현재는 전체 데이터 자동 주입)
+- Tiptap/Slate 리치 텍스트 에디터 — 150KB+ 오버헤드, textarea + 오버레이로 충분
 
 ## Context
 
@@ -324,5 +333,17 @@
 | auto_generated 테스트 제외 | 문제 많은 자동 생성 테스트를 testIgnore로 제외 | ✓ 성공 — 메인 테스트에 집중, 실행 시간 단축 |
 | 통합 검증 결과 수락 | 34/34 요구사항 충족, E2E 흐름 100% 연결 | ✓ 성공 — 기능 코드 완료, 테스트 부채는 차기 마일스톤에서 해결 |
 
+**v4.0 결정들:**
+| Decision | Rationale | Outcome |
+|----------|-----------|---------|
+| Parse on Submit (textarea + 마크업) | contenteditable 불필요, IME 호환성 확보 | ✓ 성공 — react-mentions-ts로 간결 구현 |
+| System Prompt Injection | messages[] 히스토리 오염 방지 | ✓ 성공 — 동적 system 파라미터 주입 |
+| Server-side Resolution | 클라이언트는 [{type, id}] 튜플만 전송, RBAC 서버 강제 | ✓ 성공 — 보안 강화 |
+| XML 경계 마킹 | Prompt Injection 방어 | ✓ 성공 — <student_data> 태그 + system 상단 지시문 |
+| react-mentions-ts | 단일 패키지, peer deps 기존 설치됨 | ✓ 성공 — Tailwind v4 통합 완료 |
+| GET Route for Autocomplete | AbortController 취소 지원 | ✓ 성공 — 빠른 응답, 디바운스 200ms |
+| RBAC silent filter (검색) | 탐색 단계에서 접근 거부 메시지 불필요 | ✓ 성공 — UX 깔끔 |
+| suggestionsPlacement auto/below | 컴포넌트 위치에 따라 드롭다운 방향 결정 | ✓ 성공 — ChatInput(auto), LLMQueryBar(below) |
+
 ---
-*Last updated: 2026-02-18 after v4.0 AI Smart Chat milestone started*
+*Last updated: 2026-02-19 after v4.0 AI Smart Chat milestone completed*
