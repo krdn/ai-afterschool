@@ -25,35 +25,10 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY patches/ ./patches/
 RUN pnpm install --frozen-lockfile
 
-# Copy source and build
+# Copy source, generate Prisma client, and build
 COPY . .
-RUN pnpm exec prisma generate && \
-    mkdir -p /tmp/prisma-client/.prisma/client && \
-    PNPM_PRISMA=$(find node_modules/.pnpm -path '*/@prisma/client/index.js' -exec dirname {} \; 2>/dev/null | head -1) && \
-    echo "Prisma client found at: ${PNPM_PRISMA}" && \
-    if [ -d "node_modules/.prisma/client" ]; then \
-      echo "Copying from node_modules/.prisma/client" && \
-      cp -rL node_modules/.prisma/client/ /tmp/prisma-client/.prisma/client/; \
-    elif [ -n "$PNPM_PRISMA" ] && [ -d "$PNPM_PRISMA" ]; then \
-      echo "Copying from pnpm store: $PNPM_PRISMA" && \
-      cp -rL "$PNPM_PRISMA/" /tmp/prisma-client/.prisma/client/; \
-      PNPM_DOT_PRISMA=$(dirname "$PNPM_PRISMA")/../.prisma/client && \
-      if [ -d "$PNPM_DOT_PRISMA" ]; then \
-        echo "Also copying .prisma from pnpm store" && \
-        cp -rL "$PNPM_DOT_PRISMA/" /tmp/prisma-client/.prisma/client/; \
-      fi; \
-    else \
-      echo "ERROR: Prisma client not found anywhere" && exit 1; \
-    fi && \
-    ls -la /tmp/prisma-client/.prisma/client/ && \
-    echo "Prisma client collected successfully"
+RUN pnpm exec prisma generate
 RUN pnpm run build
-
-# Production dependencies stage
-FROM base AS prod-deps
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY patches/ ./patches/
-RUN pnpm install --frozen-lockfile --prod
 
 # Production stage - Final runtime image
 FROM base AS production
@@ -63,23 +38,23 @@ ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-# Copy production dependencies
-COPY --from=prod-deps /app/node_modules ./node_modules
+# Copy package files and install production dependencies
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY patches/ ./patches/
+RUN pnpm install --frozen-lockfile --prod
 
-# Copy Prisma client (dereferenced actual files, not symlinks)
-COPY --from=builder /tmp/prisma-client/.prisma ./node_modules/.prisma
+# Copy Prisma schema and generate client in production context
+# This ensures .prisma/client is in the correct pnpm-resolved location
+COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+COPY prisma.config.ts ./
+RUN pnpm exec prisma generate
 
 # Copy built application
 COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
-COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
 # Copy seed images for demo data seeding
 COPY --from=builder --chown=nextjs:nodejs /app/docs/images ./docs/images
-
-# Copy remaining necessary files
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml prisma.config.ts ./
-COPY patches/ ./patches/
 
 # Switch to non-root user
 USER nextjs
