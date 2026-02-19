@@ -40,6 +40,8 @@ export function ChatInput({
 }: ChatInputProps) {
   const t = useTranslations("LLMChat")
   const { fetchMentions } = useMention()
+  // NOTE: 빈 결과 시 react-mentions-ts는 드롭다운을 표시하지 않음 (라이브러리 기본 동작)
+  // "검색 결과 없음" 메시지 표시가 필요하면 fetchMentions에서 placeholder 아이템 반환 패턴 적용
   const [mentionMarkup, setMentionMarkup] = useState(initialValue)
   const [activeMentions, setActiveMentions] = useState<Array<{ id: string | number }>>([])
   const [providers, setProviders] = useState<ChatProvider[]>([])
@@ -144,7 +146,7 @@ export function ChatInput({
           onKeyDown={handleKeyDown}
           placeholder={t("placeholder")}
           a11ySuggestionsListLabel="멘션 검색 결과"
-          suggestionsPlacement="above"
+          suggestionsPlacement="auto"
           autoResize
           disabled={isStreaming}
           className="min-h-[44px] max-h-[160px] text-sm flex-1"
