@@ -457,10 +457,10 @@ Plans:
   1. 대시보드 LLMQueryBar에서 @를 입력하면 Phase 38에서 만든 자동완성 드롭다운이 동일하게 동작한다
   2. LLMQueryBar에서 멘션 포함 메시지 전송 시 Phase 36의 서버 파이프라인이 동일하게 처리한다
   3. LLMQueryBar의 기존 동작(멘션 없는 일반 질문)이 하위 호환성을 유지하며 정상 동작한다
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 40-01: LLMQueryBar @멘션 통합 (MentionInput 컴포넌트 재사용, props 인터페이스 확장)
+- [ ] 40-01-PLAN.md — LLMQueryBar MentionsInput 통합 + ChatPage mentions URL 파라미터 수신
 
 ## Progress
 
