@@ -426,14 +426,12 @@ Plans:
   2. 드롭다운이 학생/선생님/학급 그룹 헤더로 구분되어 표시되며 키보드(↑↓ Enter Esc)로 조작할 수 있다
   3. 드롭다운에서 엔티티를 선택하면 입력창에 @이름 멘션이 삽입되고 커서가 올바른 위치에 유지된다
   4. 한국어 IME 조합 중(compositionstart~compositionend)에는 드롭다운이 열리지 않아 오작동이 없다
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 38-01: react-mentions-ts@5.4.7 설치 + Tailwind v4 통합 스파이크 (실패 시 @ariakit/react fallback)
-- [ ] 38-02: use-mention.ts 훅 (자동완성 상태, 디바운스 페치, AbortController, IME 감지)
-- [ ] 38-03: MentionDropdown 컴포넌트 (타입별 그룹, 키보드 네비게이션, 빈 결과 메시지)
-- [ ] 38-04: ChatInput.tsx 수정 (MentionTextarea 통합, onSend(prompt, mentions[], providerId?) 시그니처)
-- [ ] 38-05: useChatStream.ts + ChatPage.tsx 수정 (mentions[] POST body 전달, activeMentions 상태)
+- [ ] 38-01: react-mentions-ts 설치 + Tailwind v4 통합 + useMention 훅 구현
+- [ ] 38-02: ChatInput MentionsInput 통합 (그룹 헤더, 키보드 탐색, 멘션 삽입, onSend 시그니처 확장)
+- [ ] 38-03: useChatStream + ChatPage mentions[] 전달 파이프라인 연결
 
 #### Phase 39: Message Rendering & UX Polish
 **Goal**: 전송된 채팅 메시지에서 @멘션이 시각적 칩으로 렌더링되며, 칩을 클릭하면 엔티티 요약 정보를 팝오버로 확인할 수 있다
