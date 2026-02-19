@@ -1,5 +1,6 @@
-# Base stage - Node.js runtime
+# Base stage - Node.js runtime with pnpm
 FROM node:20-alpine AS base
+RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 
 # Build arguments for environment variables needed at build time
@@ -9,8 +10,9 @@ ARG NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
 
 # Dependencies stage - Install production dependencies
 FROM base AS deps
-COPY package.json package-lock.json ./
-RUN npm ci --only=production
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY patches/ ./patches/
+RUN pnpm install --frozen-lockfile --prod
 
 # Builder stage - Build Next.js application
 FROM base AS builder
@@ -25,11 +27,12 @@ ENV NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=${NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME:-dummy
 ENV CLOUDINARY_API_KEY="dummy"
 ENV CLOUDINARY_API_SECRET="dummy"
 
-COPY package.json package-lock.json ./
-RUN npm ci
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY patches/ ./patches/
+RUN pnpm install --frozen-lockfile
 COPY . .
-RUN npx prisma generate
-RUN npm run build
+RUN pnpm exec prisma generate
+RUN pnpm run build
 
 # Production stage - Final runtime image
 FROM base AS production
@@ -54,7 +57,8 @@ COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/docs/images ./docs/images
 
 # Copy remaining necessary files (including prisma.config.ts for migrate)
-COPY package.json package-lock.json prisma.config.ts ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml prisma.config.ts ./
+COPY patches/ ./patches/
 
 # Switch to non-root user
 USER nextjs
