@@ -1,2 +1,3 @@
+packages: []
 patchedDependencies:
   react-mentions-ts: patches/react-mentions-ts.patch
