@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-02-19)
 
 **Core value:** 학생 정보 통합 관리를 기반으로 AI 성향 분석 및 맞춤형 학습/진로 제안 제공
-**Current focus:** v4.0 AI Smart Chat — Phase 36: Server-side Foundation
+**Current focus:** v4.0 AI Smart Chat — Phase 37: Autocomplete Search API
 
 ## Current Position
 
 Milestone: v4.0 AI Smart Chat
-Phase: 36 of 40 (Server-side Foundation)
-Plan: 04 complete (Phase 36 DONE)
+Phase: 37 of 40 (Autocomplete Search API)
+Plan: 01 complete (Phase 37 Plan 01 DONE)
 Status: In Progress
-Last activity: 2026-02-18 — Executed 36-04-PLAN.md
+Last activity: 2026-02-19 — Executed 37-01-PLAN.md
 
 Progress: [████████████████████████████████████████████░░] 91% (183/200+ plans)
 
 **v4.0 AI Smart Chat** — ROADMAP COMPLETE, READY TO EXECUTE
 - [x] Phase 36: Server-side Foundation (MENT-03, MENT-04, CTX-01~05)
-- [ ] Phase 37: Autocomplete Search API (MENT-06)
+- [x] Phase 37: Autocomplete Search API (MENT-06)
 - [ ] Phase 38: Autocomplete UI & ChatInput Integration (MENT-01, MENT-02, MENT-05, UI-01)
 - [ ] Phase 39: Message Rendering & UX Polish (UI-02, UI-03)
 - [ ] Phase 40: LLMQueryBar Extension (UI-04)
@@ -69,6 +69,9 @@ Progress: [███████████████████████
 - [Phase 36-04]: mentions 없으면 dynamicSystem = SYSTEM_PROMPT: 하위 호환 보장 — 기존 채팅 동작 변경 없음
 - [Phase 36-04]: mentionedEntities undefined 시 Prisma 필드 생략: 기존 메시지 스키마 완전 호환
 - [Phase 36-04]: 멘션 처리 위치(세션 이후+DB저장 이전): chatSessionId 확정 후 + mentionedEntitiesData 저장 전 정확한 삽입점
+- [Phase 37-01]: 타입별 그룹 응답 구조({ students, teachers, teams }): Phase 38 드롭다운 섹션 렌더링에 직접 매핑
+- [Phase 37-01]: RBAC silent filter: 검색 단계는 탐색이므로 접근 불가 메시지 없이 조용히 제외
+- [Phase 37-01]: buildXxxWhere null 반환 패턴: teamId null인 비 DIRECTOR의 Prisma null 오류 방지
 
 ### Pending Todos
 
@@ -86,6 +89,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Phase 37 context gathered
-Resume file: .planning/phases/37-autocomplete-search-api/37-CONTEXT.md
-Next action: /gsd:plan-phase 37
+Stopped at: Completed 37-01-PLAN.md (Phase 37 Plan 01 DONE)
+Resume file: .planning/phases/37-autocomplete-search-api/37-01-SUMMARY.md
+Next action: Phase 38 Autocomplete UI & ChatInput Integration
