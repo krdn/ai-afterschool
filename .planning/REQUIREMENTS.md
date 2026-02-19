@@ -10,7 +10,7 @@ Requirements for v4.0 AI Smart Chat milestone. Each maps to roadmap phases.
 ### @멘션 인프라 (Mention Infrastructure)
 
 - [x] **MENT-01**: 교사가 채팅 입력창에서 @를 입력하면 학생/선생님/학급 검색 드롭다운이 표시된다
-- [ ] **MENT-02**: 교사가 드롭다운에서 엔티티를 선택하면 채팅 입력에 멘션이 삽입된다
+- [x] **MENT-02**: 교사가 드롭다운에서 엔티티를 선택하면 채팅 입력에 멘션이 삽입된다
 - [x] **MENT-03**: 시스템이 제출된 메시지에서 @멘션을 파싱하여 엔티티 ID/타입 목록을 추출한다
 - [x] **MENT-04**: 시스템이 멘션된 엔티티의 데이터를 DB에서 RBAC 적용하여 조회한다
 - [x] **MENT-05**: 한국어 IME 조합 중에도 자동완성이 정상 작동한다
@@ -26,7 +26,7 @@ Requirements for v4.0 AI Smart Chat milestone. Each maps to roadmap phases.
 
 ### UI/UX (User Experience)
 
-- [ ] **UI-01**: 드롭다운 자동완성이 타입별 그룹으로 표시된다 (학생/선생님/학급)
+- [x] **UI-01**: 드롭다운 자동완성이 타입별 그룹으로 표시된다 (학생/선생님/학급)
 - [ ] **UI-02**: 채팅 메시지에서 멘션이 시각적 칩으로 렌더링된다
 - [ ] **UI-03**: 멘션 칩 클릭 시 엔티티 프리뷰 카드가 팝오버로 표시된다
 - [ ] **UI-04**: 대시보드 LLMQueryBar에서도 @멘션을 사용할 수 있다
@@ -60,7 +60,7 @@ Requirements for v4.0 AI Smart Chat milestone. Each maps to roadmap phases.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | MENT-01 | Phase 38 | Complete |
-| MENT-02 | Phase 38 | Pending |
+| MENT-02 | Phase 38 | Complete |
 | MENT-03 | Phase 36 | Complete |
 | MENT-04 | Phase 36 | Complete |
 | MENT-05 | Phase 38 | Complete |
@@ -70,7 +70,7 @@ Requirements for v4.0 AI Smart Chat milestone. Each maps to roadmap phases.
 | CTX-03 | Phase 36 | Complete |
 | CTX-04 | Phase 36 | Complete |
 | CTX-05 | Phase 36 | Complete |
-| UI-01 | Phase 38 | Pending |
+| UI-01 | Phase 38 | Complete |
 | UI-02 | Phase 39 | Pending |
 | UI-03 | Phase 39 | Pending |
 | UI-04 | Phase 40 | Pending |

@@ -11,9 +11,9 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 
 Milestone: v4.0 AI Smart Chat
 Phase: 38 of 40 (Autocomplete UI & ChatInput Integration)
-Plan: 01 complete (Phase 38 Plan 01 DONE — react-mentions-ts 설치 + useMention 훅)
+Plan: 02 complete (Phase 38 Plan 02 DONE — ChatInput MentionsInput 통합 + 그룹 헤더 + onSend 확장)
 Status: In Progress
-Last activity: 2026-02-19 — Executed 38-01-PLAN.md
+Last activity: 2026-02-19 — Executed 38-02-PLAN.md
 
 Progress: [████████████████████████████████████████████░░] 91% (183/200+ plans)
 
@@ -47,6 +47,7 @@ Progress: [███████████████████████
 | Phase 36-server-side-foundation P03 | 2 | 1 task | 1 file |
 | Phase 36-server-side-foundation P04 | 1 | 1 task | 1 file |
 | Phase 38-autocomplete-ui-chatinput-integration P01 | 3 | 2 tasks | 3 files |
+| Phase 38-autocomplete-ui-chatinput-integration P02 | 7 | 1 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -75,6 +76,8 @@ Progress: [███████████████████████
 - [Phase 37-01]: buildXxxWhere null 반환 패턴: teamId null인 비 DIRECTOR의 Prisma null 오류 방지
 - [Phase 38-01]: useMention data prop을 함수 형태로 전달하여 react-mentions-ts 이중 필터링 방지
 - [Phase 38-01]: 200ms 디바운스: setTimeout + stale 쿼리 ref 패턴 (useDebounce 라이브러리 미사용)
+- [Phase 38-autocomplete-ui-chatinput-integration]: [Phase 38-02]: prevTypeRef 패턴으로 renderSuggestion 내 그룹 헤더 삽입: 배열에 헤더 아이템 추가 방식 대신 ref로 타입 전환 감지
+- [Phase 38-autocomplete-ui-chatinput-integration]: [Phase 38-02]: @source 지시문으로 react-mentions-ts 스타일 통합: exports 미등록 CSS를 @source로 직접 Tailwind 스캔
 
 ### Pending Todos
 
@@ -92,6 +95,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 38-01-PLAN.md
-Resume file: .planning/phases/38-autocomplete-ui-chatinput-integration/38-01-SUMMARY.md
-Next action: Execute 38-02-PLAN.md
+Stopped at: Completed 38-02-PLAN.md
+Resume file: .planning/phases/38-autocomplete-ui-chatinput-integration/38-02-SUMMARY.md
+Next action: Execute remaining Phase 38 plans or move to Phase 39
