@@ -44,7 +44,7 @@
     "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-slot": "^1.2.4",
     "@react-pdf/renderer": "^4.3.2",
-    "@sentry/nextjs": "^10.38.0",
+    "@sentry/nextjs": "^10.39.0",
     "@swc/helpers": "^0.5.18",
     "@tailwindcss/typography": "^0.5.19",
     "@tanstack/react-table": "^8.21.3",
